@@ -1,0 +1,19 @@
+{
+  "name": "allejo/stakx",
+  "description": "Yet another static website generator—this one's written in PHP",
+  "minimum-stability": "dev",
+  "license": "LGPL",
+  "authors": [
+    {
+      "name": "Vladimir Jimenez",
+      "email": "allejo@me.come"
+    }
+  ],
+  "require": {
+    "twig/twig": "v1.24.0",
+    "symfony/yaml": "v3.0.3",
+    "erusev/parsedown": "1.6.0",
+    "phpunit/phpunit": "4.8.23",
+    "ulrichsg/getopt-php": "2.3.0"
+  }
+}
