@@ -1,0 +1,15 @@
+---
+permalink: blog/
+---
+
+{% extends "base.html.twig" %}
+
+{% block body %}
+    {% for post in site.posts %}
+        <h1>{{ post.title }}</h1>
+
+        <section>
+            {{ post.content }}
+        </section>
+    {% endfor %}
+{% endblock %}

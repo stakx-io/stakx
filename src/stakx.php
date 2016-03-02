@@ -1,12 +1,14 @@
 <?php
 
-use Ulrichsg\Getopt\Getopt;
-use Ulrichsg\Getopt\Option;
+namespace allejo\stakx;
+
+use allejo\stakx\Core\Cli;
+use allejo\stakx\Core\Configuration;
 
 require("../vendor/autoload.php");
 
-$getopt = new Getopt(
-    new Option('v', 'verbose', Getopt::OPTIONAL_ARGUMENT)
-);
+$cli =  new Cli();
+$config = new Configuration("_config.yml");
 
-$getopt->parse();
+
+\Logger::verbose($cli->getVerbose(), "Hello %s", "World");

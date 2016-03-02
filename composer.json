@@ -6,9 +6,15 @@
   "authors": [
     {
       "name": "Vladimir Jimenez",
-      "email": "allejo@me.come"
+      "homepage": "https://allejo.io",
+      "role": "Project Maintainer"
     }
   ],
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  },
   "require": {
     "twig/twig": "v1.24.0",
     "symfony/yaml": "v3.0.3",
