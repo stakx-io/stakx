@@ -1,22 +1,10 @@
 <?php
 
-namespace allejo\stakx;
+require(__DIR__ . "/../vendor/autoload.php");
 
-require("../vendor/autoload.php");
+use allejo\stakx\Command\BuildCommand;
+use Symfony\Component\Console\Application;
 
-use allejo\stakx\Core\Cli;
-use allejo\stakx\Core\Configuration;
-use allejo\stakx\Core\Logger;
-use allejo\stakx\FileSystem\FileSystem;
-
-$fs     = new Filesystem();
-$cli    = new Cli();
-$config = new Configuration();
-$logger = new Logger(array(
-    "verbose" => $cli->getVerbose()
-));
-
-if ($cli->getAction() == Cli::BUILD)
-{
-    $fileSystem = $fs->ls();
-}
+$application = new Application('stakx', '0.1.0');
+$application->add(new BuildCommand());
+$application->run();

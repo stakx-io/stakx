@@ -1,9 +1,17 @@
 <?php
 
-namespace allejo\stakx\FileSystem;
+namespace allejo\stakx\Utilities;
 
-class FileSystem extends \Symfony\Component\Filesystem\Filesystem
+trait FileSystemTrait
 {
+    /**
+     * @return string
+     */
+    public function buildPath ()
+    {
+        return implode(DIRECTORY_SEPARATOR, func_get_args());
+    }
+
     /**
      * Finds path, relative to the given root folder, of all files and directories in the given directory and its
      * sub-directories non recursively.

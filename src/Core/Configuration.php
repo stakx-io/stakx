@@ -2,19 +2,24 @@
 
 namespace allejo\stakx\Core;
 
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
 class Configuration
 {
+    const DEFAULT_NAME = "_config.yml";
+
+    private $filesystem;
     private $configuration;
 
-    public function __construct($configFile = "_config.yml")
+    public function __construct($configFile = Configuration::DEFAULT_NAME)
     {
-        $fileContent = file_get_contents($configFile);
+        $this->filesystem = new Filesystem();
+        $this->configuration = array();
 
-        if ($fileContent !== false)
+        if ($this->filesystem->exists($configFile))
         {
-            $this->configuration = Yaml::parse($fileContent);
+            $this->configuration = Yaml::parse(file_get_contents($configFile));
         }
 
         $this->defaultConfiguration();
