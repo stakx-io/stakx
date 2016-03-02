@@ -2,7 +2,9 @@
 
 namespace allejo\stakx\Utilities;
 
-trait FileSystemTrait
+use Symfony\Component\Filesystem\Filesystem;
+
+class StakxFilesystem extends Filesystem
 {
     /**
      * @return string
@@ -13,16 +15,27 @@ trait FileSystemTrait
     }
 
     /**
+     * @param  string $filename A filename
+     *
+     * @return string The extension of the file
+     */
+    public function getExtension ($filename)
+    {
+        return pathinfo($filename, PATHINFO_EXTENSION);
+    }
+
+    /**
      * Finds path, relative to the given root folder, of all files and directories in the given directory and its
      * sub-directories non recursively.
      *
      * @author sreekumar
      *
-     * @param  string $root The location where to search
+     * @param  string $root   The location where to search
+     * @param  array  $ignore An array of folders to ignore
      *
-     * @return array  A nested array with two associative keys, 'files' & 'dirs'
+     * @return array A nested array with two associative keys, 'files' & 'dirs'
      */
-    public function ls ($root = '.')
+    public function ls ($root = '.', $ignore = array('.', '..'))
     {
         $files  = array('files' => array(), 'dirs' => array());
         $directories  = array();
@@ -39,7 +52,7 @@ trait FileSystemTrait
             {
                 while (false !== ($file = readdir($handle)))
                 {
-                    if ($file == '.' || $file == '..')
+                    if (in_array($file, $ignore))
                     {
                         continue;
                     }
@@ -57,6 +70,7 @@ trait FileSystemTrait
                         $files['files'][]  = $file;
                     }
                 }
+
                 closedir($handle);
             }
         }

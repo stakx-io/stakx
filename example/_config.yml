@@ -1,3 +1,12 @@
-directories:
-  other:
-    - _pages
+target: _site
+
+collections:
+  - name: posts
+    folder: _posts
+    template: _pages/blog/show.html.twig
+    permalink: blog/:year/:month/:day/:title
+  - name: books
+    folder: _books
+
+templates:
+  - _pages

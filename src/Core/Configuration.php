@@ -25,28 +25,38 @@ class Configuration
         $this->defaultConfiguration();
     }
 
-    public function getLayoutsFolder()
+    public function getTemplateFolders ()
     {
-        return $this->configuration["layouts"];
+        return $this->configuration["templates"];
     }
 
-    public function getPostsFolder()
+    public function getContentFolders ()
     {
-        return $this->configuration["posts"];
+        return $this->configuration["content"];
     }
 
-    public function getTargetFolder()
+    public function getTargetFolder ()
     {
         return $this->configuration["target"];
+    }
+
+    public function getDataFolders ()
+    {
+        return $this->configuration["data"];
     }
 
     private function defaultConfiguration()
     {
         $defaultConfig = array(
-            "directories" => array(
-                "layouts" => "_layouts",
-                "target"  => "_site",
-                "posts"   => "_posts"
+            "target"  => "_site",
+            "collections" => array(
+                array(
+                    "name" => "posts",
+                    "folder" => "_books"
+                )
+            ),
+            "templates" => array(
+                "_pages"
             )
         );
 
