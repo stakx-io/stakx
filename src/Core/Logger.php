@@ -1,15 +1,21 @@
 <?php
 
+namespace allejo\stakx\Core;
+
 class Logger
 {
-    public static function verbose($enabled, $message, $args)
-    {
-        $arguments = func_get_args();
-        $enabled = array_shift($arguments);
+    private $verboseEnabled;
 
-        if ($enabled)
+    public function __construct($options)
+    {
+        $this->verboseEnabled = $options["verbose"];
+    }
+
+    public function verbose($message, $args)
+    {
+        if ($this->verboseEnabled)
         {
-            call_user_func_array('sprintf', $arguments);
+            echo call_user_func_array('sprintf', func_get_args()) . "\n";
         }
     }
 }

@@ -8,9 +8,14 @@ class Configuration
 {
     private $configuration;
 
-    public function __construct($configFile)
+    public function __construct($configFile = "_config.yml")
     {
-        $this->configuration = Yaml::parse(file_get_contents($configFile));
+        $fileContent = file_get_contents($configFile);
+
+        if ($fileContent !== false)
+        {
+            $this->configuration = Yaml::parse($fileContent);
+        }
 
         $this->defaultConfiguration();
     }

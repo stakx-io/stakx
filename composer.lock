@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fa231f908a59d46f53cb44eaa206915e",
-    "content-hash": "cda42196558c3b1e37ec9ef1cc56f15e",
+    "hash": "66da2d8ba14a6bf3dd68248de086aecc",
+    "content-hash": "d722a197dd7890544fd060d1c237ee55",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -952,6 +952,55 @@
             "time": "2015-06-21 13:59:46"
         },
         {
+            "name": "symfony/filesystem",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/filesystem.git",
+                "reference": "c8a0b857efc7c19b087129a7d7555f866d61b557"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/c8a0b857efc7c19b087129a7d7555f866d61b557",
+                "reference": "c8a0b857efc7c19b087129a7d7555f866d61b557",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Filesystem\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Filesystem Component",
+            "homepage": "https://symfony.com",
+            "time": "2016-02-23 16:17:05"
+        },
+        {
             "name": "symfony/yaml",
             "version": "v3.0.3",
             "source": {
@@ -1105,7 +1154,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "symfony/filesystem": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
