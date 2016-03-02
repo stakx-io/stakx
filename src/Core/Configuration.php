@@ -52,7 +52,7 @@ class Configuration
             "collections" => array(
                 array(
                     "name" => "posts",
-                    "folder" => "_books"
+                    "folder" => "_posts"
                 )
             ),
             "templates" => array(
