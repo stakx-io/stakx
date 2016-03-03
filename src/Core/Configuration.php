@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Core;
 
+use allejo\stakx\Utilities\ArrayUtilities;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
@@ -55,6 +56,6 @@ class Configuration
             )
         );
 
-        $this->configuration = array_merge_recursive($this->configuration, $defaultConfig);
+        $this->configuration = ArrayUtilities::array_merge_defaults($defaultConfig, $this->configuration, 'name');
     }
 }

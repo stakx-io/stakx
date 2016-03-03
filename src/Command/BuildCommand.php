@@ -3,8 +3,9 @@
 namespace allejo\stakx\Command;
 
 use allejo\stakx\Core\Configuration;
-use allejo\stakx\Core\ContentItem;
-use allejo\stakx\Utilities\StakxFilesystem;
+use allejo\stakx\Object\ContentItem;
+use allejo\stakx\Environment\Filesystem;
+use allejo\stakx\Object\Website;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,7 +21,7 @@ class BuildCommand extends Command
     protected $twig;
 
     /**
-     * @var StakxFilesystem
+     * @var Filesystem
      */
     protected $fs;
 
@@ -30,13 +31,19 @@ class BuildCommand extends Command
     protected $configuration;
 
     /**
+     * @var Website
+     */
+    protected $website;
+
+    /**
      * @var ContentItem[]
      */
     protected $collections;
 
     protected function configure ()
     {
-        $this->fs = new StakxFilesystem();
+        $this->website = new Website();
+        $this->fs = new Filesystem();
 
         $this->setName('build');
         $this->setDescription('Builds the stakx website');
@@ -48,25 +55,8 @@ class BuildCommand extends Command
         $this->makeCacheFolder();
         $this->configureTwig();
 
-        $this->configuration = new Configuration($input->getOption('conf'));
-
-        $this->parseCollections();
-    }
-
-    private function parseCollections ()
-    {
-        $collections = $this->configuration->getCollectionsFolders();
-        $this->collections = array();
-
-        foreach ($collections as $collection)
-        {
-            $dataFiles = $this->fs->ls($collection['folder'])['files'];
-
-            foreach ($dataFiles as $dataFile)
-            {
-                $this->collections[] = new ContentItem($dataFile);
-            }
-        }
+        $this->website->setConfiguration($input->getOption('conf'));
+//        $this->website->build();
     }
 
     private function configureTwig ()

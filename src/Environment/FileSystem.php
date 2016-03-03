@@ -1,10 +1,8 @@
 <?php
 
-namespace allejo\stakx\Utilities;
+namespace allejo\stakx\Environment;
 
-use Symfony\Component\Filesystem\Filesystem;
-
-class StakxFilesystem extends Filesystem
+class Filesystem extends \Symfony\Component\Filesystem\Filesystem
 {
     /**
      * @return string

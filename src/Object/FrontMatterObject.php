@@ -1,28 +1,59 @@
 <?php
 
-namespace allejo\stakx\Core;
+namespace allejo\stakx\Object;
 
+use allejo\stakx\Environment\Filesystem;
 use allejo\stakx\Exception\YamlVariableNotFound;
-use allejo\stakx\Utilities\StakxFilesystem;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Yaml;
 
-class ContentItem
+abstract class FrontMatterObject
 {
-    private $fs;
-
+    /**
+     * Set to true if the front matter has already been evaluated with variable interpolation
+     *
+     * @var bool
+     */
     protected $frontMatterEvaluated;
-    protected $frontMatter;
-    protected $fileContent;
-    protected $rawContent;
-    protected $extension;
-    protected $permalink;
-    protected $template;
-    protected $itemDate;
 
-    public function __construct ($filePath)
+    /**
+     * An array containing the Yaml of the file
+     *
+     * @var array
+     */
+    protected $frontMatter;
+
+    /**
+     * Only the body of the file, i.e. the content
+     *
+     * @var string
+     */
+    protected $fileContent;
+
+    /**
+     * The raw content of the file; yaml + markdown
+     *
+     * @var string
+     */
+    protected $rawContent;
+
+    /**
+     * The extension of the file
+     *
+     * @var string
+     */
+    protected $extension;
+
+    /**
+     * A filesystem object
+     *
+     * @var Filesystem
+     */
+    protected $fs;
+
+    protected function __construct($filePath)
     {
-        $this->fs = new StakxFilesystem();
+        $this->fs = new Filesystem();
 
         if (!$this->fs->exists($filePath))
         {
@@ -37,21 +68,6 @@ class ContentItem
 
         $this->frontMatter = Yaml::parse($frontMatter[1]);
         $this->fileContent = trim($frontMatter[2]);
-
-        if (!isset($this->frontMatter['date']))
-        {
-            $this->itemDate    = new \DateTime($this->frontMatter['date']);
-            $this->frontMatter['year']  = $this->itemDate->format('Y');
-            $this->frontMatter['month'] = $this->itemDate->format('m');
-            $this->frontMatter['day']   = $this->itemDate->format('d');
-        }
-    }
-
-    public function getContent ()
-    {
-        $pd = new \Parsedown();
-
-        return $pd->parse($this->fileContent);
     }
 
     public function getFrontMatter ()
@@ -65,27 +81,7 @@ class ContentItem
         return $this->frontMatter;
     }
 
-    public function getPermalink ()
-    {
-        return $this->permalink;
-    }
-
-    public function getTemplate ()
-    {
-        return $this->template;
-    }
-
-    public function _setPermalink ($permalink)
-    {
-        $this->permalink = $permalink;
-    }
-
-    public function _setTemplate ($template)
-    {
-        $this->template = $template;
-    }
-
-    private function evaluateYaml ($yaml)
+    protected function evaluateYaml ($yaml)
     {
         foreach ($yaml as $key => $value)
         {
@@ -100,7 +96,7 @@ class ContentItem
         }
     }
 
-    private static function evaluateYamlVar ($string, $yaml)
+    protected static function evaluateYamlVar ($string, $yaml)
     {
         $variables = array();
         $varRegex  = '/(:[a-zA-Z0-9_\-]+)/';
