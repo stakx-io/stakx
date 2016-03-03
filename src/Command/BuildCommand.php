@@ -3,6 +3,7 @@
 namespace allejo\stakx\Command;
 
 use allejo\stakx\Core\Configuration;
+use allejo\stakx\Core\ContentItem;
 use allejo\stakx\Utilities\StakxFilesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,6 +29,11 @@ class BuildCommand extends Command
      */
     protected $configuration;
 
+    /**
+     * @var ContentItem[]
+     */
+    protected $collections;
+
     protected function configure ()
     {
         $this->fs = new StakxFilesystem();
@@ -44,18 +50,22 @@ class BuildCommand extends Command
 
         $this->configuration = new Configuration($input->getOption('conf'));
 
-        $fileList = $this->fs->ls();
-
-        print_r($fileList['files']);
+        $this->parseCollections();
     }
 
-    private function parseData ()
+    private function parseCollections ()
     {
-        $dataFolders = $this->configuration->getDataFolders();
+        $collections = $this->configuration->getCollectionsFolders();
+        $this->collections = array();
 
-        foreach ($dataFolders as $dataFolder)
+        foreach ($collections as $collection)
         {
+            $dataFiles = $this->fs->ls($collection['folder'])['files'];
 
+            foreach ($dataFiles as $dataFile)
+            {
+                $this->collections[] = new ContentItem($dataFile);
+            }
         }
     }
 

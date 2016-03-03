@@ -30,19 +30,14 @@ class Configuration
         return $this->configuration["templates"];
     }
 
-    public function getContentFolders ()
-    {
-        return $this->configuration["content"];
-    }
-
     public function getTargetFolder ()
     {
         return $this->configuration["target"];
     }
 
-    public function getDataFolders ()
+    public function getCollectionsFolders ()
     {
-        return $this->configuration["data"];
+        return $this->configuration["collections"];
     }
 
     private function defaultConfiguration()
