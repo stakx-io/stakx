@@ -4,6 +4,7 @@ namespace allejo\stakx\Command;
 
 use allejo\stakx\Core\Configuration;
 use allejo\stakx\Object\ContentItem;
+use allejo\stakx\Object\PostItem;
 use allejo\stakx\Environment\Filesystem;
 use allejo\stakx\Object\Website;
 use Symfony\Component\Console\Command\Command;
@@ -40,6 +41,11 @@ class BuildCommand extends Command
      */
     protected $collections;
 
+    /**
+     * @var string[]
+     */
+    protected $errors;
+
     protected function configure ()
     {
         $this->website = new Website();
@@ -56,7 +62,9 @@ class BuildCommand extends Command
         $this->configureTwig();
 
         $this->website->setConfiguration($input->getOption('conf'));
-//        $this->website->build();
+        $this->website->build($this->errors);
+
+        print_r($this->errors);
     }
 
     private function configureTwig ()

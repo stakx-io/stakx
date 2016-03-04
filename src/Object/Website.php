@@ -13,10 +13,11 @@ class Website
     private $configuration;
 
     /**
-     * @var ContentItem[]
+     * @var PostItem[]
      */
     private $collections;
     private $templates;
+    private $errors;
     private $pages;
     private $fs;
 
@@ -25,11 +26,11 @@ class Website
         $this->fs = new Filesystem();
     }
 
-    public function build ()
+    public function build (&$errorsCollection)
     {
-        $this->parseCollections();
+        $this->errors = &$errorsCollection;
 
-        echo count($this->collections);
+        $this->parseCollections();
     }
 
     /**
@@ -49,7 +50,7 @@ class Website
     }
 
     /**
-     * @param ContentItem[] $contentItems
+     * @param PostItem[] $contentItems
      */
     public function setCollections ($contentItems)
     {
@@ -76,11 +77,18 @@ class Website
 
         foreach ($collections as $collection)
         {
-            $dataFiles = $this->fs->ls($collection['folder'])['files'];
-
-            foreach ($dataFiles as $dataFile)
+            if ($this->fs->exists($collection['folder']))
             {
-                $this->collections[] = new ContentItem($dataFile);
+                $dataFiles = $this->fs->ls($collection['folder']);
+
+                foreach ($dataFiles['files'] as $dataFile)
+                {
+                    $this->collections[] = new ContentItem($dataFile);
+                }
+            }
+            else
+            {
+                $this->errors[] = sprintf("Warning: The '%s' collection cannot find: `%s`", $collection['name'], $collection['folder']);
             }
         }
     }
