@@ -1,0 +1,15 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <header class="page-header">
+        {{ page.title }}
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>Copyright &copy; {{ "now" | date("Y") }}</p>
+    </footer>
+{% endblock %}

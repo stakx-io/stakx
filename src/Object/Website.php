@@ -35,8 +35,6 @@ class Website
 
         $this->parseCollections();
         $this->parsePageViews();
-
-        var_dump($this->pageViews);
     }
 
     /**

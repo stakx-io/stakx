@@ -1,5 +1,9 @@
 ---
+permalink: /blog/:year/:month/:day/:title
+collection: posts
 ---
+
+{% extends "page.html.twig" %}
 
 {% block body %}
     <h1>{{ page.title }}</h1>

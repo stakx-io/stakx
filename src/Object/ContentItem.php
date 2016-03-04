@@ -86,7 +86,15 @@ class ContentItem
 
         if (isset($this->frontMatter['date']))
         {
-            $this->itemDate    = new \DateTime($this->frontMatter['date']);
+            try
+            {
+                $this->itemDate = new \DateTime($this->frontMatter['date']);
+            }
+            catch (\Exception $e)
+            {
+                $this->itemDate = \DateTime::createFromFormat("U", $this->frontMatter['date']);
+            }
+
             $this->frontMatter['year']  = $this->itemDate->format('Y');
             $this->frontMatter['month'] = $this->itemDate->format('m');
             $this->frontMatter['day']   = $this->itemDate->format('d');
