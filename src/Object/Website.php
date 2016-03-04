@@ -13,12 +13,15 @@ class Website
     private $configuration;
 
     /**
-     * @var PostItem[]
+     * @var ContentItem[]
      */
     private $collections;
-    private $templates;
+
+    /**
+     * @var PageView
+     */
+    private $pageViews;
     private $errors;
-    private $pages;
     private $fs;
 
     public function __construct()
@@ -31,6 +34,9 @@ class Website
         $this->errors = &$errorsCollection;
 
         $this->parseCollections();
+        $this->parsePageViews();
+
+        var_dump($this->pageViews);
     }
 
     /**
@@ -50,24 +56,6 @@ class Website
     }
 
     /**
-     * @param PostItem[] $contentItems
-     */
-    public function setCollections ($contentItems)
-    {
-        $this->collections = $contentItems;
-    }
-
-    public function setTemplates ($templates)
-    {
-        $this->templates = $templates;
-    }
-
-    public function setPages ($pages)
-    {
-        $this->pages = $pages;
-    }
-
-    /**
      * Parse all of the collections' front matter and content
      */
     private function parseCollections ()
@@ -77,18 +65,41 @@ class Website
 
         foreach ($collections as $collection)
         {
-            if ($this->fs->exists($collection['folder']))
-            {
-                $dataFiles = $this->fs->ls($collection['folder']);
-
-                foreach ($dataFiles['files'] as $dataFile)
-                {
-                    $this->collections[] = new ContentItem($dataFile);
-                }
-            }
-            else
+            if (!$this->fs->exists($collection['folder']))
             {
                 $this->errors[] = sprintf("Warning: The '%s' collection cannot find: `%s`", $collection['name'], $collection['folder']);
+
+                continue;
+            }
+
+            $dataFiles = $this->fs->ls($collection['folder']);
+
+            foreach ($dataFiles['files'] as $dataFile)
+            {
+                $this->collections[$collection['name']][] = new ContentItem($dataFile);
+            }
+        }
+    }
+
+    private function parsePageViews ()
+    {
+        $pageViews = $this->getConfiguration()->getPageViews();
+        $this->pageViews = array();
+
+        foreach ($pageViews as $pageView)
+        {
+            if (!$this->fs->exists($pageView))
+            {
+                $this->errors[] = sprintf("Warning: The '%s' PageView folder cannot be found", $pageView);
+
+                continue;
+            }
+
+            $viewFiles = $this->fs->ls($pageView);
+
+            foreach ($viewFiles['files'] as $viewFile)
+            {
+                $this->pageViews[] = new PageView($viewFile);
             }
         }
     }

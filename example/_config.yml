@@ -8,5 +8,5 @@ collections:
   - name: books
     folder: _books
 
-templates:
+pageviews:
   - _pages

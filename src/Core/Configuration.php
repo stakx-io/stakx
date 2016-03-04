@@ -26,9 +26,9 @@ class Configuration
         $this->defaultConfiguration();
     }
 
-    public function getTemplateFolders ()
+    public function getPageViews ()
     {
-        return $this->configuration["templates"];
+        return $this->configuration["pageviews"];
     }
 
     public function getTargetFolder ()
@@ -45,13 +45,14 @@ class Configuration
     {
         $defaultConfig = array(
             "target"  => "_site",
+            "theme" => "bootstrap",
             "collections" => array(
                 array(
                     "name" => "posts",
                     "folder" => "_posts"
                 )
             ),
-            "templates" => array(
+            "pageviews" => array(
                 "_pages"
             )
         );

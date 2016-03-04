@@ -4,7 +4,6 @@ namespace allejo\stakx\Command;
 
 use allejo\stakx\Core\Configuration;
 use allejo\stakx\Object\ContentItem;
-use allejo\stakx\Object\PostItem;
 use allejo\stakx\Environment\Filesystem;
 use allejo\stakx\Object\Website;
 use Symfony\Component\Console\Command\Command;
