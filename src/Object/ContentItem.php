@@ -99,6 +99,11 @@ class ContentItem
             $this->frontMatter['month'] = $this->itemDate->format('m');
             $this->frontMatter['day']   = $this->itemDate->format('d');
         }
+
+        if (isset($this->frontMatter['permalink']))
+        {
+            $this->permalink = $this->frontMatter['permalink'];
+        }
     }
 
     public function getFrontMatter ()
