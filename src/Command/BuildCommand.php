@@ -10,16 +10,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Twig_Environment;
-use Twig_Loader_Filesystem;
 
 class BuildCommand extends Command
 {
-    /**
-     * @var Twig_Environment
-     */
-    protected $twig;
-
     /**
      * @var Filesystem
      */
@@ -58,20 +51,11 @@ class BuildCommand extends Command
     protected function execute (InputInterface $input, OutputInterface $output)
     {
         $this->makeCacheFolder();
-        $this->configureTwig();
 
         $this->website->setConfiguration($input->getOption('conf'));
         $this->website->build($this->errors);
 
         print_r($this->errors);
-    }
-
-    private function configureTwig ()
-    {
-        $loader     = new Twig_Loader_Filesystem('.');
-        $this->twig = new Twig_Environment($loader, array(
-            'cache' => '.stakx-cache/twig'
-        ));
     }
 
     private function makeCacheFolder ()

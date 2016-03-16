@@ -4,9 +4,16 @@ namespace allejo\stakx\Object;
 
 use allejo\stakx\Core\Configuration;
 use allejo\stakx\Environment\Filesystem;
+use Twig_Environment;
+use Twig_Loader_Filesystem;
 
 class Website
 {
+    /**
+     * @var Twig_Environment
+     */
+    protected $twig;
+
     /**
      * @var Configuration
      */
@@ -35,6 +42,8 @@ class Website
 
         $this->parseCollections();
         $this->parsePageViews();
+        $this->configureTwig();
+        $this->compilePageViews();
     }
 
     /**
@@ -100,5 +109,41 @@ class Website
                 $this->pageViews[] = new PageView($viewFile);
             }
         }
+    }
+
+    private function compilePageViews()
+    {
+        /**
+         * @var $pageView PageView
+         */
+        foreach ($this->pageViews as $pageView)
+        {
+            if ($pageView->isDynamicPage())
+            {
+
+            }
+            else
+            {
+                $template = $this->twig->createTemplate($pageView->getContent());
+
+                $output = $template->render(array(
+                            "page" => "hello",
+                            "site" => array()
+                          ));
+
+                echo $output . "\n";
+            }
+        }
+    }
+
+    private function configureTwig ()
+    {
+        $loader = new Twig_Loader_Filesystem(array(
+            '_themes/bootstrap/',
+            '.'
+        ));
+        $this->twig = new Twig_Environment($loader, array(
+            'cache' => '.stakx-cache/twig'
+        ));
     }
 }
