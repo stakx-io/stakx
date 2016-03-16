@@ -26,6 +26,21 @@ class Configuration
         $this->defaultConfiguration();
     }
 
+    public function isDebug ()
+    {
+        return $this->configuration['debug'];
+    }
+
+    public function getTheme ()
+    {
+        return $this->configuration['theme'];
+    }
+
+    public function getConfiguration ()
+    {
+        return$this->configuration;
+    }
+
     public function getPageViews ()
     {
         return $this->configuration["pageviews"];
@@ -44,8 +59,9 @@ class Configuration
     private function defaultConfiguration()
     {
         $defaultConfig = array(
-            "target"  => "_site",
-            "theme" => "bootstrap",
+            "target" => "_site",
+            "theme"  => "bootstrap",
+            "debug"  => false,
             "collections" => array(
                 array(
                     "name" => "posts",

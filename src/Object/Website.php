@@ -113,6 +113,11 @@ class Website
 
     private function compilePageViews()
     {
+        $twigVariables = array(
+            "site" => $this->configuration->getConfiguration(),
+            "collections" => $this->collections
+        );
+
         /**
          * @var $pageView PageView
          */
@@ -125,11 +130,10 @@ class Website
             else
             {
                 $template = $this->twig->createTemplate($pageView->getContent());
-
-                $output = $template->render(array(
-                            "page" => "hello",
-                            "site" => array()
-                          ));
+                $twigInfo = array_merge($twigVariables, array(
+                    "page" => $pageView->getFrontMatter(),
+                ));
+                $output   = $template->render($twigInfo);
 
                 echo $output . "\n";
             }
@@ -139,11 +143,17 @@ class Website
     private function configureTwig ()
     {
         $loader = new Twig_Loader_Filesystem(array(
-            '_themes/bootstrap/',
+            sprintf('_themes/%s/', $this->configuration->getTheme()),
             '.'
         ));
         $this->twig = new Twig_Environment($loader, array(
             'cache' => '.stakx-cache/twig'
         ));
+
+        if ($this->configuration->isDebug())
+        {
+            $this->twig->addExtension(new \Twig_Extension_Debug());
+            $this->twig->enableDebug();
+        }
     }
 }
