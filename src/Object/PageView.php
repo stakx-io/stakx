@@ -14,15 +14,15 @@ class PageView extends ContentItem
 
     public function getTargetFile ()
     {
-        $extension  = pathinfo($this->getPermalink(), PATHINFO_EXTENSION);
+        $extension  = $this->fs->getExtension($this->getPermalink());
         $targetFile = $this->getPermalink();
 
         if ($extension === "")
         {
-            $targetFile = rtrim($this->getPermalink(), '/') . '/';
+            $targetFile = rtrim($this->getPermalink(), '/') . '/index.html';
         }
 
-        return $targetFile;
+        return ltrim($targetFile, '/');
     }
 
     /**
@@ -32,6 +32,6 @@ class PageView extends ContentItem
      */
     public function isDynamicPage ()
     {
-        return isset($this->frontMatter['collections']);
+        return isset($this->frontMatter['collection']);
     }
 }

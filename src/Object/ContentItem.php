@@ -106,6 +106,11 @@ class ContentItem
         }
     }
 
+    public function __get ($name)
+    {
+        return $this->frontMatter[$name];
+    }
+
     public function getFrontMatter ()
     {
         if (!$this->frontMatterEvaluated)

@@ -135,13 +135,18 @@ class Website
                 ));
                 $output   = $template->render($twigInfo);
 
-                echo $output . "\n";
+                $this->fs->writeFile(
+                    $this->getConfiguration()->getTargetFolder(),
+                    $pageView->getTargetFile(),
+                    $output
+                );
             }
         }
     }
 
     private function configureTwig ()
     {
+        // @todo Throw an error if theme is not found
         $loader = new Twig_Loader_Filesystem(array(
             sprintf('_themes/%s/', $this->configuration->getTheme()),
             '.'
