@@ -111,6 +111,11 @@ class ContentItem
         return $this->frontMatter[$name];
     }
 
+    public function __isset ($name)
+    {
+        return array_key_exists($name, $this->frontMatter);
+    }
+
     public function getFrontMatter ()
     {
         if (!$this->frontMatterEvaluated)
@@ -152,7 +157,7 @@ class ContentItem
     protected static function evaluateYamlVar ($string, $yaml)
     {
         $variables = array();
-        $varRegex  = '/(:[a-zA-Z0-9_\-]+)/';
+        $varRegex  = '/(:[a-zA-Z_\-]+)/';
         $output    = $string;
 
         preg_match_all($varRegex, $string, $variables);
