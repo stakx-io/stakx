@@ -25,7 +25,7 @@ class Website
     private $collections;
 
     /**
-     * @var PageView
+     * @var PageView[]
      */
     private $pageViews;
     private $errors;
@@ -113,11 +113,6 @@ class Website
 
     private function compilePageViews()
     {
-        $twigVariables = array(
-            "site" => $this->configuration->getConfiguration(),
-            "collections" => $this->collections
-        );
-
         /**
          * @var $pageView PageView
          */
@@ -130,9 +125,9 @@ class Website
             else
             {
                 $template = $this->twig->createTemplate($pageView->getContent());
-                $twigInfo = array_merge($twigVariables, array(
+                $twigInfo = array(
                     "page" => $pageView->getFrontMatter(),
-                ));
+                );
                 $output   = $template->render($twigInfo);
 
                 $this->fs->writeFile(
@@ -152,8 +147,10 @@ class Website
             '.'
         ));
         $this->twig = new Twig_Environment($loader, array(
-            'cache' => '.stakx-cache/twig'
+            //'cache' => '.stakx-cache/twig'
         ));
+        $this->twig->addGlobal('site', $this->configuration->getConfiguration());
+        $this->twig->addGlobal('collections', $this->collections);
 
         if ($this->configuration->isDebug())
         {
