@@ -36,46 +36,69 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Finds path, relative to the given root folder, of all files and directories in the given directory and its
      * sub-directories non recursively.
      *
-     * @author sreekumar
+     * **Note** The majority of this function was written by sreekumar but has been modified to include more
+     * functionality specific to this project.
      *
-     * @param  string $root   The location where to search
-     * @param  array  $ignore An array of folders to ignore
+     * @link  http://php.net/manual/en/function.readdir.php#103418 See original function
+     *
+     * @param  string $root        The location where to search
+     * @param  array  $ignoreDirs  An array of folders to ignore
+     * @param  array  $ignoreRegex An array of regular expressions to ignore
+     * @param  bool   $recursive   Whether or not to list files/folders recursively. When set to false, this will only
+     *                             list the files and folders in the specified directory but not the contents of those
+     *                             folders.
      *
      * @return array A nested array with two associative keys, 'files' & 'dirs'
      */
-    public function ls ($root = '.', $ignore = array('.', '..'))
+    public function ls ($root = '.', $ignoreDirs = array(), $ignoreRegex = array(), $recursive = true)
     {
-        $files  = array('files' => array(), 'dirs' => array());
-        $directories  = array();
-        $last_letter  = $root[strlen($root) - 1];
+        $fileStructure = array('files' => array(), 'dirs' => array());
+        $directories   = array();
+        $last_letter   = $root[strlen($root) - 1];
         $root  = ($last_letter == '\\' || $last_letter == '/') ? $root : $root . DIRECTORY_SEPARATOR;
 
-        $directories[]  = $root;
+        $directories[] = $root;
+        $regexPatterns = array();
+        $checkIgnoredDirs  = count($ignoreDirs) > 0;
+        $checkRegexIgnores = count($ignoreRegex) > 0;
+
+        foreach ($ignoreRegex as $regex)
+        {
+            $regexPatterns[] = sprintf('(%s)', $regex);
+        }
+
+        $masterRegexIgnore = implode('|', $regexPatterns);
 
         while (sizeof($directories))
         {
-            $dir  = array_pop($directories);
+            $dir = array_pop($directories);
 
             if ($handle = opendir($dir))
             {
                 while (false !== ($file = readdir($handle)))
                 {
-                    if (in_array($file, $ignore))
+                    if (($file[0] === ".") ||
+                        ($checkIgnoredDirs  && in_array($file, $ignoreDirs)) ||
+                        ($checkRegexIgnores && preg_match($masterRegexIgnore, $file)))
                     {
                         continue;
                     }
 
-                    $file  = $dir.$file;
+                    $file  = $dir . $file;
 
                     if (is_dir($file))
                     {
                         $directory_path = $file . DIRECTORY_SEPARATOR;
-                        array_push($directories, $directory_path);
-                        $files['dirs'][]  = $directory_path;
+                        $fileStructure['dirs'][]  = $directory_path;
+
+                        if ($recursive)
+                        {
+                            array_push($directories, $directory_path);
+                        }
                     }
                     elseif (is_file($file))
                     {
-                        $files['files'][]  = $file;
+                        $fileStructure['files'][]  = $file;
                     }
                 }
 
@@ -83,7 +106,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
             }
         }
 
-        return $files;
+        return $fileStructure;
     }
 
     public function writeFile ($targetDir, $fileName, $content)

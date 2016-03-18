@@ -44,6 +44,7 @@ class Website
         $this->parsePageViews();
         $this->configureTwig();
         $this->compilePageViews();
+        $this->copyStaticFiles();
     }
 
     /**
@@ -156,6 +157,19 @@ class Website
         {
             $this->twig->addExtension(new \Twig_Extension_Debug());
             $this->twig->enableDebug();
+        }
+    }
+
+    private function copyStaticFiles ()
+    {
+        $fileList = $this->fs->ls('.', array(), array('_.*'));
+
+        foreach ($fileList['files'] as $target)
+        {
+            $this->fs->copy(
+                $target,
+                $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $target)
+            );
         }
     }
 }
