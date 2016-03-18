@@ -1,15 +1,23 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
-    <header class="page-header">
-        {{ page.title }}
-    </header>
+    <div class="container">
+        <header class="page-header">
+            <h1>
+                {{ page.title ? page.title : site.title }}
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+                {% if page.slug %}
+                    <small>{{ page.slug }}</small>
+                {% endif %}
+            </h1>
+        </header>
 
-    <footer>
-        <p>Copyright &copy; {{ "now" | date("Y") }}</p>
-    </footer>
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer>
+            <p>Copyright &copy; {{ "now" | date("Y") }}</p>
+        </footer>
+    </div>
 {% endblock %}

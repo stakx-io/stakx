@@ -1,15 +1,42 @@
 ---
-title: My Blog
 permalink: /
-menu: true
+title: Stakx
+slug: Yet another static website generator
+menu: Home
 ---
 
 {% extends "page.html.twig" %}
 
-{% block Content %}
-    <h1>Welcome to my Website</h1>
-
+{% block content %}
     <article>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla ut velit in purus ultrices sodales. Nullam ante ipsum, faucibus a nisi ac, euismod sagittis risus. Sed blandit vestibulum efficitur. Fusce iaculis est nec pretium feugiat. Proin at eros non enim aliquam blandit quis at nisl. In varius eget sem ut laoreet. Sed in porttitor risus. Nulla interdum neque eu neque vestibulum ultrices. Quisque consectetur orci orci, ut pharetra ipsum aliquam sed.</p>
+        <p>
+            Stakx is yet another static website generator just like Jekyll, but its written in PHP. Now, you're probably
+            thinking one of the following things:
+        </p>
+        <ul>
+            <li>"Why make another static website when Jekyll exists?"</li>
+            <li>"But there's already a project called <a href="https://sculpin.io/">Sculpin</a>, why make another?"</li>
+            <li>"Ew, why PHP?"</li>
+        </ul>
+        <p>
+            I love Jekyll and work with it a lot but Liquid has a lot of short-comings if you're coming from a Twig
+            background, like me. Stakx is a proof of concept to build a more powerful static website builder without
+            any requirements on superfluous settings, setup, workarounds, etc. Stakx is designed to "just work."
+        </p>
+
+        <h3 class="text-center">Inspired by a Giant</h3>
+        <div>
+            <img class="center-block img-responsive" src="assets/imgs/logo-jekyll.png" alt="">
+        </div>
+
+        <h3 class="text-center">Built on the Shoulders of Giants</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <img class="center-block img-responsive" src="assets/imgs/logo-symfony.png" alt="">
+            </div>
+            <div class="col-md-6">
+                <img class="center-block img-responsive" src="assets/imgs/logo-twig.png" alt="">
+            </div>
+        </div>
     </article>
 {% endblock %}

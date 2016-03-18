@@ -3,8 +3,10 @@ target: _site
 collections:
   - name: posts
     folder: _posts
+    permalink: /blog/:year/:month/:day/:title
   - name: books
     folder: _books
+    permalink: /book/:isbn
 
 pageviews:
   - _pages
