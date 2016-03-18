@@ -168,7 +168,8 @@ class Website
         {
             $this->fs->copy(
                 $target,
-                $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $target)
+                $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $target),
+                true
             );
         }
     }
