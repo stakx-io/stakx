@@ -1,6 +1,6 @@
 {
   "name": "allejo/stakx",
-  "description": "Yet another static website generator—this one's written in PHP",
+  "description": "Yet another static website generator powered by Symfony and Twig",
   "minimum-stability": "dev",
   "license": "LGPL",
   "authors": [
@@ -20,7 +20,9 @@
     "symfony/yaml": "v3.0.3",
     "erusev/parsedown": "1.6.0",
     "phpunit/phpunit": "4.8.23",
-    "symfony/filesystem": "^3.1@dev",
-    "symfony/console": "v2.8.3"
+    "symfony/filesystem": "v2.8.3",
+    "symfony/console": "v2.8.3",
+    "symfony/finder": "v2.8.3",
+    "jasonlewis/resource-watcher": "^1.2"
   }
 }
