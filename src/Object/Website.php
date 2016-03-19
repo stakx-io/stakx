@@ -181,11 +181,22 @@ class Website
         /** @var $file SplFileInfo */
         foreach ($finder as $file)
         {
-            $this->fs->copy(
-                $file->getRelativePathname(),
-                $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $file->getRelativePathname()),
-                true
-            );
+            $this->copyToCompiledSite($file->getRelativePathname());
         }
+    }
+
+    /**
+     * Copy a file from a the source directory to the compiled website directory. The exact relative path to the file
+     * will be recreated in the compiled website directory.
+     *
+     * @param string $filePath The relative path of the file to be copied
+     */
+    private function copyToCompiledSite ($filePath)
+    {
+        $this->fs->copy(
+            $filePath,
+            $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $filePath),
+            true
+        );
     }
 }
