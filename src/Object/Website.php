@@ -4,6 +4,8 @@ namespace allejo\stakx\Object;
 
 use allejo\stakx\Core\Configuration;
 use allejo\stakx\Environment\Filesystem;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
@@ -160,15 +162,28 @@ class Website
         }
     }
 
+    /**
+     * Copy the static files from the current directory into the compiled website directory.
+     *
+     * Static files are defined as follows:
+     *   - Does not start with an underscore or is inside of a directory starting with an underscore
+     *   - Does not start with a period or is inside of a directory starting with a period
+     */
     private function copyStaticFiles ()
     {
-        $fileList = $this->fs->ls('.', array(), array('_.*'));
+        $finder = new Finder();
+        $finder->files()
+               ->ignoreDotFiles(true)
+               ->ignoreUnreadableDirs()
+               ->in('.')
+               ->notPath('/_.*/');
 
-        foreach ($fileList['files'] as $target)
+        /** @var $file SplFileInfo */
+        foreach ($finder as $file)
         {
             $this->fs->copy(
-                $target,
-                $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $target),
+                $file->getRelativePathname(),
+                $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $file->getRelativePathname()),
                 true
             );
         }
