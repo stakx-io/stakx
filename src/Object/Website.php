@@ -4,6 +4,7 @@ namespace allejo\stakx\Object;
 
 use allejo\stakx\Core\Configuration;
 use allejo\stakx\Environment\Filesystem;
+use allejo\stakx\Twig\TwigExtension;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Twig_Environment;
@@ -152,8 +153,11 @@ class Website
         $this->twig = new Twig_Environment($loader, array(
             //'cache' => '.stakx-cache/twig'
         ));
+
         $this->twig->addGlobal('site', $this->configuration->getConfiguration());
         $this->twig->addGlobal('collections', $this->collections);
+        $this->twig->addGlobal('menu', $this->siteMenu);
+        $this->twig->addExtension(new TwigExtension());
 
         if ($this->configuration->isDebug())
         {
