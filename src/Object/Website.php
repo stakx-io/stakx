@@ -31,6 +31,7 @@ class Website
      * @var PageView[]
      */
     private $pageViews;
+    private $siteMenu;
     private $errors;
     private $fs;
 
@@ -110,8 +111,39 @@ class Website
 
             foreach ($viewFiles['files'] as $viewFile)
             {
-                $this->pageViews[] = new PageView($viewFile);
+                $newPageView = new PageView($viewFile);
+                $fm = $newPageView->getFrontMatter();
+
+                $this->addToSiteMenu($fm['title'], $newPageView->getPermalink());
+
+                $this->pageViews[] = $newPageView;
             }
+        }
+    }
+
+    private function addToSiteMenu ($pageName, $url)
+    {
+        $root = &$this->siteMenu;
+        $permalink = trim($url, '/');
+        $dirs = explode('/', $permalink);
+
+        while (count($dirs) > 0)
+        {
+            $name = array_shift($dirs);
+            $name = (!empty($name)) ? $name : '.';
+
+            if (!isset($root[$name]) && !is_null($name) && count($dirs) == 0)
+            {
+                $link = (pathinfo($url, PATHINFO_EXTENSION) !== "") ? $url : $permalink . '/';
+
+                $root[$name] = array(
+                    "name" => $pageName,
+                    "url"  => $link,
+                    "children" => array()
+                );
+            }
+
+            $root = &$root[$name]['children'];
         }
     }
 
