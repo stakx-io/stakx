@@ -123,7 +123,8 @@ class Website
 
     private function addToSiteMenu ($frontMatter)
     {
-        if (!array_key_exists('permalink', $frontMatter))
+        if (!array_key_exists('permalink', $frontMatter) ||
+            (array_key_exists('menu', $frontMatter) && !$frontMatter['menu']))
         {
             return;
         }
@@ -143,7 +144,7 @@ class Website
                 $link = (pathinfo($url, PATHINFO_EXTENSION) !== "") ? $url : $permalink . '/';
 
                 $root[$name] = array_merge($frontMatter, array(
-                    "url"  => $link,
+                    "url"  => '/' . $link,
                     "children" => array()
                 ));
             }
