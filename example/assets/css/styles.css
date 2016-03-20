@@ -1,10 +1,28 @@
+.feature-icon {
+    font-size: 48px;
+}
+
 .margin-bottom-40 {
     margin-bottom: 40px;
 }
 
-footer {
+.page-footer {
     border-top: 1px solid #eee;
     margin-top: 20px;
     padding-bottom: 20px;
     padding-top: 20px;
+}
+
+.page-footer .col-md-4 {
+    text-align: center;
+}
+
+@media (min-width: 992px) {
+    .page-footer .col-md-4:first-child {
+        text-align: left;
+    }
+
+    .page-footer .col-md-4:last-child {
+        text-align: right;
+    }
 }

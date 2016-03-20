@@ -1,0 +1,57 @@
+---
+title: Features
+slug: What can Stakx do?
+permalink: /features/
+---
+
+{% import _self as self %}
+{% extends "_layouts/base.html.twig" %}
+
+{% macro feature(header, icon, body) %}
+    <article>
+        <h3>{{ header }}</h3>
+        <div class="row">
+            <div class="col-md-1 text-center feature-icon">
+                <i class="fa fa-fw fa-{{ icon }}"></i>
+            </div>
+            <div class="col-md-11">{{ body }}</div>
+        </div>
+    </article>
+{% endmacro %}
+
+{% block content %}
+    {% set twigBody %}
+        <p>
+            When it comes to template engines in PHP, many people will tell you that PHP itself is a template engine.
+            But even if PHP started its life as a template language, it did not evolve like one in the recent years.
+            As a matter of fact, it doesn't support many features modern template engines should have nowadays.
+        </p>
+        <footer>
+            &mdash; <a href="http://twig.sensiolabs.org/">Twig</a> - A modern template engine for PHP
+        </footer>
+    {% endset %}
+    {{ self.feature("Make Use of a Powerful Template Engine", "code", twigBody) }}
+
+    {% set familiarityBody %}
+        <p>
+            Jekyll's got things right, so why reinvent the wheel? Stakx has taken a lot of aspects from Jekyll has
+            incorporated them or improved them:
+        </p>
+        <ul>
+            <li>Configuration File</li>
+            <li>Front Matter</li>
+            <li>Markdown</li>
+            <li>Themes</li>
+        </ul>
+    {% endset %}
+    {{ self.feature("Familiarity of Jekyll", "github", familiarityBody) }}
+
+    {% set extensibleBody %}
+        <p>
+            Need a new filter or function for your website's templates? No problem! With Twig's large community, there's
+            a chance someone <a href="https://packagist.org/search/?q=twig%2C%20filter">has already written the filter
+            for you</a>!
+        </p>
+    {% endset %}
+    {{ self.feature("Extensible", "wrench", extensibleBody) }}
+{% endblock %}

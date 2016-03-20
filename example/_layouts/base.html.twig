@@ -1,19 +1,27 @@
 {% extends "page.html.twig" %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
 {% endblock %}
 
 {% block footer %}
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             {{ parent() }}
         </div>
-        <div class="col-md-6">
-            <ul class="list-inline text-right">
+        <div class="col-md-4">
+            <p class="text-center text-muted">Built with <i class="fa fa-fw fa-heart"></i> by Stakx</p>
+        </div>
+        <div class="col-md-4">
+            <ul class="list-inline">
+                <li>
+                    <a href="/">Stakx</a>
+                </li>
                 {% for item in menu %}
                     <li>
-                        <a href="{{ item.url }}">{{ item.name }}</a>
+                        <a href="{{ item.url }}">{{ item.title }}</a>
                     </li>
                 {% endfor %}
             </ul>
