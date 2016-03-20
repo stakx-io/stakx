@@ -3,13 +3,15 @@
 {% block body %}
     <div class="container">
         <header class="page-header">
-            <h1>
-                {{ page.title ? page.title : site.title }}
+            {% block header %}
+                <h1>
+                    {{ page.title ? page.title : site.title }}
 
-                {% if page.slug %}
-                    <small>{{ page.slug }}</small>
-                {% endif %}
-            </h1>
+                    {% if page.slug %}
+                        <small>{{ page.slug }}</small>
+                    {% endif %}
+                </h1>
+            {% endblock %}
         </header>
 
         <main>
@@ -17,7 +19,9 @@
         </main>
 
         <footer>
-            <p>Copyright &copy; {{ "now" | date("Y") }}</p>
+            {% block footer %}
+                <p>Copyright &copy; {{ "now" | date("Y") }}</p>
+            {% endblock %}
         </footer>
     </div>
 {% endblock %}
