@@ -112,17 +112,23 @@ class Website
             foreach ($viewFiles['files'] as $viewFile)
             {
                 $newPageView = new PageView($viewFile);
-                $fm = $newPageView->getFrontMatter();
+                $frontMatter = $newPageView->getFrontMatter();
 
-                $this->addToSiteMenu($fm['title'], $newPageView->getPermalink());
+                $this->addToSiteMenu($frontMatter);
 
                 $this->pageViews[] = $newPageView;
             }
         }
     }
 
-    private function addToSiteMenu ($pageName, $url)
+    private function addToSiteMenu ($frontMatter)
     {
+        if (!array_key_exists('permalink', $frontMatter))
+        {
+            return;
+        }
+
+        $url = $frontMatter['permalink'];
         $root = &$this->siteMenu;
         $permalink = trim($url, '/');
         $dirs = explode('/', $permalink);
@@ -136,11 +142,10 @@ class Website
             {
                 $link = (pathinfo($url, PATHINFO_EXTENSION) !== "") ? $url : $permalink . '/';
 
-                $root[$name] = array(
-                    "name" => $pageName,
+                $root[$name] = array_merge($frontMatter, array(
                     "url"  => $link,
                     "children" => array()
-                );
+                ));
             }
 
             $root = &$root[$name]['children'];
