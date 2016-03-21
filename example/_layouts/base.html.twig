@@ -19,7 +19,7 @@
                 <li>
                     <a href="/">Stakx</a>
                 </li>
-                {% for item in menu %}
+                {% for item in menu | order("title") %}
                     <li>
                         <a href="{{ item.url }}">{{ item.title }}</a>
                     </li>
