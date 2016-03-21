@@ -23,6 +23,7 @@
     "symfony/filesystem": "v2.8.3",
     "symfony/console": "v2.8.3",
     "symfony/finder": "v2.8.3",
-    "jasonlewis/resource-watcher": "^1.2"
+    "jasonlewis/resource-watcher": "^1.2",
+    "psr/log": "^1.0"
   }
 }

@@ -68,7 +68,7 @@ class Website
      */
     public function setConfiguration ($configFile)
     {
-        $this->configuration = new Configuration($configFile);
+        $this->configuration = new Configuration($configFile, $this->logger);
     }
 
     /**

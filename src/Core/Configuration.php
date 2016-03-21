@@ -2,25 +2,58 @@
 
 namespace allejo\stakx\Core;
 
+use allejo\stakx\Environment\Filesystem;
 use allejo\stakx\Utilities\ArrayUtilities;
-use Symfony\Component\Filesystem\Filesystem;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 class Configuration
 {
     const DEFAULT_NAME = "_config.yml";
 
-    private $filesystem;
+    /**
+     * An array representation of the main Yaml configuration
+     *
+     * @var array
+     */
     private $configuration;
 
-    public function __construct($configFile = Configuration::DEFAULT_NAME)
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * Configuration constructor.
+     *
+     * @param string          $configFile
+     * @param LoggerInterface $logger
+     */
+    public function __construct($configFile = Configuration::DEFAULT_NAME, LoggerInterface $logger)
     {
-        $this->filesystem = new Filesystem();
         $this->configuration = array();
+        $this->filesystem = new Filesystem();
+        $this->logger = $logger;
 
         if ($this->filesystem->exists($configFile))
         {
-            $this->configuration = Yaml::parse(file_get_contents($configFile));
+            try
+            {
+                $this->configuration = Yaml::parse(file_get_contents($configFile));
+            }
+            catch (ParseException $e)
+            {
+                $this->logger->error("Parsing the configuration failed: {message}", array(
+                    "message" => $e->getMessage()
+                ));
+                $this->logger->error("Using default configuration...");
+            }
         }
 
         $this->defaultConfiguration();
