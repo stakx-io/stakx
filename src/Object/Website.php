@@ -5,6 +5,7 @@ namespace allejo\stakx\Object;
 use allejo\stakx\Core\Configuration;
 use allejo\stakx\Environment\Filesystem;
 use allejo\stakx\Twig\TwigExtension;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Twig_Environment;
@@ -33,19 +34,22 @@ class Website
     private $pageViews;
     private $siteMenu;
     private $errors;
+    private $logger;
     private $fs;
 
-    public function __construct()
+    public function __construct (LoggerInterface $logger)
     {
         $this->fs = new Filesystem();
+        $this->logger = $logger;
     }
 
-    public function build (&$errorsCollection)
+    public function build ()
     {
-        $this->errors = &$errorsCollection;
+        $this->errors = array();
 
         $this->parseCollections();
         $this->parsePageViews();
+        $this->makeCacheFolder();
         $this->configureTwig();
         $this->compilePageViews();
         $this->copyStaticFiles();
@@ -68,27 +72,54 @@ class Website
     }
 
     /**
-     * Parse all of the collections' front matter and content
+     * Go through all of the collections and create respective ContentItems for each entry
      */
     private function parseCollections ()
     {
         $collections = $this->configuration->getCollectionsFolders();
         $this->collections = array();
 
+        /**
+         * The information which each collection has taken from the configuration file
+         *
+         * $collection['name']      string The name of the collection
+         *            ['folder']    string The folder where this collection has its ContentItems
+         *            ['permalink'] string The URL pattern each ContentItem will have
+         *
+         * @var $collection array
+         */
         foreach ($collections as $collection)
         {
             if (!$this->fs->exists($collection['folder']))
             {
-                $this->errors[] = sprintf("Warning: The '%s' collection cannot find: `%s`", $collection['name'], $collection['folder']);
+                $this->logger->warning("The '{name}' collection cannot find the following folder: `{folder}`", array(
+                    "name"   => $collection['name'],
+                    "folder" => $collection['folder']
+                ));
 
                 continue;
             }
 
-            $dataFiles = $this->fs->ls($collection['folder']);
+            $finder = new Finder();
+            $finder->files()
+                   ->ignoreDotFiles(true)
+                   ->ignoreUnreadableDirs()
+                   ->in($collection['folder']);
 
-            foreach ($dataFiles['files'] as $dataFile)
+            $this->logger->notice("Loading collection: {name}", array(
+                "name" => $collection['name']
+            ));
+
+            /** @var $file SplFileInfo */
+            foreach ($finder as $file)
             {
-                $this->collections[$collection['name']][] = new ContentItem($dataFile);
+                $filePath = $this->fs->buildPath($collection['folder'], $file->getRelativePathname());
+
+                $this->logger->info("  Found entry: {file}", array(
+                    "file" => $filePath
+                ));
+
+                $this->collections[$collection['name']][] = new ContentItem($filePath);
             }
         }
     }
@@ -178,6 +209,14 @@ class Website
                     $output
                 );
             }
+        }
+    }
+
+    private function makeCacheFolder ()
+    {
+        if (!$this->fs->exists('.stakx-cache'))
+        {
+            $this->fs->mkdir('.stakx-cache/twig');
         }
     }
 

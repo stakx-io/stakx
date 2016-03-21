@@ -9,6 +9,7 @@ use allejo\stakx\Object\Website;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class BuildCommand extends Command
@@ -40,7 +41,6 @@ class BuildCommand extends Command
 
     protected function configure ()
     {
-        $this->website = new Website();
         $this->fs = new Filesystem();
 
         $this->setName('build');
@@ -50,19 +50,10 @@ class BuildCommand extends Command
 
     protected function execute (InputInterface $input, OutputInterface $output)
     {
-        $this->makeCacheFolder();
+        $logger = new ConsoleLogger($output);
+        $this->website = new Website($logger);
 
         $this->website->setConfiguration($input->getOption('conf'));
-        $this->website->build($this->errors);
-
-        print_r($this->errors);
-    }
-
-    private function makeCacheFolder ()
-    {
-        if (!$this->fs->exists('.stakx-cache'))
-        {
-            $this->fs->mkdir('.stakx-cache/twig');
-        }
+        $this->website->build();
     }
 }
