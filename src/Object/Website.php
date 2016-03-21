@@ -115,7 +115,7 @@ class Website
             {
                 $filePath = $this->fs->buildPath($collection['folder'], $file->getRelativePathname());
 
-                $this->logger->info("  Found entry: {file}", array(
+                $this->logger->info("Found entry: {file}", array(
                     "file" => $filePath
                 ));
 
@@ -124,23 +124,41 @@ class Website
         }
     }
 
+    /**
+     * Go through all of the PageView directories and create a respective PageView for each
+     */
     private function parsePageViews ()
     {
         $pageViews = $this->getConfiguration()->getPageViews();
         $this->pageViews = array();
 
+        /**
+         * The name of the folder where PageViews are located
+         *
+         * @var $pageView string
+         */
         foreach ($pageViews as $pageView)
         {
             if (!$this->fs->exists($pageView))
             {
-                $this->errors[] = sprintf("Warning: The '%s' PageView folder cannot be found", $pageView);
+                $this->logger->warning("The '{name}' PageView folder cannot be found", array(
+                    "name" => $pageView
+                ));
 
                 continue;
             }
 
-            $viewFiles = $this->fs->ls($pageView);
+            $finder = new Finder();
+            $finder->files()
+                   ->ignoreDotFiles(true)
+                   ->ignoreUnreadableDirs()
+                   ->in($pageView);
 
-            foreach ($viewFiles['files'] as $viewFile)
+            $this->logger->notice("Loading PageView folder: {name}", array(
+                "name" => $pageView
+            ));
+
+            foreach ($finder as $viewFile)
             {
                 $newPageView = new PageView($viewFile);
                 $frontMatter = $newPageView->getFrontMatter();
@@ -148,6 +166,10 @@ class Website
                 $this->addToSiteMenu($frontMatter);
 
                 $this->pageViews[] = $newPageView;
+
+                $this->logger->info("Found PageView: {name}", array(
+                    "name" => $viewFile
+                ));
             }
         }
     }
