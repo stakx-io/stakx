@@ -24,6 +24,7 @@
     "symfony/console": "v2.8.3",
     "symfony/finder": "v2.8.3",
     "jasonlewis/resource-watcher": "^1.2",
-    "psr/log": "^1.0"
+    "psr/log": "^1.0",
+    "scrivo/highlight.php": "v9.0.0"
   }
 }

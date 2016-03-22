@@ -7,6 +7,26 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ut condiment
 
 Suspendisse laoreet mauris diam, nec efficitur augue interdum sed. Cras at aliquet magna, eu elementum eros. Sed dui mauris, dictum ut velit eu, rhoncus congue velit. Praesent dapibus mauris id faucibus hendrerit. Suspendisse quis hendrerit ante. Praesent a felis mi. Cras auctor justo at nibh commodo posuere. Nullam et dignissim nunc, in imperdiet nibh. Proin posuere ultrices turpis non pretium. Mauris ut pellentesque nibh. Integer eget mauris leo.
 
+```php
+<?php
+
+echo "Hello World";
+```
+
+```ruby
+class HelloWorld
+   def initialize(name)
+      @name = name.capitalize
+   end
+   def sayHi
+      puts "Hello #{@name}!"
+   end
+end
+
+hello = HelloWorld.new("World")
+hello.sayHi
+```
+
 ## Important Header
 
 Ut volutpat tortor fermentum, pharetra ante ac, efficitur purus. Proin non tortor ut nisi porta dignissim eget sit amet velit. Nulla sit amet lacinia felis, quis sollicitudin sapien. Mauris eu sem laoreet, viverra tortor a, volutpat velit. Nulla vel auctor tortor. Donec imperdiet vestibulum nibh eget consectetur. Vestibulum sed mauris eleifend, varius orci nec, imperdiet est. Duis viverra mauris sem, tempus fringilla quam posuere quis. In pretium porta purus non sagittis. Proin finibus lacus turpis, sed ultrices ipsum faucibus commodo. Vestibulum elit neque, pretium ut dictum quis, gravida in leo. Nam dictum tortor turpis, a volutpat justo interdum nec. Pellentesque porta, tortor vel iaculis aliquam, mauris lectus lobortis augue, sed scelerisque dui ligula lobortis massa. Suspendisse potenti. Vivamus sollicitudin elit in diam elementum dapibus.

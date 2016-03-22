@@ -275,6 +275,7 @@ class Website
         $this->twig->addGlobal('collections', $this->collections);
         $this->twig->addGlobal('menu', $this->siteMenu);
         $this->twig->addExtension(new TwigExtension());
+        $this->twig->addExtension(new \Twig_Extensions_Extension_Text());
 
         if ($this->configuration->isDebug())
         {

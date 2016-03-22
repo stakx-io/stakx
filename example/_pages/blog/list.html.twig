@@ -1,16 +1,15 @@
 ---
-title: Updates
+title: Tutorials
+slug: What can Stakx do out of the box?
 permalink: /blog/
 ---
 
 {% extends "_layouts/base.html.twig" %}
 
-{% block body %}
+{% block content %}
     {% for post in collections.posts %}
         <article>
             <h1>{{ post.title }}</h1>
-
-            <p>{{ post.permalink }}</p>
 
             <section>
                 {{ post.content | raw }}

@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Core\MarkdownEngine;
 use allejo\stakx\Environment\Filesystem;
 use allejo\stakx\Exception\YamlVariableNotFound;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -134,7 +135,7 @@ class ContentItem
 
     public function getContent ()
     {
-        $pd = new \Parsedown();
+        $pd = new MarkdownEngine();
 
         return $pd->parse($this->bodyContent);
     }
