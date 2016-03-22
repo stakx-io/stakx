@@ -264,7 +264,7 @@ class Website
     {
         // @todo Throw an error if theme is not found
         $loader = new Twig_Loader_Filesystem(array(
-            sprintf('_themes/%s/', $this->configuration->getTheme()),
+            $this->fs->buildPath('_themes', $this->configuration->getTheme()),
             '.'
         ));
         $this->twig = new Twig_Environment($loader, array(
