@@ -74,7 +74,7 @@ class Configuration
         return$this->configuration;
     }
 
-    public function getPageViews ()
+    public function getPageViewFolders ()
     {
         return $this->configuration["pageviews"];
     }

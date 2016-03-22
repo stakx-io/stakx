@@ -56,4 +56,14 @@ class BuildCommand extends Command
         $this->website->setConfiguration($input->getOption('conf'));
         $this->website->build();
     }
+
+    /**
+     * @internal
+     *
+     * @return \allejo\stakx\Object\Website
+     */
+    public function _getWebsite()
+    {
+        return $this->website;
+    }
 }

@@ -71,6 +71,24 @@ class Website
         $this->configuration = new Configuration($configFile, $this->logger);
     }
 
+    public function handleSingleFile ($filePath)
+    {
+        $filePath = ltrim($filePath, DIRECTORY_SEPARATOR);
+        $pageViewDirs = $this->configuration->getPageViewFolders();
+        $collectionDirs = array_map(function ($a) { return $a["folder"]; }, $this->configuration->getCollectionsFolders());
+
+        $_paths = explode(DIRECTORY_SEPARATOR, $filePath);
+
+        if (count($_paths) > 1 && (in_array($_paths[0], $collectionDirs) || in_array($_paths[0], $pageViewDirs)))
+        {
+
+        }
+        else
+        {
+            $this->copyToCompiledSite($filePath);
+        }
+    }
+
     /**
      * Go through all of the collections and create respective ContentItems for each entry
      */
@@ -129,7 +147,7 @@ class Website
      */
     private function parsePageViews ()
     {
-        $pageViews = $this->getConfiguration()->getPageViews();
+        $pageViews = $this->getConfiguration()->getPageViewFolders();
         $this->pageViews = array();
 
         /**
@@ -184,8 +202,8 @@ class Website
 
         $url = $frontMatter['permalink'];
         $root = &$this->siteMenu;
-        $permalink = trim($url, '/');
-        $dirs = explode('/', $permalink);
+        $permalink = trim($url, DIRECTORY_SEPARATOR);
+        $dirs = explode(DIRECTORY_SEPARATOR, $permalink);
 
         while (count($dirs) > 0)
         {
@@ -194,7 +212,7 @@ class Website
 
             if (!isset($root[$name]) && !is_null($name) && count($dirs) == 0)
             {
-                $link = (pathinfo($url, PATHINFO_EXTENSION) !== "") ? $url : $permalink . '/';
+                $link = (pathinfo($url, PATHINFO_EXTENSION) !== "") ? $url : $permalink . DIRECTORY_SEPARATOR;
 
                 $root[$name] = array_merge($frontMatter, array(
                     "url"  => '/' . $link,
