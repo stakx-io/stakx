@@ -9,7 +9,9 @@ permalink: /blog/
 {% block content %}
     {% for post in collections.posts | order('date', 'DESC') %}
         <article>
-            <h2>{{ post.title }}</h2>
+            <h2>
+                <a href="{{ post.permalink }}">{{ post.title }}</a>
+            </h2>
             <p class="text-muted"><strong>{{ post.date | date("F d, Y") }}</strong></p>
 
             <section>

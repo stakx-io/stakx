@@ -180,7 +180,28 @@ class Website
             {
                 $newPageView = new PageView($viewFile);
 
-                if (!$newPageView->isDynamicPage())
+                if ($newPageView->isDynamicPage())
+                {
+                    $frontMatter = $newPageView->getFrontMatter(false);
+                    $collection = $frontMatter['collection'];
+
+                    if (empty($this->collections[$collection]))
+                    {
+                        $this->logger->error("The '{name}' collection cannot be found or was not defined", array(
+                            'name' => $collection
+                        ));
+
+                        continue;
+                    }
+
+                    /** @var $item ContentItem */
+                    foreach ($this->collections[$collection] as $item)
+                    {
+                        $itemFrontMatter = $item->getFrontMatter();
+                        $item->setPermalink($newPageView->getPermalink(), $itemFrontMatter);
+                    }
+                }
+                else
                 {
                     $this->addToSiteMenu($newPageView->getFrontMatter());
                 }
@@ -226,6 +247,11 @@ class Website
         }
     }
 
+    /**
+     * Go through all of the PageViews and compile them
+     *
+     * @throws \Exception
+     */
     private function compilePageViews()
     {
         /** @var $pageView PageView */
@@ -235,35 +261,40 @@ class Website
 
             if ($pageView->isDynamicPage())
             {
-                $frontMatter = $pageView->getFrontMatter(false);
-                $collection = $frontMatter['collection'];
+                $this->logger->notice("Compiling collection items for dynamic PageView '{filePath}'", array(
+                    'filePath' => $pageView->getFilePath()
+                ));
 
-                if (!isset($this->collections[$collection]))
-                {
-                    $this->logger->error("The '{name}' collection cannot be found or was not defined");
-                    continue;
-                }
+                $pageViewFrontMatter = $pageView->getFrontMatter(false);
+                $collection = $pageViewFrontMatter['collection'];
 
-                /** @var $item ContentItem */
-                foreach ($this->collections[$collection] as $item)
+                /** @var $contentItem ContentItem */
+                foreach ($this->collections[$collection] as $contentItem)
                 {
-                    $itemFrontMatter = $item->getFrontMatter();
-                    $item->setPermalink($pageView->getPermalink(), $itemFrontMatter);
+                    $this->logger->info("Compiling PageView for '{filePath}' to '{targetPath}'", array(
+                        'filePath' => $contentItem->getFilePath(),
+                        'targetPath' => $contentItem->getTargetFile()
+                    ));
 
                     $output = $template->render(array(
-                        'page' => $frontMatter,
-                        'item' => $item
+                        'page' => $pageViewFrontMatter,
+                        'item' => $contentItem
                     ));
 
                     $this->fs->writeFile(
                         $this->getConfiguration()->getTargetFolder(),
-                        $item->getTargetFile(),
+                        $contentItem->getTargetFile(),
                         $output
                     );
                 }
             }
             else
             {
+                $this->logger->notice("Compiling static PageView '{filePath}' to '{targetPath}'", array(
+                    'filePath' => $pageView->getFilePath(),
+                    'targetPath' => $pageView->getTargetFile()
+                ));
+
                 $output = $template->render(array(
                     "page" => $pageView->getFrontMatter()
                 ));
