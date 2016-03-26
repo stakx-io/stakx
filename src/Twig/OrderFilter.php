@@ -9,8 +9,8 @@ class OrderFilter
     public function __invoke ($array, $key, $order = "ASC")
     {
         usort($array, function ($a, $b) use ($key, $order) {
-            $a = !($a instanceof ContentItem) ?: $a->getFrontMatter();
-            $b = !($b instanceof ContentItem) ?: $b->getFrontMatter();
+            $a = ($a instanceof ContentItem) ? $a->getFrontMatter() : $a;
+            $b = ($b instanceof ContentItem) ? $b->getFrontMatter() : $b;
 
             if ($a[$key] == $b[$key]) return 0;
 
