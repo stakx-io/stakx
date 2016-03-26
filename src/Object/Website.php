@@ -19,6 +19,16 @@ class Website
     protected $twig;
 
     /**
+     * @var PageView[]
+     */
+    private $dynamicPageViews;
+
+    /**
+     * @var PageView[]
+     */
+    private $staticPageViews;
+
+    /**
      * @var Configuration
      */
     private $configuration;
@@ -29,12 +39,18 @@ class Website
     private $collections;
 
     /**
-     * @var PageView[]
+     * @var array
      */
-    private $pageViews;
     private $siteMenu;
-    private $errors;
+
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
     private $logger;
+
+    /**
+     * @var \allejo\stakx\Environment\Filesystem
+     */
     private $fs;
 
     public function __construct (LoggerInterface $logger)
@@ -45,13 +61,13 @@ class Website
 
     public function build ()
     {
-        $this->errors = array();
-
+        $this->makeCacheFolder();
         $this->parseCollections();
         $this->parsePageViews();
-        $this->makeCacheFolder();
+        $this->prepareDynamicPageViews();
         $this->configureTwig();
-        $this->compilePageViews();
+        $this->compileDynamicPageViews();
+        $this->compileStaticPageViews();
         $this->copyStaticFiles();
     }
 
@@ -86,6 +102,17 @@ class Website
         else
         {
             $this->copyToCompiledSite($filePath);
+        }
+    }
+
+    /**
+     * Prepare the Stakx environment by creating necessary cache folders
+     */
+    private function makeCacheFolder ()
+    {
+        if (!$this->fs->exists('.stakx-cache'))
+        {
+            $this->fs->mkdir('.stakx-cache/twig');
         }
     }
 
@@ -143,24 +170,26 @@ class Website
     }
 
     /**
-     * Go through all of the PageView directories and create a respective PageView for each
+     * Go through all of the PageView directories and create a respective PageView for each and classify them as a
+     * dynamic or static PageView.
      */
     private function parsePageViews ()
     {
-        $pageViews = $this->getConfiguration()->getPageViewFolders();
-        $this->pageViews = array();
+        $pageViewFolders = $this->getConfiguration()->getPageViewFolders();
+        $this->dynamicPageViews = array();
+        $this->staticPageViews = array();
 
         /**
          * The name of the folder where PageViews are located
          *
-         * @var $pageView string
+         * @var $pageViewFolder string
          */
-        foreach ($pageViews as $pageView)
+        foreach ($pageViewFolders as $pageViewFolder)
         {
-            if (!$this->fs->exists($pageView))
+            if (!$this->fs->exists($pageViewFolder))
             {
                 $this->logger->warning("The '{name}' PageView folder cannot be found", array(
-                    "name" => $pageView
+                    'name' => $pageViewFolder
                 ));
 
                 continue;
@@ -170,10 +199,10 @@ class Website
             $finder->files()
                    ->ignoreDotFiles(true)
                    ->ignoreUnreadableDirs()
-                   ->in($pageView);
+                   ->in($pageViewFolder);
 
             $this->logger->notice("Loading PageView folder: {name}", array(
-                "name" => $pageView
+                'name' => $pageViewFolder
             ));
 
             foreach ($finder as $viewFile)
@@ -182,140 +211,51 @@ class Website
 
                 if ($newPageView->isDynamicPage())
                 {
-                    $frontMatter = $newPageView->getFrontMatter(false);
-                    $collection = $frontMatter['collection'];
-
-                    if (empty($this->collections[$collection]))
-                    {
-                        $this->logger->error("The '{name}' collection cannot be found or was not defined", array(
-                            'name' => $collection
-                        ));
-
-                        continue;
-                    }
-
-                    /** @var $item ContentItem */
-                    foreach ($this->collections[$collection] as $item)
-                    {
-                        $itemFrontMatter = $item->getFrontMatter();
-                        $item->setPermalink($newPageView->getPermalink(), $itemFrontMatter);
-                    }
+                    $this->dynamicPageViews[] = $newPageView;
                 }
                 else
                 {
                     $this->addToSiteMenu($newPageView->getFrontMatter());
+                    $this->staticPageViews[] = $newPageView;
                 }
 
-                $this->pageViews[] = $newPageView;
-
-                $this->logger->info("Found PageView: {name}", array(
-                    "name" => $viewFile
+                $this->logger->info("Found {type} PageView: {name}", array(
+                    'name' => $viewFile,
+                    'type' => ($newPageView->isDynamicPage()) ? 'dynamic' : 'static'
                 ));
             }
-        }
-    }
-
-    private function addToSiteMenu ($frontMatter)
-    {
-        if (!array_key_exists('permalink', $frontMatter) ||
-            (array_key_exists('menu', $frontMatter) && !$frontMatter['menu']))
-        {
-            return;
-        }
-
-        $url = $frontMatter['permalink'];
-        $root = &$this->siteMenu;
-        $permalink = trim($url, DIRECTORY_SEPARATOR);
-        $dirs = explode(DIRECTORY_SEPARATOR, $permalink);
-
-        while (count($dirs) > 0)
-        {
-            $name = array_shift($dirs);
-            $name = (!empty($name)) ? $name : '.';
-
-            if (!isset($root[$name]) && !is_null($name) && count($dirs) == 0)
-            {
-                $link = (pathinfo($url, PATHINFO_EXTENSION) !== "") ? $url : $permalink . DIRECTORY_SEPARATOR;
-
-                $root[$name] = array_merge($frontMatter, array(
-                    "url"  => '/' . $link,
-                    "children" => array()
-                ));
-            }
-
-            $root = &$root[$name]['children'];
         }
     }
 
     /**
-     * Go through all of the PageViews and compile them
+     * Go through all of the dynamic PageViews and prepare the necessary information for each one.
      *
-     * @throws \Exception
+     * For example, permalinks are dynamic generated based on FrontMatter so this function sets the permalink for each
+     * ContentItem in a collection. This is called before dynamic PageViews are compiled in order to allow access to
+     * this information to Twig by the time it is compiled.
      */
-    private function compilePageViews()
+    private function prepareDynamicPageViews ()
     {
-        /** @var $pageView PageView */
-        foreach ($this->pageViews as $pageView)
+        foreach ($this->dynamicPageViews as $pageView)
         {
-            $template = $this->twig->createTemplate($pageView->getContent());
+            $frontMatter = $pageView->getFrontMatter(false);
+            $collection = $frontMatter['collection'];
 
-            if ($pageView->isDynamicPage())
+            if (empty($this->collections[$collection]))
             {
-                $this->logger->notice("Compiling collection items for dynamic PageView '{filePath}'", array(
-                    'filePath' => $pageView->getFilePath()
+                $this->logger->error("The '{name}' collection cannot be found or was not defined", array(
+                    'name' => $collection
                 ));
 
-                $pageViewFrontMatter = $pageView->getFrontMatter(false);
-                $collection = $pageViewFrontMatter['collection'];
-
-                /** @var $contentItem ContentItem */
-                foreach ($this->collections[$collection] as $contentItem)
-                {
-                    $this->logger->info("Compiling PageView for '{filePath}' to '{targetPath}'", array(
-                        'filePath' => $contentItem->getFilePath(),
-                        'targetPath' => $contentItem->getTargetFile()
-                    ));
-
-                    $output = $template->render(array(
-                        'page' => $pageViewFrontMatter,
-                        'item' => $contentItem
-                    ));
-
-                    $this->fs->writeFile(
-                        $this->getConfiguration()->getTargetFolder(),
-                        $contentItem->getTargetFile(),
-                        $output
-                    );
-                }
+                continue;
             }
-            else
+
+            /** @var $item ContentItem */
+            foreach ($this->collections[$collection] as $item)
             {
-                $this->logger->notice("Compiling static PageView '{filePath}' to '{targetPath}'", array(
-                    'filePath' => $pageView->getFilePath(),
-                    'targetPath' => $pageView->getTargetFile()
-                ));
-
-                $output = $template->render(array(
-                    "page" => $pageView->getFrontMatter()
-                ));
-
-                $this->fs->writeFile(
-                    $this->getConfiguration()->getTargetFolder(),
-                    $pageView->getTargetFile(),
-                    $output
-                );
+                $itemFrontMatter = $item->getFrontMatter();
+                $item->setPermalink($pageView->getPermalink(), $itemFrontMatter);
             }
-        }
-    }
-
-    /**
-     * Prepare the Stakx environment by creating necessary cache folders
-     */
-    private function makeCacheFolder ()
-    {
-        if (!$this->fs->exists('.stakx-cache'))
-        {
-            $this->fs->mkdir('.stakx-cache/twig');
         }
     }
 
@@ -365,6 +305,76 @@ class Website
     }
 
     /**
+     * A dynamic PageView is one that is built from a collection and each collection item deserves its own page. This
+     * function goes through all of the dynamic PageViews and compiles each page
+     *
+     * @throws \Exception
+     */
+    private function compileDynamicPageViews ()
+    {
+        foreach ($this->dynamicPageViews as $pageView)
+        {
+            $template = $this->twig->createTemplate($pageView->getContent());
+
+            $this->logger->notice("Compiling collection items for dynamic PageView '{filePath}'", array(
+                'filePath' => $pageView->getFilePath()
+            ));
+
+            $pageViewFrontMatter = $pageView->getFrontMatter(false);
+            $collection = $pageViewFrontMatter['collection'];
+
+            /** @var $contentItem ContentItem */
+            foreach ($this->collections[$collection] as $contentItem)
+            {
+                $this->logger->info("Compiling PageView for '{filePath}' to '{targetPath}'", array(
+                    'filePath' => $contentItem->getFilePath(),
+                    'targetPath' => $contentItem->getTargetFile()
+                ));
+
+                $output = $template->render(array(
+                    'page' => $pageViewFrontMatter,
+                    'item' => $contentItem
+                ));
+
+                $this->fs->writeFile(
+                    $this->getConfiguration()->getTargetFolder(),
+                    $contentItem->getTargetFile(),
+                    $output
+                );
+            }
+        }
+    }
+
+    /**
+     * A static PageView is built from a single Twig file and is not automatically rendered based on a collection's
+     * content. This function goes through all of the static PageViews and compiles them.
+     *
+     * @throws \Exception
+     */
+    private function compileStaticPageViews ()
+    {
+        foreach ($this->staticPageViews as $pageView)
+        {
+            $template = $this->twig->createTemplate($pageView->getContent());
+
+            $this->logger->notice("Compiling static PageView '{filePath}' to '{targetPath}'", array(
+                'filePath' => $pageView->getFilePath(),
+                'targetPath' => $pageView->getTargetFile()
+            ));
+
+            $output = $template->render(array(
+                "page" => $pageView->getFrontMatter()
+            ));
+
+            $this->fs->writeFile(
+                $this->getConfiguration()->getTargetFolder(),
+                $pageView->getTargetFile(),
+                $output
+            );
+        }
+    }
+
+    /**
      * Copy the static files from the current directory into the compiled website directory.
      *
      * Static files are defined as follows:
@@ -384,6 +394,43 @@ class Website
         foreach ($finder as $file)
         {
             $this->copyToCompiledSite($file->getRelativePathname());
+        }
+    }
+
+    /**
+     * Add a static PageView to the menu array. Dynamic PageViews are not added to the menu
+     *
+     * @param array $frontMatter
+     */
+    private function addToSiteMenu ($frontMatter)
+    {
+        if (!array_key_exists('permalink', $frontMatter) ||
+            (array_key_exists('menu', $frontMatter) && !$frontMatter['menu']))
+        {
+            return;
+        }
+
+        $url = $frontMatter['permalink'];
+        $root = &$this->siteMenu;
+        $permalink = trim($url, DIRECTORY_SEPARATOR);
+        $dirs = explode(DIRECTORY_SEPARATOR, $permalink);
+
+        while (count($dirs) > 0)
+        {
+            $name = array_shift($dirs);
+            $name = (!empty($name)) ? $name : '.';
+
+            if (!isset($root[$name]) && !is_null($name) && count($dirs) == 0)
+            {
+                $link = (pathinfo($url, PATHINFO_EXTENSION) !== "") ? $url : $permalink . DIRECTORY_SEPARATOR;
+
+                $root[$name] = array_merge($frontMatter, array(
+                    "url"  => '/' . $link,
+                    "children" => array()
+                ));
+            }
+
+            $root = &$root[$name]['children'];
         }
     }
 
