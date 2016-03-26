@@ -285,13 +285,34 @@ class Website
         }
     }
 
+    /**
+     * Configure the Twig environment used by Stakx. This includes loading themes, global variables, extensions, and
+     * debug settings.
+     *
+     * @todo Load custom Twig extensions from _config.yml
+     */
     private function configureTwig ()
     {
-        // @todo Throw an error if theme is not found
-        $loader = new Twig_Loader_Filesystem(array(
-            $this->fs->buildPath('_themes', $this->configuration->getTheme()),
-            '.'
-        ));
+        $loader = new Twig_Loader_Filesystem(array('.'));
+        $theme  = $this->configuration->getTheme();
+
+        // Only load a theme if one is specified and actually exists
+        if (!empty($theme))
+        {
+            try
+            {
+                $loader->addPath($this->fs->buildPath('_themes', $this->configuration->getTheme()));
+            }
+            catch (\Twig_Error_Loader $e)
+            {
+                $this->logger->error("The following theme could not be loaded: {theme}", array(
+                    "theme" => $theme
+                ));
+                $this->logger->error($e->getMessage());
+            }
+        }
+
+        // @todo Figure out Twig caching issues
         $this->twig = new Twig_Environment($loader, array(
             //'cache' => '.stakx-cache/twig'
         ));
