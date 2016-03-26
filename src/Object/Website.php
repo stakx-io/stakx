@@ -124,7 +124,7 @@ class Website
                    ->ignoreUnreadableDirs()
                    ->in($collection['folder']);
 
-            $this->logger->notice("Loading collection: {name}", array(
+            $this->logger->notice("Building collection: {name}", array(
                 "name" => $collection['name']
             ));
 
@@ -133,7 +133,7 @@ class Website
             {
                 $filePath = $this->fs->buildPath($collection['folder'], $file->getRelativePathname());
 
-                $this->logger->info("Found entry: {file}", array(
+                $this->logger->info("Found collection entry: {file}", array(
                     "file" => $filePath
                 ));
 
@@ -277,6 +277,9 @@ class Website
         }
     }
 
+    /**
+     * Prepare the Stakx environment by creating necessary cache folders
+     */
     private function makeCacheFolder ()
     {
         if (!$this->fs->exists('.stakx-cache'))
@@ -361,10 +364,17 @@ class Website
      */
     private function copyToCompiledSite ($filePath)
     {
-        $this->fs->copy(
-            $filePath,
-            $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $filePath),
-            true
-        );
+        try
+        {
+            $this->fs->copy(
+                $filePath,
+                $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $filePath),
+                true
+            );
+        }
+        catch (\Exception $e)
+        {
+            $this->logger->error($e->getMessage());
+        }
     }
 }
