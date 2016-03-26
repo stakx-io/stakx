@@ -1,6 +1,6 @@
 # Stakx
 
-Stakx is a static website generator written in PHP as a popular alternative to Jekyll or Sculpin. This project is still a work in progress and has yet to see a tagged release but is functional.
+Stakx is a static website generator written in PHP as a popular alternative to Jekyll or Sculpin. This project is still a work in progress and has yet to see a stable release but is functional.
 
 ## Sample Usage
 
