@@ -47,6 +47,13 @@ class ContentItem
     protected $permalink;
 
     /**
+     * The original file path to the ContentItem
+     *
+     * @var string
+     */
+    protected $filePath;
+
+    /**
      * A datetime object if the front matter contains a `date` field
      *
      * @var \DateTime
@@ -69,6 +76,7 @@ class ContentItem
 
     public function __construct($filePath)
     {
+        $this->filePath = $filePath;
         $this->fs = new Filesystem();
 
         if (!$this->fs->exists($filePath))
@@ -160,6 +168,11 @@ class ContentItem
         }
 
         return ltrim($targetFile, '/');
+    }
+
+    public function getFilePath ()
+    {
+        return $this->filePath;
     }
 
     public function getContent ()
