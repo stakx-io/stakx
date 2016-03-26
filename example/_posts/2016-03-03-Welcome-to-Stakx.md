@@ -21,7 +21,6 @@ After you've defined a collection, simply create a Twig template defining which 
 collections:
   - name: posts
     folder: _posts
-    permalink: /blog/:year/:month/:day/:title
 ```
 
 ```_pages/blog/show.html.twig```
@@ -29,6 +28,7 @@ collections:
 ```twig
 ---
 collections: posts
+permalink: /blog/:year/:month/:day/:title
 ---
 
 <h1>{{ item.title }}</h1>

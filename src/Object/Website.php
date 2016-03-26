@@ -179,9 +179,11 @@ class Website
             foreach ($finder as $viewFile)
             {
                 $newPageView = new PageView($viewFile);
-                $frontMatter = $newPageView->getFrontMatter();
 
-                $this->addToSiteMenu($frontMatter);
+                if (!$newPageView->isDynamicPage())
+                {
+                    $this->addToSiteMenu($newPageView->getFrontMatter());
+                }
 
                 $this->pageViews[] = $newPageView;
 
@@ -226,22 +228,45 @@ class Website
 
     private function compilePageViews()
     {
-        /**
-         * @var $pageView PageView
-         */
+        /** @var $pageView PageView */
         foreach ($this->pageViews as $pageView)
         {
+            $template = $this->twig->createTemplate($pageView->getContent());
+
             if ($pageView->isDynamicPage())
             {
+                $frontMatter = $pageView->getFrontMatter(false);
+                $collection = $frontMatter['collection'];
 
+                if (!isset($this->collections[$collection]))
+                {
+                    $this->logger->error("The '{name}' collection cannot be found or was not defined");
+                    continue;
+                }
+
+                /** @var $item ContentItem */
+                foreach ($this->collections[$collection] as $item)
+                {
+                    $itemFrontMatter = $item->getFrontMatter();
+                    $item->setPermalink($pageView->getPermalink(), $itemFrontMatter);
+
+                    $output = $template->render(array(
+                        'page' => $frontMatter,
+                        'item' => $item
+                    ));
+
+                    $this->fs->writeFile(
+                        $this->getConfiguration()->getTargetFolder(),
+                        $item->getTargetFile(),
+                        $output
+                    );
+                }
             }
             else
             {
-                $template = $this->twig->createTemplate($pageView->getContent());
-                $twigInfo = array(
-                    "page" => $pageView->getFrontMatter(),
-                );
-                $output   = $template->render($twigInfo);
+                $output = $template->render(array(
+                    "page" => $pageView->getFrontMatter()
+                ));
 
                 $this->fs->writeFile(
                     $this->getConfiguration()->getTargetFolder(),

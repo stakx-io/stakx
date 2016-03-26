@@ -12,19 +12,6 @@ class PageView extends ContentItem
         return $this->bodyContent;
     }
 
-    public function getTargetFile ()
-    {
-        $extension  = $this->fs->getExtension($this->getPermalink());
-        $targetFile = $this->getPermalink();
-
-        if ($extension === "")
-        {
-            $targetFile = rtrim($this->getPermalink(), '/') . '/index.html';
-        }
-
-        return ltrim($targetFile, '/');
-    }
-
     /**
      * A page is considered "dynamic" if it is dynamically generated from data in a collection.
      *

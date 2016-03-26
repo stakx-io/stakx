@@ -117,9 +117,9 @@ class ContentItem
         return array_key_exists($name, $this->frontMatter);
     }
 
-    public function getFrontMatter ()
+    public function getFrontMatter ($evaluateYaml = true)
     {
-        if (!$this->frontMatterEvaluated)
+        if (!$this->frontMatterEvaluated && $evaluateYaml)
         {
             $this->evaluateYaml($this->frontMatter);
             $this->frontMatterEvaluated = true;
@@ -131,6 +131,35 @@ class ContentItem
     public function getPermalink ()
     {
         return $this->permalink;
+    }
+
+    public function setPermalink ($permalink, $variables = null)
+    {
+        if (!is_null($variables))
+        {
+            $this->permalink = self::evaluateYamlVar($permalink, $variables);
+            $this->permalink = str_replace(' ', '-', $this->permalink);
+            $this->permalink = preg_replace('/[^A-Za-z0-9\-\/]/', '', $this->permalink);
+            $this->frontMatter['permalink'] = $this->permalink;
+        }
+        else
+        {
+            $this->permalink = $permalink;
+            $this->frontMatter['permalink'] = $permalink;
+        }
+    }
+
+    public function getTargetFile ()
+    {
+        $extension  = $this->fs->getExtension($this->getPermalink());
+        $targetFile = $this->getPermalink();
+
+        if ($extension === "")
+        {
+            $targetFile = rtrim($this->getPermalink(), '/') . '/index.html';
+        }
+
+        return ltrim($targetFile, '/');
     }
 
     public function getContent ()
@@ -167,7 +196,7 @@ class ContentItem
         {
             $yamlVar = substr($variable, 1);
 
-            if (array_key_exists($yamlVar, $yaml))
+            if (!array_key_exists($yamlVar, $yaml))
             {
                 throw new YamlVariableNotFound("Yaml variable `$variable` is not defined");
             }

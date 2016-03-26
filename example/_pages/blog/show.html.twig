@@ -1,13 +1,14 @@
 ---
 collection: posts
+permalink: /blog/:year/:month/:day/:title/
 ---
 
 {% extends "_layouts/base.html.twig" %}
 
-{% block body %}
-    <h1>{{ page.title }}</h1>
+{% block content %}
+    <h1>{{ item.title }}</h1>
 
     <section>
-        {{ page.content }}
+        {{ item.content | raw }}
     </section>
 {% endblock %}
