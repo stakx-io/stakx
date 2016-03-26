@@ -2,11 +2,16 @@
 
 namespace allejo\stakx\Twig;
 
+use allejo\stakx\Object\ContentItem;
+
 class OrderFilter
 {
     public function __invoke ($array, $key, $order = "ASC")
     {
         usort($array, function ($a, $b) use ($key, $order) {
+            $a = !($a instanceof ContentItem) ?: $a->getFrontMatter();
+            $b = !($b instanceof ContentItem) ?: $b->getFrontMatter();
+
             if ($a[$key] == $b[$key]) return 0;
 
             if (strtolower($order) === "desc") {
