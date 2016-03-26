@@ -1,5 +1,5 @@
 ---
-title: Tutorials
+title: Quick Intro
 slug: What can Stakx do out of the box?
 permalink: /blog/
 ---
@@ -13,10 +13,6 @@ permalink: /blog/
                 <a href="{{ post.permalink }}">{{ post.title }}</a>
             </h2>
             <p class="text-muted"><strong>{{ post.date | date("F d, Y") }}</strong></p>
-
-            <section>
-                {{ post.content | raw }}
-            </section>
         </article>
     {% endfor %}
 {% endblock %}

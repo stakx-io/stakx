@@ -1,7 +1,7 @@
 ---
 title: All My Friends Are Dead
 date: 2010-06-30
-isbn: 0811874559
+isbn: "0811874559"
 pages: 96
 ---
 

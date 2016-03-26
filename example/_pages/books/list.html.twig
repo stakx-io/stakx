@@ -1,0 +1,20 @@
+---
+title: Books
+slug: A Collection of Random Books
+permalink: /books/
+---
+
+{% extends '_layouts/base.html.twig' %}
+
+{% block content %}
+    {% for book in collections.books | order('title', 'ASC') %}
+        <article>
+            <p>
+                <strong><a href="{{ book.permalink }}">{{ book.title }}</a></strong>
+            </p>
+            <p>
+                <strong>ISBN:</strong> {{ book.isbn }}
+            </p>
+        </article>
+    {% endfor %}
+{% endblock %}

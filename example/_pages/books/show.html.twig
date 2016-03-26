@@ -1,0 +1,18 @@
+---
+collection: books
+permalink: /books/:isbn/
+---
+
+{% extends '_layouts/base.html.twig' %}
+
+{% block content %}
+    <article>
+        <p><strong>{{ item.title }}</strong></p>
+        <p><strong>ISBN:</strong> {{ item.isbn }}</p>
+        <p><strong>Pages:</strong> {{ item.pages }}</p>
+
+        <section>
+            {{ item.content | raw }}
+        </section>
+    </article>
+{% endblock %}

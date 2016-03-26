@@ -6,9 +6,11 @@ permalink: /blog/:year/:month/:day/:title/
 {% extends "_layouts/base.html.twig" %}
 
 {% block content %}
-    <h1>{{ item.title }}</h1>
+    <article>
+        <h2>{{ item.title }}</h2>
 
-    <section>
-        {{ item.content | raw }}
-    </section>
+        <section>
+            {{ item.content | raw }}
+        </section>
+    </article>
 {% endblock %}

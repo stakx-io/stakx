@@ -1,5 +1,5 @@
 ---
-title: Welcome to Stakx
+title: Introduction to Stakx
 date: 2016-03-03
 ---
 
