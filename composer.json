@@ -19,12 +19,14 @@
     "twig/twig": "v1.24.0",
     "symfony/yaml": "v3.0.3",
     "erusev/parsedown": "1.6.0",
-    "phpunit/phpunit": "4.8.23",
     "symfony/filesystem": "v2.8.3",
     "symfony/console": "v2.8.3",
     "symfony/finder": "v2.8.3",
     "jasonlewis/resource-watcher": "^1.2",
     "psr/log": "^1.0",
     "scrivo/highlight.php": "v9.0.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.8.23"
   }
 }
