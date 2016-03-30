@@ -128,6 +128,7 @@ fabric.properties
 /app/bootstrap.php.cache
 /var/bootstrap.php.cache
 /bin/*
+!/bin/stakx
 !bin/console
 !bin/symfony_requirements
 /vendor/
