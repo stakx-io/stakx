@@ -1,0 +1,27 @@
+{
+    "chmod": "0755",
+    "directories": [
+        "src",
+        "vendor/scrivo/highlight.php/Highlight/languages"
+    ],
+    "files": [
+        "LICENSE.md"
+    ],
+    "finder": [
+        {
+            "name": "*.php",
+            "exclude": [
+                "phpunit",
+                "phpunit-test-case",
+                "Tester",
+                "Tests",
+                "tests"
+            ],
+            "in": "vendor"
+        }
+    ],
+    "git-version": "package_version",
+    "main": "bin/stakx",
+    "output": "stakx.phar",
+    "stub": true
+}
