@@ -1,4 +1,6 @@
 {
+    "algorithm": "OPENSSL",
+    "compression": "GZ",
     "chmod": "0755",
     "directories": [
         "src",
@@ -21,6 +23,8 @@
         }
     ],
     "git-version": "package_version",
+    "intercept": true,
+    "key": ".travis/phar-deploy.pem",
     "main": "bin/stakx",
     "output": "stakx.phar",
     "stub": true
