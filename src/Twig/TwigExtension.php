@@ -15,7 +15,7 @@ class TwigExtension extends \Twig_Extension
     public function getFunctions ()
     {
         return array(
-            FileFunction::get()
+            FinderFunction::get()
         );
     }
 
