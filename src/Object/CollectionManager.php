@@ -28,6 +28,8 @@ class CollectionManager
 
     public function parseCollections ($folders)
     {
+        if ($folders === null) { return; }
+
         /**
          * The information which each collection has taken from the configuration file
          *
