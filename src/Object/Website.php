@@ -55,6 +55,7 @@ class Website
 
     public function __construct (LoggerInterface $logger)
     {
+        $this->cm = new CollectionManager();
         $this->fs = new Filesystem();
         $this->logger = $logger;
     }
@@ -62,7 +63,11 @@ class Website
     public function build ()
     {
         $this->makeCacheFolder();
-        $this->parseCollections();
+
+        // Prepare collections
+        $this->cm->parseCollections($this->configuration->getCollectionsFolders());
+        $this->collections = $this->cm->getCollections();
+
         $this->parsePageViews();
         $this->prepareDynamicPageViews();
         $this->configureTwig();
@@ -113,59 +118,6 @@ class Website
         if (!$this->fs->exists('.stakx-cache'))
         {
             $this->fs->mkdir('.stakx-cache/twig');
-        }
-    }
-
-    /**
-     * Go through all of the collections and create respective ContentItems for each entry
-     */
-    private function parseCollections ()
-    {
-        $collections = $this->configuration->getCollectionsFolders();
-        $this->collections = array();
-
-        /**
-         * The information which each collection has taken from the configuration file
-         *
-         * $collection['name']      string The name of the collection
-         *            ['folder']    string The folder where this collection has its ContentItems
-         *            ['permalink'] string The URL pattern each ContentItem will have
-         *
-         * @var $collection array
-         */
-        foreach ($collections as $collection)
-        {
-            if (!$this->fs->exists($collection['folder']))
-            {
-                $this->logger->warning("The '{name}' collection cannot find the following folder: `{folder}`", array(
-                    "name"   => $collection['name'],
-                    "folder" => $collection['folder']
-                ));
-
-                continue;
-            }
-
-            $finder = new Finder();
-            $finder->files()
-                   ->ignoreDotFiles(true)
-                   ->ignoreUnreadableDirs()
-                   ->in($collection['folder']);
-
-            $this->logger->notice("Building collection: {name}", array(
-                "name" => $collection['name']
-            ));
-
-            /** @var $file SplFileInfo */
-            foreach ($finder as $file)
-            {
-                $filePath = $this->fs->buildPath($collection['folder'], $file->getRelativePathname());
-
-                $this->logger->info("Found collection entry: {file}", array(
-                    "file" => $filePath
-                ));
-
-                $this->collections[$collection['name']][] = new ContentItem($filePath);
-            }
         }
     }
 
