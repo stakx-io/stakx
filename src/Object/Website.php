@@ -340,7 +340,7 @@ class Website
                ->ignoreDotFiles(true)
                ->ignoreUnreadableDirs()
                ->in('.')
-               ->notPath('/_.*/');
+               ->notPath('/^_.*/');
 
         /** @var $file SplFileInfo */
         foreach ($finder as $file)
