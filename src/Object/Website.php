@@ -62,7 +62,7 @@ class Website
 
     public function build ()
     {
-        $this->makeCacheFolder();
+        $this->createFolderStructure();
 
         // Prepare collections
         $this->cm->parseCollections($this->configuration->getCollectionsFolders());
@@ -113,12 +113,11 @@ class Website
     /**
      * Prepare the Stakx environment by creating necessary cache folders
      */
-    private function makeCacheFolder ()
+    private function createFolderStructure ()
     {
-        if (!$this->fs->exists('.stakx-cache'))
-        {
-            $this->fs->mkdir('.stakx-cache/twig');
-        }
+        $this->fs->remove('.stakx-cache/');
+        $this->fs->remove('_site/');
+        $this->fs->mkdir('.stakx-cache/twig');
     }
 
     /**
@@ -223,7 +222,7 @@ class Website
         $theme  = $this->configuration->getTheme();
 
         // Only load a theme if one is specified and actually exists
-        if (!empty($theme))
+        if (!is_null($theme))
         {
             try
             {
@@ -238,9 +237,8 @@ class Website
             }
         }
 
-        // @todo Figure out Twig caching issues
         $this->twig = new Twig_Environment($loader, array(
-            //'cache' => '.stakx-cache/twig'
+            'cache' => '.stakx-cache/twig'
         ));
 
         $this->twig->addGlobal('site', $this->configuration->getConfiguration());
