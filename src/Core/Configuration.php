@@ -66,7 +66,7 @@ class Configuration
 
     public function getTheme ()
     {
-        return $this->configuration['theme'];
+        return ((isset($this->configuration['theme'])) ? $this->configuration['theme'] : null);
     }
 
     public function getConfiguration ()
@@ -86,21 +86,14 @@ class Configuration
 
     public function getCollectionsFolders ()
     {
-        return $this->configuration["collections"];
+        return ((isset($this->configuration['collections'])) ? $this->configuration['collections'] : null);
     }
 
     private function defaultConfiguration()
     {
         $defaultConfig = array(
             "target" => "_site",
-            "theme"  => "bootstrap",
             "debug"  => false,
-            "collections" => array(
-                array(
-                    "name" => "posts",
-                    "folder" => "_posts"
-                )
-            ),
             "pageviews" => array(
                 "_pages"
             )
