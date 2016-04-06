@@ -34,7 +34,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
 
     public function writeFile ($targetDir, $fileName, $content)
     {
-        $outputFolder = $this->getFolderPath($this->buildPath($targetDir, $fileName));
+        $outputFolder = $this->getFolderPath($this->buildPath(getcwd(), $targetDir, $fileName));
         $targetFile   = $this->getFileName($fileName);
 
         if (!file_exists($outputFolder))

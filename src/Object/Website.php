@@ -115,8 +115,11 @@ class Website
      */
     private function createFolderStructure ()
     {
-        $this->fs->remove('.stakx-cache/');
-        $this->fs->remove('_site/');
+        $this->fs->remove(array(
+            $this->fs->buildPath(getcwd(), '.stakx-cache'),
+            $this->fs->buildPath(getcwd(), '_site')
+        ));
+
         $this->fs->mkdir('.stakx-cache/twig');
     }
 
@@ -135,8 +138,10 @@ class Website
          *
          * @var $pageViewFolder string
          */
-        foreach ($pageViewFolders as $pageViewFolder)
+        foreach ($pageViewFolders as $pageViewFolderName)
         {
+            $pageViewFolder = $this->fs->buildPath(getcwd(), $pageViewFolderName);
+
             if (!$this->fs->exists($pageViewFolder))
             {
                 $this->logger->warning("The '{name}' PageView folder cannot be found", array(
@@ -218,7 +223,9 @@ class Website
      */
     private function configureTwig ()
     {
-        $loader = new Twig_Loader_Filesystem(array('.'));
+        $loader = new Twig_Loader_Filesystem(array(
+            getcwd()
+        ));
         $theme  = $this->configuration->getTheme();
 
         // Only load a theme if one is specified and actually exists
@@ -226,7 +233,7 @@ class Website
         {
             try
             {
-                $loader->addPath($this->fs->buildPath('_themes', $this->configuration->getTheme()));
+                $loader->addPath($this->fs->buildPath(getcwd(), '_themes', $this->configuration->getTheme()));
             }
             catch (\Twig_Error_Loader $e)
             {
@@ -337,7 +344,7 @@ class Website
         $finder->files()
                ->ignoreDotFiles(true)
                ->ignoreUnreadableDirs()
-               ->in('.')
+               ->in(getcwd())
                ->notPath('/^_.*/');
 
         /** @var $file SplFileInfo */
@@ -395,8 +402,8 @@ class Website
         try
         {
             $this->fs->copy(
-                $filePath,
-                $this->fs->buildPath($this->getConfiguration()->getTargetFolder(), $filePath),
+                $this->fs->buildPath(getcwd(), $filePath),
+                $this->fs->buildPath(getcwd(), $this->getConfiguration()->getTargetFolder(), $filePath),
                 true
             );
         }
