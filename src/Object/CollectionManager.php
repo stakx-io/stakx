@@ -41,7 +41,7 @@ class CollectionManager
          */
         foreach ($folders as $collection)
         {
-            $collectionFolder = $this->fs->buildPath(getcwd(), $collection['folder']);
+            $collectionFolder = $this->fs->absolutePath($collection['folder']);
 
             if (!$this->fs->exists($collectionFolder))
             {
@@ -57,7 +57,7 @@ class CollectionManager
             /** @var $file SplFileInfo */
             foreach ($finder as $file)
             {
-                $filePath = $this->fs->buildPath($collectionFolder, $file->getRelativePathname());
+                $filePath = $this->fs->relativePath($collectionFolder, $file->getRelativePathname());
                 $fileHash = substr(sha1($filePath), 0, 7);
 
                 $this->collections[$collection['name']][$fileHash] = new ContentItem($filePath);

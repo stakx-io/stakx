@@ -45,7 +45,7 @@ class BuildCommand extends Command
 
         $this->setName('build');
         $this->setDescription('Builds the stakx website');
-        $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', $this->fs->buildPath(getcwd(), Configuration::DEFAULT_NAME));
+        $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', $this->fs->absolutePath(Configuration::DEFAULT_NAME));
     }
 
     protected function execute (InputInterface $input, OutputInterface $output)

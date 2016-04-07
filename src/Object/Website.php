@@ -116,8 +116,8 @@ class Website
     private function createFolderStructure ()
     {
         $this->fs->remove(array(
-            $this->fs->buildPath(getcwd(), '.stakx-cache'),
-            $this->fs->buildPath(getcwd(), '_site')
+            $this->fs->absolutePath('.stakx-cache'),
+            $this->fs->absolutePath('_site')
         ));
 
         $this->fs->mkdir('.stakx-cache/twig');
@@ -140,7 +140,7 @@ class Website
          */
         foreach ($pageViewFolders as $pageViewFolderName)
         {
-            $pageViewFolder = $this->fs->buildPath(getcwd(), $pageViewFolderName);
+            $pageViewFolder = $this->fs->absolutePath($pageViewFolderName);
 
             if (!$this->fs->exists($pageViewFolder))
             {
@@ -233,7 +233,7 @@ class Website
         {
             try
             {
-                $loader->addPath($this->fs->buildPath(getcwd(), '_themes', $this->configuration->getTheme()));
+                $loader->addPath($this->fs->absolutePath('_themes', $this->configuration->getTheme()));
             }
             catch (\Twig_Error_Loader $e)
             {
@@ -402,8 +402,8 @@ class Website
         try
         {
             $this->fs->copy(
-                $this->fs->buildPath(getcwd(), $filePath),
-                $this->fs->buildPath(getcwd(), $this->getConfiguration()->getTargetFolder(), $filePath),
+                $this->fs->absolutePath($filePath),
+                $this->fs->absolutePath($this->getConfiguration()->getTargetFolder(), $filePath),
                 true
             );
         }
