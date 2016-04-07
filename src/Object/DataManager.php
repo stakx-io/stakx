@@ -85,7 +85,7 @@ class DataManager
 
                 if (method_exists(get_called_class(), $fxnName))
                 {
-                    $this->dataItems[$name] = $fxnName($content);
+                    $this->dataItems[$name] = $this->$fxnName($content);
                 }
                 else
                 {
