@@ -64,6 +64,11 @@ class Configuration
         return $this->configuration['debug'];
     }
 
+    public function getDataFolders ()
+    {
+        return ((isset($this->configuration['data'])) ? $this->configuration['data'] : null);
+    }
+
     public function getTheme ()
     {
         return ((isset($this->configuration['theme'])) ? $this->configuration['theme'] : null);

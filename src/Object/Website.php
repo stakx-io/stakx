@@ -48,6 +48,11 @@ class Website
      */
     private $logger;
 
+    private $dataItems;
+
+    private $cm;
+    private $dm;
+
     /**
      * @var \allejo\stakx\Environment\Filesystem
      */
@@ -56,6 +61,7 @@ class Website
     public function __construct (LoggerInterface $logger)
     {
         $this->cm = new CollectionManager();
+        $this->dm = new DataManager();
         $this->fs = new Filesystem();
         $this->logger = $logger;
     }
@@ -64,8 +70,14 @@ class Website
     {
         $this->createFolderStructure();
 
-        // Prepare collections
-        $this->cm->parseCollections($this->configuration->getCollectionsFolders());
+        $messages = array();
+
+        // Parse DataItems
+        $this->dm->parseDataItems($this->getConfiguration()->getDataFolders(), $messages);
+        $this->dataItems = $this->dm->getDataItems();
+
+        // Prepare Collections
+        $this->cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
         $this->collections = $this->cm->getCollections();
 
         $this->parsePageViews();
@@ -251,6 +263,7 @@ class Website
         $this->twig->addGlobal('site', $this->configuration->getConfiguration());
         $this->twig->addGlobal('collections', $this->collections);
         $this->twig->addGlobal('menu', $this->siteMenu);
+        $this->twig->addGlobal('data', $this->dataItems);
         $this->twig->addExtension(new TwigExtension());
         $this->twig->addExtension(new \Twig_Extensions_Extension_Text());
 

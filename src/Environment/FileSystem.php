@@ -14,24 +14,14 @@ namespace allejo\stakx\Environment;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * Extends Symfony's Filesystem to provide convenience functions
+ * Class Filesystem
+ *
+ * This class extends Symfony's Filesystem to provide convenience functions
  *
  * @package allejo\stakx\Environment
  */
 class Filesystem extends \Symfony\Component\Filesystem\Filesystem
 {
-    /**
-     * Build a file or directory path separated by the OS specific directory separator
-     *
-     * @param string ...$pathFragments
-     *
-     * @return string
-     */
-    public function relativePath ($pathFragments)
-    {
-        return implode(DIRECTORY_SEPARATOR, func_get_args());
-    }
-
     /**
      * Build an absolute file or directory path separated by the OS specific directory separator
      *
@@ -45,6 +35,30 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
         array_unshift($args, getcwd());
 
         return implode(DIRECTORY_SEPARATOR, $args);
+    }
+
+    /**
+     * Build a file or directory path separated by the OS specific directory separator
+     *
+     * @param string ...$pathFragments
+     *
+     * @return string
+     */
+    public function relativePath ($pathFragments)
+    {
+        return implode(DIRECTORY_SEPARATOR, func_get_args());
+    }
+
+    /**
+     * Get the name of a given file without the extension
+     *
+     * @param  string $filePath A file path
+     *
+     * @return string
+     */
+    public function getBaseName ($filePath)
+    {
+        return pathinfo($filePath, PATHINFO_FILENAME);
     }
 
     /**
