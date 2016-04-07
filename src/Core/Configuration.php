@@ -69,6 +69,11 @@ class Configuration
         return $this->returnConfigOption('data');
     }
 
+    public function getDataSets ()
+    {
+        return $this->returnConfigOption('datasets');
+    }
+
     public function getTheme ()
     {
         return $this->returnConfigOption('theme');

@@ -74,6 +74,7 @@ class Website
 
         // Parse DataItems
         $this->dm->parseDataItems($this->getConfiguration()->getDataFolders(), $messages);
+        $this->dm->parseDataSets($this->getConfiguration()->getDataSets(), $messages);
         $this->dataItems = $this->dm->getDataItems();
 
         // Prepare Collections

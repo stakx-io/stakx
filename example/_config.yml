@@ -6,6 +6,13 @@ collections:
   - name: books
     folder: _books
 
+data:
+  - _data
+
+datasets:
+  - name: months
+    folder: _datasets/months
+
 pageviews:
   - _pages
 
