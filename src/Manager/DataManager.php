@@ -9,9 +9,9 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md
  */
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx\Manager;
 
-use allejo\stakx\Environment\Filesystem;
+use allejo\stakx\System\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
@@ -36,7 +36,7 @@ class DataManager
     protected $dataItems;
 
     /**
-     * @var \allejo\stakx\Environment\Filesystem
+     * @var \allejo\stakx\System\Filesystem
      */
     protected $fs;
 

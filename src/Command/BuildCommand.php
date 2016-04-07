@@ -2,9 +2,9 @@
 
 namespace allejo\stakx\Command;
 
-use allejo\stakx\Core\Configuration;
 use allejo\stakx\Object\ContentItem;
-use allejo\stakx\Environment\Filesystem;
+use allejo\stakx\Object\Configuration;
+use allejo\stakx\System\Filesystem;
 use allejo\stakx\Object\Website;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

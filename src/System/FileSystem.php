@@ -9,7 +9,7 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md
  */
 
-namespace allejo\stakx\Environment;
+namespace allejo\stakx\System;
 
 use Symfony\Component\Finder\SplFileInfo;
 

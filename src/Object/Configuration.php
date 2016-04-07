@@ -1,8 +1,8 @@
 <?php
 
-namespace allejo\stakx\Core;
+namespace allejo\stakx\Object;
 
-use allejo\stakx\Environment\Filesystem;
+use allejo\stakx\System\Filesystem;
 use allejo\stakx\Utilities\ArrayUtilities;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;

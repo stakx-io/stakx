@@ -1,8 +1,9 @@
 <?php
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx\Manager;
 
-use allejo\stakx\Environment\Filesystem;
+use allejo\stakx\Object\ContentItem;
+use allejo\stakx\System\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 

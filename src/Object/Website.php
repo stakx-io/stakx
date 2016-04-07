@@ -2,8 +2,9 @@
 
 namespace allejo\stakx\Object;
 
-use allejo\stakx\Core\Configuration;
-use allejo\stakx\Environment\Filesystem;
+use allejo\stakx\System\Filesystem;
+use allejo\stakx\Manager\CollectionManager;
+use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Twig\TwigExtension;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
@@ -54,7 +55,7 @@ class Website
     private $dm;
 
     /**
-     * @var \allejo\stakx\Environment\Filesystem
+     * @var \allejo\stakx\System\Filesystem
      */
     private $fs;
 
