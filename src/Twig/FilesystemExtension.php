@@ -2,13 +2,17 @@
 
 namespace allejo\stakx\Twig;
 
-class TwigExtension extends \Twig_Extension
+class FilesystemExtension extends \Twig_Extension
 {
     public function getFilters ()
     {
+        return array();
+    }
+
+    public function getFunctions ()
+    {
         return array(
-            OrderFilter::get(),
-            WhereFilter::get()
+            FinderFunction::get()
         );
     }
 
@@ -19,6 +23,6 @@ class TwigExtension extends \Twig_Extension
      */
     public function getName ()
     {
-        return 'stakx_core_extension';
+        return 'stakx_fs_extension';
     }
 }

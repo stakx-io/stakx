@@ -5,6 +5,7 @@ namespace allejo\stakx\Object;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
+use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Twig\TwigExtension;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
@@ -38,6 +39,8 @@ class Website
      * @var ContentItem[]
      */
     private $collections;
+
+    private $safeMode;
 
     /**
      * @var array
@@ -123,6 +126,17 @@ class Website
             $this->copyToCompiledSite($filePath);
         }
     }
+
+    public function getSafeMode ()
+    {
+        return $this->safeMode;
+    }
+
+    public function setSafeMode ($bool)
+    {
+        $this->safeMode = $bool;
+    }
+
 
     /**
      * Prepare the Stakx environment by creating necessary cache folders
@@ -268,6 +282,11 @@ class Website
         $this->twig->addGlobal('data', $this->dataItems);
         $this->twig->addExtension(new TwigExtension());
         $this->twig->addExtension(new \Twig_Extensions_Extension_Text());
+
+        if (!$this->safeMode)
+        {
+            $this->twig->addExtension(new FilesystemExtension());
+        }
 
         if ($this->configuration->isDebug())
         {

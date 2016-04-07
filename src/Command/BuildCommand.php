@@ -46,6 +46,7 @@ class BuildCommand extends Command
         $this->setName('build');
         $this->setDescription('Builds the stakx website');
         $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', $this->fs->absolutePath(Configuration::DEFAULT_NAME));
+        $this->addOption('safe', null, InputOption::VALUE_OPTIONAL, 'Disable file system access from Twig');
     }
 
     protected function execute (InputInterface $input, OutputInterface $output)
@@ -54,6 +55,7 @@ class BuildCommand extends Command
         $this->website = new Website($logger);
 
         $this->website->setConfiguration($input->getOption('conf'));
+        $this->website->setSafeMode($input->getOption('safe'));
         $this->website->build();
     }
 
