@@ -61,44 +61,48 @@ class Configuration
 
     public function isDebug ()
     {
-        return $this->configuration['debug'];
+        return $this->returnConfigOption('debug', false);
     }
 
     public function getDataFolders ()
     {
-        return ((isset($this->configuration['data'])) ? $this->configuration['data'] : null);
+        return $this->returnConfigOption('data');
     }
 
     public function getTheme ()
     {
-        return ((isset($this->configuration['theme'])) ? $this->configuration['theme'] : null);
+        return $this->returnConfigOption('theme');
     }
 
     public function getConfiguration ()
     {
-        return$this->configuration;
+        return $this->configuration;
     }
 
     public function getPageViewFolders ()
     {
-        return $this->configuration["pageviews"];
+        return $this->returnConfigOption('pageviews');
     }
 
     public function getTargetFolder ()
     {
-        return $this->configuration["target"];
+        return $this->returnConfigOption('target');
     }
 
     public function getCollectionsFolders ()
     {
-        return ((isset($this->configuration['collections'])) ? $this->configuration['collections'] : null);
+        return $this->returnConfigOption('collections');
+    }
+
+    private function returnConfigOption ($name, $default = null)
+    {
+        return (isset($this->configuration[$name]) ? $this->configuration[$name] : $default);
     }
 
     private function defaultConfiguration()
     {
         $defaultConfig = array(
             "target" => "_site",
-            "debug"  => false,
             "pageviews" => array(
                 "_pages"
             )
