@@ -7,6 +7,15 @@ use allejo\stakx\Object\PageView;
 use allejo\stakx\System\Filesystem;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * This class is responsible for handling all of the PageViews within a website.
+ *
+ * PageManager will parse all available dynamic and static PageViews. After, dynamic PageViews will be prepared by
+ * setting the appropriate values for each ContentItem such as permalinks. Lastly, this class will compile all of the
+ * PageViews and write them to the target directory.
+ *
+ * @package allejo\stakx\Manager
+ */
 class PageManager
 {
     /**
@@ -21,6 +30,9 @@ class PageManager
     private $siteMenu;
     private $fs;
 
+    /**
+     * PageManager constructor
+     */
     public function __construct()
     {
         $this->dynamicPageViews = array();
@@ -28,6 +40,22 @@ class PageManager
         $this->fs               = new Filesystem();
     }
 
+    /**
+     * An array representing the website's menu structure with children and grandchildren made from static PageViews
+     *
+     * @return array
+     */
+    public function getSiteMenu ()
+    {
+        return $this->siteMenu;
+    }
+
+    /**
+     * Go through all of the PageView directories and create a respective PageView for each and classify them as a
+     * dynamic or static PageView.
+     *
+     * @param $pageViewFolders
+     */
     public function parsePageViews ($pageViewFolders)
     {
         /**
@@ -98,6 +126,80 @@ class PageManager
     }
 
     /**
+     * Compile dynamic and static PageViews
+     *
+     * @param \Twig_Environment $twig        The Twig Environment configured with all of the appropriate extensions
+     * @param ContentItem[][]   $collections The collections that will be used to compile dynamic PageViews
+     * @param string            $targetDir   The relative target directory as specified from the configuration file
+     */
+    public function compile (&$twig, &$collections, $targetDir)
+    {
+        $this->compileDynamicPageViews($twig, $collections, $targetDir);
+        $this->compileStaticPageViews($twig, $targetDir);
+    }
+
+    /**
+     * A dynamic PageView is one that is built from a collection and each collection item deserves its own page. This
+     * function goes through all of the dynamic PageViews and compiles each page
+     *
+     * @param \Twig_Environment $twig        The Twig Environment configured with all of the appropriate extensions
+     * @param ContentItem[][]   $collections The collections that will be used to compile dynamic PageViews
+     * @param string            $targetDir   The relative target directory as specified from the configuration file
+     */
+    private function compileDynamicPageViews (&$twig, &$collections, $targetDir)
+    {
+        foreach ($this->dynamicPageViews as $pageView)
+        {
+            $template = $twig->createTemplate($pageView->getContent());
+
+            $pageViewFrontMatter = $pageView->getFrontMatter(false);
+            $collection = $pageViewFrontMatter['collection'];
+
+            /** @var $contentItem ContentItem */
+            foreach ($collections[$collection] as $contentItem)
+            {
+                $output = $template->render(array(
+                    'page' => $pageViewFrontMatter,
+                    'item' => $contentItem
+                ));
+
+                $this->fs->writeFile(
+                    $targetDir,
+                    $contentItem->getTargetFile(),
+                    $output
+                );
+            }
+        }
+    }
+
+    /**
+     * A static PageView is built from a single Twig file and is not automatically rendered based on a collection's
+     * content. This function goes through all of the static PageViews and compiles them.
+     *
+     * @param \Twig_Environment $twig      The Twig Environment configured with all of the appropriate extensions
+     * @param string            $targetDir The relative target directory as specified from the configuration file
+     *
+     * @throws \Exception
+     */
+    private function compileStaticPageViews (&$twig, $targetDir)
+    {
+        foreach ($this->staticPageViews as $pageView)
+        {
+            $template = $twig->createTemplate($pageView->getContent());
+
+            $output = $template->render(array(
+                "page" => $pageView->getFrontMatter()
+            ));
+
+            $this->fs->writeFile(
+                $targetDir,
+                $pageView->getTargetFile(),
+                $output
+            );
+        }
+    }
+
+    /**
      * Add a static PageView to the menu array. Dynamic PageViews are not added to the menu
      *
      * @param array $frontMatter
@@ -132,29 +234,5 @@ class PageManager
 
             $root = &$root[$name]['children'];
         }
-    }
-
-    /**
-     * @return PageView[]
-     */
-    public function getDynamicPageViews()
-    {
-        return $this->dynamicPageViews;
-    }
-
-    /**
-     * @return PageView[]
-     */
-    public function getStaticPageViews()
-    {
-        return $this->staticPageViews;
-    }
-
-    /**
-     * @return array
-     */
-    public function getSiteMenu ()
-    {
-        return $this->siteMenu;
     }
 }
