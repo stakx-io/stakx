@@ -5,7 +5,7 @@ require(__DIR__ . "/../vendor/autoload.php");
 
 use allejo\stakx\Command\BuildCommand;
 use allejo\stakx\Command\WatchCommand;
-use Symfony\Component\Console\Application;
+use allejo\stakx\Core\Application;
 
 $application = new Application('stakx', '@package_version@');
 $application->add(new BuildCommand());
