@@ -2,12 +2,14 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Core\TwigMarkdownEngine;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Twig\TwigExtension;
+use Aptoma\Twig\Extension\MarkdownExtension;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -196,10 +198,11 @@ class Website
      */
     private function configureTwig ()
     {
-        $loader = new Twig_Loader_Filesystem(array(
+        $loader   = new Twig_Loader_Filesystem(array(
             getcwd()
         ));
-        $theme  = $this->configuration->getTheme();
+        $theme    = $this->configuration->getTheme();
+        $mdEngine = new TwigMarkdownEngine();
 
         // Only load a theme if one is specified and actually exists
         if (!is_null($theme))
@@ -227,6 +230,7 @@ class Website
         $this->twig->addGlobal('data', $this->dataItems);
         $this->twig->addExtension(new TwigExtension());
         $this->twig->addExtension(new \Twig_Extensions_Extension_Text());
+        $this->twig->addExtension(new MarkdownExtension($mdEngine));
 
         if (!$this->safeMode)
         {
