@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Manager\PageManager;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
@@ -56,6 +57,7 @@ class Website
 
     private $cm;
     private $dm;
+    private $pm;
 
     /**
      * @var \allejo\stakx\System\Filesystem
@@ -66,6 +68,7 @@ class Website
     {
         $this->cm = new CollectionManager();
         $this->dm = new DataManager();
+        $this->pm = new PageManager();
         $this->fs = new Filesystem();
         $this->logger = $logger;
     }
@@ -85,8 +88,13 @@ class Website
         $this->cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
         $this->collections = $this->cm->getCollections();
 
-        $this->parsePageViews();
-        $this->prepareDynamicPageViews();
+        // Handle PageViews
+        $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
+        $this->pm->prepareDynamicPageViews($this->collections);
+        $this->dynamicPageViews = $this->pm->getDynamicPageViews();
+        $this->staticPageViews  = $this->pm->getStaticPageViews();
+        $this->siteMenu = $this->pm->getSiteMenu();
+
         $this->configureTwig();
         $this->compileDynamicPageViews();
         $this->compileStaticPageViews();
@@ -137,7 +145,6 @@ class Website
         $this->safeMode = $bool;
     }
 
-
     /**
      * Prepare the Stakx environment by creating necessary cache folders
      */
@@ -149,98 +156,6 @@ class Website
         ));
 
         $this->fs->mkdir('.stakx-cache/twig');
-    }
-
-    /**
-     * Go through all of the PageView directories and create a respective PageView for each and classify them as a
-     * dynamic or static PageView.
-     */
-    private function parsePageViews ()
-    {
-        $pageViewFolders = $this->getConfiguration()->getPageViewFolders();
-        $this->dynamicPageViews = array();
-        $this->staticPageViews = array();
-
-        /**
-         * The name of the folder where PageViews are located
-         *
-         * @var $pageViewFolder string
-         */
-        foreach ($pageViewFolders as $pageViewFolderName)
-        {
-            $pageViewFolder = $this->fs->absolutePath($pageViewFolderName);
-
-            if (!$this->fs->exists($pageViewFolder))
-            {
-                $this->logger->warning("The '{name}' PageView folder cannot be found", array(
-                    'name' => $pageViewFolder
-                ));
-
-                continue;
-            }
-
-            $finder = new Finder();
-            $finder->files()
-                   ->ignoreDotFiles(true)
-                   ->ignoreUnreadableDirs()
-                   ->in($pageViewFolder);
-
-            $this->logger->notice("Loading PageView folder: {name}", array(
-                'name' => $pageViewFolder
-            ));
-
-            foreach ($finder as $viewFile)
-            {
-                $newPageView = new PageView($viewFile);
-
-                if ($newPageView->isDynamicPage())
-                {
-                    $this->dynamicPageViews[] = $newPageView;
-                }
-                else
-                {
-                    $this->addToSiteMenu($newPageView->getFrontMatter());
-                    $this->staticPageViews[] = $newPageView;
-                }
-
-                $this->logger->info("Found {type} PageView: {name}", array(
-                    'name' => $viewFile,
-                    'type' => ($newPageView->isDynamicPage()) ? 'dynamic' : 'static'
-                ));
-            }
-        }
-    }
-
-    /**
-     * Go through all of the dynamic PageViews and prepare the necessary information for each one.
-     *
-     * For example, permalinks are dynamic generated based on FrontMatter so this function sets the permalink for each
-     * ContentItem in a collection. This is called before dynamic PageViews are compiled in order to allow access to
-     * this information to Twig by the time it is compiled.
-     */
-    private function prepareDynamicPageViews ()
-    {
-        foreach ($this->dynamicPageViews as $pageView)
-        {
-            $frontMatter = $pageView->getFrontMatter(false);
-            $collection = $frontMatter['collection'];
-
-            if (empty($this->collections[$collection]))
-            {
-                $this->logger->error("The '{name}' collection cannot be found or was not defined", array(
-                    'name' => $collection
-                ));
-
-                continue;
-            }
-
-            /** @var $item ContentItem */
-            foreach ($this->collections[$collection] as $item)
-            {
-                $itemFrontMatter = $item->getFrontMatter();
-                $item->setPermalink($pageView->getPermalink(), $itemFrontMatter);
-            }
-        }
     }
 
     /**
@@ -385,43 +300,6 @@ class Website
         foreach ($finder as $file)
         {
             $this->copyToCompiledSite($file->getRelativePathname());
-        }
-    }
-
-    /**
-     * Add a static PageView to the menu array. Dynamic PageViews are not added to the menu
-     *
-     * @param array $frontMatter
-     */
-    private function addToSiteMenu ($frontMatter)
-    {
-        if (!array_key_exists('permalink', $frontMatter) ||
-            (array_key_exists('menu', $frontMatter) && !$frontMatter['menu']))
-        {
-            return;
-        }
-
-        $url = $frontMatter['permalink'];
-        $root = &$this->siteMenu;
-        $permalink = trim($url, DIRECTORY_SEPARATOR);
-        $dirs = explode(DIRECTORY_SEPARATOR, $permalink);
-
-        while (count($dirs) > 0)
-        {
-            $name = array_shift($dirs);
-            $name = (!empty($name)) ? $name : '.';
-
-            if (!isset($root[$name]) && !is_null($name) && count($dirs) == 0)
-            {
-                $link = (pathinfo($url, PATHINFO_EXTENSION) !== "") ? $url : $permalink . DIRECTORY_SEPARATOR;
-
-                $root[$name] = array_merge($frontMatter, array(
-                    "url"  => '/' . $link,
-                    "children" => array()
-                ));
-            }
-
-            $root = &$root[$name]['children'];
         }
     }
 
