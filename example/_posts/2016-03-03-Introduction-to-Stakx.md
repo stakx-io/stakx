@@ -28,7 +28,7 @@ collections:
 ```twig
 ---
 collections: posts
-permalink: /blog/:year/:month/:day/:title
+permalink: /blog/%year/%month/%day/%title
 ---
 
 <h1>{{ item.title }}</h1>
