@@ -221,7 +221,8 @@ class Website
         }
 
         $this->twig = new Twig_Environment($loader, array(
-            'cache' => '.stakx-cache/twig'
+            'autoescape' => $this->getConfiguration()->getTwigAutoescape(),
+            'cache'      => '.stakx-cache/twig'
         ));
 
         $this->twig->addGlobal('site', $this->configuration->getConfiguration());

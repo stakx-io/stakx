@@ -99,6 +99,11 @@ class Configuration
         return $this->returnConfigOption('collections');
     }
 
+    public function getTwigAutoescape ()
+    {
+        return $this->configuration['twig']['autoescape'];
+    }
+
     private function returnConfigOption ($name, $default = null)
     {
         return (isset($this->configuration[$name]) ? $this->configuration[$name] : $default);
@@ -108,6 +113,9 @@ class Configuration
     {
         $defaultConfig = array(
             "target" => "_site",
+            "twig" => array(
+                "autoescape" => false
+            ),
             "pageviews" => array(
                 "_pages"
             )
