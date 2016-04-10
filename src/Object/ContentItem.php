@@ -77,7 +77,7 @@ class ContentItem
     public function __construct($filePath)
     {
         $this->filePath = $filePath;
-        $this->fs = new Filesystem();
+        $this->fs       = new Filesystem();
 
         if (!$this->fs->exists($filePath))
         {
@@ -127,7 +127,11 @@ class ContentItem
 
     public function getFrontMatter ($evaluateYaml = true)
     {
-        if (!$this->frontMatterEvaluated && $evaluateYaml)
+        if ($this->frontMatter === null)
+        {
+            $this->frontMatter = array();
+        }
+        else if (!$this->frontMatterEvaluated && $evaluateYaml && !empty($evaluateYaml))
         {
             $this->evaluateYaml($this->frontMatter);
             $this->frontMatterEvaluated = true;
