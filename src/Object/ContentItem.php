@@ -151,7 +151,7 @@ class ContentItem
         {
             $this->permalink = self::evaluateYamlVar($permalink, $variables);
             $this->permalink = str_replace(' ', '-', $this->permalink);
-            $this->permalink = preg_replace('/[^A-Za-z0-9\-\/]/', '', $this->permalink);
+            $this->permalink = preg_replace('/[^A-Za-z0-9\-\/\.\_]/', '', $this->permalink);
             $this->frontMatter['permalink'] = $this->permalink;
         }
         else
