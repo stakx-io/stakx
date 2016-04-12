@@ -198,7 +198,15 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
 
     public function testContentItemTargetFileFromFileWithoutPermalinkInDir ()
     {
-        // @todo Write this test
+        $root = vfsStream::create(array(
+            'dir' => array (
+                'foo.html.twig' => sprintf($this->fileTemplate, "", "Body Text")
+            )
+        ));
+
+        $contentItem = new ContentItem($root->getChild('dir/foo.html.twig')->url());
+
+        $this->assertEquals('dir/foo.html', $contentItem->getTargetFile());
     }
 
     public function testContentItemWithNoFile ()
