@@ -1,5 +1,11 @@
 - [ ] Write a `build` command
     - [ ] Build without a configuration file necessary
+    - [ ] Theme assets should be copied over first to allow to be overwritten by custom assets
+    - [ ] Support for base urls
+        - [ ] Add `asset` function in Twig
+    - [ ] Twig function to `group_by` multidimensional arrays
+    - [ ] Automatically name files without permalinks
+    - [ ] Support default values for front matter defined in the configuration; this would be for collections and data
 - [ ] Write a `watch` command
     - [ ] Use the same build process
     - [ ] Have incremental regeneration so we don't have to reparse and recompile everything
