@@ -207,13 +207,18 @@ class ContentItem
         {
             try
             {
+                // Coming from a string variable
                 $itemDate = new \DateTime($this->frontMatter['date']);
-
-                $this->frontMatter['year']  = $itemDate->format('Y');
-                $this->frontMatter['month'] = $itemDate->format('m');
-                $this->frontMatter['day']   = $itemDate->format('d');
             }
-            catch (\Exception $e) { }
+            catch (\Exception $e)
+            {
+                // YAML has parsed them to Epoch time
+                $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
+            }
+
+            $this->frontMatter['year']  = $itemDate->format('Y');
+            $this->frontMatter['month'] = $itemDate->format('m');
+            $this->frontMatter['day']   = $itemDate->format('d');
         }
 
         if (isset($this->frontMatter['permalink']))
