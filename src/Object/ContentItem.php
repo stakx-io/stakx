@@ -6,6 +6,7 @@ use allejo\stakx\Core\MarkdownEngine;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Exception\YamlVariableNotFound;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Yaml\Yaml;
 
 class ContentItem
@@ -54,20 +55,6 @@ class ContentItem
     protected $filePath;
 
     /**
-     * A datetime object if the front matter contains a `date` field
-     *
-     * @var \DateTime
-     */
-    protected $itemDate;
-
-    /**
-     * The raw content of the file; yaml + markdown
-     *
-     * @var string
-     */
-    protected $raw;
-
-    /**
      * A filesystem object
      *
      * @var Filesystem
@@ -84,40 +71,31 @@ class ContentItem
             throw new FileNotFoundException();
         }
 
-        $this->extension  = $this->fs->getExtension($filePath);
-        $this->raw = file_get_contents($filePath);
+        $this->extension = $this->fs->getExtension($filePath);
+        $rawFileContents = file_get_contents($filePath);
 
         $frontMatter = array();
-        preg_match('/---(.*?)---(.*)/s', $this->raw, $frontMatter);
+        preg_match('/---(.*?)---(.*)/s', $rawFileContents, $frontMatter);
+
+        if (count($frontMatter) != 3)
+        {
+            throw new IOException('This file is not a valid ContentItem');
+        }
+
+        if (empty(trim($frontMatter[2])))
+        {
+            throw new IOException('A ContentItem must have a body to render');
+        }
 
         $this->frontMatter = Yaml::parse($frontMatter[1]);
         $this->bodyContent = trim($frontMatter[2]);
 
-        if (isset($this->frontMatter['date']))
-        {
-            try
-            {
-                $this->itemDate = new \DateTime($this->frontMatter['date']);
-            }
-            catch (\Exception $e)
-            {
-                $this->itemDate = \DateTime::createFromFormat("U", $this->frontMatter['date']);
-            }
-
-            $this->frontMatter['year']  = $this->itemDate->format('Y');
-            $this->frontMatter['month'] = $this->itemDate->format('m');
-            $this->frontMatter['day']   = $this->itemDate->format('d');
-        }
-
-        if (isset($this->frontMatter['permalink']))
-        {
-            $this->permalink = $this->frontMatter['permalink'];
-        }
+        $this->handleDefaults();
     }
 
     public function __get ($name)
     {
-        return $this->frontMatter[$name];
+        return (array_key_exists($name, $this->frontMatter) ? $this->frontMatter[$name] : null);
     }
 
     public function __isset ($name)
@@ -222,5 +200,26 @@ class ContentItem
         }
 
         return $output;
+    }
+
+    private function handleDefaults ()
+    {
+        if (isset($this->frontMatter['date']))
+        {
+            try
+            {
+                $itemDate = new \DateTime($this->frontMatter['date']);
+
+                $this->frontMatter['year']  = $itemDate->format('Y');
+                $this->frontMatter['month'] = $itemDate->format('m');
+                $this->frontMatter['day']   = $itemDate->format('d');
+            }
+            catch (\Exception $e) { }
+        }
+
+        if (isset($this->frontMatter['permalink']))
+        {
+            $this->permalink = $this->frontMatter['permalink'];
+        }
     }
 }
