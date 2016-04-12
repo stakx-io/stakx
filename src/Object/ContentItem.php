@@ -98,11 +98,6 @@ class ContentItem
         return (array_key_exists($name, $this->frontMatter) ? $this->frontMatter[$name] : null);
     }
 
-    public function __isset ($name)
-    {
-        return array_key_exists($name, $this->frontMatter);
-    }
-
     public function getFrontMatter ($evaluateYaml = true)
     {
         if ($this->frontMatter === null)
@@ -144,9 +139,13 @@ class ContentItem
         $extension  = $this->fs->getExtension($this->getPermalink());
         $targetFile = $this->getPermalink();
 
-        if ($extension === "")
+        if (empty($extension) && !is_null($targetFile))
         {
             $targetFile = rtrim($this->getPermalink(), '/') . '/index.html';
+        }
+        else if (is_null($targetFile))
+        {
+            $targetFile = $this->fs->getBaseName($this->filePath);
         }
 
         return ltrim($targetFile, '/');
@@ -164,7 +163,7 @@ class ContentItem
         return $pd->parse($this->bodyContent);
     }
 
-    protected function evaluateYaml ($yaml)
+    protected function evaluateYaml (&$yaml)
     {
         foreach ($yaml as $key => $value)
         {
@@ -174,7 +173,7 @@ class ContentItem
             }
             else
             {
-                $this->frontMatter[$key] = $this->evaluateYamlVar($value, $this->frontMatter);
+                $yaml[$key] = $this->evaluateYamlVar($value, $this->frontMatter);
             }
         }
     }
