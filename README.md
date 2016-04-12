@@ -1,6 +1,9 @@
 # Stakx
 
-Stakx is a static website generator written in PHP as a popular alternative to Jekyll or Sculpin. This project is still a work in progress and has yet to see a stable release but is functional.
+[![Build Status](https://travis-ci.org/allejo/stakx.svg?branch=master)](https://travis-ci.org/allejo/stakx)
+[![Coverage Status](https://coveralls.io/repos/github/allejo/stakx/badge.svg?branch=master)](https://coveralls.io/github/allejo/stakx?branch=master)
+
+Stakx is a static website generator written in PHP as a powerful alternative to Jekyll or Sculpin. This project is still a work in progress and has yet to see a stable release but is mostly functional.
 
 ## Sample Usage
 
@@ -8,7 +11,8 @@ This project is still under heavy development and a lot of things are still chan
 
 ```bash
 cd example/
-php ../src/stakx.php build
+composer install --no-dev
+php ../bin/stakx.php build
 ```
 
 ## License
