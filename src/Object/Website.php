@@ -130,6 +130,7 @@ class Website
             $this->collections,
             $this->getConfiguration()->getTargetFolder()
         );
+        $this->copyThemeAssets();
         $this->copyStaticFiles();
     }
 
@@ -242,6 +243,42 @@ class Website
         {
             $this->twig->addExtension(new \Twig_Extension_Debug());
             $this->twig->enableDebug();
+        }
+    }
+
+    private function copyThemeAssets ()
+    {
+        $theme = $this->configuration->getTheme();
+
+        if (is_null($theme))
+        {
+            return;
+        }
+
+        $themeAssets = $this->fs->relativePath("_themes", $theme, "assets");
+        $finder = new Finder();
+        $finder->files()
+               ->ignoreDotFiles(true)
+               ->ignoreUnreadableDirs()
+               ->in($themeAssets);
+
+        /** @var SplFileInfo $file */
+        foreach ($finder as $file)
+        {
+            $filePath = $this->fs->relativePath($themeAssets, $file->getRelativePathname());
+
+            try
+            {
+                $this->fs->copy(
+                    $this->fs->absolutePath($filePath),
+                    $this->fs->absolutePath($this->getConfiguration()->getTargetFolder(), "assets", $file->getRelativePathname()),
+                    true
+                );
+            }
+            catch (\Exception $e)
+            {
+                $this->logger->error($e->getMessage());
+            }
         }
     }
 
