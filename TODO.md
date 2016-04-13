@@ -1,6 +1,6 @@
 - [ ] Write a `build` command
     - [ ] Build without a configuration file necessary
-    - [ ] Theme assets should be copied over first to allow to be overwritten by custom assets
+    - [x] Theme assets should be copied over first to allow to be overwritten by custom assets
     - [ ] Support for base urls
         - [ ] Add `asset` function in Twig
     - [ ] Twig function to `group_by` multidimensional arrays

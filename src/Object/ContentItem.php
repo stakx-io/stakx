@@ -98,26 +98,6 @@ class ContentItem
         return (array_key_exists($name, $this->frontMatter) ? $this->frontMatter[$name] : null);
     }
 
-    public function getFrontMatter ($evaluateYaml = true)
-    {
-        if ($this->frontMatter === null)
-        {
-            $this->frontMatter = array();
-        }
-        else if (!$this->frontMatterEvaluated && $evaluateYaml && !empty($evaluateYaml))
-        {
-            $this->evaluateYaml($this->frontMatter);
-            $this->frontMatterEvaluated = true;
-        }
-
-        return $this->frontMatter;
-    }
-
-    public function getPermalink ()
-    {
-        return $this->permalink;
-    }
-
     public function setPermalink ($permalink, $variables = null)
     {
         if (!is_null($variables))
@@ -134,71 +114,11 @@ class ContentItem
         }
     }
 
-    public function getTargetFile ()
-    {
-        $extension  = $this->fs->getExtension($this->getPermalink());
-        $targetFile = $this->getPermalink();
-
-        if (empty($extension) && !is_null($targetFile))
-        {
-            $targetFile = rtrim($this->getPermalink(), '/') . '/index.html';
-        }
-        else if (is_null($targetFile))
-        {
-            $targetFile = $this->fs->getBaseName($this->filePath);
-        }
-
-        return ltrim($targetFile, '/');
-    }
-
-    public function getFilePath ()
-    {
-        return $this->filePath;
-    }
-
     public function getContent ()
     {
         $pd = new MarkdownEngine();
 
         return $pd->parse($this->bodyContent);
-    }
-
-    protected function evaluateYaml (&$yaml)
-    {
-        foreach ($yaml as $key => $value)
-        {
-            if (is_array($yaml[$key]))
-            {
-                $this->evaluateYaml($yaml[$key]);
-            }
-            else
-            {
-                $yaml[$key] = $this->evaluateYamlVar($value, $this->frontMatter);
-            }
-        }
-    }
-
-    protected static function evaluateYamlVar ($string, $yaml)
-    {
-        $variables = array();
-        $varRegex  = '/(%[a-zA-Z_\-]+)/';
-        $output    = $string;
-
-        preg_match_all($varRegex, $string, $variables);
-
-        foreach ($variables[1] as $variable)
-        {
-            $yamlVar = substr($variable, 1);
-
-            if (!array_key_exists($yamlVar, $yaml))
-            {
-                throw new YamlVariableNotFound("Yaml variable `$variable` is not defined");
-            }
-
-            $output = str_replace($variable, $yaml[$yamlVar], $output);
-        }
-
-        return $output;
     }
 
     private function handleDefaults ()
@@ -225,5 +145,92 @@ class ContentItem
         {
             $this->permalink = $this->frontMatter['permalink'];
         }
+    }
+
+    /**
+     * Get the Front Matter of a ContentItem as an array
+     *
+     * @param  bool $evaluateYaml When set to true, the YAML will be evaluated for variables
+     *
+     * @return array
+     */
+    final public function getFrontMatter ($evaluateYaml = true)
+    {
+        if ($this->frontMatter === null)
+        {
+            $this->frontMatter = array();
+        }
+        else if (!$this->frontMatterEvaluated && $evaluateYaml && !empty($evaluateYaml))
+        {
+            $this->evaluateYaml($this->frontMatter);
+            $this->frontMatterEvaluated = true;
+        }
+
+        return $this->frontMatter;
+    }
+
+    final public function getPermalink ()
+    {
+        return $this->permalink;
+    }
+
+    final public function getTargetFile ()
+    {
+        $extension  = $this->fs->getExtension($this->getPermalink());
+        $targetFile = $this->getPermalink();
+
+        if (empty($extension) && !is_null($targetFile))
+        {
+            $targetFile = rtrim($this->getPermalink(), '/') . '/index.html';
+        }
+        else if (is_null($targetFile))
+        {
+            $targetFile = $this->fs->getBaseName($this->filePath);
+        }
+
+        return ltrim($targetFile, '/');
+    }
+
+    final public function getFilePath ()
+    {
+        return $this->filePath;
+    }
+
+    final protected function evaluateYaml (&$yaml)
+    {
+        foreach ($yaml as $key => $value)
+        {
+            if (is_array($yaml[$key]))
+            {
+                $this->evaluateYaml($yaml[$key]);
+            }
+            else
+            {
+                $yaml[$key] = $this->evaluateYamlVar($value, $this->frontMatter);
+            }
+        }
+    }
+
+    final protected static function evaluateYamlVar ($string, $yaml)
+    {
+        $variables = array();
+        $varRegex  = '/(%[a-zA-Z_\-]+)/';
+        $output    = $string;
+
+        preg_match_all($varRegex, $string, $variables);
+
+        foreach ($variables[1] as $variable)
+        {
+            $yamlVar = substr($variable, 1);
+
+            if (!array_key_exists($yamlVar, $yaml))
+            {
+                throw new YamlVariableNotFound("Yaml variable `$variable` is not defined");
+            }
+
+            $output = str_replace($variable, $yaml[$yamlVar], $output);
+        }
+
+        return $output;
     }
 }
