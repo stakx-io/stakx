@@ -176,18 +176,19 @@ class ContentItem
             {
                 // Coming from a string variable
                 $itemDate = new \DateTime($this->frontMatter['date']);
+            }
+            catch (\Exception $e)
+            {
+                // YAML has parsed them to Epoch time
+                $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
+            }
 
-                if (!($itemDate instanceof \DateTime))
-                {
-                    // YAML has parsed them to Epoch time
-                    $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
-                }
-
+            if (!$itemDate === false)
+            {
                 $this->frontMatter['year']  = $itemDate->format('Y');
                 $this->frontMatter['month'] = $itemDate->format('m');
                 $this->frontMatter['day']   = $itemDate->format('d');
             }
-            catch (\Exception $e) { }
         }
 
         if (isset($this->frontMatter['permalink']))
