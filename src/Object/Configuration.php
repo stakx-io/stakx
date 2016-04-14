@@ -64,6 +64,11 @@ class Configuration
         return $this->returnConfigOption('debug', false);
     }
 
+    public function getBaseUrl ()
+    {
+        return $this->returnConfigOption('base');
+    }
+
     public function getDataFolders ()
     {
         return $this->returnConfigOption('data');

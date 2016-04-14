@@ -12,6 +12,13 @@ class TwigExtension extends \Twig_Extension
         );
     }
 
+    public function getFunctions ()
+    {
+        return array(
+            BaseUrlFunction::get()
+        );
+    }
+
     /**
      * Returns the name of the extension.
      *
