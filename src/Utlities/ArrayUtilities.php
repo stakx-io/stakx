@@ -27,6 +27,10 @@ abstract class ArrayUtilities
                     {
                         $merged[] = $value;
                     }
+                    else if (is_array($item))
+                    {
+                        $item = array_unique(array_merge($item, $value));
+                    }
                     else
                     {
                         $item = $value;

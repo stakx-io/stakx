@@ -11,6 +11,7 @@
 
 namespace allejo\stakx\System;
 
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
@@ -47,6 +48,36 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     public function relativePath ($pathFragments)
     {
         return implode(DIRECTORY_SEPARATOR, func_get_args());
+    }
+
+    public function getFinder ($explicitIncludes = array(), $explicitIgnores = array(), $searchIn = "")
+    {
+        $finder = new Finder();
+        $finder->files()
+               ->ignoreVCS(true)
+               ->ignoreDotFiles(true)
+               ->ignoreUnreadableDirs();
+
+        $finder->in(
+            empty(trim($searchIn)) ? getcwd() : $searchIn
+        );
+
+        foreach ($explicitIgnores as $ignoreRule)
+        {
+            $finder->notPath($ignoreRule);
+        }
+
+        if (count($explicitIncludes) > 0)
+        {
+            foreach ($explicitIncludes as &$include)
+            {
+                $include = $this->absolutePath($include);
+            }
+
+            $finder->append($explicitIncludes);
+        }
+
+        return $finder;
     }
 
     /**

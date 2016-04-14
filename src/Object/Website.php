@@ -255,30 +255,29 @@ class Website
             return;
         }
 
-        $themeAssets = $this->fs->relativePath("_themes", $theme, "assets");
-        $finder = new Finder();
-        $finder->files()
-               ->ignoreDotFiles(true)
-               ->ignoreUnreadableDirs()
-               ->in($themeAssets);
+        $themeAssets  = $this->fs->relativePath("_themes", $theme);
+        $ignoreFile   = $this->fs->absolutePath($themeAssets, ".stakx-ignore");
+        $ignoredFiles = array();
+
+        if ($this->fs->exists($ignoreFile))
+        {
+            $ignoredFiles = explode(PHP_EOL, file_get_contents($ignoreFile));
+        }
+
+        $finder = $this->fs->getFinder(
+            $this->getConfiguration()->getIncludes(),
+            array_merge(
+                $this->getConfiguration()->getExcludes(),
+                $ignoredFiles,
+                array('.twig')
+            ),
+            $this->fs->relativePath(getcwd(), $themeAssets)
+        );
 
         /** @var SplFileInfo $file */
         foreach ($finder as $file)
         {
-            $filePath = $this->fs->relativePath($themeAssets, $file->getRelativePathname());
-
-            try
-            {
-                $this->fs->copy(
-                    $this->fs->absolutePath($filePath),
-                    $this->fs->absolutePath($this->getConfiguration()->getTargetFolder(), "assets", $file->getRelativePathname()),
-                    true
-                );
-            }
-            catch (\Exception $e)
-            {
-                $this->logger->error($e->getMessage());
-            }
+            $this->copyToCompiledSite($file, $themeAssets);
         }
     }
 
@@ -291,17 +290,15 @@ class Website
      */
     private function copyStaticFiles ()
     {
-        $finder = new Finder();
-        $finder->files()
-               ->ignoreDotFiles(true)
-               ->ignoreUnreadableDirs()
-               ->in(getcwd())
-               ->notPath('/^_.*/');
+        $finder = $this->fs->getFinder(
+            $this->getConfiguration()->getIncludes(),
+            $this->getConfiguration()->getExcludes()
+        );
 
         /** @var $file SplFileInfo */
         foreach ($finder as $file)
         {
-            $this->copyToCompiledSite($file->getRelativePathname());
+            $this->copyToCompiledSite($file);
         }
     }
 
@@ -309,15 +306,22 @@ class Website
      * Copy a file from a the source directory to the compiled website directory. The exact relative path to the file
      * will be recreated in the compiled website directory.
      *
-     * @param string $filePath The relative path of the file to be copied
+     * @param SplFileInfo $file   The relative path of the file to be copied
+     * @param string      $prefix
      */
-    private function copyToCompiledSite ($filePath)
+    private function copyToCompiledSite ($file, $prefix = "")
     {
+        if (!$this->fs->exists($file)) { return; }
+
+        $filePath = $file->getRealPath();
+        $pathToStrip = $this->fs->relativePath(getcwd(), $prefix);
+        $siteTargetPath = ltrim(str_replace($pathToStrip, "", $filePath), DIRECTORY_SEPARATOR);
+
         try
         {
             $this->fs->copy(
-                $this->fs->absolutePath($filePath),
-                $this->fs->absolutePath($this->getConfiguration()->getTargetFolder(), $filePath),
+                $filePath,
+                $this->fs->absolutePath($this->getConfiguration()->getTargetFolder(), $siteTargetPath),
                 true
             );
         }

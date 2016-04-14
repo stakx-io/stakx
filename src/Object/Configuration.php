@@ -79,6 +79,16 @@ class Configuration
         return $this->returnConfigOption('datasets');
     }
 
+    public function getIncludes ()
+    {
+        return $this->returnConfigOption('include', array());
+    }
+
+    public function getExcludes ()
+    {
+        return $this->returnConfigOption('exclude', array());
+    }
+
     public function getTheme ()
     {
         return $this->returnConfigOption('theme');
@@ -121,8 +131,11 @@ class Configuration
             "twig" => array(
                 "autoescape" => false
             ),
-            "pageviews" => array(
-                "_pages"
+            "include" => array(
+                ".htaccess"
+            ),
+            "exclude" => array(
+                '/^_.*/'
             )
         );
 
