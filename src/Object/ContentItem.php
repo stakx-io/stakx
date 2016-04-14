@@ -26,6 +26,13 @@ class ContentItem
     protected $frontMatter;
 
     /**
+     * Set to true if the body has already been parsed as markdown or any other format
+     *
+     * @var bool
+     */
+    protected $bodyContentEvaluated;
+
+    /**
      * Only the body of the file, i.e. the content
      *
      * @var string
@@ -61,6 +68,15 @@ class ContentItem
      */
     protected $fs;
 
+    /**
+     * ContentItem constructor.
+     *
+     * @param string $filePath The path to the file that will be parsed into a ContentItem
+     *
+     * @throws FileNotFoundException The given file path does not exist
+     * @throws IOException           The file was not a valid ContentItem. This would meam there was no front matter or
+     *                               no body
+     */
     public function __construct($filePath)
     {
         $this->filePath = $filePath;
@@ -68,7 +84,7 @@ class ContentItem
 
         if (!$this->fs->exists($filePath))
         {
-            throw new FileNotFoundException();
+            throw new FileNotFoundException("The following file could not be found: ${filePath}");
         }
 
         $this->extension = $this->fs->getExtension($filePath);
@@ -93,11 +109,28 @@ class ContentItem
         $this->handleDefaults();
     }
 
+    /**
+     * The magic getter returns values from the front matter in order to make these values accessible to Twig templates
+     * in a simple fashion
+     *
+     * @param  string $name The key in the front matter
+     *
+     * @return mixed|null
+     */
     public function __get ($name)
     {
         return (array_key_exists($name, $this->frontMatter) ? $this->frontMatter[$name] : null);
     }
 
+    /**
+     * Set the permalink for this Content Item
+     *
+     * @param string $permalink     The permalink of this Content Item. Variables are allowed only if `$variables` is
+     *                              not null
+     * @param array|null $variables An array of YAML variables to use in evaluating the `$permalink` value
+     *
+     * @throws YamlVariableNotFound A YAML variable is undefined
+     */
     public function setPermalink ($permalink, $variables = null)
     {
         if (!is_null($variables))
@@ -114,13 +147,27 @@ class ContentItem
         }
     }
 
+    /**
+     * Return the body of the Content Item parsed as markdown
+     *
+     * @return string
+     */
     public function getContent ()
     {
-        $pd = new MarkdownEngine();
+        if (!$this->bodyContentEvaluated)
+        {
+            $pd = new MarkdownEngine();
 
-        return $pd->parse($this->bodyContent);
+            $this->bodyContent = $pd->parse($this->bodyContent);
+            $this->bodyContentEvaluated = true;
+        }
+
+        return $this->bodyContentEvaluated;
     }
 
+    /**
+     * Handle default front matter values that need special treatment or have special meaning to a Content Item
+     */
     private function handleDefaults ()
     {
         if (isset($this->frontMatter['date']))
@@ -169,11 +216,21 @@ class ContentItem
         return $this->frontMatter;
     }
 
+    /**
+     * Get the permalink of this Content Item
+     *
+     * @return string
+     */
     final public function getPermalink ()
     {
         return $this->permalink;
     }
 
+    /**
+     * Get the destination of where this Content Item would be written to when the website is compiled
+     *
+     * @return string
+     */
     final public function getTargetFile ()
     {
         $extension  = $this->fs->getExtension($this->getPermalink());
@@ -191,6 +248,11 @@ class ContentItem
         return ltrim($targetFile, '/');
     }
 
+    /**
+     * Get the original file path
+     *
+     * @return string
+     */
     final public function getFilePath ()
     {
         return $this->filePath;
