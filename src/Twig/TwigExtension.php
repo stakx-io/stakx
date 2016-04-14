@@ -7,6 +7,7 @@ class TwigExtension extends \Twig_Extension
     public function getFilters ()
     {
         return array(
+            GroupByFilter::get(),
             OrderFilter::get(),
             WhereFilter::get()
         );
