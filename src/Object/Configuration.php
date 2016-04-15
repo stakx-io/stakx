@@ -5,6 +5,9 @@ namespace allejo\stakx\Object;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Utilities\ArrayUtilities;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -33,13 +36,13 @@ class Configuration
      * Configuration constructor.
      *
      * @param string          $configFile
-     * @param LoggerInterface $logger
+     * @param OutputInterface $output
      */
-    public function __construct($configFile = Configuration::DEFAULT_NAME, LoggerInterface $logger)
+    public function __construct($configFile, OutputInterface $output)
     {
         $this->configuration = array();
         $this->filesystem = new Filesystem();
-        $this->logger = $logger;
+        $this->logger = new ConsoleLogger($output);
 
         if ($this->filesystem->exists($configFile))
         {

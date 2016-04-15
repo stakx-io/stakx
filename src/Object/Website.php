@@ -11,7 +11,8 @@ use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Twig\TwigExtension;
 use Aptoma\Twig\Extension\MarkdownExtension;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
@@ -41,6 +42,18 @@ class Website
     private $collections;
 
     /**
+     * @var
+     */
+    private $dataItems;
+
+    /**
+     * When set to true, the Stakx website will be built without a configuration file
+     *
+     * @var bool
+     */
+    private $confLess;
+
+    /**
      * When set to true, Twig templates will not have access to filters or functions which provide access to the
      * filesystem
      *
@@ -57,11 +70,6 @@ class Website
      * @var \Psr\Log\LoggerInterface
      */
     private $logger;
-
-    /**
-     * @var
-     */
-    private $dataItems;
 
     /**
      * @var CollectionManager
@@ -86,15 +94,16 @@ class Website
     /**
      * Website constructor.
      *
-     * @param LoggerInterface $logger
+     * @param OutputInterface $output
      */
-    public function __construct (LoggerInterface $logger)
+    public function __construct (OutputInterface $output)
     {
+        $this->logger = new ConsoleLogger($output);
+        $this->output = $output;
         $this->cm = new CollectionManager();
         $this->dm = new DataManager();
         $this->pm = new PageManager();
         $this->fs = new Filesystem();
-        $this->logger = $logger;
     }
 
     /**
@@ -144,10 +153,21 @@ class Website
 
     /**
      * @param string $configFile
+     * @param bool   $confLess
      */
     public function setConfiguration ($configFile)
     {
-        $this->configuration = new Configuration($configFile, $this->logger);
+        if (!$this->fs->exists($configFile) && !$this->getConfLess())
+        {
+            throw new \LogicException("Cannot build a website without a configuration when not in Configuration-less mode");
+        }
+
+        if ($this->getConfLess())
+        {
+            $configFile = "";
+        }
+
+        $this->configuration = new Configuration($configFile, $this->output);
     }
 
     public function handleSingleFile ($filePath)
@@ -166,6 +186,19 @@ class Website
         {
             $this->copyToCompiledSite($filePath);
         }
+    }
+
+    public function getConfLess ()
+    {
+        return $this->confLess;
+    }
+
+    /**
+     * @param bool $status
+     */
+    public function setConfLess ($status)
+    {
+        $this->confLess = $status;
     }
 
     public function getSafeMode ()

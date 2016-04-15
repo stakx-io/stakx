@@ -15,11 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class BuildCommand extends Command
 {
     /**
-     * @var Filesystem
-     */
-    protected $fs;
-
-    /**
      * @var Configuration
      */
     protected $configuration;
@@ -30,15 +25,13 @@ class BuildCommand extends Command
     protected $website;
 
     /**
-     * @var ContentItem[]
+     * @var Filesystem
      */
-    protected $collections;
+    protected $fs;
 
     /**
-     * @var string[]
+     * {@inheritdoc}
      */
-    protected $errors;
-
     protected function configure ()
     {
         $this->fs = new Filesystem();
@@ -46,17 +39,31 @@ class BuildCommand extends Command
         $this->setName('build');
         $this->setDescription('Builds the stakx website');
         $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', $this->fs->absolutePath(Configuration::DEFAULT_NAME));
-        $this->addOption('safe', null, InputOption::VALUE_OPTIONAL, 'Disable file system access from Twig');
+        $this->addOption('safe', 's', InputOption::VALUE_NONE, 'Disable file system access from Twig');
+        $this->addOption('no-conf', 'l', InputOption::VALUE_NONE, 'Build a Stakx website without a configuration file');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function execute (InputInterface $input, OutputInterface $output)
     {
+        $this->website = new Website($output);
         $logger = new ConsoleLogger($output);
-        $this->website = new Website($logger);
 
-        $this->website->setConfiguration($input->getOption('conf'));
-        $this->website->setSafeMode($input->getOption('safe'));
-        $this->website->build();
+        $this->website->setConfLess($input->getOption('no-conf'));
+
+        try
+        {
+            $this->website->setConfiguration($input->getOption('conf'));
+            $this->website->setSafeMode($input->getOption('safe'));
+            $this->website->build();
+        }
+        catch (\LogicException $e)
+        {
+            $logger->error("You are trying to build a website in a directory without a configuration file. Is this what you meant to do?");
+            $logger->error("To build a website without a configuration, use the '--no-conf' option");
+        }
     }
 
     /**
