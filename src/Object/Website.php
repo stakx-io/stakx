@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Core\ConsoleInterface;
 use allejo\stakx\Core\TwigMarkdownEngine;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\System\Filesystem;
@@ -10,7 +11,6 @@ use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Twig\TwigExtension;
 use Aptoma\Twig\Extension\MarkdownExtension;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Twig_Environment;
@@ -66,9 +66,9 @@ class Website
     private $siteMenu;
 
     /**
-     * @var ConsoleLogger
+     * @var ConsoleInterface
      */
-    private $logger;
+    private $output;
 
     /**
      * @var CollectionManager
@@ -97,8 +97,7 @@ class Website
      */
     public function __construct (OutputInterface $output)
     {
-        $this->logger = new ConsoleLogger($output);
-        $this->output = $output;
+        $this->output = new ConsoleInterface($output);
         $this->cm = new CollectionManager();
         $this->dm = new DataManager();
         $this->pm = new PageManager();
@@ -158,8 +157,8 @@ class Website
     {
         if (!$this->fs->exists($configFile) && !$this->getConfLess())
         {
-            $this->logger->error("You are trying to build a website in a directory without a configuration file. Is this what you meant to do?");
-            $this->logger->error("To build a website without a configuration, use the '--no-conf' option");
+            $this->output->error("You are trying to build a website in a directory without a configuration file. Is this what you meant to do?");
+            $this->output->error("To build a website without a configuration, use the '--no-conf' option");
 
             throw new \LogicException("Cannot build a website without a configuration when not in Configuration-less mode");
         }
@@ -268,10 +267,10 @@ class Website
             }
             catch (\Twig_Error_Loader $e)
             {
-                $this->logger->error("The following theme could not be loaded: {theme}", array(
+                $this->output->error("The following theme could not be loaded: {theme}", array(
                     "theme" => $theme
                 ));
-                $this->logger->error($e->getMessage());
+                $this->output->error($e->getMessage());
             }
         }
 
@@ -384,7 +383,7 @@ class Website
         }
         catch (\Exception $e)
         {
-            $this->logger->error($e->getMessage());
+            $this->output->error($e->getMessage());
         }
     }
 }

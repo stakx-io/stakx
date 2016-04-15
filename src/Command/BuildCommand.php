@@ -39,6 +39,7 @@ class BuildCommand extends Command
         $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', $this->fs->absolutePath(Configuration::DEFAULT_NAME));
         $this->addOption('safe', 's', InputOption::VALUE_NONE, 'Disable file system access from Twig');
         $this->addOption('no-conf', 'l', InputOption::VALUE_NONE, 'Build a Stakx website without a configuration file');
+        $this->addOption('quiet', 'q', InputOption::VALUE_NONE, "Don't display any output except for errors or warnings");
     }
 
     /**

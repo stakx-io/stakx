@@ -2,10 +2,9 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Core\ConsoleInterface;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Utilities\ArrayUtilities;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -22,14 +21,14 @@ class Configuration
     private $configuration;
 
     /**
-     * @var Filesystem
+     * @var ConsoleInterface
      */
-    private $filesystem;
+    private $output;
 
     /**
-     * @var LoggerInterface
+     * @var Filesystem
      */
-    private $logger;
+    private $fs;
 
     /**
      * Configuration constructor.
@@ -37,13 +36,13 @@ class Configuration
      * @param string          $configFile
      * @param OutputInterface $output
      */
-    public function __construct($configFile, OutputInterface $output)
+    public function __construct($configFile, OutputInterface $output = null)
     {
         $this->configuration = array();
-        $this->filesystem = new Filesystem();
-        $this->logger = new ConsoleLogger($output);
+        $this->output        = new ConsoleInterface($output);
+        $this->fs            = new Filesystem();
 
-        if ($this->filesystem->exists($configFile))
+        if ($this->fs->exists($configFile))
         {
             try
             {
@@ -51,10 +50,10 @@ class Configuration
             }
             catch (ParseException $e)
             {
-                $this->logger->error("Parsing the configuration failed: {message}", array(
+                $this->output->error("Parsing the configuration failed: {message}", array(
                     "message" => $e->getMessage()
                 ));
-                $this->logger->error("Using default configuration...");
+                $this->output->error("Using default configuration...");
             }
         }
 
