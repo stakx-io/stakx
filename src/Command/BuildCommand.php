@@ -2,14 +2,12 @@
 
 namespace allejo\stakx\Command;
 
-use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\Configuration;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Object\Website;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class BuildCommand extends Command
@@ -49,8 +47,6 @@ class BuildCommand extends Command
     protected function execute (InputInterface $input, OutputInterface $output)
     {
         $this->website = new Website($output);
-        $logger = new ConsoleLogger($output);
-
         $this->website->setConfLess($input->getOption('no-conf'));
 
         try
@@ -59,11 +55,7 @@ class BuildCommand extends Command
             $this->website->setSafeMode($input->getOption('safe'));
             $this->website->build();
         }
-        catch (\LogicException $e)
-        {
-            $logger->error("You are trying to build a website in a directory without a configuration file. Is this what you meant to do?");
-            $logger->error("To build a website without a configuration, use the '--no-conf' option");
-        }
+        catch (\Exception $e) {}
     }
 
     /**

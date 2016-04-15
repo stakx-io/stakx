@@ -6,7 +6,6 @@ use allejo\stakx\System\Filesystem;
 use allejo\stakx\Utilities\ArrayUtilities;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -138,7 +137,8 @@ class Configuration
                 ".htaccess"
             ),
             "exclude" => array(
-                '/^_.*/'
+                '/^_.*/',
+                'node_modules'
             )
         );
 

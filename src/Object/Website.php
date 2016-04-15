@@ -10,7 +10,6 @@ use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Twig\TwigExtension;
 use Aptoma\Twig\Extension\MarkdownExtension;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
@@ -67,7 +66,7 @@ class Website
     private $siteMenu;
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var ConsoleLogger
      */
     private $logger;
 
@@ -159,6 +158,9 @@ class Website
     {
         if (!$this->fs->exists($configFile) && !$this->getConfLess())
         {
+            $this->logger->error("You are trying to build a website in a directory without a configuration file. Is this what you meant to do?");
+            $this->logger->error("To build a website without a configuration, use the '--no-conf' option");
+
             throw new \LogicException("Cannot build a website without a configuration when not in Configuration-less mode");
         }
 
@@ -188,24 +190,43 @@ class Website
         }
     }
 
+    /**
+     * Get whether or not the website is being built in Configuration-less mode
+     *
+     * @return bool True when being built with no configuration file
+     */
     public function getConfLess ()
     {
         return $this->confLess;
     }
 
     /**
-     * @param bool $status
+     * Set whether or not the website should be built with a configuration
+     *
+     * @param bool $status True when a website should be built without a configuration
      */
     public function setConfLess ($status)
     {
         $this->confLess = $status;
     }
 
+    /**
+     * Get whether or not the website is being built in safe mode.
+     *
+     * Safe mode is defined as disabling file system access from Twig and disabling user Twig extensions
+     *
+     * @return bool True when the website is being built in safe mode
+     */
     public function getSafeMode ()
     {
         return $this->safeMode;
     }
 
+    /**
+     * Set whether a website should be built in safe mode
+     *
+     * @param bool $bool True if a website should be built in safe mode
+     */
     public function setSafeMode ($bool)
     {
         $this->safeMode = $bool;
@@ -279,6 +300,9 @@ class Website
         }
     }
 
+    /**
+     * Copy static files from a theme to the compiled website
+     */
     private function copyThemeAssets ()
     {
         $theme = $this->configuration->getTheme();
@@ -288,8 +312,8 @@ class Website
             return;
         }
 
-        $themeAssets  = $this->fs->relativePath("_themes", $theme);
-        $ignoreFile   = $this->fs->absolutePath($themeAssets, ".stakx-ignore");
+        $themeFolder  = $this->fs->relativePath("_themes", $theme);
+        $ignoreFile   = $this->fs->absolutePath($themeFolder, ".stakx-ignore");
         $ignoredFiles = array();
 
         if ($this->fs->exists($ignoreFile))
@@ -304,13 +328,13 @@ class Website
                 $ignoredFiles,
                 array('.twig')
             ),
-            $this->fs->relativePath(getcwd(), $themeAssets)
+            $this->fs->absolutePath($themeFolder)
         );
 
         /** @var SplFileInfo $file */
         foreach ($finder as $file)
         {
-            $this->copyToCompiledSite($file, $themeAssets);
+            $this->copyToCompiledSite($file, $themeFolder);
         }
     }
 
