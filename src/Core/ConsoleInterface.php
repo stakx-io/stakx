@@ -23,10 +23,30 @@ class ConsoleInterface extends AbstractLogger
      */
     private $quiet;
 
-    public function __construct (OutputInterface $output = null)
+    /**
+     * ConsoleInterface constructor.
+     *
+     * @param ConsoleInterface|OutputInterface|null $output
+     */
+    public function __construct ($output = null)
     {
-        $this->output = $output;
-        $this->logger = (is_null($output)) ? null : (new ConsoleLogger($output));
+        $this->logger = null;
+
+        if (!is_null($output))
+        {
+            $this->output = ($output instanceof ConsoleInterface) ? $output->getOutputInterface() : $output;
+            $this->logger = new ConsoleLogger($this->output);
+        }
+    }
+
+    /**
+     * Return the OutputInterface object
+     *
+     * @return OutputInterface
+     */
+    public function getOutputInterface ()
+    {
+        return $this->output;
     }
 
     /**

@@ -33,10 +33,10 @@ class Configuration
     /**
      * Configuration constructor.
      *
-     * @param string          $configFile
-     * @param OutputInterface $output
+     * @param string                                $configFile
+     * @param ConsoleInterface|OutputInterface|null $output
      */
-    public function __construct($configFile, OutputInterface $output = null)
+    public function __construct($configFile, $output = null)
     {
         $this->configuration = array();
         $this->output        = new ConsoleInterface($output);
