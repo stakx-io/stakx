@@ -1,5 +1,7 @@
 ---
 title: All My Friends Are Dead
+fname: Jory
+lname: John
 date: 2010-06-30
 isbn: "0811874559"
 pages: 96

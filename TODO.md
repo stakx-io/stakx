@@ -1,6 +1,5 @@
 - the `build` command
     - Build without a configuration file necessary
-    - Support default values for front matter defined in the configuration; this would be for collections and data
 - the `watch` command
     - Use the same build process
     - don't reparse and recompile everything
