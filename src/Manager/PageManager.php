@@ -58,6 +58,8 @@ class PageManager
      */
     public function parsePageViews ($pageViewFolders)
     {
+        if (empty($pageViewFolders)) { return; }
+
         /**
          * The name of the folder where PageViews are located
          *
