@@ -108,6 +108,8 @@ class PageManager
      */
     public function prepareDynamicPageViews ($collections)
     {
+        if (empty($collections)) { return; }
+
         foreach ($this->dynamicPageViews as $pageView)
         {
             $frontMatter = $pageView->getFrontMatter(false);

@@ -139,9 +139,8 @@ class Website
         );
         $this->copyThemeAssets();
         $this->copyStaticFiles();
-        
-        $this->output->writeln("Site built successful!");
-        $this->output->writeln("Site can be found at: {$this->getConfiguration()->getTargetFolder()}");
+
+        $this->output->writeln("Your site built successfully! It can be found at: {$this->getConfiguration()->getTargetFolder()}" . DIRECTORY_SEPARATOR);
     }
 
     /**
