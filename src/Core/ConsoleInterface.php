@@ -19,11 +19,6 @@ class ConsoleInterface extends AbstractLogger
     private $output;
 
     /**
-     * @var bool
-     */
-    private $quiet;
-
-    /**
      * ConsoleInterface constructor.
      *
      * @param ConsoleInterface|OutputInterface|null $output
@@ -47,22 +42,6 @@ class ConsoleInterface extends AbstractLogger
     public function getOutputInterface ()
     {
         return $this->output;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isQuiet ()
-    {
-        return $this->quiet;
-    }
-
-    /**
-     * @param boolean $quiet
-     */
-    public function setQuiet ($quiet)
-    {
-        $this->quiet = $quiet;
     }
 
     /**
@@ -90,9 +69,6 @@ class ConsoleInterface extends AbstractLogger
      */
     public function writeln ($messages, $options = 0)
     {
-        if (!$this->isQuiet())
-        {
-            $this->output->writeln($messages, $options);
-        }
+        $this->output->writeln($messages, $options);
     }
 }
