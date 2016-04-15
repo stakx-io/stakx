@@ -11,7 +11,6 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\System\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
@@ -28,7 +27,7 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @package allejo\stakx\Object
  */
-class DataManager
+class DataManager extends ItemManager
 {
     /**
      * @var array
@@ -36,17 +35,13 @@ class DataManager
     protected $dataItems;
 
     /**
-     * @var \allejo\stakx\System\Filesystem
-     */
-    protected $fs;
-
-    /**
      * DataManager constructor.
      */
     public function __construct ()
     {
+        parent::__construct();
+
         $this->dataItems = array();
-        $this->fs = new Filesystem();
     }
 
     /**

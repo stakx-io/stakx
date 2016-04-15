@@ -112,15 +112,18 @@ class Website
         $messages = array();
 
         // Parse DataItems
+        $this->dm->setOutput($this->output);
         $this->dm->parseDataItems($this->getConfiguration()->getDataFolders(), $messages);
         $this->dm->parseDataSets($this->getConfiguration()->getDataSets(), $messages);
         $this->dataItems = $this->dm->getDataItems();
 
         // Prepare Collections
+        $this->cm->setOutput($this->output);
         $this->cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
         $this->collections = $this->cm->getCollections();
 
         // Handle PageViews
+        $this->pm->setOutput($this->output);
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
         $this->pm->prepareDynamicPageViews($this->collections);
 
@@ -313,7 +316,7 @@ class Website
             return;
         }
 
-        $themeFolder  = $this->fs->relativePath("_themes", $theme);
+        $themeFolder  = $this->fs->appendPath("_themes", $theme);
         $ignoreFile   = $this->fs->absolutePath($themeFolder, ".stakx-ignore");
         $ignoredFiles = array();
 
@@ -372,7 +375,7 @@ class Website
         if (!$this->fs->exists($file)) { return; }
 
         $filePath = $file->getRealPath();
-        $pathToStrip = $this->fs->relativePath(getcwd(), $prefix);
+        $pathToStrip = $this->fs->appendPath(getcwd(), $prefix);
         $siteTargetPath = ltrim(str_replace($pathToStrip, "", $filePath), DIRECTORY_SEPARATOR);
 
         try

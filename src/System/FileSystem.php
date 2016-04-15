@@ -45,7 +45,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      *
      * @return string
      */
-    public function relativePath ($pathFragments)
+    public function appendPath ($pathFragments)
     {
         return implode(DIRECTORY_SEPARATOR, func_get_args());
     }
@@ -147,7 +147,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
             mkdir($outputFolder, 0755, true);
         }
 
-        file_put_contents($this->relativePath($outputFolder, $targetFile), $content, LOCK_EX);
+        file_put_contents($this->appendPath($outputFolder, $targetFile), $content, LOCK_EX);
 
         return (new SplFileInfo(
             $fileName,

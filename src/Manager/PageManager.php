@@ -4,7 +4,6 @@ namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\PageView;
-use allejo\stakx\System\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -16,7 +15,7 @@ use Symfony\Component\Finder\Finder;
  *
  * @package allejo\stakx\Manager
  */
-class PageManager
+class PageManager extends ItemManager
 {
     /**
      * @var PageView[]
@@ -28,16 +27,16 @@ class PageManager
      */
     private $staticPageViews;
     private $siteMenu;
-    private $fs;
 
     /**
      * PageManager constructor
      */
     public function __construct()
     {
+        parent::__construct();
+
         $this->dynamicPageViews = array();
         $this->staticPageViews  = array();
-        $this->fs               = new Filesystem();
     }
 
     /**

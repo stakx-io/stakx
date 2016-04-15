@@ -3,14 +3,10 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\ContentItem;
-use allejo\stakx\System\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
-class CollectionManager
+class CollectionManager extends ItemManager
 {
-    private $fs;
-
     /**
      * @var ContentItem[][]
      */
@@ -18,7 +14,8 @@ class CollectionManager
 
     public function __construct()
     {
-        $this->fs = new Filesystem();
+        parent::__construct();
+
         $this->collections = array();
     }
 
@@ -29,7 +26,11 @@ class CollectionManager
 
     public function parseCollections ($folders)
     {
-        if ($folders === null) { return; }
+        if ($folders === null)
+        {
+            $this->output->debug("No collections found, nothing to parse.");
+            return;
+        }
 
         /**
          * The information which each collection has taken from the configuration file
@@ -42,26 +43,31 @@ class CollectionManager
          */
         foreach ($folders as $collection)
         {
+            $this->output->notice("Loading '{$collection['name']}' collection...");
+
             $collectionFolder = $this->fs->absolutePath($collection['folder']);
 
             if (!$this->fs->exists($collectionFolder))
             {
+                $this->output->warning("The folder '{$collection['folder']}' could not be found for the '{$collection['name']}' collection");
                 continue;
             }
 
-            $finder = new Finder();
-            $finder->files()
-                   ->ignoreDotFiles(true)
-                   ->ignoreUnreadableDirs()
-                   ->in($collectionFolder);
+            $finder = $this->fs->getFinder(array(), array(), $collectionFolder);
 
             /** @var $file SplFileInfo */
             foreach ($finder as $file)
             {
-                $filePath = $this->fs->relativePath($collectionFolder, $file->getRelativePathname());
+                $filePath = $this->fs->appendPath($collectionFolder, $file->getRelativePathname());
                 $fileHash = substr(sha1($filePath), 0, 7);
 
                 $this->collections[$collection['name']][$fileHash] = new ContentItem($filePath);
+
+                $this->output->info(sprintf(
+                    "Loading ContentItem into '%s' collection: %s",
+                    $collection['name'],
+                    $this->fs->appendPath($collection['folder'], $file->getRelativePathname())
+                ));
             }
         }
     }
