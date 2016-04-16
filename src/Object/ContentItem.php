@@ -119,7 +119,20 @@ class ContentItem
      */
     public function __get ($name)
     {
-        return (array_key_exists($name, $this->frontMatter) ? $this->frontMatter[$name] : null);
+        return $this->frontMatter[$name];
+    }
+
+    /**
+     * The magic getter returns true if the value exists in the Front Matter. This is used in conjunction with the __get
+     * function
+     *
+     * @param  string $name The name of the Front Matter value being looked for
+     *
+     * @return bool
+     */
+    public function __isset ($name)
+    {
+        return array_key_exists($name, $this->frontMatter);
     }
 
     /**
@@ -162,7 +175,7 @@ class ContentItem
             $this->bodyContentEvaluated = true;
         }
 
-        return $this->bodyContentEvaluated;
+        return $this->bodyContent;
     }
 
     /**
