@@ -119,7 +119,7 @@ class ContentItem
      */
     public function __get ($name)
     {
-        return $this->frontMatter[$name];
+        return (array_key_exists($name, $this->frontMatter) ? $this->frontMatter[$name] : null);
     }
 
     /**
