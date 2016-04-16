@@ -128,14 +128,15 @@ class Configuration
     private function defaultConfiguration()
     {
         $defaultConfig = array(
-            "target" => "_site",
-            "twig" => array(
-                "autoescape" => false
+            'base' => '/',
+            'target' => '_site',
+            'twig' => array(
+                'autoescape' => false
             ),
-            "include" => array(
-                ".htaccess"
+            'include' => array(
+                '.htaccess'
             ),
-            "exclude" => array(
+            'exclude' => array(
                 '/^_.*/',
                 'node_modules'
             )
