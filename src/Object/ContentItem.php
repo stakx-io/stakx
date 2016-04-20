@@ -47,14 +47,6 @@ class ContentItem
     protected $extension;
 
     /**
-     * The permalink that will be used for this individual. If this value is null, then no page will be generated for
-     * this ContentItem.
-     *
-     * @var string|NULL
-     */
-    protected $permalink;
-
-    /**
      * The original file path to the ContentItem
      *
      * @var string
@@ -136,27 +128,14 @@ class ContentItem
     }
 
     /**
-     * Set the permalink for this Content Item
-     *
-     * @param string $permalink     The permalink of this Content Item. Variables are allowed only if `$variables` is
-     *                              not null
      * @param array|null $variables An array of YAML variables to use in evaluating the `$permalink` value
-     *
-     * @throws YamlVariableNotFound A YAML variable is undefined
      */
-    public function setPermalink ($permalink, $variables = null)
+    public function evaluateFrontMatter ($variables = null)
     {
         if (!is_null($variables))
         {
-            $this->permalink = self::evaluateYamlVar($permalink, $variables);
-            $this->permalink = str_replace(' ', '-', $this->permalink);
-            $this->permalink = preg_replace('/[^A-Za-z0-9\-\/\.\_]/', '', $this->permalink);
-            $this->frontMatter['permalink'] = $this->permalink;
-        }
-        else
-        {
-            $this->permalink = $permalink;
-            $this->frontMatter['permalink'] = $permalink;
+            $this->frontMatter = array_merge($this->frontMatter, $variables);
+            $this->evaluateYaml($this->frontMatter);
         }
     }
 
@@ -203,11 +182,6 @@ class ContentItem
                 $this->frontMatter['day']   = $itemDate->format('d');
             }
         }
-
-        if (isset($this->frontMatter['permalink']))
-        {
-            $this->permalink = $this->frontMatter['permalink'];
-        }
     }
 
     /**
@@ -239,7 +213,7 @@ class ContentItem
      */
     final public function getPermalink ()
     {
-        return $this->permalink;
+        return $this->frontMatter['permalink'];
     }
 
     /**

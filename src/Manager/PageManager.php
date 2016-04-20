@@ -122,8 +122,8 @@ class PageManager extends ItemManager
             /** @var $item ContentItem */
             foreach ($collections[$collection] as $item)
             {
-                $itemFrontMatter = $item->getFrontMatter();
-                $item->setPermalink($pageView->getPermalink(), $itemFrontMatter);
+                $frontMatter['permalink'] = $pageView->getPermalink();
+                $item->evaluateFrontMatter($frontMatter);
             }
         }
     }
@@ -162,8 +162,7 @@ class PageManager extends ItemManager
             foreach ($collections[$collection] as $contentItem)
             {
                 $output = $template->render(array(
-                    'page' => $pageViewFrontMatter,
-                    'item' => $contentItem
+                    'this' => $contentItem
                 ));
 
                 $this->fs->writeFile(
@@ -191,7 +190,7 @@ class PageManager extends ItemManager
             $template = $twig->createTemplate($pageView->getContent());
 
             $output = $template->render(array(
-                "page" => $pageView->getFrontMatter()
+                'this' => $pageView->getFrontMatter()
             ));
 
             $this->fs->writeFile(

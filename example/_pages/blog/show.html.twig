@@ -7,10 +7,10 @@ permalink: /blog/%year/%month/%day/%title/
 
 {% block content %}
     <article>
-        <h2>{{ item.title }}</h2>
+        <h2>{{ this.title }}</h2>
 
         <section>
-            {{ item.content }}
+            {{ this.content }}
         </section>
     </article>
 {% endblock %}

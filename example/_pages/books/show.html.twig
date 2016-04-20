@@ -8,12 +8,13 @@ author: %fname %lname
 
 {% block content %}
     <article>
-        <p><strong>{{ item.title }}</strong></p>
-        <p><strong>ISBN:</strong> {{ item.isbn }}</p>
-        <p><strong>Pages:</strong> {{ item.pages }}</p>
+        <p><strong>{{ this.title }}</strong></p>
+        <p><small>{{ this.author }}</small></p>
+        <p><strong>ISBN:</strong> {{ this.isbn }}</p>
+        <p><strong>Pages:</strong> {{ this.pages }}</p>
 
         <section>
-            {{ item.content }}
+            {{ this.content }}
         </section>
     </article>
 {% endblock %}

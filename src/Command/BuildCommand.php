@@ -55,7 +55,11 @@ class BuildCommand extends Command
             $this->website->setSafeMode($input->getOption('safe'));
             $this->website->build();
         }
-        catch (\Exception $e) {}
+        catch (\Exception $e)
+        {
+            $output->writeln("An error has occurred.");
+            $output->writeln($e->getMessage());
+        }
     }
 
     /**

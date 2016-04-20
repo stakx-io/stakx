@@ -5,10 +5,10 @@
         <header class="page-header">
             {% block header %}
                 <h1>
-                    {{ page.title ? page.title : site.title }}
+                    {{ this.title ? this.title : site.title }}
 
-                    {% if page.slug %}
-                        <small>{{ page.slug }}</small>
+                    {% if this.slug %}
+                        <small>{{ this.slug }}</small>
                     {% endif %}
                 </h1>
             {% endblock %}
