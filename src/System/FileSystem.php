@@ -50,6 +50,18 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
         return implode(DIRECTORY_SEPARATOR, func_get_args());
     }
 
+    /**
+     * Strip the current working directory from an absolute path
+     *
+     * @param  string $path An absolute path
+     *
+     * @return string
+     */
+    public function getRelativePath ($path)
+    {
+        return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $path);
+    }
+
     public function getFinder ($explicitIncludes = array(), $explicitIgnores = array(), $searchIn = "")
     {
         $finder = new Finder();

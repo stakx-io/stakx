@@ -43,7 +43,7 @@ class Website
     private $collections;
 
     /**
-     * @var
+     * @var array
      */
     private $dataItems;
 
@@ -144,21 +144,26 @@ class Website
         );
         $this->copyThemeAssets();
         $this->copyStaticFiles();
-
-        $this->output->writeln("Your site built successfully! It can be found at: {$this->getConfiguration()->getTargetFolder()}" . DIRECTORY_SEPARATOR);
     }
 
     public function watch ()
     {
         $this->build();
 
-        $tracker  = new Tracker();
-        $watcher  = new Watcher($tracker, $this->fs);
-        $listener = $watcher->watch(getcwd());
+        $tracker    = new Tracker();
+        $watcher    = new Watcher($tracker, $this->fs);
+        $listener   = $watcher->watch(getcwd());
+        $targetPath = $this->getConfiguration()->getTargetFolder();
 
-        $listener->onModify(function($resource, $path) {
-            $this->output->writeln($path);
-//            $this->build();
+        $listener->onModify(function($resource, $path) use ($targetPath) {
+            $filePath = $this->fs->getRelativePath($path);
+
+            if (substr($filePath, 0, strlen($targetPath)) === $targetPath) { return; }
+
+            $this->output->info("File change detected: {path}", array(
+                'path' => $filePath
+            ));
+            $this->build();
         });
 
         $watcher->start();
