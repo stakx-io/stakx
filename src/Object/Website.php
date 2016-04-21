@@ -11,6 +11,8 @@ use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Twig\TwigExtension;
 use Aptoma\Twig\Extension\MarkdownExtension;
+use JasonLewis\ResourceWatcher\Tracker;
+use JasonLewis\ResourceWatcher\Watcher;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Twig_Environment;
@@ -144,6 +146,22 @@ class Website
         $this->copyStaticFiles();
 
         $this->output->writeln("Your site built successfully! It can be found at: {$this->getConfiguration()->getTargetFolder()}" . DIRECTORY_SEPARATOR);
+    }
+
+    public function watch ()
+    {
+        $this->build();
+
+        $tracker  = new Tracker();
+        $watcher  = new Watcher($tracker, $this->fs);
+        $listener = $watcher->watch(getcwd());
+
+        $listener->onModify(function($resource, $path) {
+            $this->output->writeln($path);
+//            $this->build();
+        });
+
+        $watcher->start();
     }
 
     /**

@@ -21,11 +21,11 @@
     "symfony/filesystem": "3.0.*",
     "symfony/console": "3.0.*",
     "symfony/finder": "3.0.*",
-    "jasonlewis/resource-watcher": "1.2.*",
     "psr/log": "1.0.*",
     "scrivo/highlight.php": "9.0.*",
     "padraic/phar-updater": "1.0.*",
-    "aptoma/twig-markdown": "^2.0"
+    "aptoma/twig-markdown": "^2.0",
+    "allejo/resource-watcher": "dev-master"
   },
   "require-dev": {
     "mikey179/vfsStream": "^1.6",
