@@ -25,7 +25,9 @@
     "scrivo/highlight.php": "9.0.*",
     "padraic/phar-updater": "1.0.*",
     "aptoma/twig-markdown": "^2.0",
-    "allejo/resource-watcher": "dev-master"
+    "allejo/resource-watcher": "dev-master",
+    "react/http": "^0.4.1",
+    "react/filesystem": "dev-master"
   },
   "require-dev": {
     "mikey179/vfsStream": "^1.6",
