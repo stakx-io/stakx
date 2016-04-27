@@ -6,11 +6,11 @@ use Twig_Environment;
 
 class BaseUrlFunction
 {
-    public function __invoke (Twig_Environment $env, $url)
+    public function __invoke (Twig_Environment $env, $assetPath)
     {
         $globals = $env->getGlobals();
         $baseURL = rtrim($globals['site']['base'], '/') . '/';
-        $url     = ltrim('/', $url);
+        $url     = ltrim($assetPath, '/');
 
         return ($baseURL . $url);
     }
