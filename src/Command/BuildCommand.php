@@ -29,7 +29,7 @@ class BuildCommand extends BuildableCommand
 
         if ($status)
         {
-            $this->website->build();
+            $this->website->build(true);
 
             $output->writeln(sprintf("Your site built successfully! It can be found at: %s",
                 $this->website->getConfiguration()->getTargetFolder() . DIRECTORY_SEPARATOR

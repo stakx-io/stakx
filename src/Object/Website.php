@@ -108,8 +108,10 @@ class Website
 
     /**
      * Compile the website.
+     *
+     * @param bool $cleanDirectory Clean the target directing before rebuilding
      */
-    public function build ()
+    public function build ($cleanDirectory)
     {
         $messages = array();
 
@@ -133,7 +135,7 @@ class Website
         $this->siteMenu = $this->pm->getSiteMenu();
 
         // Configure the environment
-        $this->createFolderStructure();
+        $this->createFolderStructure($cleanDirectory);
         $this->configureTwig();
 
         // Compile everything
@@ -148,7 +150,7 @@ class Website
 
     public function watch ()
     {
-        $this->build();
+        $this->build(true);
 
         $tracker    = new Tracker();
         $watcher    = new Watcher($tracker, $this->fs);
@@ -163,7 +165,7 @@ class Website
             $this->output->info("File change detected: {path}", array(
                 'path' => $filePath
             ));
-            $this->build();
+            $this->build(false);
         });
 
         $watcher->start();
@@ -261,14 +263,17 @@ class Website
 
     /**
      * Prepare the Stakx environment by creating necessary cache folders
+     *
+     * @param bool $cleanDirectory Clean the target directory
      */
-    private function createFolderStructure ()
+    private function createFolderStructure ($cleanDirectory)
     {
-        $this->fs->remove(array(
-            $this->fs->absolutePath('.stakx-cache'),
-            $this->fs->absolutePath('_site')
-        ));
+        if ($cleanDirectory)
+        {
+            $this->fs->absolutePath($this->configuration->getTargetFolder());
+        }
 
+        $this->fs->remove($this->fs->absolutePath('.stakx-cache'));
         $this->fs->mkdir('.stakx-cache/twig');
     }
 
