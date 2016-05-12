@@ -6,9 +6,11 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/inflector" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/instantiator" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/erusev/parsedown" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/evenement/evenement" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/illuminate/contracts" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/illuminate/filesystem" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/illuminate/support" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/indigophp/hash-compat" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/jasonlewis/resource-watcher" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/paragonie/random_compat" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpdocumentor/reflection-docblock" />
@@ -21,6 +23,13 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpunit/phpunit" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpunit/phpunit-mock-objects" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/psr/log" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/child-process" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/event-loop" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/filesystem" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/http" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/promise" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/socket" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/react/stream" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/scrivo/highlight.php" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian/comparator" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian/diff" />
@@ -34,8 +43,14 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/finder" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-mbstring" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/yaml" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/tivie/php-os-detector" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twig/twig" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/ulrichsg/getopt-php" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/wyrihaximus/cpu-core-detector" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/wyrihaximus/react-child-process-messenger" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/wyrihaximus/react-child-process-pool" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/wyrihaximus/react-child-process-promise" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/wyrihaximus/ticking-promise" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -46,11 +61,8 @@
           <root url="file://$MODULE_DIR$/vendor/doctrine/inflector" />
           <root url="file://$MODULE_DIR$/vendor/doctrine/instantiator" />
           <root url="file://$MODULE_DIR$/vendor/erusev/parsedown" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/contracts" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/filesystem" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/support" />
-          <root url="file://$MODULE_DIR$/vendor/jasonlewis/resource-watcher" />
-          <root url="file://$MODULE_DIR$/vendor/paragonie/random_compat" />
+          <root url="file://$MODULE_DIR$/vendor/evenement/evenement" />
+          <root url="file://$MODULE_DIR$/vendor/indigophp/hash-compat" />
           <root url="file://$MODULE_DIR$/vendor/phpdocumentor/reflection-docblock" />
           <root url="file://$MODULE_DIR$/vendor/phpspec/prophecy" />
           <root url="file://$MODULE_DIR$/vendor/phpunit/php-code-coverage" />
@@ -61,6 +73,13 @@
           <root url="file://$MODULE_DIR$/vendor/phpunit/phpunit" />
           <root url="file://$MODULE_DIR$/vendor/phpunit/phpunit-mock-objects" />
           <root url="file://$MODULE_DIR$/vendor/psr/log" />
+          <root url="file://$MODULE_DIR$/vendor/react/child-process" />
+          <root url="file://$MODULE_DIR$/vendor/react/event-loop" />
+          <root url="file://$MODULE_DIR$/vendor/react/filesystem" />
+          <root url="file://$MODULE_DIR$/vendor/react/http" />
+          <root url="file://$MODULE_DIR$/vendor/react/promise" />
+          <root url="file://$MODULE_DIR$/vendor/react/socket" />
+          <root url="file://$MODULE_DIR$/vendor/react/stream" />
           <root url="file://$MODULE_DIR$/vendor/scrivo/highlight.php" />
           <root url="file://$MODULE_DIR$/vendor/sebastian/comparator" />
           <root url="file://$MODULE_DIR$/vendor/sebastian/diff" />
@@ -74,18 +93,21 @@
           <root url="file://$MODULE_DIR$/vendor/symfony/finder" />
           <root url="file://$MODULE_DIR$/vendor/symfony/polyfill-mbstring" />
           <root url="file://$MODULE_DIR$/vendor/symfony/yaml" />
+          <root url="file://$MODULE_DIR$/vendor/tivie/php-os-detector" />
           <root url="file://$MODULE_DIR$/vendor/twig/twig" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/cpu-core-detector" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/react-child-process-messenger" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/react-child-process-pool" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/react-child-process-promise" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/ticking-promise" />
         </CLASSES>
         <SOURCES>
           <root url="file://$MODULE_DIR$/vendor/composer" />
           <root url="file://$MODULE_DIR$/vendor/doctrine/inflector" />
           <root url="file://$MODULE_DIR$/vendor/doctrine/instantiator" />
           <root url="file://$MODULE_DIR$/vendor/erusev/parsedown" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/contracts" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/filesystem" />
-          <root url="file://$MODULE_DIR$/vendor/illuminate/support" />
-          <root url="file://$MODULE_DIR$/vendor/jasonlewis/resource-watcher" />
-          <root url="file://$MODULE_DIR$/vendor/paragonie/random_compat" />
+          <root url="file://$MODULE_DIR$/vendor/evenement/evenement" />
+          <root url="file://$MODULE_DIR$/vendor/indigophp/hash-compat" />
           <root url="file://$MODULE_DIR$/vendor/phpdocumentor/reflection-docblock" />
           <root url="file://$MODULE_DIR$/vendor/phpspec/prophecy" />
           <root url="file://$MODULE_DIR$/vendor/phpunit/php-code-coverage" />
@@ -96,6 +118,13 @@
           <root url="file://$MODULE_DIR$/vendor/phpunit/phpunit" />
           <root url="file://$MODULE_DIR$/vendor/phpunit/phpunit-mock-objects" />
           <root url="file://$MODULE_DIR$/vendor/psr/log" />
+          <root url="file://$MODULE_DIR$/vendor/react/child-process" />
+          <root url="file://$MODULE_DIR$/vendor/react/event-loop" />
+          <root url="file://$MODULE_DIR$/vendor/react/filesystem" />
+          <root url="file://$MODULE_DIR$/vendor/react/http" />
+          <root url="file://$MODULE_DIR$/vendor/react/promise" />
+          <root url="file://$MODULE_DIR$/vendor/react/socket" />
+          <root url="file://$MODULE_DIR$/vendor/react/stream" />
           <root url="file://$MODULE_DIR$/vendor/scrivo/highlight.php" />
           <root url="file://$MODULE_DIR$/vendor/sebastian/comparator" />
           <root url="file://$MODULE_DIR$/vendor/sebastian/diff" />
@@ -109,7 +138,13 @@
           <root url="file://$MODULE_DIR$/vendor/symfony/finder" />
           <root url="file://$MODULE_DIR$/vendor/symfony/polyfill-mbstring" />
           <root url="file://$MODULE_DIR$/vendor/symfony/yaml" />
+          <root url="file://$MODULE_DIR$/vendor/tivie/php-os-detector" />
           <root url="file://$MODULE_DIR$/vendor/twig/twig" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/cpu-core-detector" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/react-child-process-messenger" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/react-child-process-pool" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/react-child-process-promise" />
+          <root url="file://$MODULE_DIR$/vendor/wyrihaximus/ticking-promise" />
         </SOURCES>
       </library>
     </orderEntry>
