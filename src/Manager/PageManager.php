@@ -75,6 +75,7 @@ class PageManager extends ItemManager
 
             $finder = new Finder();
             $finder->files()
+                   ->name('/\.(html|twig)/')
                    ->ignoreDotFiles(true)
                    ->ignoreUnreadableDirs()
                    ->in($pageViewFolder);
@@ -187,8 +188,9 @@ class PageManager extends ItemManager
     {
         foreach ($this->staticPageViews as $pageView)
         {
-            $template = $twig->createTemplate($pageView->getContent());
+            $twig->addGlobal('__currentTemplate', $pageView->getFilePath());
 
+            $template = $twig->createTemplate($pageView->getContent());
             $output = $template->render(array(
                 'this' => $pageView->getFrontMatter()
             ));

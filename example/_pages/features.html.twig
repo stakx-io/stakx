@@ -32,18 +32,7 @@ permalink: /features/
     {% endset %}
     {{ self.feature("Make Use of a Powerful Template Engine", "code", twigBody) }}
 
-    {% set familiarityBody %}
-        <p>
-            Jekyll's got things right, so why reinvent the wheel? Stakx has taken a lot of aspects from Jekyll has
-            incorporated them or improved them:
-        </p>
-        <ul>
-            <li>Configuration File</li>
-            <li>Front Matter</li>
-            <li>Markdown</li>
-            <li>Themes</li>
-        </ul>
-    {% endset %}
+    {% set familiarityBody = file('_features/familiarity.md') | markdown %}
     {{ self.feature("Familiarity of Jekyll", "github", familiarityBody) }}
 
     {% set extensibleBody %}

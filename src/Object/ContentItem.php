@@ -87,12 +87,16 @@ class ContentItem
 
         if (count($frontMatter) != 3)
         {
-            throw new IOException('This file is not a valid ContentItem');
+            throw new IOException(sprintf("'%s' is not a valid ContentItem",
+                $this->fs->getFileName($filePath))
+            );
         }
 
         if (empty(trim($frontMatter[2])))
         {
-            throw new IOException('A ContentItem must have a body to render');
+            throw new IOException(sprintf('A ContentItem (%s) must have a body to render',
+                $this->fs->getFileName($filePath))
+            );
         }
 
         $this->frontMatter = Yaml::parse($frontMatter[1]);
