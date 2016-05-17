@@ -162,9 +162,7 @@ class Website
 
             if (substr($filePath, 0, strlen($targetPath)) === $targetPath) { return; }
 
-            $this->output->info("File change detected: {path}", array(
-                'path' => $filePath
-            ));
+            $this->output->writeln(sprintf("File change detected: %s", $filePath));
             $this->build(false);
         });
 

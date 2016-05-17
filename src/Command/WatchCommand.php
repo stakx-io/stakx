@@ -23,6 +23,7 @@ class WatchCommand extends BuildableCommand
 
         if ($status)
         {
+            $output->writeln(sprintf("Watching %s...", getcwd()));
             $this->website->watch();
         }
     }
