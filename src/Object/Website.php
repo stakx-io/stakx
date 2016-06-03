@@ -160,7 +160,11 @@ class Website
         $listener->onModify(function($resource, $path) use ($targetPath) {
             $filePath = $this->fs->getRelativePath($path);
 
-            if (substr($filePath, 0, strlen($targetPath)) === $targetPath) { return; }
+            if ((substr($filePath, 0, strlen($targetPath)) === $targetPath) ||
+                (substr($filePath, 0, 1) === '.'))
+            {
+                return;
+            }
 
             $this->output->writeln(sprintf("File change detected: %s", $filePath));
             $this->build(false);
