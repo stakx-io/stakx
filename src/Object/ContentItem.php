@@ -14,6 +14,13 @@ use Symfony\Component\Yaml\Yaml;
 class ContentItem
 {
     /**
+     * Set to true if the permalink has been sanitized
+     *
+     * @var bool
+     */
+    protected $permalinkSanitzed;
+
+    /**
      * Set to true if the front matter has already been evaluated with variable interpolation
      *
      * @var bool
@@ -241,6 +248,15 @@ class ContentItem
      */
     final public function getPermalink ()
     {
+        if (!$this->permalinkSanitzed)
+        {
+            $link = $this->frontMatter['permalink'];
+            $link = str_replace(' ', '-', $link);
+
+            $this->permalinkSanitzed = true;
+            $this->frontMatter['permalink'] = $link;
+        }
+
         return $this->frontMatter['permalink'];
     }
 
