@@ -2,9 +2,11 @@
 
 namespace allejo\stakx\Object;
 
-use allejo\stakx\Core\MarkdownEngine;
+use allejo\stakx\Engines\MarkdownEngine;
+use allejo\stakx\Engines\RST\SyntaxBlock;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Exception\YamlVariableNotFound;
+use Gregwar\RST\Parser as RstEngine;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Yaml\Yaml;
@@ -79,7 +81,7 @@ class ContentItem
             throw new FileNotFoundException("The following file could not be found: ${filePath}");
         }
 
-        $this->extension = $this->fs->getExtension($filePath);
+        $this->extension = strtolower($this->fs->getExtension($filePath));
         $rawFileContents = file_get_contents($filePath);
 
         $frontMatter = array();
@@ -152,7 +154,21 @@ class ContentItem
     {
         if (!$this->bodyContentEvaluated)
         {
-            $pd = new MarkdownEngine();
+            switch ($this->extension)
+            {
+                case "md":
+                case "markdown":
+                    $pd = new MarkdownEngine();
+                    break;
+
+                case "rst":
+                    $pd = new RstEngine();
+                    $pd->registerDirective(new SyntaxBlock());
+                    break;
+
+                default:
+                    return "";
+            }
 
             $this->bodyContent = $pd->parse($this->bodyContent);
             $this->bodyContentEvaluated = true;

@@ -1,6 +1,6 @@
 <?php
 
-namespace allejo\stakx\Core;
+namespace allejo\stakx\Engines;
 
 use Highlight\Highlighter;
 

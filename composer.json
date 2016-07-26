@@ -12,7 +12,10 @@
   "autoload": {
     "classmap": [
       "src/"
-    ]
+    ],
+    "psr-4": {
+      "Gregwar\\RST\\HTML\\Nodes\\": "src/Engines/RST/HTML/Nodes/"
+    }
   },
   "require": {
     "twig/twig": "1.24.*",
@@ -27,7 +30,8 @@
     "aptoma/twig-markdown": "^2.0",
     "allejo/resource-watcher": "dev-master",
     "react/http": "^0.4.1",
-    "react/filesystem": "dev-master"
+    "react/filesystem": "dev-master",
+    "gregwar/rst": "dev-master"
   },
   "require-dev": {
     "mikey179/vfsStream": "^1.6",

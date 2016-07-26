@@ -3,7 +3,7 @@
 namespace allejo\stakx\Object;
 
 use allejo\stakx\Core\ConsoleInterface;
-use allejo\stakx\Core\TwigMarkdownEngine;
+use allejo\stakx\Engines\TwigMarkdownEngine;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
