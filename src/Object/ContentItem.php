@@ -166,11 +166,19 @@ class ContentItem
                     $pd->registerDirective(new SyntaxBlock());
                     break;
 
+                case "html":
+                    $pd = null;
+                    break;
+
                 default:
-                    return "";
+                    throw new \InvalidArgumentException("Unsupported file extension found");
             }
 
-            $this->bodyContent = $pd->parse($this->bodyContent);
+            if (!is_null($pd)) // No parser needed
+            {
+                $this->bodyContent = $pd->parse($this->bodyContent);
+            }
+
             $this->bodyContentEvaluated = true;
         }
 
