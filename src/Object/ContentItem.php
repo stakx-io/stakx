@@ -326,7 +326,7 @@ class ContentItem
     final protected static function evaluateYamlVar ($string, $yaml)
     {
         $variables = array();
-        $varRegex  = '/(%[a-zA-Z_\-]+)/';
+        $varRegex  = '/(%[a-zA-Z]+)/';
         $output    = $string;
 
         preg_match_all($varRegex, $string, $variables);
