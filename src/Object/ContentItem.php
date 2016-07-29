@@ -18,7 +18,7 @@ class ContentItem
      *
      * @var bool
      */
-    protected $permalinkSanitzed;
+    protected $permalinkEvaluated;
 
     /**
      * Set to true if the front matter has already been evaluated with variable interpolation
@@ -248,13 +248,12 @@ class ContentItem
      */
     final public function getPermalink ()
     {
-        if (!$this->permalinkSanitzed)
-        {
-            $link = $this->frontMatter['permalink'];
-            $link = str_replace(' ', '-', $link);
+        $link = $this->frontMatter['permalink'];
 
-            $this->permalinkSanitzed = true;
-            $this->frontMatter['permalink'] = $link;
+        if (!$this->permalinkEvaluated)
+        {
+            $this->frontMatter['permalink'] = $this->sanitizePermalink($link);
+            $this->permalinkEvaluated = true;
         }
 
         return $this->frontMatter['permalink'];
@@ -292,6 +291,13 @@ class ContentItem
         return $this->filePath;
     }
 
+    /**
+     * Evaluate an array of data for FrontMatter variables. This function will modify the array in place.
+     *
+     * @param  array $yaml An array of data containing FrontMatter variables
+     *
+     * @throws YamlVariableNotFound A FrontMatter variable used does not exist
+     */
     final protected function evaluateYaml (&$yaml)
     {
         foreach ($yaml as $key => $value)
@@ -307,6 +313,16 @@ class ContentItem
         }
     }
 
+    /**
+     * Evaluate an string for FrontMatter variables and replace them with the corresponding values
+     *
+     * @param  string $string The string that will be evaluated
+     * @param  array  $yaml   The existing front matter from which the variable values will be pulled from
+     *
+     * @return string The final string with variables evaluated
+     *
+     * @throws YamlVariableNotFound A FrontMatter variable used does not exist
+     */
     final protected static function evaluateYamlVar ($string, $yaml)
     {
         $variables = array();
@@ -315,9 +331,11 @@ class ContentItem
 
         preg_match_all($varRegex, $string, $variables);
 
+        // Default behavior causes $variables[0] is the entire string that was matched. $variables[1] will be each
+        // matching result individually.
         foreach ($variables[1] as $variable)
         {
-            $yamlVar = substr($variable, 1);
+            $yamlVar = substr($variable, 1); // Trim the '%' from the YAML variable name
 
             if (!array_key_exists($yamlVar, $yaml))
             {
@@ -328,5 +346,26 @@ class ContentItem
         }
 
         return $output;
+    }
+
+    /**
+     * Sanitize a permalink to remove unsupported characters or multiple '/' and replace spaces with hyphens
+     *
+     * @param  string $permalink A permalink
+     *
+     * @return string $permalink The sanitized permalink
+     */
+    final private function sanitizePermalink ($permalink)
+    {
+        // Remove multiple '/' together
+        $permalink = preg_replace('/\/+/', '/', $permalink);
+
+        // Replace all spaces with hyphens
+        $permalink = str_replace(' ', '-', $permalink);
+
+        // Remove all disallowed characters
+        $permalink = preg_replace('/[^0-9a-zA-Z-_\/]/', '', $permalink);
+
+        return $permalink;
     }
 }

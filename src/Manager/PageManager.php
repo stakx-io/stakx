@@ -123,7 +123,6 @@ class PageManager extends ItemManager
             /** @var $item ContentItem */
             foreach ($collections[$collection] as $item)
             {
-                $frontMatter['permalink'] = $pageView->getPermalink();
                 $item->evaluateFrontMatter($frontMatter);
             }
         }
