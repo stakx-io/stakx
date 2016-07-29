@@ -364,7 +364,7 @@ class ContentItem
         $permalink = str_replace(' ', '-', $permalink);
 
         // Remove all disallowed characters
-        $permalink = preg_replace('/[^0-9a-zA-Z-_\/]/', '', $permalink);
+        $permalink = preg_replace('/[^0-9a-zA-Z-_\/\.]/', '', $permalink);
 
         return $permalink;
     }
