@@ -193,33 +193,6 @@ class ContentItem
     }
 
     /**
-     * Handle default front matter values that need special treatment or have special meaning to a Content Item
-     */
-    private function handleDefaults ()
-    {
-        if (isset($this->frontMatter['date']))
-        {
-            try
-            {
-                // Coming from a string variable
-                $itemDate = new \DateTime($this->frontMatter['date']);
-            }
-            catch (\Exception $e)
-            {
-                // YAML has parsed them to Epoch time
-                $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
-            }
-
-            if (!$itemDate === false)
-            {
-                $this->frontMatter['year']  = $itemDate->format('Y');
-                $this->frontMatter['month'] = $itemDate->format('m');
-                $this->frontMatter['day']   = $itemDate->format('d');
-            }
-        }
-    }
-
-    /**
      * Get the Front Matter of a ContentItem as an array
      *
      * @param  bool $evaluateYaml When set to true, the YAML will be evaluated for variables
@@ -248,13 +221,18 @@ class ContentItem
      */
     final public function getPermalink ()
     {
-        $link = $this->frontMatter['permalink'];
-
-        if (!$this->permalinkEvaluated)
-        {
-            $this->frontMatter['permalink'] = $this->sanitizePermalink($link);
-            $this->permalinkEvaluated = true;
+        if ($this->permalinkEvaluated) {
+            return $this->frontMatter['permalink'];
         }
+
+        $permalink = $this->frontMatter['permalink'];
+
+        if (empty($permalink)) {
+            $permalink = $this->getPathPermalink();
+        }
+
+        $this->frontMatter['permalink'] = $this->sanitizePermalink($permalink);
+        $this->permalinkEvaluated = true;
 
         return $this->frontMatter['permalink'];
     }
@@ -269,13 +247,8 @@ class ContentItem
         $extension  = $this->fs->getExtension($this->getPermalink());
         $targetFile = $this->getPermalink();
 
-        if (empty($extension) && !is_null($targetFile))
-        {
+        if (empty($extension)) {
             $targetFile = rtrim($this->getPermalink(), '/') . '/index.html';
-        }
-        else if (is_null($targetFile))
-        {
-            $targetFile = $this->fs->getBaseName($this->filePath);
         }
 
         return ltrim($targetFile, '/');
@@ -349,13 +322,64 @@ class ContentItem
     }
 
     /**
+     * Handle default front matter values that need special treatment or have special meaning to a Content Item
+     */
+    private function handleDefaults ()
+    {
+        if (isset($this->frontMatter['date']))
+        {
+            try
+            {
+                // Coming from a string variable
+                $itemDate = new \DateTime($this->frontMatter['date']);
+            }
+            catch (\Exception $e)
+            {
+                // YAML has parsed them to Epoch time
+                $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
+            }
+
+            if (!$itemDate === false)
+            {
+                $this->frontMatter['year']  = $itemDate->format('Y');
+                $this->frontMatter['month'] = $itemDate->format('m');
+                $this->frontMatter['day']   = $itemDate->format('d');
+            }
+        }
+    }
+
+    /**
+     * Get the permalink based off the location of where the file is relative to the website. This permalink is to be
+     * used as a fallback in the case that a permalink is not explicitly specified in the Front Matter.
+     *
+     * @return string
+     */
+    private function getPathPermalink ()
+    {
+        // Remove the protocol of the path, if there is one and prepend a '/' to the beginning
+        $cleanPath = preg_replace('/[\w|\d]+:\/\//', '', $this->filePath);
+        $cleanPath = ltrim($cleanPath, DIRECTORY_SEPARATOR);
+
+        // Check the first folder and see if it's a data folder (starts with an underscore) intended for stakx
+        $folders = explode('/', $cleanPath);
+
+        if (substr($folders[0], 0, 1) === '_') {
+            array_shift($folders);
+        }
+
+        $cleanPath = implode(DIRECTORY_SEPARATOR, $folders);
+
+        return $cleanPath;
+    }
+
+    /**
      * Sanitize a permalink to remove unsupported characters or multiple '/' and replace spaces with hyphens
      *
      * @param  string $permalink A permalink
      *
      * @return string $permalink The sanitized permalink
      */
-    final private function sanitizePermalink ($permalink)
+    private function sanitizePermalink ($permalink)
     {
         // Remove multiple '/' together
         $permalink = preg_replace('/\/+/', '/', $permalink);
@@ -365,6 +389,13 @@ class ContentItem
 
         // Remove all disallowed characters
         $permalink = preg_replace('/[^0-9a-zA-Z-_\/\.]/', '', $permalink);
+
+        // Handle unnecessary extensions
+        $extensionsToStrip = array('twig');
+
+        if (in_array($this->fs->getExtension($permalink), $extensionsToStrip)) {
+            $permalink = $this->fs->removeExtension($permalink);
+        }
 
         return $permalink;
     }

@@ -141,6 +141,21 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
+     * Get the full path to the file without the extension
+     *
+     * @param  string $filename A file path
+     *
+     * @return string
+     */
+    public function removeExtension ($filename)
+    {
+        return $this->appendPath(
+                   $this->getFolderPath($filename),
+                   $this->getBaseName($filename)
+               );
+    }
+
+    /**
      * Write a file
      *
      * @param string $targetDir The directory of where the file will be created; the file name is a separate variable

@@ -193,13 +193,11 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
     {
         $contentItem = $this->createValidFileWithEmptyFrontMatter();
 
-        $this->assertEquals("foo.html", $contentItem->getTargetFile());
+        $this->assertEquals("root/foo.html", $contentItem->getTargetFile());
     }
 
     public function testContentItemTargetFileFromFileWithoutPermalinkInDir ()
     {
-        $this->markTestIncomplete();
-
         $root = vfsStream::create(array(
             'dir' => array (
                 'foo.html.twig' => sprintf($this->fileTemplate, "", "Body Text")
@@ -208,7 +206,7 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
 
         $contentItem = new ContentItem($root->getChild('dir/foo.html.twig')->url());
 
-        $this->assertEquals('dir/foo.html', $contentItem->getTargetFile());
+        $this->assertEquals('root/dir/foo.html', $contentItem->getTargetFile());
     }
 
     public function testContentItemWithNoFile ()
