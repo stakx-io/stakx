@@ -397,6 +397,11 @@ class ContentItem
             $permalink = $this->fs->removeExtension($permalink);
         }
 
+        // Remove a special './' combination from the beginning of a path
+        if (substr($permalink, 0, 2) === './') {
+            $permalink = substr($permalink, 2);
+        }
+
         return $permalink;
     }
 }

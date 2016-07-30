@@ -209,6 +209,19 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
         $this->assertEquals('root/dir/foo.html', $contentItem->getTargetFile());
     }
 
+    public function testContentItemTargetFileFromFileWithStakxDataFolder ()
+    {
+        $rootDir = vfsStream::setup('_bacon');
+        $file    = vfsStream::newFile("foo.html.twig");
+
+        $file->setContent(sprintf($this->fileTemplate, "", "Body Text"))
+             ->at($rootDir);
+
+        $contentItem = new ContentItem($rootDir->getChild('foo.html.twig')->url());
+
+        $this->assertEquals('foo.html', $contentItem->getTargetFile());
+    }
+
     public function testContentItemWithNoFile ()
     {
         $this->setExpectedException(FileNotFoundException::class);
