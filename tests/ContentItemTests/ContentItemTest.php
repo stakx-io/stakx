@@ -10,6 +10,7 @@ use org\bovigo\vfs\vfsStreamFile;
 use PHPUnit_Framework_TestCase;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 class ContentItemTests extends PHPUnit_Framework_TestCase
@@ -98,6 +99,16 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
         $this->assertNull($contentItem->year);
         $this->assertNull($contentItem->month);
         $this->assertNull($contentItem->day);
+    }
+
+    public function testContentItemFrontMatterInvalidYaml ()
+    {
+        $this->setExpectedException(ParseException::class);
+
+        $this->dummyFile->setContent(sprintf($this->fileTemplate, 'invalid yaml', 'body text'))
+             ->at($this->rootDir);
+
+        return (new ContentItem($this->dummyFile->url()));
     }
 
     public function testContentItemFrontMatterYamlVariables ()
