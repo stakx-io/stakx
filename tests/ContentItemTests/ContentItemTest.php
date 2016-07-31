@@ -2,6 +2,8 @@
 
 namespace allejo\stakx\tests;
 
+use allejo\stakx\Engines\MarkdownEngine;
+use allejo\stakx\Engines\RstEngine;
 use allejo\stakx\Exception\YamlVariableNotFound;
 use allejo\stakx\Object\ContentItem;
 use org\bovigo\vfs\vfsStream;
@@ -257,6 +259,28 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
         $file = vfsStream::newFile('foo.html.twig')->at($this->rootDir);
 
         new ContentItem($file->url());
+    }
+
+    public function testContentItemWithMdExtensionFile ()
+    {
+        $this->dummyFile = vfsStream::newFile('Sample Markdown.md');
+        $markdownContent = file_get_contents(__DIR__ . '/assets/Sample Markdown.md');
+
+        $contentItem = $this->createValidFileWithEmptyFrontMatter($markdownContent);
+        $pd = new MarkdownEngine();
+
+        $this->assertEquals($pd->parse($markdownContent), $contentItem->getContent());
+    }
+
+    public function testContentItemWithRstExtensionFile ()
+    {
+        $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
+        $rstContent = file_get_contents(__DIR__ . '/assets/Sample reStructuredText.rst');
+
+        $contentItem = $this->createValidFileWithEmptyFrontMatter($rstContent);
+        $pd = new RstEngine();
+
+        $this->assertEquals((string)$pd->parse($rstContent), $contentItem->getContent());
     }
 
     private function createValidFileWithEmptyFrontMatter ($body = "Body Text")
