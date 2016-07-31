@@ -3,10 +3,9 @@
 namespace allejo\stakx\Object;
 
 use allejo\stakx\Engines\MarkdownEngine;
-use allejo\stakx\Engines\RST\SyntaxBlock;
+use allejo\stakx\Engines\RstEngine;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Exception\YamlVariableNotFound;
-use Gregwar\RST\Parser as RstEngine;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Yaml\Yaml;
@@ -170,15 +169,11 @@ class ContentItem
 
                 case "rst":
                     $pd = new RstEngine();
-                    $pd->registerDirective(new SyntaxBlock());
-                    break;
-
-                case "html":
-                    $pd = null;
                     break;
 
                 default:
-                    throw new \InvalidArgumentException("Unsupported file extension found");
+                    $pd = null;
+                    break;
             }
 
             if (!is_null($pd)) // No parser needed
@@ -189,7 +184,7 @@ class ContentItem
             $this->bodyContentEvaluated = true;
         }
 
-        return $this->bodyContent;
+        return (string)$this->bodyContent;
     }
 
     /**
