@@ -71,6 +71,19 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
         $this->assertEquals($frontMatter, $contentItem->getFrontMatter());
     }
 
+    public function testContentItemFrontMatterMagicIsset ()
+    {
+        $frontMatter = array(
+            'foo' => 1,
+            'bar' => 2
+        );
+
+        $contentItem = $this->createSampleValidFile($frontMatter);
+
+        $this->assertTrue(isset($contentItem->foo));
+        $this->assertTrue(isset($contentItem->bar));
+    }
+
     public function testContentItemFrontMatterDateParsing ()
     {
         $year  = "2000";
