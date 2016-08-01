@@ -1,0 +1,17 @@
+---
+permalink: /files/
+title: Sample File List
+slug: An example of the Finder filter
+---
+
+{% extends "_layouts/base.html.twig" %}
+
+{% block content %}
+    {% set files = finder('downloads/iterable').files.name('*.txt') %}
+
+    <ul>
+        {% for file in files %}
+           <li>{{ file }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
