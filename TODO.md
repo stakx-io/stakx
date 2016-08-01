@@ -1,8 +1,0 @@
-- the `build` command
-    - Build without a configuration file necessary
-- the `watch` command
-    - Use the same build process
-    - don't reparse and recompile everything
-- the `serve` command
-    - start a web server with the `_site` folder being the directory
-    - run the `watch` command after the website has been started
