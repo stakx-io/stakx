@@ -148,6 +148,39 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
         $this->assertEquals(sprintf("%s %s", $finalFront['name'], $suffix), $finalFront['name_full']);
     }
 
+    public function testContentItemFrontMatterForDynamicPages ()
+    {
+        $frontMatter = array(
+            'permalink'  => '/blog/%title'
+        );
+
+        $contentItem = $this->createSampleValidFile($frontMatter);
+        $individualFrontMatter = array(
+            'title' => 'Hello World'
+        );
+
+        $contentItem->evaluateFrontMatter($individualFrontMatter);
+
+        $this->assertEquals('/blog/Hello-World', $contentItem->getPermalink());
+    }
+
+    public function testContentItemFrontMatterForDynamicPagesWithDates ()
+    {
+        $frontMatter = array(
+            'permalink'  => '/blog/%year/%month/%day/%title'
+        );
+
+        $contentItem = $this->createSampleValidFile($frontMatter);
+        $individualFrontMatter = array(
+            'title' => 'Hello World',
+            'date'  => '2016-01-01'
+        );
+
+        $contentItem->evaluateFrontMatter($individualFrontMatter);
+
+        $this->assertEquals('/blog/2016/01/01/Hello-World', $contentItem->getPermalink());
+    }
+
     public function testContentItemFrontMatterArrayYamlVariables ()
     {
         $fname  = "John";

@@ -110,7 +110,7 @@ class ContentItem
         $this->frontMatter = Yaml::parse($frontMatter[1]);
         $this->bodyContent = trim($frontMatter[2]);
 
-        $this->handleDefaults();
+        $this->handleSpecialFrontMatter();
     }
 
     /**
@@ -147,6 +147,7 @@ class ContentItem
         if (!is_null($variables))
         {
             $this->frontMatter = array_merge($this->frontMatter, $variables);
+            $this->handleSpecialFrontMatter();
             $this->evaluateYaml($this->frontMatter);
         }
     }
@@ -317,9 +318,9 @@ class ContentItem
     }
 
     /**
-     * Handle default front matter values that need special treatment or have special meaning to a Content Item
+     * Handle special front matter values that need special treatment or have special meaning to a Content Item
      */
-    private function handleDefaults ()
+    private function handleSpecialFrontMatter ()
     {
         if (isset($this->frontMatter['date']))
         {
