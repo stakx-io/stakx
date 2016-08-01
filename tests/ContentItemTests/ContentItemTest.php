@@ -283,6 +283,16 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
         $this->assertEquals((string)$pd->parse($rstContent), $contentItem->getContent());
     }
 
+    public function testContentItemWithUnknownExtensionFile ()
+    {
+        $this->dummyFile = vfsStream::newFile('Sample HTML.html');
+        $htmlContent = file_get_contents(__DIR__ . '/assets/Sample HTML.html');
+
+        $contentItem = $this->createValidFileWithEmptyFrontMatter($htmlContent);
+
+        $this->assertEquals($htmlContent, $contentItem->getContent());
+    }
+
     private function createValidFileWithEmptyFrontMatter ($body = "Body Text")
     {
         $this->dummyFile->setContent(sprintf($this->fileTemplate, "", $body))
