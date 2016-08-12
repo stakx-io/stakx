@@ -9,7 +9,11 @@ class BaseUrlFunction
     public function __invoke (Twig_Environment $env, $assetPath)
     {
         $globals = $env->getGlobals();
-        $baseURL = rtrim($globals['site']['base'], '/') . '/';
+
+        // @todo Remove support for 'base' as it's been deprecated
+        $base = (array_key_exists('base', $globals['site'])) ? $globals['site']['base'] : $globals['site']['baseurl'];
+
+        $baseURL = rtrim($base, '/') . '/';
         $url     = ltrim($assetPath, '/');
 
         return ($baseURL . $url);

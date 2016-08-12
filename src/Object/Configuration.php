@@ -65,9 +65,21 @@ class Configuration
         return $this->returnConfigOption('debug', false);
     }
 
+    /**
+     * @todo Remove support for 'base' in next major release; it has been replaced by 'baseurl'
+     *
+     * @return mixed|null
+     */
     public function getBaseUrl ()
     {
-        return $this->returnConfigOption('base');
+        $base = $this->returnConfigOption('base');
+
+        if (is_null($base))
+        {
+            return $this->returnConfigOption('baseurl');
+        }
+
+        return $base;
     }
 
     public function getDataFolders ()
@@ -128,7 +140,7 @@ class Configuration
     private function defaultConfiguration()
     {
         $defaultConfig = array(
-            'base' => '/',
+            'baseurl' => '/',
             'target' => '_site',
             'twig' => array(
                 'autoescape' => false
