@@ -13,7 +13,7 @@ class BaseUrlFunction
         // @todo Remove support for 'base' as it's been deprecated
         $base = (array_key_exists('base', $globals['site'])) ? $globals['site']['base'] : $globals['site']['baseurl'];
 
-        $baseURL = rtrim($base, '/') . '/';
+        $baseURL = (empty($base)) ? '/' : '/' . trim($base, '/') . '/';
         $url     = ltrim($assetPath, '/');
 
         return ($baseURL . $url);
