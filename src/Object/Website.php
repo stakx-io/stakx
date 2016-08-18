@@ -116,18 +116,18 @@ class Website
         $messages = array();
 
         // Parse DataItems
-        $this->dm->setOutput($this->output);
+        $this->dm->setConsoleOutput($this->output);
         $this->dm->parseDataItems($this->getConfiguration()->getDataFolders(), $messages);
         $this->dm->parseDataSets($this->getConfiguration()->getDataSets(), $messages);
         $this->dataItems = $this->dm->getDataItems();
 
         // Prepare Collections
-        $this->cm->setOutput($this->output);
+        $this->cm->setConsoleOutput($this->output);
         $this->cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
         $this->collections = $this->cm->getCollections();
 
         // Handle PageViews
-        $this->pm->setOutput($this->output);
+        $this->pm->setConsoleOutput($this->output);
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
         $this->pm->prepareDynamicPageViews($this->collections);
 

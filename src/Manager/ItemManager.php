@@ -26,7 +26,7 @@ abstract class ItemManager
     /**
      * @param ConsoleInterface|OutputInterface|null $output
      */
-    public function setOutput ($output)
+    public function setConsoleOutput ($output)
     {
         $this->output = new ConsoleInterface($output);
     }
