@@ -283,13 +283,16 @@ class Website
      */
     private function createFolderStructure ($cleanDirectory)
     {
+        $tarDir = $this->fs->absolutePath($this->configuration->getTargetFolder());
+
         if ($cleanDirectory)
         {
-            $this->fs->absolutePath($this->configuration->getTargetFolder());
+            $this->fs->remove($tarDir);
         }
 
         $this->fs->remove($this->fs->absolutePath('.stakx-cache'));
         $this->fs->mkdir('.stakx-cache/twig');
+        $this->fs->mkdir($tarDir);
     }
 
     /**
