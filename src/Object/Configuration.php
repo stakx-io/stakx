@@ -140,7 +140,7 @@ class Configuration
     private function defaultConfiguration()
     {
         $defaultConfig = array(
-            'baseurl' => '/',
+            'baseurl' => '',
             'target' => '_site',
             'twig' => array(
                 'autoescape' => false

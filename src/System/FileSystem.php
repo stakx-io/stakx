@@ -140,6 +140,11 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
         return pathinfo($filename, PATHINFO_EXTENSION);
     }
 
+    public function isDir ($folderPath)
+    {
+        return is_dir($folderPath);
+    }
+
     /**
      * Get the full path to the file without the extension
      *

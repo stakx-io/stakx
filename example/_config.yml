@@ -1,4 +1,3 @@
-base: /
 target: _site
 
 collections:

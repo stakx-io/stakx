@@ -4,6 +4,7 @@ namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\PageView;
+use allejo\stakx\System\Folder;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -133,9 +134,9 @@ class PageManager extends ItemManager
      *
      * @param \Twig_Environment $twig        The Twig Environment configured with all of the appropriate extensions
      * @param ContentItem[][]   $collections The collections that will be used to compile dynamic PageViews
-     * @param string            $targetDir   The relative target directory as specified from the configuration file
+     * @param Folder            $targetDir   The relative target directory as specified from the configuration file
      */
-    public function compile (&$twig, &$collections, $targetDir)
+    public function compile (&$twig, &$collections, &$targetDir)
     {
         $this->compileDynamicPageViews($twig, $collections, $targetDir);
         $this->compileStaticPageViews($twig, $targetDir);
@@ -147,9 +148,9 @@ class PageManager extends ItemManager
      *
      * @param \Twig_Environment $twig        The Twig Environment configured with all of the appropriate extensions
      * @param ContentItem[][]   $collections The collections that will be used to compile dynamic PageViews
-     * @param string            $targetDir   The relative target directory as specified from the configuration file
+     * @param Folder            $targetDir   The relative target directory as specified from the configuration file
      */
-    private function compileDynamicPageViews (&$twig, &$collections, $targetDir)
+    private function compileDynamicPageViews (&$twig, &$collections, &$targetDir)
     {
         foreach ($this->dynamicPageViews as $pageView)
         {
@@ -165,11 +166,7 @@ class PageManager extends ItemManager
                     'this' => $contentItem
                 ));
 
-                $this->fs->writeFile(
-                    $targetDir,
-                    $contentItem->getTargetFile(),
-                    $output
-                );
+                $targetDir->writeFile($contentItem->getTargetFile(), $output);
             }
         }
     }
@@ -179,11 +176,11 @@ class PageManager extends ItemManager
      * content. This function goes through all of the static PageViews and compiles them.
      *
      * @param \Twig_Environment $twig      The Twig Environment configured with all of the appropriate extensions
-     * @param string            $targetDir The relative target directory as specified from the configuration file
+     * @param Folder            $targetDir The relative target directory as specified from the configuration file
      *
      * @throws \Exception
      */
-    private function compileStaticPageViews (&$twig, $targetDir)
+    private function compileStaticPageViews (&$twig, &$targetDir)
     {
         foreach ($this->staticPageViews as $pageView)
         {
@@ -194,11 +191,7 @@ class PageManager extends ItemManager
                 'this' => $pageView->getFrontMatter()
             ));
 
-            $this->fs->writeFile(
-                $targetDir,
-                $pageView->getTargetFile(),
-                $output
-            );
+            $targetDir->writeFile($pageView->getTargetFile(), $output);
         }
     }
 

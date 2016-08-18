@@ -8,6 +8,7 @@ use allejo\stakx\Manager\PageManager;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
+use allejo\stakx\System\Folder;
 use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Twig\TwigExtension;
 use Aptoma\Twig\Extension\MarkdownExtension;
@@ -27,6 +28,13 @@ class Website
      * @var Twig_Environment
      */
     protected $twig;
+
+    /**
+     * The location of where the compiled website will be written to
+     *
+     * @var Folder
+     */
+    private $outputDirectory;
 
     /**
      * The main configuration to be used to build the specified website
@@ -138,14 +146,19 @@ class Website
         $this->createFolderStructure($cleanDirectory);
         $this->configureTwig();
 
+        // Our output directory
+        $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
+        $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
+
         // Compile everything
+        $this->copyThemeAssets();
+        $this->copyStaticFiles();
+
         $this->pm->compile(
             $this->twig,
             $this->collections,
-            $this->getConfiguration()->getTargetFolder()
+            $this->outputDirectory
         );
-        $this->copyThemeAssets();
-        $this->copyStaticFiles();
     }
 
     public function watch ()
@@ -410,11 +423,7 @@ class Website
 
         try
         {
-            $this->fs->copy(
-                $filePath,
-                $this->fs->absolutePath($this->getConfiguration()->getTargetFolder(), $siteTargetPath),
-                true
-            );
+            $this->outputDirectory->copyFile($filePath, $siteTargetPath);
         }
         catch (\Exception $e)
         {
