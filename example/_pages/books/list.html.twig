@@ -10,7 +10,7 @@ permalink: /books/
     {% for book in collections.books | order('title', 'ASC') %}
         <article>
             <p>
-                <strong><a href="{{ book.permalink }}">{{ book.title }}</a></strong>
+                <strong><a href="{{ url(book.permalink) }}">{{ book.title }}</a></strong>
             </p>
             <p>
                 <strong>ISBN:</strong> {{ book.isbn }}

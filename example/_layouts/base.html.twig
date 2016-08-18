@@ -1,8 +1,8 @@
 {% extends "page.html.twig" %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="/assets/css/hljs/tomorrow.css">
-    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="{{ url('assets/css/hljs/tomorrow.css') }}">
+    <link rel="stylesheet" href="{{ url('assets/css/styles.css') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
 {% endblock %}
@@ -18,11 +18,11 @@
         <div class="col-md-4">
             <ul class="list-inline">
                 <li>
-                    <a href="/">Stakx</a>
+                    <a href="{{ url('/') }}">Stakx</a>
                 </li>
                 {% for item in menu | order("title") %}
                     <li>
-                        <a href="{{ item.url }}">{{ item.title }}</a>
+                        <a href="{{ url(item.url) }}">{{ item.title }}</a>
                     </li>
                 {% endfor %}
             </ul>
