@@ -3,19 +3,35 @@
 [![Build Status](https://travis-ci.org/stakx-io/stakx.svg?branch=master)](https://travis-ci.org/stakx-io/stakx)
 [![Coverage Status](https://coveralls.io/repos/github/stakx-io/stakx/badge.svg?branch=master)](https://coveralls.io/github/stakx-io/stakx?branch=master)
 
-Stakx is a static website generator written in PHP as a powerful alternative to Jekyll or Sculpin. This project is still a work in progress and has yet to see a stable release but is mostly functional.
+Stakx is a static website generator built in PHP as a powerful alternative to Jekyll or Sculpin. If you have PHP installed on your computer, download Stakx from our Releases and run it! There is no need to download dependencies (`bundle install` or `composer install`) like other tools, everything is bundled in a single executable that just works.
 
-## Sample Usage
+## Philosophy
 
-This project is still under heavy development and a lot of things are still changing under the hood, but building websites is functional! There are still a lot of things planned and more features to come but a sample Stakx website is provided in the `example` directory. Here's how to use Stakx to build the website.
+Stakx's philosophy is to be treated as a model-view-controller (MVC) setup where Stakx itself is the controller, Twig makes up the views, and your content makes up the models. Keeping this mind, writing websites with Stakx will allow for a lot of truly reusable code for you to use on multiple websites or share with the community.
+
+## Building the Sample Project
+
+Stakx provides a sample project for people to learn from. The sample project can be built in one of two ways.
+
+### Download a Release
+
+Get the latest PHAR from the [Releases](https://github.com/stakx-io/stakx/releases) page, download the repository, put the PHAR in the `example` directory and run the following command from within the `example` directory:
+
+```
+./stakx.phar build
+```
+
+### Build from Git
+
+Clone the repository, fetch the dependencies, and compile.
 
 ```bash
 git clone https://github.com/stakx-io/stakx.git
 composer install --no-dev
-php ../bin/stakx build
 cd example/
+php ../bin/stakx build
 ```
 
 ## License
 
-LGPL
+See the [LICENSE](https://github.com/stakx-io/stakx/blob/master/LICENSE.md) file.
