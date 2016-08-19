@@ -1,17 +1,33 @@
 ---
-permalink: /files/
-title: Sample File List
+permalink: /gallery/
+title: My Gallery
 slug: An example of the Finder filter
 ---
 
 {% extends "_layouts/base.html.twig" %}
 
 {% block content %}
-    {% set files = finder('downloads/iterable').files.name('*.txt') %}
+    {% set files = finder('assets/imgs/gallery').files.name('*.jpg') %}
 
-    <ul>
+    <section>
+        {% markdown %}
+            Stakx has a `finder()` function for your Twig templates which exposes a [Finder](http://symfony.com/doc/3.0/components/finder.html) instance. By using the Finder instance, you may access the filesystem directly to get a list of files inside of the website folder. For example, to build a gallery from images in a specific folder, you can use the following snippet to get an array of file paths.
+
+            ```twig
+            {% raw %}{% set files = finder('assets/imgs/gallery').files.name('*.jpg') %}{% endraw %}
+            ```
+        {% endmarkdown %}
+    </section>
+
+    <h3>Sample Pictures</h3>
+
+    <div class="row">
         {% for file in files %}
-           <li>{{ file }}</li>
+            <div class="col-xs-6 col-md-3">
+                <span class="thumbnail">
+                    <img src="{{ url(file) }}">
+                </span>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 {% endblock %}
