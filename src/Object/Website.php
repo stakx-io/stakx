@@ -178,7 +178,17 @@ class Website
             }
 
             $this->output->writeln(sprintf("File change detected: %s", $filePath));
-            $this->build(false);
+
+            try
+            {
+                $this->build(false);
+            }
+            catch (\Exception $e)
+            {
+                $this->output->error(sprintf("Your website failed to build with the following error: %s",
+                    $e->getMessage()
+                ));
+            }
         });
 
         $watcher->start();
