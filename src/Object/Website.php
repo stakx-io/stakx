@@ -121,12 +121,10 @@ class Website
      */
     public function build ($cleanDirectory)
     {
-        $messages = array();
-
         // Parse DataItems
         $this->dm->setConsoleOutput($this->output);
-        $this->dm->parseDataItems($this->getConfiguration()->getDataFolders(), $messages);
-        $this->dm->parseDataSets($this->getConfiguration()->getDataSets(), $messages);
+        $this->dm->parseDataItems($this->getConfiguration()->getDataFolders());
+        $this->dm->parseDataSets($this->getConfiguration()->getDataSets());
         $this->dataItems = $this->dm->getDataItems();
 
         // Prepare Collections

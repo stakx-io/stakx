@@ -61,9 +61,8 @@ class DataManager extends ItemManager
      * For each folder, supported file type is read, parsed, and made available through `$this->getDataItems()`
      *
      * @param string[] $folders  An array of folders to be searched for to contain DataItems
-     * @param string[] $messages An array passed by reference to store log messages
      */
-    public function parseDataItems ($folders, &$messages)
+    public function parseDataItems ($folders)
     {
         if ($folders === null) { return; }
 
@@ -71,7 +70,7 @@ class DataManager extends ItemManager
         {
             $this->dataItems = array_merge(
                 $this->dataItems,
-                $this->parseFinderFiles($folder, $messages)
+                $this->parseFinderFiles($folder)
             );
         }
     }
@@ -82,9 +81,8 @@ class DataManager extends ItemManager
      * For each folder, supported file type is read, parsed, and made available through `$this->getDataItems()`
      *
      * @param string[] $dataSets An array of DataSets
-     * @param string[] $messages An array passed by reference to store log messages
      */
-    public function parseDataSets ($dataSets, &$messages)
+    public function parseDataSets ($dataSets)
     {
         if ($dataSets === null) { return; }
 
@@ -98,7 +96,7 @@ class DataManager extends ItemManager
          */
         foreach ($dataSets as $dataSet)
         {
-            $this->dataItems[$dataSet['name']] = $this->parseFinderFiles($dataSet['folder'], $messages);
+            $this->dataItems[$dataSet['name']] = $this->parseFinderFiles($dataSet['folder']);
         }
     }
 
@@ -106,11 +104,10 @@ class DataManager extends ItemManager
      * Parse all of the data files in a specified folder
      *
      * @param string   $folder   A folder that contains data files
-     * @param string[] $messages An array passed by reference to store log messages
      *
      * @return array
      */
-    private function parseFinderFiles ($folder, &$messages)
+    private function parseFinderFiles ($folder)
     {
         $dataItems = array();
         $finder    = new Finder();
