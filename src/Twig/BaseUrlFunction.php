@@ -10,7 +10,7 @@ class BaseUrlFunction
     {
         $globals = $env->getGlobals();
 
-        // @todo Remove support for 'base' as it's been deprecated
+        // @TODO 1.0.0 Remove support for 'base' as it's been deprecated
         $base = (array_key_exists('base', $globals['site'])) ? $globals['site']['base'] : $globals['site']['baseurl'];
 
         $baseURL = (empty($base)) ? '/' : '/' . trim($base, '/') . '/';

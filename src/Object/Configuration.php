@@ -58,6 +58,7 @@ class Configuration
         }
 
         $this->defaultConfiguration();
+        $this->handleDeprecations();
     }
 
     public function isDebug ()
@@ -66,7 +67,7 @@ class Configuration
     }
 
     /**
-     * @todo Remove support for 'base' in next major release; it has been replaced by 'baseurl'
+     * @TODO 1.0.0 Remove support for 'base' in next major release; it has been replaced by 'baseurl'
      *
      * @return mixed|null
      */
@@ -137,7 +138,7 @@ class Configuration
         return (isset($this->configuration[$name]) ? $this->configuration[$name] : $default);
     }
 
-    private function defaultConfiguration()
+    private function defaultConfiguration ()
     {
         $defaultConfig = array(
             'baseurl' => '',
@@ -155,5 +156,16 @@ class Configuration
         );
 
         $this->configuration = ArrayUtilities::array_merge_defaults($defaultConfig, $this->configuration, 'name');
+    }
+
+    private function handleDeprecations ()
+    {
+        // @TODO 1.0.0 handle 'base' deprecation in _config.yml
+        $base = $this->returnConfigOption('base');
+
+        if (!is_null($base))
+        {
+            $this->output->warning("The 'base' configuration option has been replaced by 'baseurl' and will be removed in in version 1.0.0.");
+        }
     }
 }
