@@ -11,6 +11,7 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Exception\DependencyNotFoundException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
@@ -127,11 +128,12 @@ class DataManager extends ItemManager
 
             if (method_exists(get_called_class(), $fxnName))
             {
+                $this->handleDependencies($ext);
                 $dataItems[$name] = $this->$fxnName($content);
             }
             else
             {
-                $messages[] = array(0, "There is no function to handle '$ext' file format.");
+                $this->output->warning("There is no function to handle '$ext' file format.");
             }
         }
 
@@ -193,5 +195,23 @@ class DataManager extends ItemManager
     private function fromYaml ($content)
     {
         return Yaml::parse($content);
+    }
+
+    /**
+     * @param string $extension
+     *
+     * @todo 0.1.0 Create a help page on the main stakx website for this topic and link to it
+     *
+     * @throws DependencyNotFoundException
+     */
+    private function handleDependencies ($extension)
+    {
+        if ($extension === 'xml' && !function_exists('simplexml_load_string'))
+        {
+            $this->output->critical('XML support is not available in your PHP installation. For XML support, please install the appropriate package for your system:');
+            $this->output->critical('  e.g. php7.0-xml');
+
+            throw new DependencyNotFoundException('XML support is not available with the current PHP installation.');
+        }
     }
 }
