@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/stakx-io/stakx.svg?branch=master)](https://travis-ci.org/stakx-io/stakx)
 [![Coverage Status](https://coveralls.io/repos/github/stakx-io/stakx/badge.svg?branch=master)](https://coveralls.io/github/stakx-io/stakx?branch=master)
+[![Dependency Status](https://www.versioneye.com/user/projects/57b8ba4e090d4d0039befe69/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57b8ba4e090d4d0039befe69)
 
 Stakx is a static website generator built in PHP as a powerful alternative to Jekyll or Sculpin. If you have PHP installed on your computer, download Stakx from our Releases and run it! There is no need to download dependencies (`bundle install` or `composer install`) like other tools, everything is bundled in a single executable that just works.
 
