@@ -194,7 +194,8 @@ class Website
 
     /**
      * @param string $configFile
-     * @param bool   $confLess
+     *
+     * @throws \LogicException
      */
     public function setConfiguration ($configFile)
     {

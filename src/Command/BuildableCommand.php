@@ -59,25 +59,12 @@ abstract class BuildableCommand extends Command
      * Configure the website builder
      *
      * @param  InputInterface  $input
-     * @param  OutputInterface $output
      *
      * @return bool True if the website was configured properly
      */
-    protected function configureBuild (InputInterface $input, OutputInterface $output)
+    protected function configureBuild (InputInterface $input)
     {
-        try
-        {
-            $this->website->setConfiguration($input->getOption('conf'));
-            $this->website->setSafeMode($input->getOption('safe'));
-
-            return true;
-        }
-        catch (\Exception $e)
-        {
-            $output->writeln("An error has occurred.");
-            $output->writeln($e->getMessage());
-        }
-
-        return false;
+        $this->website->setConfiguration($input->getOption('conf'));
+        $this->website->setSafeMode($input->getOption('safe'));
     }
 }

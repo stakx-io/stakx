@@ -19,12 +19,21 @@ class WatchCommand extends BuildableCommand
     {
         parent::execute($input, $output);
 
-        $status = $this->configureBuild($input, $output);
-
-        if ($status)
+        try
         {
-            $output->writeln(sprintf("Watching %s...", getcwd()));
+            $this->configureBuild($input);
+
+            $output->writeln(sprintf("Watching %s...",
+                getcwd()
+            ));
+
             $this->website->watch();
+        }
+        catch (\Exception $e)
+        {
+            $output->writeln(sprintf("Your website failed to build with the following error: %s",
+                $e->getMessage()
+            ));
         }
     }
 }
