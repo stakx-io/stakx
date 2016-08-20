@@ -5,7 +5,7 @@ namespace allejo\stakx\Object;
 use allejo\stakx\Engines\MarkdownEngine;
 use allejo\stakx\Engines\RstEngine;
 use allejo\stakx\System\Filesystem;
-use allejo\stakx\Exception\YamlVariableNotFound;
+use allejo\stakx\Exception\YamlVariableUndefinedException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Yaml\Yaml;
@@ -265,7 +265,7 @@ class ContentItem
      *
      * @param  array $yaml An array of data containing FrontMatter variables
      *
-     * @throws YamlVariableNotFound A FrontMatter variable used does not exist
+     * @throws YamlVariableUndefinedException A FrontMatter variable used does not exist
      */
     final protected function evaluateYaml (&$yaml)
     {
@@ -290,7 +290,7 @@ class ContentItem
      *
      * @return string The final string with variables evaluated
      *
-     * @throws YamlVariableNotFound A FrontMatter variable used does not exist
+     * @throws YamlVariableUndefinedException A FrontMatter variable used does not exist
      */
     final protected static function evaluateYamlVar ($string, $yaml)
     {
@@ -308,7 +308,7 @@ class ContentItem
 
             if (!array_key_exists($yamlVar, $yaml))
             {
-                throw new YamlVariableNotFound("Yaml variable `$variable` is not defined");
+                throw new YamlVariableUndefinedException("Yaml variable `$variable` is not defined");
             }
 
             $output = str_replace($variable, $yaml[$yamlVar], $output);

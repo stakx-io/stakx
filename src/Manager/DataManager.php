@@ -11,7 +11,7 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Exception\DependencyNotFoundException;
+use allejo\stakx\Exception\DependencyMissingException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
@@ -199,7 +199,7 @@ class DataManager extends ItemManager
      *
      * @todo 0.1.0 Create a help page on the main stakx website for this topic and link to it
      *
-     * @throws DependencyNotFoundException
+     * @throws DependencyMissingException
      */
     private function handleDependencies ($extension)
     {
@@ -208,7 +208,7 @@ class DataManager extends ItemManager
             $this->output->critical('XML support is not available in your PHP installation. For XML support, please install the appropriate package for your system:');
             $this->output->critical('  e.g. php7.0-xml');
 
-            throw new DependencyNotFoundException('XML support is not available with the current PHP installation.');
+            throw new DependencyMissingException('XML support is not available with the current PHP installation.');
         }
     }
 }
