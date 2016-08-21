@@ -1,0 +1,63 @@
+filter:
+    excluded_paths:
+        - 'tests/*Test.php'
+checks:
+    php:
+        uppercase_constants: true
+        return_doc_comments: true
+        prefer_while_loop_over_for_loop: true
+        phpunit_assertions: true
+        parameter_doc_comments: true
+        parameters_in_camelcaps: true
+        no_short_variable_names:
+            minimum: '2'
+        optional_parameters_at_the_end: true
+        no_short_method_names:
+            minimum: ''
+        no_goto: true
+        newline_at_end_of_file: true
+        more_specific_types_in_doc_comments: true
+        function_in_camel_caps: true
+        fix_use_statements:
+            remove_unused: true
+            preserve_multiple: false
+            preserve_blanklines: true
+            order_alphabetically: false
+        classes_in_camel_caps: true
+        avoid_unnecessary_concatenation: true
+        avoid_todo_comments: true
+        avoid_perl_style_comments: true
+        avoid_multiple_statements_on_same_line: true
+        avoid_fixme_comments: true
+
+coding_style:
+    php:
+        spaces:
+            before_parentheses:
+                function_declaration: true
+                closure_definition: true
+        braces:
+            classes_functions:
+                class: new-line
+                function: new-line
+                closure: new-line
+            if:
+                opening: new-line
+                else_on_new_line: true
+            for:
+                opening: new-line
+            while:
+                opening: new-line
+            do_while:
+                opening: new-line
+            switch:
+                opening: new-line
+            try:
+                opening: new-line
+                catch_on_new_line: true
+                finally_on_new_line: true
+        upper_lower_casing:
+            keywords:
+                general: lower
+            constants:
+                true_false_null: lower
