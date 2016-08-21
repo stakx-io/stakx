@@ -1,0 +1,34 @@
+baseurl: super-toast
+target: _bacon
+
+collections:
+  - name: posts
+    folder: _posts
+  - name: books
+    folder: _books
+
+data:
+  - _data
+
+datasets:
+  - name: months
+    folder: _datasets/months
+
+pageviews:
+  - _pages
+  - _foo
+  - _bar
+
+include:
+  - include.html
+
+exclude:
+  - exclude.html
+
+theme: bootstrap
+debug: true
+
+title: Sample Title
+social:
+  facebook: http://facebook.com
+  twitter: http://twitter.com
