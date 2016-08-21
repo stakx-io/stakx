@@ -6,7 +6,6 @@ use allejo\stakx\Object\Configuration;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Yaml\Exception\ParseException;
 
 class ConfigurationTests extends PHPUnit_Framework_TestCase
 {
