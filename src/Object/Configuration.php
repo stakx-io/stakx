@@ -155,7 +155,14 @@ class Configuration
             )
         );
 
-        $this->configuration = ArrayUtilities::array_merge_defaults($defaultConfig, $this->configuration, 'name');
+        if (is_array($this->configuration))
+        {
+            $this->configuration = ArrayUtilities::array_merge_defaults($defaultConfig, $this->configuration, 'name');
+        }
+        else
+        {
+            $this->configuration = $defaultConfig;
+        }
     }
 
     private function handleDeprecations ()

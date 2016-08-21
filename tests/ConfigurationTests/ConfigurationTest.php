@@ -3,8 +3,10 @@
 namespace allejo\stakx\tests;
 
 use allejo\stakx\Object\Configuration;
+use org\bovigo\vfs\vfsStream;
 use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Exception\ParseException;
 
 class ConfigurationTests extends PHPUnit_Framework_TestCase
 {
@@ -116,5 +118,21 @@ class ConfigurationTests extends PHPUnit_Framework_TestCase
     public function testDefaultConfigTargetUrl ()
     {
         $this->assertEquals('_site', $this->defaultConfig->getTargetFolder());
+    }
+
+    public function testInvalidConfigFile ()
+    {
+        $output = $this->getMock(OutputInterface::class);
+
+        $file = vfsStream::newFile('_config.yml');
+        $root = vfsStream::setup();
+
+        $file->setContent('invalid yaml')
+             ->at($root);
+
+        $config = new Configuration($file->url(), $output);
+
+        // This is part of the default configuration, so we should expect it here
+        $this->assertEquals('_site', $config->getTargetFolder());
     }
 }
