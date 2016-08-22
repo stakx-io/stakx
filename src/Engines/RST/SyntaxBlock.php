@@ -8,7 +8,7 @@ use Highlight\Highlighter;
 
 class SyntaxBlock extends CodeBlock
 {
-    public function process(Parser $parser, $node, $variable, $data, array $options)
+    public function process (Parser $parser, $node, $variable, $data, array $options)
     {
         parent::process($parser, $node, $variable, $data, $options);
 

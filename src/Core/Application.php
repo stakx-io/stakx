@@ -7,7 +7,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Application extends \Symfony\Component\Console\Application
 {
-    public function doRun(InputInterface $input, OutputInterface $output)
+    public function doRun (InputInterface $input, OutputInterface $output)
     {
         if (extension_loaded('xdebug') && !getenv('COMPOSER_DISABLE_XDEBUG_WARN'))
         {

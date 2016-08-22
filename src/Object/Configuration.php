@@ -33,8 +33,8 @@ class Configuration
     /**
      * Configuration constructor.
      *
-     * @param string                                $configFile
-     * @param ConsoleInterface|OutputInterface|null $output
+     * @param string                $configFile
+     * @param ConsoleInterface|null $output
      */
     public function __construct($configFile, $output = null)
     {
@@ -83,11 +83,17 @@ class Configuration
         return $base;
     }
 
+    /**
+     * @return string[]
+     */
     public function getDataFolders ()
     {
         return $this->returnConfigOption('data');
     }
 
+    /**
+     * @return string[]
+     */
     public function getDataSets ()
     {
         return $this->returnConfigOption('datasets');
@@ -133,6 +139,12 @@ class Configuration
         return $this->configuration['twig']['autoescape'];
     }
 
+    /**
+     * @param  string          $name
+     * @param  int|string|null $default
+     *
+     * @return int|string|null
+     */
     private function returnConfigOption ($name, $default = null)
     {
         return (isset($this->configuration[$name]) ? $this->configuration[$name] : $default);

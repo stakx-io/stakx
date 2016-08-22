@@ -62,6 +62,10 @@ class Folder
         }
     }
 
+    /**
+     * @param string $absolutePath
+     * @param string $targetPath
+     */
     public function copyFile ($absolutePath, $targetPath)
     {
         $targetPath = ltrim($targetPath, DIRECTORY_SEPARATOR);
@@ -73,6 +77,10 @@ class Folder
         );
     }
 
+    /**
+     * @param string $targetPath
+     * @param string $fileContent
+     */
     public function writeFile ($targetPath, $fileContent)
     {
         $outputFolder   = $this->fs->getFolderPath($targetPath);
@@ -98,6 +106,9 @@ class Folder
         ));
     }
 
+    /**
+     * @param string $pathFragments
+     */
     private function buildPath ($pathFragments)
     {
         $paths = func_get_args();

@@ -140,6 +140,9 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
         return pathinfo($filename, PATHINFO_EXTENSION);
     }
 
+    /**
+     * @param string $folderPath
+     */
     public function isDir ($folderPath)
     {
         return is_dir($folderPath);

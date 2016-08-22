@@ -7,7 +7,7 @@ use Gregwar\RST\Parser;
 
 class RstEngine extends Parser
 {
-    public function __construct($environment = null, $kernel = null)
+    public function __construct ($environment = null, $kernel = null)
     {
         parent::__construct($environment, $kernel);
 

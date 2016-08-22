@@ -58,9 +58,7 @@ abstract class BuildableCommand extends Command
     /**
      * Configure the website builder
      *
-     * @param  InputInterface  $input
-     *
-     * @return bool True if the website was configured properly
+     * @param InputInterface $input
      */
     protected function configureBuild (InputInterface $input)
     {

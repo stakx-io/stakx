@@ -12,7 +12,7 @@ class WhereFilter
         return $results;
     }
 
-    public static function get()
+    public static function get ()
     {
         return new \Twig_SimpleFilter('where', new self());
     }

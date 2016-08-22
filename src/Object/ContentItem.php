@@ -77,7 +77,7 @@ class ContentItem
      * @throws IOException           The file was not a valid ContentItem. This would meam there was no front matter or
      *                               no body
      */
-    public function __construct($filePath)
+    public function __construct ($filePath)
     {
         $this->filePath = $filePath;
         $this->fs       = new Filesystem();
@@ -217,13 +217,15 @@ class ContentItem
      */
     final public function getPermalink ()
     {
-        if ($this->permalinkEvaluated) {
+        if ($this->permalinkEvaluated)
+        {
             return $this->frontMatter['permalink'];
         }
 
         $permalink = $this->frontMatter['permalink'];
 
-        if (empty($permalink)) {
+        if (empty($permalink))
+        {
             $permalink = $this->getPathPermalink();
         }
 
@@ -243,7 +245,8 @@ class ContentItem
         $extension  = $this->fs->getExtension($this->getPermalink());
         $targetFile = $this->getPermalink();
 
-        if (empty($extension)) {
+        if (empty($extension))
+        {
             $targetFile = rtrim($this->getPermalink(), '/') . '/index.html';
         }
 
@@ -359,7 +362,8 @@ class ContentItem
         // Check the first folder and see if it's a data folder (starts with an underscore) intended for stakx
         $folders = explode('/', $cleanPath);
 
-        if (substr($folders[0], 0, 1) === '_') {
+        if (substr($folders[0], 0, 1) === '_')
+        {
             array_shift($folders);
         }
 
@@ -389,12 +393,14 @@ class ContentItem
         // Handle unnecessary extensions
         $extensionsToStrip = array('twig');
 
-        if (in_array($this->fs->getExtension($permalink), $extensionsToStrip)) {
+        if (in_array($this->fs->getExtension($permalink), $extensionsToStrip))
+        {
             $permalink = $this->fs->removeExtension($permalink);
         }
 
         // Remove a special './' combination from the beginning of a path
-        if (substr($permalink, 0, 2) === './') {
+        if (substr($permalink, 0, 2) === './')
+        {
             $permalink = substr($permalink, 2);
         }
 

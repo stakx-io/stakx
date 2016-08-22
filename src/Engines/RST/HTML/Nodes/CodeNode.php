@@ -11,7 +11,7 @@ use Gregwar\RST\Nodes\CodeNode as Base;
 
 class CodeNode extends Base
 {
-    public function render()
+    public function render ()
     {
         return "<pre><code class=\"language-" . $this->language . "\">" . $this->value . "</code></pre>";
     }

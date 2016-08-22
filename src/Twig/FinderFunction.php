@@ -7,7 +7,7 @@ use Twig_Environment;
 
 class FinderFunction extends TwigFilesystem
 {
-    public function __invoke(Twig_Environment $env, $folderLocation)
+    public function __invoke (Twig_Environment $env, $folderLocation)
     {
         parent::__invoke($env, $folderLocation);
 

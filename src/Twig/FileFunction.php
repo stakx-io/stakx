@@ -6,7 +6,7 @@ use Twig_Environment;
 
 class FileFunction extends TwigFilesystem
 {
-    public function __invoke(Twig_Environment $env, $filePath)
+    public function __invoke (Twig_Environment $env, $filePath)
     {
         parent::__invoke($env, $filePath);
 

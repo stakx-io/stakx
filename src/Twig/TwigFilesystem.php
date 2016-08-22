@@ -13,7 +13,7 @@ abstract class TwigFilesystem
     protected $dir;
     protected $path;
 
-    public function __invoke(Twig_Environment $env, $location)
+    public function __invoke (Twig_Environment $env, $location)
     {
         $this->fs    = new Filesystem();
         $this->globs = $env->getGlobals();

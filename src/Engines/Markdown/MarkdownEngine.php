@@ -13,7 +13,7 @@ class MarkdownEngine extends \Parsedown
         $this->highlighter = new Highlighter();
     }
 
-    public function blockFencedCodeComplete($block)
+    public function blockFencedCodeComplete ($block)
     {
         // The class has a `language-` prefix, remove this to get the language
         if (isset($block['element']['text']['attributes']))

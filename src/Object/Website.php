@@ -168,7 +168,7 @@ class Website
         $listener   = $watcher->watch(getcwd());
         $targetPath = $this->getConfiguration()->getTargetFolder();
 
-        $listener->onModify(function($resource, $path) use ($targetPath) {
+        $listener->onModify(function ($resource, $path) use ($targetPath) {
             $filePath = $this->fs->getRelativePath($path);
 
             if ((substr($filePath, 0, strlen($targetPath)) === $targetPath) ||
@@ -197,7 +197,7 @@ class Website
     /**
      * @return Configuration
      */
-    public function getConfiguration()
+    public function getConfiguration ()
     {
         return $this->configuration;
     }

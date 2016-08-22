@@ -8,7 +8,7 @@ class TwigMarkdownEngine implements MarkdownEngineInterface
 {
     protected $engine;
 
-    public function __construct($instanceName = null)
+    public function __construct ($instanceName = null)
     {
         $this->engine = MarkdownEngine::instance($instanceName);
     }
@@ -16,7 +16,7 @@ class TwigMarkdownEngine implements MarkdownEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function transform($content)
+    public function transform ($content)
     {
         return $this->engine->parse($content);
     }
@@ -24,7 +24,7 @@ class TwigMarkdownEngine implements MarkdownEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName ()
     {
         return 'stakx/parsedown';
     }
