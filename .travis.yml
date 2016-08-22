@@ -28,3 +28,7 @@ notifications:
   email: false
   webhooks:
     - http://helit.tech:8093/+sujevo-dev/showSuccessfulBuildMessages=always
+
+addons:
+    code_climate:
+        repo_token: 322f84178d8f07613755a75b30ea9aaceb7041e6bc1b20eeb3c4726e82c1cc64
