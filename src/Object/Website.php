@@ -209,7 +209,7 @@ class Website
      */
     public function setConfiguration ($configFile)
     {
-        if (!$this->fs->exists($configFile) && !$this->getConfLess())
+        if (!$this->fs->exists($configFile) && !$this->isConfLess())
         {
             $this->output->error("You are trying to build a website in a directory without a configuration file. Is this what you meant to do?");
             $this->output->error("To build a website without a configuration, use the '--no-conf' option");
@@ -217,7 +217,7 @@ class Website
             throw new \LogicException("Cannot build a website without a configuration when not in Configuration-less mode");
         }
 
-        if ($this->getConfLess())
+        if ($this->isConfLess())
         {
             $configFile = "";
         }
@@ -248,7 +248,7 @@ class Website
      *
      * @return bool True when being built with no configuration file
      */
-    public function getConfLess ()
+    public function isConfLess ()
     {
         return $this->confLess;
     }
@@ -270,7 +270,7 @@ class Website
      *
      * @return bool True when the website is being built in safe mode
      */
-    public function getSafeMode ()
+    public function isSafeMode ()
     {
         return $this->safeMode;
     }
