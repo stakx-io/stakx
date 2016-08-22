@@ -19,7 +19,7 @@ before_script:
 
 script:
  - mkdir -p build/logs
- - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+ - vendor/bin/phpunit --coverage-clover coverage.clover
 
 after_script:
  - wget https://scrutinizer-ci.com/ocular.phar
