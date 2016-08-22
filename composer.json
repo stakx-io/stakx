@@ -34,8 +34,7 @@
   "require-dev": {
     "mikey179/vfsStream": "^1.6",
     "phpunit/phpunit": "4.8.*",
-    "phpunit/phpunit-mock-objects": "2.3.*",
-    "codeclimate/php-test-reporter": "^0.3.2"
+    "phpunit/phpunit-mock-objects": "2.3.*"
   },
   "scripts": {
     "build": [

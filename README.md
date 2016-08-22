@@ -1,9 +1,8 @@
 # Stakx
 
 [![Build Status](https://travis-ci.org/stakx-io/stakx.svg?branch=master)](https://travis-ci.org/stakx-io/stakx)
-[![Test Coverage](https://codeclimate.com/github/stakx-io/stakx/badges/coverage.svg)](https://codeclimate.com/github/stakx-io/stakx/coverage)
+[![Code Coverage](https://scrutinizer-ci.com/g/stakx-io/stakx/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/stakx-io/stakx/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
-[![Code Climate](https://codeclimate.com/github/stakx-io/stakx/badges/gpa.svg)](https://codeclimate.com/github/stakx-io/stakx)
 [![Dependency Status](https://www.versioneye.com/user/projects/57b8ba4e090d4d0039befe69/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/57b8ba4e090d4d0039befe69)
 
 Stakx is a static website generator built in PHP as a powerful alternative to Jekyll or Sculpin. If you have PHP installed on your computer, download Stakx from our Releases and run it! There is no need to download dependencies (`bundle install` or `composer install`) like other tools, everything is bundled in a single executable that just works.

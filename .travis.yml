@@ -22,7 +22,8 @@ script:
  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
 after_script:
- - php vendor/bin/test-reporter
+ - wget https://scrutinizer-ci.com/ocular.phar
+ - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
 notifications:
   email: false
