@@ -377,7 +377,8 @@ class Website
 
         if ($this->fs->exists($ignoreFile))
         {
-            $ignoredFiles = explode(PHP_EOL, file_get_contents($ignoreFile));
+            $ignoreList = preg_replace("/[\r\n]+/", "\n", trim(file_get_contents($ignoreFile)));
+            $ignoredFiles = explode(PHP_EOL, $ignoreList);
         }
 
         $finder = $this->fs->getFinder(
