@@ -323,7 +323,7 @@ class Website
         {
             try
             {
-                $loader->addPath($this->fs->absolutePath('_themes', $this->configuration->getTheme()));
+                $loader->addPath($this->fs->absolutePath('_themes', $this->configuration->getTheme()), 'theme');
             }
             catch (\Twig_Error_Loader $e)
             {
