@@ -17,9 +17,10 @@ class Twig_Extensions_Extension_Text extends Twig_Extension
      *
      * @return array
      */
-    public function getFilters()
+    public function getFilters ()
     {
         return array(
+            new Twig_SimpleFilter('summary',  'twig_summary_filter'),
             new Twig_SimpleFilter('truncate', 'twig_truncate_filter', array('needs_environment' => true)),
             new Twig_SimpleFilter('wordwrap', 'twig_wordwrap_filter', array('needs_environment' => true)),
         );
@@ -30,70 +31,74 @@ class Twig_Extensions_Extension_Text extends Twig_Extension
      *
      * @return string
      */
-    public function getName()
+    public function getName ()
     {
         return 'Text';
     }
 }
 
-if (function_exists('mb_get_info')) {
-    function twig_truncate_filter(Twig_Environment $env, $value, $length = 30, $preserve = false, $separator = '...')
+function twig_summary_filter ($value, $paragraphCount = 1)
+{
+    if (function_exists('simplexml_load_string'))
     {
-        if (mb_strlen($value, $env->getCharset()) > $length) {
-            if ($preserve) {
-                // If breakpoint is on the last word, return the value without separator.
-                if (false === ($breakpoint = mb_strpos($value, ' ', $length, $env->getCharset()))) {
-                    return $value;
-                }
+        $content = simplexml_load_string('<html>' . $value . '</html>');
+        $count = min($paragraphCount, $content->count());
+        $children = $content->children();
 
-                $length = $breakpoint;
-            }
+        $summary = "";
 
-            return rtrim(mb_substr($value, 0, $length, $env->getCharset())).$separator;
+        for ($i = 0; $i < $count; $i++)
+        {
+            $summary .= $children[$i]->asXml();
         }
 
-        return $value;
+        return $summary;
     }
 
-    function twig_wordwrap_filter(Twig_Environment $env, $value, $length = 80, $separator = "\n", $preserve = false)
+    return $value;
+}
+
+function twig_truncate_filter (Twig_Environment $env, $value, $length = 30, $preserve = false, $separator = '...')
+{
+    if (mb_strlen($value, $env->getCharset()) > $length)
     {
-        $sentences = array();
-
-        $previous = mb_regex_encoding();
-        mb_regex_encoding($env->getCharset());
-
-        $pieces = mb_split($separator, $value);
-        mb_regex_encoding($previous);
-
-        foreach ($pieces as $piece) {
-            while (!$preserve && mb_strlen($piece, $env->getCharset()) > $length) {
-                $sentences[] = mb_substr($piece, 0, $length, $env->getCharset());
-                $piece = mb_substr($piece, $length, 2048, $env->getCharset());
+        if ($preserve)
+        {
+            // If breakpoint is on the last word, return the value without separator.
+            if (false === ($breakpoint = mb_strpos($value, ' ', $length, $env->getCharset())))
+            {
+                return $value;
             }
 
-            $sentences[] = $piece;
+            $length = $breakpoint;
         }
 
-        return implode($separator, $sentences);
+        return rtrim(mb_substr($value, 0, $length, $env->getCharset())).$separator;
     }
-} else {
-    function twig_truncate_filter(Twig_Environment $env, $value, $length = 30, $preserve = false, $separator = '...')
-    {
-        if (strlen($value) > $length) {
-            if ($preserve) {
-                if (false !== ($breakpoint = strpos($value, ' ', $length))) {
-                    $length = $breakpoint;
-                }
-            }
 
-            return rtrim(substr($value, 0, $length)).$separator;
+    return $value;
+}
+
+function twig_wordwrap_filter (Twig_Environment $env, $value, $length = 80, $separator = "\n", $preserve = false)
+{
+    $sentences = array();
+
+    $previous = mb_regex_encoding();
+    mb_regex_encoding($env->getCharset());
+
+    $pieces = mb_split($separator, $value);
+    mb_regex_encoding($previous);
+
+    foreach ($pieces as $piece)
+    {
+        while (!$preserve && mb_strlen($piece, $env->getCharset()) > $length)
+        {
+            $sentences[] = mb_substr($piece, 0, $length, $env->getCharset());
+            $piece = mb_substr($piece, $length, 2048, $env->getCharset());
         }
 
-        return $value;
+        $sentences[] = $piece;
     }
 
-    function twig_wordwrap_filter(Twig_Environment $env, $value, $length = 80, $separator = "\n", $preserve = false)
-    {
-        return wordwrap($value, $length, $separator, !$preserve);
-    }
+    return implode($separator, $sentences);
 }
