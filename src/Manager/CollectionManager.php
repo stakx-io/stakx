@@ -59,9 +59,9 @@ class CollectionManager extends ItemManager
             foreach ($finder as $file)
             {
                 $filePath = $this->fs->appendPath($collectionFolder, $file->getRelativePathname());
-                $fileHash = substr(sha1($filePath), 0, 7);
+                $fileName = $this->fs->getBaseName($filePath);
 
-                $this->collections[$collection['name']][$fileHash] = new ContentItem($filePath);
+                $this->collections[$collection['name']][$fileName] = new ContentItem($filePath);
 
                 $this->output->info(sprintf(
                     "Loading ContentItem into '%s' collection: %s",
