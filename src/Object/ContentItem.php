@@ -230,7 +230,8 @@ class ContentItem
             return $this->frontMatter['permalink'];
         }
 
-        $permalink = (!array_key_exists('permalink', $this->frontMatter)) ?  $this->getPathPermalink() : $this->frontMatter['permalink'];
+        $permalink = (is_array($this->frontMatter) && array_key_exists('permalink', $this->frontMatter)) ?
+            $this->frontMatter['permalink'] : $this->getPathPermalink();
 
         $this->frontMatter['permalink'] = $this->sanitizePermalink($permalink);
         $this->permalinkEvaluated = true;
