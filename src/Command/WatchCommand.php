@@ -23,6 +23,7 @@ class WatchCommand extends BuildableCommand
         {
             $this->configureBuild($input);
 
+            $output->writeln("Heads up! You are using an experimental feature!");
             $output->writeln(sprintf("Watching %s...",
                 getcwd()
             ));
