@@ -2,6 +2,8 @@
 
 namespace allejo\stakx\Twig;
 
+use allejo\stakx\Object\ContentItem;
+
 class WhereFilter
 {
     public function __invoke ($array, $key, $comparison, $value)
@@ -19,7 +21,7 @@ class WhereFilter
 
     private function search_r ($array, $key, $comparison, $value, &$results)
     {
-        if (!is_array($array))
+        if (!is_array($array) && !($array instanceof ContentItem))
         {
             return;
         }
@@ -37,6 +39,8 @@ class WhereFilter
 
     private function compare ($array, $key, $comparison, $value)
     {
+        $array = ($array instanceof ContentItem) ? $array->getFrontMatter() : $array;
+
         if ($comparison === "==")
         {
             return (isset($array[$key]) && $array[$key] === $value);
