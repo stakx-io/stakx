@@ -27,7 +27,7 @@ class Website
      *
      * @var Twig_Environment
      */
-    protected $twig;
+    protected static $twig;
 
     /**
      * The location of where the compiled website will be written to
@@ -153,7 +153,7 @@ class Website
         $this->copyStaticFiles();
 
         $this->pm->compile(
-            $this->twig,
+            self::$twig,
             $this->collections,
             $this->outputDirectory
         );
@@ -285,6 +285,11 @@ class Website
         $this->safeMode = $bool;
     }
 
+    public static function getTwigInstance ()
+    {
+        return self::$twig;
+    }
+
     /**
      * Prepare the Stakx environment by creating necessary cache folders
      *
@@ -334,28 +339,28 @@ class Website
             }
         }
 
-        $this->twig = new Twig_Environment($loader, array(
+        self::$twig = new Twig_Environment($loader, array(
             'autoescape' => $this->getConfiguration()->getTwigAutoescape(),
             //'cache'      => '.stakx-cache/twig'
         ));
 
-        $this->twig->addGlobal('site', $this->configuration->getConfiguration());
-        $this->twig->addGlobal('collections', $this->collections);
-        $this->twig->addGlobal('menu', $this->siteMenu);
-        $this->twig->addGlobal('data', $this->dataItems);
-        $this->twig->addExtension(new TwigExtension());
-        $this->twig->addExtension(new \Twig_Extensions_Extension_Text());
-        $this->twig->addExtension(new MarkdownExtension($mdEngine));
+        self::$twig->addGlobal('site', $this->configuration->getConfiguration());
+        self::$twig->addGlobal('collections', $this->collections);
+        self::$twig->addGlobal('menu', $this->siteMenu);
+        self::$twig->addGlobal('data', $this->dataItems);
+        self::$twig->addExtension(new TwigExtension());
+        self::$twig->addExtension(new \Twig_Extensions_Extension_Text());
+        self::$twig->addExtension(new MarkdownExtension($mdEngine));
 
         if (!$this->safeMode)
         {
-            $this->twig->addExtension(new FilesystemExtension());
+            self::$twig->addExtension(new FilesystemExtension());
         }
 
         if ($this->configuration->isDebug())
         {
-            $this->twig->addExtension(new \Twig_Extension_Debug());
-            $this->twig->enableDebug();
+            self::$twig->addExtension(new \Twig_Extension_Debug());
+            self::$twig->enableDebug();
         }
     }
 

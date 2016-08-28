@@ -161,6 +161,14 @@ class ContentItem
     {
         if (!$this->bodyContentEvaluated)
         {
+            $twig = Website::getTwigInstance();
+
+            if ($twig instanceof \Twig_Environment)
+            {
+                $template = $twig->createTemplate($this->bodyContent);
+                $this->bodyContent = $template->render(array());
+            }
+
             switch ($this->extension)
             {
                 case "md":
@@ -222,12 +230,7 @@ class ContentItem
             return $this->frontMatter['permalink'];
         }
 
-        $permalink = $this->frontMatter['permalink'];
-
-        if (empty($permalink))
-        {
-            $permalink = $this->getPathPermalink();
-        }
+        $permalink = (!array_key_exists('permalink', $this->frontMatter)) ?  $this->getPathPermalink() : $this->frontMatter['permalink'];
 
         $this->frontMatter['permalink'] = $this->sanitizePermalink($permalink);
         $this->permalinkEvaluated = true;
