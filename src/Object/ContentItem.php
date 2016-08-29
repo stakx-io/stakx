@@ -88,29 +88,8 @@ class ContentItem
         }
 
         $this->extension = strtolower($this->fs->getExtension($filePath));
-        $rawFileContents = file_get_contents($filePath);
 
-        $frontMatter = array();
-        preg_match('/---(.*?)---(.*)/s', $rawFileContents, $frontMatter);
-
-        if (count($frontMatter) != 3)
-        {
-            throw new IOException(sprintf("'%s' is not a valid ContentItem",
-                $this->fs->getFileName($filePath))
-            );
-        }
-
-        if (empty(trim($frontMatter[2])))
-        {
-            throw new IOException(sprintf('A ContentItem (%s) must have a body to render',
-                $this->fs->getFileName($filePath))
-            );
-        }
-
-        $this->frontMatter = Yaml::parse($frontMatter[1]);
-        $this->bodyContent = trim($frontMatter[2]);
-
-        $this->handleSpecialFrontMatter();
+        $this->refreshFileContent();
     }
 
     /**
@@ -265,6 +244,36 @@ class ContentItem
     final public function getFilePath ()
     {
         return $this->filePath;
+    }
+
+    /**
+     * Read the file, and parse its contents
+     */
+    final public function refreshFileContent ()
+    {
+        $rawFileContents = file_get_contents($this->filePath);
+
+        $frontMatter = array();
+        preg_match('/---(.*?)---(.*)/s', $rawFileContents, $frontMatter);
+
+        if (count($frontMatter) != 3)
+        {
+            throw new IOException(sprintf("'%s' is not a valid ContentItem",
+                    $this->fs->getFileName($this->filePath))
+            );
+        }
+
+        if (empty(trim($frontMatter[2])))
+        {
+            throw new IOException(sprintf('A ContentItem (%s) must have a body to render',
+                    $this->fs->getFileName($this->filePath))
+            );
+        }
+
+        $this->frontMatter = Yaml::parse($frontMatter[1]);
+        $this->bodyContent = trim($frontMatter[2]);
+
+        $this->handleSpecialFrontMatter();
     }
 
     /**

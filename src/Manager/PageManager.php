@@ -27,7 +27,23 @@ class PageManager extends ItemManager
      * @var PageView[]
      */
     private $staticPageViews;
+
+    /**
+     * @var ContentItem[][]
+     */
+    private $collections;
+
+    /**
+     * @var Folder
+     */
+    private $targetDir;
+
     private $siteMenu;
+
+    /**
+     * @var \Twig_Environment
+     */
+    private $twig;
 
     /**
      * PageManager constructor
@@ -84,15 +100,16 @@ class PageManager extends ItemManager
             foreach ($finder as $viewFile)
             {
                 $newPageView = new PageView($viewFile);
+                $file_id = $this->fs->getRelativePath($newPageView->getFilePath()->getPathName());
 
                 if ($newPageView->isDynamicPage())
                 {
-                    $this->dynamicPageViews[] = $newPageView;
+                    $this->dynamicPageViews[$file_id] = $newPageView;
                 }
                 else
                 {
                     $this->addToSiteMenu($newPageView->getFrontMatter());
-                    $this->staticPageViews[] = $newPageView;
+                    $this->staticPageViews[$file_id] = $newPageView;
                 }
             }
         }
@@ -110,6 +127,8 @@ class PageManager extends ItemManager
     public function prepareDynamicPageViews ($collections)
     {
         if (empty($collections)) { return; }
+
+        $this->collections = $collections;
 
         foreach ($this->dynamicPageViews as $pageView)
         {
@@ -136,38 +155,48 @@ class PageManager extends ItemManager
      * @param ContentItem[][]   $collections The collections that will be used to compile dynamic PageViews
      * @param Folder            $targetDir   The relative target directory as specified from the configuration file
      */
-    public function compile (&$twig, &$collections, &$targetDir)
+    public function compileAll (&$twig, &$targetDir)
     {
-        $this->compileDynamicPageViews($twig, $collections, $targetDir);
-        $this->compileStaticPageViews($twig, $targetDir);
+        $this->targetDir = $targetDir;
+        $this->twig = &$twig;
+
+        $this->compileDynamicPageViews();
+        $this->compileStaticPageViews();
+    }
+
+    public function compileSingle ($filePath)
+    {
+        if (array_key_exists($filePath, $this->staticPageViews))
+        {
+            $this->output->notice("Compiling static page: {file}", array('file' => $filePath));
+
+            $this->staticPageViews[$filePath]->refreshFileContent();
+            $this->compileStaticPageView($this->staticPageViews[$filePath]);
+
+            return true;
+        }
+        else if (array_key_exists($filePath, $this->dynamicPageViews))
+        {
+            $this->output->notice("Compiling dynamic page: {file}", array('file' => $filePath));
+
+            $this->dynamicPageViews[$filePath]->refreshFileContent();
+            $this->compileDynamicPageView($this->dynamicPageViews[$filePath]);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * A dynamic PageView is one that is built from a collection and each collection item deserves its own page. This
      * function goes through all of the dynamic PageViews and compiles each page
-     *
-     * @param \Twig_Environment $twig        The Twig Environment configured with all of the appropriate extensions
-     * @param ContentItem[][]   $collections The collections that will be used to compile dynamic PageViews
-     * @param Folder            $targetDir   The relative target directory as specified from the configuration file
      */
-    private function compileDynamicPageViews (&$twig, &$collections, &$targetDir)
+    private function compileDynamicPageViews ()
     {
         foreach ($this->dynamicPageViews as $pageView)
         {
-            $template = $twig->createTemplate($pageView->getContent());
-
-            $pageViewFrontMatter = $pageView->getFrontMatter(false);
-            $collection = $pageViewFrontMatter['collection'];
-
-            /** @var $contentItem ContentItem */
-            foreach ($collections[$collection] as $contentItem)
-            {
-                $output = $template->render(array(
-                    'this' => $contentItem
-                ));
-
-                $targetDir->writeFile($contentItem->getTargetFile(), $output);
-            }
+            $this->compileDynamicPageView($pageView);
         }
     }
 
@@ -175,24 +204,53 @@ class PageManager extends ItemManager
      * A static PageView is built from a single Twig file and is not automatically rendered based on a collection's
      * content. This function goes through all of the static PageViews and compiles them.
      *
-     * @param \Twig_Environment $twig      The Twig Environment configured with all of the appropriate extensions
-     * @param Folder            $targetDir The relative target directory as specified from the configuration file
-     *
      * @throws \Exception
      */
-    private function compileStaticPageViews (&$twig, &$targetDir)
+    private function compileStaticPageViews ()
     {
         foreach ($this->staticPageViews as $pageView)
         {
-            $twig->addGlobal('__currentTemplate', $pageView->getFilePath());
+            $this->compileStaticPageView($pageView);
+        }
+    }
 
-            $template = $twig->createTemplate($pageView->getContent());
+    /**
+     * @param ContentItem $pageView
+     *
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    private function compileDynamicPageView ($pageView)
+    {
+        $template = $this->twig->createTemplate($pageView->getContent());
+
+        $pageViewFrontMatter = $pageView->getFrontMatter(false);
+        $collection = $pageViewFrontMatter['collection'];
+
+        /** @var $contentItem ContentItem */
+        foreach ($this->collections[$collection] as $contentItem)
+        {
             $output = $template->render(array(
-                'this' => $pageView->getFrontMatter()
+                'this' => $contentItem
             ));
 
-            $targetDir->writeFile($pageView->getTargetFile(), $output);
+            $this->targetDir->writeFile($contentItem->getTargetFile(), $output);
         }
+    }
+
+    /**
+     * @param ContentItem $pageView
+     */
+    private function compileStaticPageView ($pageView)
+    {
+        $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
+
+        $template = $this->twig->createTemplate($pageView->getContent());
+        $output = $template->render(array(
+            'this' => $pageView->getFrontMatter()
+        ));
+
+        $this->targetDir->writeFile($pageView->getTargetFile(), $output);
     }
 
     /**

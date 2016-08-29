@@ -148,13 +148,16 @@ class Website
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
         $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
-        // Compile everything
+        // Copy over assets
+        $this->output->notice('Copying theme assets...');
         $this->copyThemeAssets();
+
+        $this->output->notice('Copying static files...');
         $this->copyStaticFiles();
 
-        $this->pm->compile(
+        // Compile everything
+        $this->pm->compileAll(
             self::$twig,
-            $this->collections,
             $this->outputDirectory
         );
     }
@@ -167,6 +170,8 @@ class Website
         $watcher    = new Watcher($tracker, $this->fs);
         $listener   = $watcher->watch(getcwd());
         $targetPath = $this->getConfiguration()->getTargetFolder();
+
+        $this->output->notice('Watch started successfully');
 
         $listener->onModify(function ($resource, $path) use ($targetPath) {
             $filePath = $this->fs->getRelativePath($path);
@@ -181,7 +186,7 @@ class Website
 
             try
             {
-                $this->build(false);
+                $pageViewCompiled = $this->pm->compileSingle($filePath);
             }
             catch (\Exception $e)
             {
