@@ -163,7 +163,8 @@ class Configuration
             ),
             'exclude' => array(
                 '/^_.*/',
-                'node_modules'
+                'node_modules/',
+                'stakx-theme.yml'
             )
         );
 

@@ -76,7 +76,16 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
 
         foreach ($explicitIgnores as $ignoreRule)
         {
-            $finder->notPath($ignoreRule);
+            $isRegex = @preg_match($ignoreRule, null);
+
+            if (substr($ignoreRule, -1, 1) === '/' || $isRegex !== false)
+            {
+                $finder->notPath($ignoreRule);
+            }
+            else
+            {
+                $finder->notName($ignoreRule);
+            }
         }
 
         if (count($explicitIncludes) > 0)

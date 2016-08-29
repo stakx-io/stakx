@@ -16,6 +16,7 @@ use JasonLewis\ResourceWatcher\Tracker;
 use JasonLewis\ResourceWatcher\Watcher;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Yaml\Yaml;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
@@ -381,21 +382,28 @@ class Website
             return;
         }
 
-        $themeFolder  = $this->fs->appendPath("_themes", $theme);
-        $ignoreFile   = $this->fs->absolutePath($themeFolder, ".stakx-ignore");
-        $ignoredFiles = array();
+        $themeFolder = $this->fs->appendPath("_themes", $theme);
+        $themeFile   = $this->fs->absolutePath($themeFolder, "stakx-theme.yml");
+        $themeData   = array();
 
-        if ($this->fs->exists($ignoreFile))
+        if ($this->fs->exists($themeFile))
         {
-            $ignoreList = preg_replace("/[\r\n]+/", "\n", trim(file_get_contents($ignoreFile)));
-            $ignoredFiles = explode(PHP_EOL, $ignoreList);
+            $themeData = Yaml::parse(file_get_contents($themeFile));
+        }
+
+        foreach ($themeData['include'] as &$include)
+        {
+            $include = $this->fs->appendPath($themeFolder, $include);
         }
 
         $finder = $this->fs->getFinder(
-            $this->getConfiguration()->getIncludes(),
+            array_merge(
+                $this->getConfiguration()->getIncludes(),
+                $themeData['include']
+            ),
             array_merge(
                 $this->getConfiguration()->getExcludes(),
-                $ignoredFiles,
+                $themeData['exclude'],
                 array('.twig')
             ),
             $this->fs->absolutePath($themeFolder)
