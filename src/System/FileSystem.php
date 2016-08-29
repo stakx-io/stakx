@@ -11,6 +11,8 @@
 
 namespace allejo\stakx\System;
 
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -48,6 +50,43 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     public function appendPath ($pathFragments)
     {
         return implode(DIRECTORY_SEPARATOR, func_get_args());
+    }
+
+    /**
+     * Copy a file or folder recursively
+     *
+     * @param string $originFile          The original filename
+     * @param string $targetFile          The target filename
+     * @param bool   $overwriteNewerFiles If true, target files newer than origin files are overwritten
+     *
+     * @throws FileNotFoundException When originFile doesn't exist
+     * @throws IOException           When copy fails
+     */
+    public function copy($originFile, $targetFile, $overwriteNewerFiles = false)
+    {
+        if ($this->isDir($originFile))
+        {
+            if (!$this->isDir($targetFile))
+            {
+                mkdir($targetFile, 0755, true);
+            }
+
+            $dir = dir($originFile);
+
+            while (false !== $entry = $dir->read())
+            {
+                // Skip pointers
+                if ($entry == '.' || $entry == '..') { continue; }
+
+                $this->copy("$originFile/$entry", "$targetFile/$entry", true);
+            }
+
+            $dir->close();
+        }
+        else
+        {
+            parent::copy($originFile, $targetFile, $overwriteNewerFiles);
+        }
     }
 
     /**
