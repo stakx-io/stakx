@@ -22,13 +22,15 @@ use Twig_Loader_Filesystem;
 
 class Website
 {
+    private static $twig_ref;
+
     /**
      * The Twig environment that will be used to render pages. This includes all of the loaded extensions and global
      * variables.
      *
      * @var Twig_Environment
      */
-    protected static $twig;
+    private $twig;
 
     /**
      * The location of where the compiled website will be written to
@@ -45,18 +47,6 @@ class Website
     private $configuration;
 
     /**
-     * An array of the assorted ContentItems belonging to specific collection
-     *
-     * @var ContentItem[]
-     */
-    private $collections;
-
-    /**
-     * @var array
-     */
-    private $dataItems;
-
-    /**
      * When set to true, the Stakx website will be built without a configuration file
      *
      * @var bool
@@ -70,11 +60,6 @@ class Website
      * @var bool
      */
     private $safeMode;
-
-    /**
-     * @var array
-     */
-    private $siteMenu;
 
     /**
      * @var ConsoleInterface
@@ -126,20 +111,16 @@ class Website
         $this->dm->setConsoleOutput($this->output);
         $this->dm->parseDataItems($this->getConfiguration()->getDataFolders());
         $this->dm->parseDataSets($this->getConfiguration()->getDataSets());
-        $this->dataItems = $this->dm->getDataItems();
 
         // Prepare Collections
         $this->cm->setConsoleOutput($this->output);
         $this->cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
-        $this->collections = $this->cm->getCollections();
 
         // Handle PageViews
         $this->pm->setConsoleOutput($this->output);
+        $this->pm->setTwig($this->twig);
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
-        $this->pm->prepareDynamicPageViews($this->collections);
-
-        // Handle the site menu
-        $this->siteMenu = $this->pm->getSiteMenu();
+        $this->pm->prepareDynamicPageViews($this->cm->getCollections());
 
         // Configure the environment
         $this->createFolderStructure($cleanDirectory);
@@ -157,8 +138,8 @@ class Website
         $this->copyStaticFiles();
 
         // Compile everything
+        $this->output->notice('Compiling files...');
         $this->pm->compileAll(
-            self::$twig,
             $this->outputDirectory
         );
     }
@@ -231,24 +212,6 @@ class Website
         $this->configuration = new Configuration($configFile, $this->output);
     }
 
-    public function handleSingleFile ($filePath)
-    {
-        $filePath = ltrim($filePath, DIRECTORY_SEPARATOR);
-        $pageViewDirs = $this->configuration->getPageViewFolders();
-        $collectionDirs = array_map(function ($a) { return $a["folder"]; }, $this->configuration->getCollectionsFolders());
-
-        $_paths = explode(DIRECTORY_SEPARATOR, $filePath);
-
-        if (count($_paths) > 1 && (in_array($_paths[0], $collectionDirs) || in_array($_paths[0], $pageViewDirs)))
-        {
-
-        }
-        else
-        {
-            $this->copyToCompiledSite($filePath);
-        }
-    }
-
     /**
      * Get whether or not the website is being built in Configuration-less mode
      *
@@ -293,7 +256,7 @@ class Website
 
     public static function getTwigInstance ()
     {
-        return self::$twig;
+        return self::$twig_ref;
     }
 
     /**
@@ -345,29 +308,31 @@ class Website
             }
         }
 
-        self::$twig = new Twig_Environment($loader, array(
+        $this->twig = new Twig_Environment($loader, array(
             'autoescape' => $this->getConfiguration()->getTwigAutoescape(),
             //'cache'      => '.stakx-cache/twig'
         ));
 
-        self::$twig->addGlobal('site', $this->configuration->getConfiguration());
-        self::$twig->addGlobal('collections', $this->collections);
-        self::$twig->addGlobal('menu', $this->siteMenu);
-        self::$twig->addGlobal('data', $this->dataItems);
-        self::$twig->addExtension(new TwigExtension());
-        self::$twig->addExtension(new \Twig_Extensions_Extension_Text());
-        self::$twig->addExtension(new MarkdownExtension($mdEngine));
+        $this->twig->addGlobal('site', $this->configuration->getConfiguration());
+        $this->twig->addGlobal('collections', $this->cm->getCollections());
+        $this->twig->addGlobal('menu', $this->pm->getSiteMenu());
+        $this->twig->addGlobal('data', $this->dm->getDataItems());
+        $this->twig->addExtension(new TwigExtension());
+        $this->twig->addExtension(new \Twig_Extensions_Extension_Text());
+        $this->twig->addExtension(new MarkdownExtension($mdEngine));
 
         if (!$this->safeMode)
         {
-            self::$twig->addExtension(new FilesystemExtension());
+            $this->twig->addExtension(new FilesystemExtension());
         }
 
         if ($this->configuration->isDebug())
         {
-            self::$twig->addExtension(new \Twig_Extension_Debug());
-            self::$twig->enableDebug();
+            $this->twig->addExtension(new \Twig_Extension_Debug());
+            $this->twig->enableDebug();
         }
+
+        self::$twig_ref = &$this->twig;
     }
 
     /**

@@ -57,6 +57,16 @@ class PageManager extends ItemManager
     }
 
     /**
+     * Set the Twig environment used by Stakx for all Twig templates
+     *
+     * @param \Twig_Environment $twig
+     */
+    public function setTwig (&$twig)
+    {
+        $this->twig = &$twig;
+    }
+
+    /**
      * An array representing the website's menu structure with children and grandchildren made from static PageViews
      *
      * @return array
@@ -151,19 +161,23 @@ class PageManager extends ItemManager
     /**
      * Compile dynamic and static PageViews
      *
-     * @param \Twig_Environment $twig        The Twig Environment configured with all of the appropriate extensions
-     * @param ContentItem[][]   $collections The collections that will be used to compile dynamic PageViews
-     * @param Folder            $targetDir   The relative target directory as specified from the configuration file
+     * @param Folder $targetDir The relative target directory as specified from the configuration file
      */
-    public function compileAll (&$twig, &$targetDir)
+    public function compileAll (&$targetDir)
     {
         $this->targetDir = $targetDir;
-        $this->twig = &$twig;
 
         $this->compileDynamicPageViews();
         $this->compileStaticPageViews();
     }
 
+    /**
+     * Compile a single PageView into the appropriate output path
+     *
+     * @param $filePath
+     *
+     * @return bool
+     */
     public function compileSingle ($filePath)
     {
         if (array_key_exists($filePath, $this->staticPageViews))
