@@ -140,7 +140,7 @@ class PageManager extends ItemManager
 
         $this->collections = $collections;
 
-        foreach ($this->dynamicPageViews as $pageView)
+        foreach ($this->dynamicPageViews as &$pageView)
         {
             $frontMatter = $pageView->getFrontMatter(false);
             $collection = $frontMatter['collection'];
@@ -151,9 +151,10 @@ class PageManager extends ItemManager
             }
 
             /** @var $item ContentItem */
-            foreach ($collections[$collection] as $item)
+            foreach ($collections[$collection] as &$item)
             {
                 $item->evaluateFrontMatter($frontMatter);
+                $pageView->addContentItem($item);
             }
         }
     }
@@ -174,9 +175,7 @@ class PageManager extends ItemManager
     /**
      * Compile a single PageView into the appropriate output path
      *
-     * @param $filePath
-     *
-     * @return bool
+     * @param string $filePath
      */
     public function compileSingle ($filePath)
     {
@@ -187,7 +186,7 @@ class PageManager extends ItemManager
             $this->staticPageViews[$filePath]->refreshFileContent();
             $this->compileStaticPageView($this->staticPageViews[$filePath]);
 
-            return true;
+            return;
         }
         else if (array_key_exists($filePath, $this->dynamicPageViews))
         {
@@ -196,10 +195,41 @@ class PageManager extends ItemManager
             $this->dynamicPageViews[$filePath]->refreshFileContent();
             $this->compileDynamicPageView($this->dynamicPageViews[$filePath]);
 
-            return true;
+            return;
         }
 
-        return false;
+        throw new \InvalidArgumentException('The given file path to compile is not a Page View');
+    }
+
+    /**
+     * @param ContentItem $contentItem
+     */
+    public function compileContentItem (&$contentItem)
+    {
+        $pageView = $contentItem->getPageView();
+        $template = $this->twig->createTemplate($pageView->getContent());
+
+        $contentItem->evaluateFrontMatter(
+            $pageView->getFrontMatter(false)
+        );
+
+        $output = $template->render(array(
+            'this' => $contentItem
+        ));
+
+        $this->targetDir->writeFile($contentItem->getTargetFile(), $output);
+    }
+
+    /**
+     * Check whether or not a given file path is Page View
+     *
+     * @param  string $filePath
+     *
+     * @return bool True if the file path given is to a Page View
+     */
+    public function isPageView ($filePath)
+    {
+        return (array_key_exists($filePath, $this->staticPageViews) || array_key_exists($filePath, $this->dynamicPageViews));
     }
 
     /**
@@ -229,7 +259,7 @@ class PageManager extends ItemManager
     }
 
     /**
-     * @param ContentItem $pageView
+     * @param PageView $pageView
      *
      * @throws \Exception
      * @throws \Throwable
@@ -253,7 +283,7 @@ class PageManager extends ItemManager
     }
 
     /**
-     * @param ContentItem $pageView
+     * @param PageView $pageView
      */
     private function compileStaticPageView ($pageView)
     {

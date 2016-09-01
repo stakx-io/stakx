@@ -168,7 +168,17 @@ class Website
 
             try
             {
-                $pageViewCompiled = $this->pm->compileSingle($filePath);
+                if ($this->pm->isPageView($filePath))
+                {
+                    $this->pm->compileSingle($filePath);
+                }
+                else if ($this->cm->isContentItem($filePath))
+                {
+                    $contentItem = &$this->cm->getContentItem($filePath);
+                    $contentItem->refreshFileContent();
+
+                    $this->pm->compileContentItem($contentItem);
+                }
             }
             catch (\Exception $e)
             {

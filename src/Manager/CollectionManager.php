@@ -8,6 +8,11 @@ use Symfony\Component\Finder\SplFileInfo;
 class CollectionManager extends ItemManager
 {
     /**
+     * @var ContentItem[]
+     */
+    private $collectionsFlat;
+
+    /**
      * @var ContentItem[][]
      */
     private $collections;
@@ -19,9 +24,38 @@ class CollectionManager extends ItemManager
         $this->collections = array();
     }
 
+    /**
+     * @param $filePath
+     *
+     * @return ContentItem|null
+     */
+    public function &getContentItem ($filePath)
+    {
+        if ($this->isContentItem($filePath))
+        {
+            $contentItemId = $this->fs->getBaseName($filePath);
+
+            return $this->collectionsFlat[$contentItemId];
+        }
+
+        return null;
+    }
+
     public function getCollections ()
     {
         return $this->collections;
+    }
+
+    public function isContentItem ($filePath)
+    {
+        if (!isset($this->collectionsFlat))
+        {
+            $this->collectionsFlat = call_user_func_array('array_merge', $this->collections);
+        }
+
+        $contentItemId = $this->fs->getBaseName($filePath);
+
+        return (array_key_exists($contentItemId, $this->collectionsFlat));
     }
 
     public function parseCollections ($folders)
@@ -61,7 +95,10 @@ class CollectionManager extends ItemManager
                 $filePath = $this->fs->appendPath($collectionFolder, $file->getRelativePathname());
                 $fileName = $this->fs->getBaseName($filePath);
 
-                $this->collections[$collection['name']][$fileName] = new ContentItem($filePath);
+                $contentItem = new ContentItem($filePath);
+                $contentItem->setCollection($collection['name']);
+
+                $this->collections[$collection['name']][$fileName] = $contentItem;
 
                 $this->output->info(sprintf(
                     "Loading ContentItem into '%s' collection: %s",
