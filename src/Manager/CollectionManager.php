@@ -46,12 +46,16 @@ class CollectionManager extends ItemManager
         return $this->collections;
     }
 
+    public function getFlatCollections ()
+    {
+        $this->flattenCollections();
+
+        return $this->collectionsFlat;
+    }
+
     public function isContentItem ($filePath)
     {
-        if (!isset($this->collectionsFlat))
-        {
-            $this->collectionsFlat = call_user_func_array('array_merge', $this->collections);
-        }
+        $this->flattenCollections();
 
         $contentItemId = $this->fs->getBaseName($filePath);
 
@@ -106,6 +110,14 @@ class CollectionManager extends ItemManager
                     $this->fs->appendPath($collection['folder'], $file->getRelativePathname())
                 ));
             }
+        }
+    }
+
+    private function flattenCollections ()
+    {
+        if (!isset($this->collectionsFlat))
+        {
+            $this->collectionsFlat = call_user_func_array('array_merge', $this->collections);
         }
     }
 }
