@@ -5,7 +5,6 @@ namespace allejo\stakx\Object;
 use allejo\stakx\Core\ConsoleInterface;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Utilities\ArrayUtilities;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -140,10 +139,12 @@ class Configuration
     }
 
     /**
-     * @param  string          $name
-     * @param  int|string|null $default
+     * Return the specified configuration option if available, otherwise return the default
      *
-     * @return int|string|null
+     * @param  string     $name    The configuration option to lookup
+     * @param  mixed|null $default The default value returned if the configuration option isn't found
+     *
+     * @return mixed|null
      */
     private function returnConfigOption ($name, $default = null)
     {
