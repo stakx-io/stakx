@@ -9,7 +9,7 @@ class WhereFilterTests extends PHPUnit_Framework_TestCase
 {
     private $dataset;
 
-    public function setUp()
+    public function setUp ()
     {
         $this->dataset = array(
             array(
@@ -71,19 +71,21 @@ class WhereFilterTests extends PHPUnit_Framework_TestCase
             array('assertLessThan', 'cost', '<', 40),
             array('assertLessThan', 'cost', '<', 10),
             array('assertLessThanOrEqual', 'cost', '<=', 50),
-            array('assertLessThanOrEqual', 'cost', '<=', 30)
+            array('assertLessThanOrEqual', 'cost', '<=', 30),
+            array('assertContains', 'tags', '~=', 'purple'),
+            array('assertContains', 'name', '~=', 'One')
         );
     }
 
     /**
      * @dataProvider dataProvider
      *
-     * @param $fxn
-     * @param $key
-     * @param $comparison
-     * @param $value
+     * @param string $fxn        The assertion function to test
+     * @param string $key        The array key we'll be checking
+     * @param string $comparison The comparison we'll be using
+     * @param mixed  $value      The value we are looking for
      */
-    public function testWhereFilter($fxn, $key, $comparison, $value)
+    public function testWhereFilter ($fxn, $key, $comparison, $value)
     {
         $whereFilter = new WhereFilter();
         $filtered = $whereFilter($this->dataset, $key, $comparison, $value);
@@ -94,27 +96,26 @@ class WhereFilterTests extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testWhereContainsFilterArray()
+    public function testInvalidFilterEmptyResult ()
     {
-        $tag = 'purple';
         $whereFilter = new WhereFilter();
-        $filtered = $whereFilter($this->dataset, 'tags', '~=', $tag);
+        $filtered = $whereFilter($this->dataset, 'name', 'non-existent-comparison', 'the_map');
 
-        foreach ($filtered as $item)
-        {
-            $this->assertContains($tag, $item['tags']);
-        }
+        $this->assertEmpty($filtered);
     }
 
-    public function testWhereContainsFilterString()
+    public function testInvalidKeyEmptyResult ()
     {
-        $tag = 'One';
         $whereFilter = new WhereFilter();
-        $filtered = $whereFilter($this->dataset, 'name', '~=', $tag);
+        $filtered = $whereFilter($this->dataset, 'non-existent-key', '==', 'the_map');
 
-        foreach ($filtered as $item)
-        {
-            $this->assertContains($tag, $item['name']);
-        }
+        $this->assertEmpty($filtered);
+    }
+
+    public function testGetTwigSimpleFilter ()
+    {
+        $twigSimpleFilter = WhereFilter::get();
+
+        $this->assertInstanceOf(\Twig_SimpleFilter::class, $twigSimpleFilter);
     }
 }

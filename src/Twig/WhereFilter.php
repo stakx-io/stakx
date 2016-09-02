@@ -41,37 +41,23 @@ class WhereFilter
     {
         $array = ($array instanceof ContentItem) ? $array->getFrontMatter() : $array;
 
-        if ($comparison === "==")
+        if (!isset($array[$key]))
         {
-            return (isset($array[$key]) && $array[$key] === $value);
-        }
-        elseif ($comparison === "!=")
-        {
-            return (isset($array[$key]) && $array[$key] !== $value);
-        }
-        elseif ($comparison === ">")
-        {
-            return (isset($array[$key]) && $array[$key] > $value);
-        }
-        elseif ($comparison === ">=")
-        {
-            return (isset($array[$key]) && $array[$key] >= $value);
-        }
-        elseif ($comparison === "<")
-        {
-            return (isset($array[$key]) && $array[$key] < $value);
-        }
-        elseif ($comparison === "<=")
-        {
-            return (isset($array[$key]) && $array[$key] <= $value);
-        }
-        else if ($comparison === "~=")
-        {
-            return (isset($array[$key]) &&
-                ((is_array($array[$key]) && in_array($value, $array[$key])) ||
-                 (is_string($array[$key]) && strpos($array[$key], $value) !== false)));
+            return false;
         }
 
-        return false;
+        return (($comparison === "==" && $array[$key] === $value) ||
+                ($comparison === "!=" && $array[$key] !== $value) ||
+                ($comparison === ">"  && $array[$key] > $value)   ||
+                ($comparison === ">=" && $array[$key] >= $value)  ||
+                ($comparison === "<"  && $array[$key] < $value)   ||
+                ($comparison === "<=" && $array[$key] <= $value)  ||
+                ($comparison === "~=" && $this->contains($array[$key], $value)));
+    }
+
+    private function contains ($haystack, $needle)
+    {
+        return ((is_array($haystack) && in_array($needle, $haystack)) ||
+                (is_string($haystack) && strpos($haystack, $needle) !== false));
     }
 }
