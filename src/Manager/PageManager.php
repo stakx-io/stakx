@@ -145,11 +145,6 @@ class PageManager extends ItemManager
             $frontMatter = $pageView->getFrontMatter(false);
             $collection = $frontMatter['collection'];
 
-            if (empty($collections[$collection]))
-            {
-                continue;
-            }
-
             /** @var $item ContentItem */
             foreach ($collections[$collection] as &$item)
             {
