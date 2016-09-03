@@ -6,7 +6,7 @@ use allejo\stakx\Core\ConsoleInterface;
 use allejo\stakx\System\Filesystem;
 use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class ItemManager
+abstract class BaseManager
 {
     /**
      * @var ConsoleInterface

@@ -5,7 +5,7 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Object\ContentItem;
 use Symfony\Component\Finder\SplFileInfo;
 
-class CollectionManager extends ItemManager
+class CollectionManager extends BaseManager
 {
     /**
      * @var ContentItem[]

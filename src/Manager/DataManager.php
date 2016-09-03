@@ -28,7 +28,7 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @package allejo\stakx\Object
  */
-class DataManager extends ItemManager
+class DataManager extends BaseManager
 {
     /**
      * @var array

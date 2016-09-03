@@ -16,7 +16,7 @@ use Symfony\Component\Finder\Finder;
  *
  * @package allejo\stakx\Manager
  */
-class PageManager extends ItemManager
+class PageManager extends BaseManager
 {
     /**
      * @var PageView[]

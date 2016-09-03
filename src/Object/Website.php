@@ -4,7 +4,9 @@ namespace allejo\stakx\Object;
 
 use allejo\stakx\Core\ConsoleInterface;
 use allejo\stakx\Engines\TwigMarkdownEngine;
+use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\PageManager;
+use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
@@ -15,8 +17,6 @@ use Aptoma\Twig\Extension\MarkdownExtension;
 use JasonLewis\ResourceWatcher\Tracker;
 use JasonLewis\ResourceWatcher\Watcher;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\SplFileInfo;
-use Symfony\Component\Yaml\Yaml;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
@@ -67,6 +67,11 @@ class Website
     private $output;
 
     /**
+     * @var AssetManager
+     */
+    private $am;
+
+    /**
      * @var CollectionManager
      */
     private $cm;
@@ -85,6 +90,11 @@ class Website
      * @var PageManager
      */
     private $pm;
+
+    /**
+     * @var ThemeManager
+     */
+    private $tm;
 
     /**
      * Website constructor.
@@ -130,14 +140,32 @@ class Website
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
         $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
-        // Copy over assets
-        $this->output->notice('Copying theme assets...');
-        $this->copyThemeAssets();
+        //
+        // Theme Management
+        //
+        $theme = $this->configuration->getTheme();
 
-        $this->output->notice('Copying static files...');
-        $this->copyStaticFiles();
+        if (!is_null($theme))
+        {
+            $this->output->notice("Looking for '${theme}' theme...");
 
-        // Compile everything
+            $this->tm = new ThemeManager($theme, $this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
+            $this->tm->setConsoleOutput($this->output);
+            $this->tm->setFolder($this->outputDirectory);
+            $this->tm->copyFiles();
+        }
+
+        //
+        // Static file management
+        //
+        $this->am = new AssetManager($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
+        $this->am->setConsoleOutput($this->output);
+        $this->am->setFolder($this->outputDirectory);
+        $this->am->copyFiles();
+
+        //
+        // Compiler
+        //
         $this->output->notice('Compiling files...');
         $this->pm->compileAll(
             $this->outputDirectory
@@ -343,97 +371,5 @@ class Website
         }
 
         self::$twig_ref = &$this->twig;
-    }
-
-    /**
-     * Copy static files from a theme to the compiled website
-     */
-    private function copyThemeAssets ()
-    {
-        $theme = $this->configuration->getTheme();
-
-        if (is_null($theme))
-        {
-            return;
-        }
-
-        $themeFolder = $this->fs->appendPath("_themes", $theme);
-        $themeFile   = $this->fs->absolutePath($themeFolder, "stakx-theme.yml");
-        $themeData   = array();
-
-        if ($this->fs->exists($themeFile))
-        {
-            $themeData = Yaml::parse(file_get_contents($themeFile));
-        }
-
-        foreach ($themeData['include'] as &$include)
-        {
-            $include = $this->fs->appendPath($themeFolder, $include);
-        }
-
-        $finder = $this->fs->getFinder(
-            array_merge(
-                $this->getConfiguration()->getIncludes(),
-                $themeData['include']
-            ),
-            array_merge(
-                $this->getConfiguration()->getExcludes(),
-                $themeData['exclude'],
-                array('.twig')
-            ),
-            $this->fs->absolutePath($themeFolder)
-        );
-
-        /** @var SplFileInfo $file */
-        foreach ($finder as $file)
-        {
-            $this->copyToCompiledSite($file, $themeFolder);
-        }
-    }
-
-    /**
-     * Copy the static files from the current directory into the compiled website directory.
-     *
-     * Static files are defined as follows:
-     *   - Does not start with an underscore or is inside of a directory starting with an underscore
-     *   - Does not start with a period or is inside of a directory starting with a period
-     */
-    private function copyStaticFiles ()
-    {
-        $finder = $this->fs->getFinder(
-            $this->getConfiguration()->getIncludes(),
-            $this->getConfiguration()->getExcludes()
-        );
-
-        /** @var $file SplFileInfo */
-        foreach ($finder as $file)
-        {
-            $this->copyToCompiledSite($file);
-        }
-    }
-
-    /**
-     * Copy a file from a the source directory to the compiled website directory. The exact relative path to the file
-     * will be recreated in the compiled website directory.
-     *
-     * @param SplFileInfo $file   The relative path of the file to be copied
-     * @param string      $prefix
-     */
-    private function copyToCompiledSite ($file, $prefix = "")
-    {
-        if (!$this->fs->exists($file)) { return; }
-
-        $filePath = $file->getRealPath();
-        $pathToStrip = $this->fs->appendPath(getcwd(), $prefix);
-        $siteTargetPath = ltrim(str_replace($pathToStrip, "", $filePath), DIRECTORY_SEPARATOR);
-
-        try
-        {
-            $this->outputDirectory->copyFile($filePath, $siteTargetPath);
-        }
-        catch (\Exception $e)
-        {
-            $this->output->error($e->getMessage());
-        }
     }
 }
