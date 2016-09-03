@@ -34,6 +34,11 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      */
     public function absolutePath ($pathFragments)
     {
+        if ($this->isAbsolutePath($pathFragments))
+        {
+            return $pathFragments;
+        }
+
         $args = func_get_args();
         array_unshift($args, getcwd());
 
