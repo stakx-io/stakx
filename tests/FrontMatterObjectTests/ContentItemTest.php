@@ -17,8 +17,6 @@ use Symfony\Component\Yaml\Yaml;
 
 class ContentItemTests extends PHPUnit_Framework_TestCase
 {
-    const TargetClass = '\allejo\stakx\Object\ContentItem';
-
     /**
      * @var string
      */

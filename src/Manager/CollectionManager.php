@@ -75,7 +75,6 @@ class CollectionManager extends ItemManager
          *
          * $collection['name']      string The name of the collection
          *            ['folder']    string The folder where this collection has its ContentItems
-         *            ['permalink'] string The URL pattern each ContentItem will have
          *
          * @var $collection array
          */
