@@ -4,8 +4,8 @@ grade: 5 and up
 paperback: 144 pages
 publisher: Candlewick; Reissue edition (December 8, 2015)
 language: English
-isbn_10: 0763680877
-isbn_13: 978-0763680879
+isbn_10: "0763680877"
+isbn_13: "978-0763680879"
 dimensions: 5.2 x 0.4 x 7.6 inches
 shipping_weight: 12.6 ounces
 ---

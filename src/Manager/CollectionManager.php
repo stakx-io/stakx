@@ -22,6 +22,7 @@ class CollectionManager extends ItemManager
         parent::__construct();
 
         $this->collections = array();
+        $this->collectionsFlat = array();
     }
 
     /**
@@ -114,7 +115,7 @@ class CollectionManager extends ItemManager
 
     private function flattenCollections ()
     {
-        if (!isset($this->collectionsFlat))
+        if (empty($this->collectionsFlat) && !empty($this->collections))
         {
             $this->collectionsFlat = call_user_func_array('array_merge', $this->collections);
         }

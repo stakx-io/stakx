@@ -15,10 +15,8 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
 
     public function setUp ()
     {
-        $output = $this->getMock(OutputInterface::class);
-
         $this->cm = new CollectionManager();
-        $this->cm->setConsoleOutput($output);
+        $this->cm->setConsoleOutput($this->outputMock());
         $this->cm->parseCollections(array(
             array(
                 'name' => 'Sample',
@@ -49,5 +47,38 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
         {
             $this->assertEquals('Sample', $contentItem->getCollection());
         }
+    }
+
+    public function testCollectionEmpty ()
+    {
+        $cm = new CollectionManager();
+        $cm->setConsoleOutput($this->outputMock());
+        $cm->parseCollections(array());
+
+        $this->assertEmpty($cm->getCollections());
+        $this->assertEmpty($cm->getFlatCollections());
+    }
+
+    public function testCollectionManagerContainsContentItem ()
+    {
+        $this->assertTrue($this->cm->isContentItem('Tale-of-Despereaux'));
+        $this->assertTrue($this->cm->isContentItem('Tiger-Rising'));
+    }
+
+    public function testCollectionManagerGetContentItem ()
+    {
+        $contentItem = $this->cm->getContentItem('Tiger-Rising');
+
+        $this->assertNotNull($contentItem);
+        $this->assertEquals('Sample', $contentItem->getCollection());
+        $this->assertEquals('0763680877', $contentItem->isbn_10);
+    }
+
+    /**
+     * @return OutputInterface
+     */
+    private function outputMock ()
+    {
+        return $this->getMock(OutputInterface::class);
     }
 }
