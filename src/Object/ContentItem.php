@@ -4,6 +4,7 @@ namespace allejo\stakx\Object;
 
 use allejo\stakx\Engines\MarkdownEngine;
 use allejo\stakx\Engines\RstEngine;
+use allejo\stakx\Manager\TwigManager;
 
 class ContentItem extends FrontMatterObject
 {
@@ -40,7 +41,7 @@ class ContentItem extends FrontMatterObject
     {
         if (!$this->bodyContentEvaluated)
         {
-            $twig = Website::getTwigInstance();
+            $twig = TwigManager::getInstance();
 
             if ($twig instanceof \Twig_Environment)
             {

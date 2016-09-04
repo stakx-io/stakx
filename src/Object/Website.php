@@ -3,7 +3,6 @@
 namespace allejo\stakx\Object;
 
 use allejo\stakx\Core\ConsoleInterface;
-use allejo\stakx\Engines\TwigMarkdownEngine;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
@@ -11,27 +10,12 @@ use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\System\Folder;
-use allejo\stakx\Twig\FilesystemExtension;
-use allejo\stakx\Twig\TwigExtension;
-use Aptoma\Twig\Extension\MarkdownExtension;
 use JasonLewis\ResourceWatcher\Tracker;
 use JasonLewis\ResourceWatcher\Watcher;
 use Symfony\Component\Console\Output\OutputInterface;
-use Twig_Environment;
-use Twig_Loader_Filesystem;
 
 class Website
 {
-    private static $twig_ref;
-
-    /**
-     * The Twig environment that will be used to render pages. This includes all of the loaded extensions and global
-     * variables.
-     *
-     * @var Twig_Environment
-     */
-    private $twig;
-
     /**
      * The location of where the compiled website will be written to
      *
@@ -117,6 +101,9 @@ class Website
      */
     public function build ($cleanDirectory)
     {
+        // Configure the environment
+        $this->createFolderStructure($cleanDirectory);
+
         // Parse DataItems
         $this->dm->setConsoleOutput($this->output);
         $this->dm->parseDataItems($this->getConfiguration()->getDataFolders());
@@ -128,13 +115,17 @@ class Website
 
         // Handle PageViews
         $this->pm->setConsoleOutput($this->output);
-        $this->pm->setTwig($this->twig);
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
         $this->pm->prepareDynamicPageViews($this->cm->getCollections());
-
-        // Configure the environment
-        $this->createFolderStructure($cleanDirectory);
-        $this->configureTwig();
+        $this->pm->configureTwig($this->getConfiguration(), array(
+            'safe'    => $this->safeMode,
+            'globals' => array(
+                array('name' => 'site',        'value' => $this->getConfiguration()->getConfiguration()),
+                array('name' => 'collections', 'value' => $this->cm->getCollections()),
+                array('name' => 'menu',        'value' => $this->pm->getSiteMenu()),
+                array('name' => 'data',        'value' => $this->dm->getDataItems())
+            )
+        ));
 
         // Our output directory
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
@@ -292,11 +283,6 @@ class Website
         $this->safeMode = $bool;
     }
 
-    public static function getTwigInstance ()
-    {
-        return self::$twig_ref;
-    }
-
     /**
      * Prepare the Stakx environment by creating necessary cache folders
      *
@@ -314,62 +300,5 @@ class Website
         $this->fs->remove($this->fs->absolutePath('.stakx-cache'));
         $this->fs->mkdir('.stakx-cache/twig');
         $this->fs->mkdir($tarDir);
-    }
-
-    /**
-     * Configure the Twig environment used by Stakx. This includes loading themes, global variables, extensions, and
-     * debug settings.
-     *
-     * @todo Load custom Twig extensions from _config.yml
-     */
-    private function configureTwig ()
-    {
-        $loader   = new Twig_Loader_Filesystem(array(
-            getcwd()
-        ));
-        $theme    = $this->configuration->getTheme();
-        $mdEngine = new TwigMarkdownEngine();
-
-        // Only load a theme if one is specified and actually exists
-        if (!is_null($theme))
-        {
-            try
-            {
-                $loader->addPath($this->fs->absolutePath('_themes', $this->configuration->getTheme()), 'theme');
-            }
-            catch (\Twig_Error_Loader $e)
-            {
-                $this->output->error("The following theme could not be loaded: {theme}", array(
-                    "theme" => $theme
-                ));
-                $this->output->error($e->getMessage());
-            }
-        }
-
-        $this->twig = new Twig_Environment($loader, array(
-            'autoescape' => $this->getConfiguration()->getTwigAutoescape(),
-            //'cache'      => '.stakx-cache/twig'
-        ));
-
-        $this->twig->addGlobal('site', $this->configuration->getConfiguration());
-        $this->twig->addGlobal('collections', $this->cm->getCollections());
-        $this->twig->addGlobal('menu', $this->pm->getSiteMenu());
-        $this->twig->addGlobal('data', $this->dm->getDataItems());
-        $this->twig->addExtension(new TwigExtension());
-        $this->twig->addExtension(new \Twig_Extensions_Extension_Text());
-        $this->twig->addExtension(new MarkdownExtension($mdEngine));
-
-        if (!$this->safeMode)
-        {
-            $this->twig->addExtension(new FilesystemExtension());
-        }
-
-        if ($this->configuration->isDebug())
-        {
-            $this->twig->addExtension(new \Twig_Extension_Debug());
-            $this->twig->enableDebug();
-        }
-
-        self::$twig_ref = &$this->twig;
     }
 }

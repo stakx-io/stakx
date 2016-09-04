@@ -56,14 +56,12 @@ class PageManager extends BaseManager
         $this->staticPageViews  = array();
     }
 
-    /**
-     * Set the Twig environment used by Stakx for all Twig templates
-     *
-     * @param \Twig_Environment $twig
-     */
-    public function setTwig (&$twig)
+    public function configureTwig ($configuration, $options)
     {
-        $this->twig = &$twig;
+        $twig = new TwigManager();
+        $twig->configureTwig($configuration, $options);
+
+        $this->twig = TwigManager::getInstance();
     }
 
     /**
