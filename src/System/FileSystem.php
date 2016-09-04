@@ -136,7 +136,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
         {
             foreach ($explicitIncludes as &$include)
             {
-                $include = $this->absolutePath($include);
+                $include = new SplFileInfo($include, $this->getFolderPath($include), $include);
             }
 
             $finder->append($explicitIncludes);
