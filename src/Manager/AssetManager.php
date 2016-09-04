@@ -18,6 +18,11 @@ class AssetManager extends FileManager
         /** @var $file SplFileInfo */
         foreach ($this->finder as $file)
         {
+            if ($this->tracking)
+            {
+                $this->files[$file->getRelativePathname()] = $file;
+            }
+
             $this->copyToCompiledSite($file);
         }
     }

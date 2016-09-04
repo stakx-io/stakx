@@ -63,8 +63,23 @@ class ThemeManager extends FileManager
         /** @var SplFileInfo $file */
         foreach ($this->finder as $file)
         {
-            $this->files[] = $file;
+            if ($this->tracking)
+            {
+                $fileName = $this->fs->appendPath($this->themeFolder, $file->getRelativePathname());
+                $this->files[$fileName] = $file;
+            }
+
             $this->copyToCompiledSite($file, $this->themeFolder);
+        }
+    }
+
+    public function copyFile($filePath)
+    {
+        if ($this->isFileAsset($filePath))
+        {
+            $this->output->notice('Copying theme asset: {file}', array('file' => $filePath));
+
+            $this->copyToCompiledSite($this->files[$filePath], $this->themeFolder);
         }
     }
 }

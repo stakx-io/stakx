@@ -14,14 +14,39 @@ abstract class FileManager extends BaseManager
     protected $outputDirectory;
 
     /**
+     * Whether or not to enable tracking of files to keep a copy to be able to update them. This should only be set to
+     * True during the watch command.
+     *
+     * @var bool
+     */
+    protected $tracking;
+
+    /**
      * @var Finder
      */
     protected $finder;
 
     /**
-     * @var string[]
+     * @var SplFileInfo[]
      */
     protected $files;
+
+    public function setTracking ($enabled)
+    {
+        $this->tracking = $enabled;
+    }
+
+    public function isFileAsset ($filePath)
+    {
+        return (array_key_exists($filePath, $this->files));
+    }
+
+    public function copyFile ($filePath)
+    {
+        $this->output->notice('Copying static asset: {file}', array('file' => $filePath));
+
+        $this->copyToCompiledSite($this->files[$filePath]);
+    }
 
     /**
      * @param Folder $directory

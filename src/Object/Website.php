@@ -98,8 +98,9 @@ class Website
      * Compile the website.
      *
      * @param bool $cleanDirectory Clean the target directing before rebuilding
+     * @param bool $tracking       Whether or not to keep track of files as they're compiled to save time in 'watch'
      */
-    public function build ($cleanDirectory)
+    public function build ($cleanDirectory, $tracking = false)
     {
         // Configure the environment
         $this->createFolderStructure($cleanDirectory);
@@ -142,6 +143,7 @@ class Website
 
             $this->tm = new ThemeManager($theme, $this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
             $this->tm->setConsoleOutput($this->output);
+            $this->tm->setTracking($tracking);
             $this->tm->setFolder($this->outputDirectory);
             $this->tm->copyFiles();
         }
@@ -152,6 +154,7 @@ class Website
         $this->am = new AssetManager($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
         $this->am->setConsoleOutput($this->output);
         $this->am->setFolder($this->outputDirectory);
+        $this->am->setTracking($tracking);
         $this->am->copyFiles();
 
         //
@@ -165,7 +168,7 @@ class Website
 
     public function watch ()
     {
-        $this->build(true);
+        $this->build(true, true);
 
         $tracker    = new Tracker();
         $watcher    = new Watcher($tracker, $this->fs);
@@ -197,6 +200,14 @@ class Website
                     $contentItem->refreshFileContent();
 
                     $this->pm->compileContentItem($contentItem);
+                }
+                else if ($this->tm->isFileAsset($filePath))
+                {
+                    $this->tm->copyFile($filePath);
+                }
+                else if ($this->am->isFileAsset($filePath))
+                {
+                    $this->am->copyFile($filePath);
                 }
             }
             catch (\Exception $e)
