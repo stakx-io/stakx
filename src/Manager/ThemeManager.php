@@ -20,7 +20,10 @@ class ThemeManager extends FileManager
 
         $this->themeFolder = $this->fs->appendPath("_themes", $themeName);
         $this->themeFile   = $this->fs->absolutePath($this->themeFolder, self::THEME_DEFINITION_FILE);
-        $this->themeData   = array();
+        $this->themeData   = array(
+            'exclude' => array(),
+            'include'  => array()
+        );
 
         if (!$this->fs->exists($this->themeFolder))
         {
@@ -29,7 +32,9 @@ class ThemeManager extends FileManager
 
         if ($this->fs->exists($this->themeFile))
         {
-            $this->themeData = Yaml::parse(file_get_contents($this->themeFile));
+            $themeData = Yaml::parse(file_get_contents($this->themeFile));
+
+            $this->themeData = array_merge_recursive($this->themeData, $themeData);
         }
 
         foreach ($this->themeData['include'] as &$include)
