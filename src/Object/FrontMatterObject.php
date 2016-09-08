@@ -382,6 +382,9 @@ abstract class FrontMatterObject
             $permalink = substr($permalink, 2);
         }
 
+        // Convert permalinks to lower case
+        $permalink = mb_strtolower($permalink, 'UTF-8');
+
         return $permalink;
     }
 }

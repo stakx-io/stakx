@@ -172,7 +172,7 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
 
         $contentItem->evaluateFrontMatter($individualFrontMatter);
 
-        $this->assertEquals('/blog/Hello-World', $contentItem->getPermalink());
+        $this->assertEquals('/blog/hello-world', $contentItem->getPermalink());
     }
 
     public function testContentItemFrontMatterForDynamicPagesWithDates ()
@@ -189,7 +189,7 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
 
         $contentItem->evaluateFrontMatter($individualFrontMatter);
 
-        $this->assertEquals('/blog/2016/01/01/Hello-World', $contentItem->getPermalink());
+        $this->assertEquals('/blog/2016/01/01/hello-world', $contentItem->getPermalink());
     }
 
     public function testContentItemFrontMatterArrayYamlVariables ()
