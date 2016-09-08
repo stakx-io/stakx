@@ -39,11 +39,17 @@ class WhereFilter
 
     private function compare ($array, $key, $comparison, $value)
     {
-        $array = ($array instanceof ContentItem) ? $array->getFrontMatter() : $array;
+        $fm = false;
+
+        if ($array instanceof ContentItem)
+        {
+            $array = $array->getFrontMatter();
+            $fm = true;
+        }
 
         if (!isset($array[$key]))
         {
-            return false;
+            return ($fm && $comparison === "==" && $value === null);
         }
 
         return (($comparison === "==" && $array[$key] === $value) ||
