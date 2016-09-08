@@ -98,10 +98,10 @@ class WhereFilterTests extends PHPUnit_Framework_TestCase
 
     public function testInvalidFilterEmptyResult ()
     {
-        $whereFilter = new WhereFilter();
-        $filtered = $whereFilter($this->dataset, 'name', 'non-existent-comparison', 'the_map');
+        $this->setExpectedException(\Twig_Error_Syntax::class);
 
-        $this->assertEmpty($filtered);
+        $whereFilter = new WhereFilter();
+        $whereFilter($this->dataset, 'name', 'non-existent-comparison', 'the_map');
     }
 
     public function testInvalidKeyEmptyResult ()

@@ -3,6 +3,7 @@
 namespace allejo\stakx\Twig;
 
 use allejo\stakx\Object\ContentItem;
+use Twig_Error_Syntax;
 
 class WhereFilter
 {
@@ -52,13 +53,19 @@ class WhereFilter
             return ($fm && $comparison === "==" && $value === null);
         }
 
-        return (($comparison === "==" && $array[$key] === $value) ||
-                ($comparison === "!=" && $array[$key] !== $value) ||
-                ($comparison === ">"  && $array[$key] > $value)   ||
-                ($comparison === ">=" && $array[$key] >= $value)  ||
-                ($comparison === "<"  && $array[$key] < $value)   ||
-                ($comparison === "<=" && $array[$key] <= $value)  ||
-                ($comparison === "~=" && $this->contains($array[$key], $value)));
+        switch ($comparison)
+        {
+            case "==": return ($array[$key] === $value);
+            case "!=": return ($array[$key] !== $value);
+            case ">" : return ($array[$key] > $value);
+            case ">=": return ($array[$key] >= $value);
+            case "<" : return ($array[$key] < $value);
+            case "<=": return ($array[$key] <= $value);
+            case "~=": return ($this->contains($array[$key], $value));
+
+            default:
+                throw new Twig_Error_Syntax("Invalid where comparison ({$comparison})");
+        }
     }
 
     private function contains ($haystack, $needle)
