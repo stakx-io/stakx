@@ -208,6 +208,16 @@ abstract class FrontMatterObject
     }
 
     /**
+     * Get the relative path to this file relative to the root of the Stakx website
+     *
+     * @return string
+     */
+    final public function getRelativeFilePath ()
+    {
+        return $this->fs->getRelativePath($this->filePath);
+    }
+
+    /**
      * Read the file, and parse its contents
      */
     final public function refreshFileContent ()

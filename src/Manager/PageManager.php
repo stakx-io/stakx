@@ -6,6 +6,8 @@ use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\PageView;
 use allejo\stakx\System\Folder;
 use Symfony\Component\Finder\Finder;
+use Twig_Error_Syntax;
+use Twig_Template;
 
 /**
  * This class is responsible for handling all of the PageViews within a website.
@@ -200,7 +202,7 @@ class PageManager extends BaseManager
     public function compileContentItem (&$contentItem)
     {
         $pageView = $contentItem->getPageView();
-        $template = $this->twig->createTemplate($pageView->getContent());
+        $template = $this->twig->createTemplate($pageView);
 
         $contentItem->evaluateFrontMatter(
             $pageView->getFrontMatter(false)
@@ -253,13 +255,10 @@ class PageManager extends BaseManager
 
     /**
      * @param PageView $pageView
-     *
-     * @throws \Exception
-     * @throws \Throwable
      */
     private function compileDynamicPageView ($pageView)
     {
-        $template = $this->twig->createTemplate($pageView->getContent());
+        $template = $this->createTemplate($pageView);
 
         $pageViewFrontMatter = $pageView->getFrontMatter(false);
         $collection = $pageViewFrontMatter['collection'];
@@ -282,7 +281,7 @@ class PageManager extends BaseManager
     {
         $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
 
-        $template = $this->twig->createTemplate($pageView->getContent());
+        $template = $this->createTemplate($pageView);
         $output = $template->render(array(
             'this' => $pageView->getFrontMatter()
         ));
@@ -324,6 +323,26 @@ class PageManager extends BaseManager
             }
 
             $root = &$root[$name]['children'];
+        }
+    }
+
+    /**
+     * @param PageView $pageView
+     *
+     * @return Twig_Template
+     * @throws Twig_Error_Syntax
+     */
+    private function createTemplate ($pageView)
+    {
+        try
+        {
+            return $this->twig->createTemplate($pageView->getContent());
+        }
+        catch (Twig_Error_Syntax $e)
+        {
+            $e->setTemplateFile($pageView->getRelativeFilePath());
+
+            throw $e;
         }
     }
 }
