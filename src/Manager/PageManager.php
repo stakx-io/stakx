@@ -202,7 +202,7 @@ class PageManager extends BaseManager
     public function compileContentItem (&$contentItem)
     {
         $pageView = $contentItem->getPageView();
-        $template = $this->twig->createTemplate($pageView);
+        $template = $this->createTemplate($pageView);
 
         $contentItem->evaluateFrontMatter(
             $pageView->getFrontMatter(false)
