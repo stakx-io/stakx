@@ -51,14 +51,18 @@ class TwigManager extends BaseManager
         }
 
         self::$twig = new Twig_Environment($loader, array(
-            'autoescape' => $configuration->getTwigAutoescape(),
-            //'cache'      => '.stakx-cache/twig'
+            'autoescape'  => $configuration->getTwigAutoescape(),
+            'auto_reload' => true,
+            'cache'      => '.stakx-cache/twig'
         ));
 
         foreach ($options['globals'] as $global)
         {
             self::$twig->addGlobal($global['name'], $global['value']);
         }
+
+        // We'll use this to access the current file in our Twig filters
+        self::$twig->addGlobal('__currentTemplate', '');
 
         self::$twig->addExtension(new TwigExtension());
         self::$twig->addExtension(new \Twig_Extensions_Extension_Text());
