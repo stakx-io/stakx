@@ -55,14 +55,12 @@ class ConfigurationTests extends PHPUnit_Framework_TestCase
 
     public function testSampleConfigCombinedInclude ()
     {
-        $this->assertCount(2, $this->sampleConfig->getIncludes());
         $this->assertContains('.htaccess', $this->sampleConfig->getIncludes());
         $this->assertContains('include.html', $this->sampleConfig->getIncludes());
     }
 
     public function testSampleConfigCombinedExclude ()
     {
-        $this->assertCount(4, $this->sampleConfig->getExcludes());
         $this->assertContains('node_modules/', $this->sampleConfig->getExcludes());
         $this->assertContains('exclude.html', $this->sampleConfig->getExcludes());
     }
