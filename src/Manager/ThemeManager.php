@@ -8,18 +8,23 @@ use Symfony\Component\Yaml\Yaml;
 
 class ThemeManager extends FileManager
 {
+    const THEME_FOLDER = "_themes";
     const THEME_DEFINITION_FILE = "stakx-theme.yml";
 
+    private $themeFolderRelative;
     private $themeFolder;
     private $themeFile;
     private $themeData;
+    private $themeName;
 
     public function __construct ($themeName, $includes = array(), $excludes = array())
     {
         parent::__construct();
 
-        $this->themeFolder = $this->fs->appendPath("_themes", $themeName);
-        $this->themeFile   = $this->fs->absolutePath($this->themeFolder, self::THEME_DEFINITION_FILE);
+        $this->themeFolderRelative = $this->fs->appendPath(self::THEME_FOLDER, $themeName);
+        $this->themeFolder = $this->fs->absolutePath(self::THEME_FOLDER, $themeName);
+        $this->themeName   = $themeName;
+        $this->themeFile   = $this->fs->appendPath($this->themeFolder, self::THEME_DEFINITION_FILE);
         $this->themeData   = array(
             'exclude' => array(),
             'include'  => array()
@@ -52,7 +57,7 @@ class ThemeManager extends FileManager
                 $this->themeData['exclude'],
                 array('.twig')
             ),
-            $this->fs->absolutePath($this->themeFolder)
+            $this->themeFolder
         );
     }
 
@@ -65,7 +70,7 @@ class ThemeManager extends FileManager
         {
             if ($this->tracking)
             {
-                $fileName = $this->fs->appendPath($this->themeFolder, $file->getRelativePathname());
+                $fileName = $this->fs->appendPath($this->themeFolderRelative, $file->getRelativePathname());
                 $this->files[$fileName] = $file;
             }
 
@@ -79,7 +84,7 @@ class ThemeManager extends FileManager
         {
             $this->output->notice('Copying theme asset: {file}', array('file' => $filePath));
 
-            $this->copyToCompiledSite($this->files[$filePath], $this->themeFolder);
+            $this->copyToCompiledSite($this->files[$filePath], $this->themeFolderRelative);
         }
     }
 }
