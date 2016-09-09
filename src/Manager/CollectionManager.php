@@ -3,10 +3,16 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\ContentItem;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Finder\SplFileInfo;
 
 class CollectionManager extends BaseManager
 {
+    /**
+     * @var string[][]
+     */
+    private $collectionDefinitions;
+
     /**
      * @var ContentItem[]
      */
@@ -70,13 +76,67 @@ class CollectionManager extends BaseManager
         return (array_key_exists($contentItemId, $this->collectionsFlat));
     }
 
-    public function parseCollections ($folders)
+    /**
+     * Check whether a given file path is inside a directory of a known Collection
+     *
+     * @param  string $filePath
+     *
+     * @return bool
+     */
+    public function belongsToCollection ($filePath)
     {
-        if ($folders === null)
+        return (!empty($this->getTentativeCollectionName($filePath)));
+    }
+
+    /**
+     * Get the name of the Collection this Content Item belongs to
+     *
+     * @param  string $filePath
+     *
+     * @return string
+     */
+    public function getTentativeCollectionName ($filePath)
+    {
+        foreach ($this->collectionDefinitions as $collection)
+        {
+            if (strpos($filePath, $collection['folder']) === 0)
+            {
+                return $collection['name'];
+            }
+        }
+
+        return '';
+    }
+
+    public function addToCollection ($filePath)
+    {
+        $relativePath = $filePath;
+        $filePath = $this->fs->absolutePath($filePath);
+
+        if (!$this->fs->exists($filePath))
+        {
+            throw new FileNotFoundException(sprintf("Collection item to be added cannot be found: %s", $relativePath));
+        }
+
+        $collectionName = $this->getTentativeCollectionName($relativePath);
+        $contentItem    = $this->addContentItemToCollection($filePath, $collectionName);
+        $fileName       = $this->fs->getBaseName($contentItem->getRelativeFilePath());
+
+        if (!empty($this->collectionsFlat))
+        {
+            $this->collectionsFlat[$fileName] = $contentItem;
+        }
+    }
+
+    public function parseCollections ($collections)
+    {
+        if ($collections === null)
         {
             $this->output->debug("No collections found, nothing to parse.");
             return;
         }
+
+        $this->collectionDefinitions = $collections;
 
         /**
          * The information which each collection has taken from the configuration file
@@ -86,7 +146,7 @@ class CollectionManager extends BaseManager
          *
          * @var $collection array
          */
-        foreach ($folders as $collection)
+        foreach ($collections as $collection)
         {
             $this->output->notice("Loading '{$collection['name']}' collection...");
 
@@ -104,20 +164,28 @@ class CollectionManager extends BaseManager
             foreach ($finder as $file)
             {
                 $filePath = $this->fs->appendPath($collectionFolder, $file->getRelativePathname());
-                $fileName = $this->fs->getBaseName($filePath);
 
-                $contentItem = new ContentItem($filePath);
-                $contentItem->setCollection($collection['name']);
-
-                $this->collections[$collection['name']][$fileName] = $contentItem;
-
-                $this->output->info(sprintf(
-                    "Loading ContentItem into '%s' collection: %s",
-                    $collection['name'],
-                    $this->fs->appendPath($collection['folder'], $file->getRelativePathname())
-                ));
+                $this->addContentItemToCollection($filePath, $collection['name']);
             }
         }
+    }
+
+    private function addContentItemToCollection ($filePath, $collectionName)
+    {
+        $fileName = $this->fs->getBaseName($filePath);
+
+        $contentItem = new ContentItem($filePath);
+        $contentItem->setCollection($collectionName);
+
+        $this->collections[$collectionName][$fileName] = $contentItem;
+
+        $this->output->info(sprintf(
+            "Loading ContentItem into '%s' collection: %s",
+            $collectionName,
+            $this->fs->getRelativePath($filePath)
+        ));
+
+        return $contentItem;
     }
 
     private function flattenCollections ()
