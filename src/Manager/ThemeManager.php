@@ -74,7 +74,7 @@ class ThemeManager extends FileManager
                 $this->files[$fileName] = $file;
             }
 
-            $this->copyToCompiledSite($file, $this->themeFolder);
+            $this->copyToCompiledSite($file, $this->themeFolderRelative);
         }
     }
 

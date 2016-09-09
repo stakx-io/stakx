@@ -164,6 +164,7 @@ class Configuration
             ),
             'exclude' => array(
                 '/^_.*/',
+                '*.twig',
                 'node_modules/',
                 'stakx-theme.yml'
             )
