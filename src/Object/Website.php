@@ -194,7 +194,7 @@ class Website
                 {
                     $this->pm->compileSingle($filePath);
                 }
-                else if ($this->cm->isContentItem($filePath))
+                else if ($this->cm->isTrackedByManager($filePath))
                 {
                     $contentItem = &$this->cm->getContentItem($filePath);
                     $contentItem->refreshFileContent();

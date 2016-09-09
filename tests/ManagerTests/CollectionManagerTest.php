@@ -61,8 +61,8 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
 
     public function testCollectionManagerContainsContentItem ()
     {
-        $this->assertTrue($this->cm->isContentItem('Tale-of-Despereaux'));
-        $this->assertTrue($this->cm->isContentItem('Tiger-Rising'));
+        $this->assertTrue($this->cm->isTrackedByManager('Tale-of-Despereaux'));
+        $this->assertTrue($this->cm->isTrackedByManager('Tiger-Rising'));
     }
 
     public function testCollectionManagerGetContentItem ()

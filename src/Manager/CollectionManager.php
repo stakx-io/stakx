@@ -32,7 +32,7 @@ class CollectionManager extends BaseManager
      */
     public function &getContentItem ($filePath)
     {
-        if ($this->isContentItem($filePath))
+        if ($this->isTrackedByManager($filePath))
         {
             $contentItemId = $this->fs->getBaseName($filePath);
 
@@ -54,7 +54,14 @@ class CollectionManager extends BaseManager
         return $this->collectionsFlat;
     }
 
-    public function isContentItem ($filePath)
+    /**
+     * Check whether a given file path to a content item is already being tracked as part of a collection
+     *
+     * @param  string $filePath
+     *
+     * @return bool
+     */
+    public function isTrackedByManager ($filePath)
     {
         $this->flattenCollections();
 
