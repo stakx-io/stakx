@@ -10,8 +10,8 @@ data:
   - _data
 
 datasets:
-  - name: months
-    folder: _datasets/months
+  - name: calendar
+    folder: _datasets/calendar
 
 pageviews:
   - _pages
