@@ -198,6 +198,16 @@ abstract class FrontMatterObject
     }
 
     /**
+     * Get the name of the item, which is just the file name without the extension
+     *
+     * @return string
+     */
+    final public function getName ()
+    {
+        return $this->fs->getBaseName($this->filePath);
+    }
+
+    /**
      * Get the original file path
      *
      * @return string
