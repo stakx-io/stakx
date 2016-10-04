@@ -28,23 +28,8 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @package allejo\stakx\Object
  */
-class DataManager extends BaseManager
+class DataManager extends TrackingManager
 {
-    /**
-     * @var array
-     */
-    protected $dataItems;
-
-    /**
-     * DataManager constructor.
-     */
-    public function __construct ()
-    {
-        parent::__construct();
-
-        $this->dataItems = array();
-    }
-
     /**
      * Get all of the DataItems and DataSets in this manager
      *
@@ -52,7 +37,7 @@ class DataManager extends BaseManager
      */
     public function getDataItems ()
     {
-        return $this->dataItems;
+        return $this->trackedItems;
     }
 
     /**
@@ -68,10 +53,7 @@ class DataManager extends BaseManager
 
         foreach ($folders as $folder)
         {
-            $this->dataItems = array_merge(
-                $this->dataItems,
-                $this->parseFinderFiles($folder)
-            );
+            $this->parseTrackableItems($folder);
         }
     }
 
@@ -96,18 +78,14 @@ class DataManager extends BaseManager
          */
         foreach ($dataSets as $dataSet)
         {
-            $this->dataItems[$dataSet['name']] = $this->parseFinderFiles($dataSet['folder']);
+            $this->parseTrackableItems($dataSet['folder']);
         }
     }
 
     /**
-     * Parse all of the data files in a specified folder
-     *
-     * @param string   $folder   A folder that contains data files
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    private function parseFinderFiles ($folder)
+    protected function parseTrackableItems ($folder)
     {
         $dataItems = array();
         $finder    = new Finder();
@@ -126,7 +104,11 @@ class DataManager extends BaseManager
             if (method_exists(get_called_class(), $fxnName))
             {
                 $this->handleDependencies($ext);
-                $dataItems[$name] = $this->$fxnName($content);
+                $this->saveToTracker(
+                    $name,
+                    $this->$fxnName($content),
+                    $this->fs->getRelativePath($dataItem)
+                );
             }
             else
             {
@@ -192,6 +174,18 @@ class DataManager extends BaseManager
     private function fromYaml ($content)
     {
         return Yaml::parse($content);
+    }
+
+    /**
+     * An alias for handling `*.yml` files
+     *
+     * @param  string $content YAML formatted text
+     *
+     * @return array
+     */
+    private function fromYml ($content)
+    {
+        return $this->fromYaml($content);
     }
 
     /**
