@@ -8,6 +8,8 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\FrontMatterObject;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Class TrackingManager
@@ -17,6 +19,8 @@ use allejo\stakx\Object\FrontMatterObject;
 abstract class TrackingManager extends BaseManager implements Trackable
 {
     protected $trackedItemsFlattened;
+
+    protected $trackedItemsOptions;
 
     /**
      * $trackedItems['<collection name>']['<file name w/o extension>'] = typeof(FrontMatterObject)
@@ -59,41 +63,62 @@ abstract class TrackingManager extends BaseManager implements Trackable
     /**
      * {@inheritdoc}
      */
-    public function isTracked ($key)
+    public function isTracked ($filePath)
     {
-        return array_key_exists($key, $this->trackedItemsFlattened);
+        return array_key_exists($filePath, $this->trackedItemsFlattened);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function saveToTracker($key, $data, $filePath, $collection = null)
+    public function refreshItem ($filePath)
     {
-        if (is_null($collection))
+        $this->parseTrackableItem(
+            $filePath,
+            $this->trackedItemsOptions[$filePath]
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function saveToTracker ($key, $data, $filePath, $namespace = null)
+    {
+        if (is_null($namespace))
         {
             $this->trackedItems[$key] = $data;
         }
         else
         {
-            $this->trackedItems[$collection][$key] = $data;
+            $this->trackedItems[$namespace][$key] = $data;
         }
-
 
         $this->trackedItemsFlattened[$filePath] = $data;
     }
 
     /**
+     * Save any options related to an item needed in order to refresh the content
+     *
+     * @param string $filePath
+     * @param array $options
+     */
+    public function saveOptions ($filePath, $options = array())
+    {
+        $this->trackedItemsOptions[$filePath] = $options;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function delFromTracker ($trackedItem, $collection = null)
+    public function delFromTracker ($trackedItem, $namespace = null)
     {
-        if (is_null($collection))
+        if (is_null($namespace))
         {
             unset($this->trackedItems[$trackedItem->getFileName()]);
         }
         else
         {
-            unset($this->trackedItems[$collection][$trackedItem->getFileName()]);
+            unset($this->trackedItems[$namespace][$trackedItem->getFileName()]);
         }
 
         unset($this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()]);
@@ -103,6 +128,27 @@ abstract class TrackingManager extends BaseManager implements Trackable
      * Parse the specified folder for items to track
      *
      * @param string $folder
+     * @param mixed  $options Special options that will be passed to the static::parseTrackableItem() implementation
      */
-    abstract protected function parseTrackableItems ($folder);
+    protected function parseTrackableItems ($folder, $options = array())
+    {
+        $finder = new Finder();
+        $finder->files()
+               ->ignoreDotFiles(true)
+               ->ignoreUnreadableDirs()
+               ->in($this->fs->absolutePath($folder));
+
+        foreach ($finder as $dataItem)
+        {
+            $this->parseTrackableItem($dataItem, $options);
+        }
+    }
+
+    /**
+     * @param  SplFileInfo $filePath
+     * @param  mixed       $options
+     *
+     * @return mixed
+     */
+    abstract protected function parseTrackableItem ($filePath, $options = array());
 }

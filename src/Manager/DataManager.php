@@ -12,7 +12,6 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Exception\DependencyMissingException;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -78,46 +77,41 @@ class DataManager extends TrackingManager
          */
         foreach ($dataSets as $dataSet)
         {
-            $this->parseTrackableItems($dataSet['folder'], $dataSet['name']);
+            $this->parseTrackableItems(
+                $dataSet['folder'],
+                array(
+                    'namespace' => $dataSet['name']
+                )
+            );
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function parseTrackableItems ($folder, $alias = null)
+    protected function parseTrackableItem ($filePath, $options = array())
     {
-        $dataItems = array();
-        $finder    = new Finder();
-        $finder->files()
-               ->ignoreDotFiles(true)
-               ->ignoreUnreadableDirs()
-               ->in($this->fs->absolutePath($folder));
+        $relFilePath = $this->fs->getRelativePath($filePath);
+        $ext     = strtolower($this->fs->getExtension($filePath));
+        $name    = $this->fs->getBaseName($filePath);
+        $content = file_get_contents($filePath);
+        $fxnName = 'from' . ucfirst($ext);
 
-        foreach ($finder as $dataItem)
+        if (method_exists(get_called_class(), $fxnName))
         {
-            $ext     = strtolower($this->fs->getExtension($dataItem));
-            $name    = $this->fs->getBaseName($dataItem);
-            $content = file_get_contents($dataItem);
-            $fxnName = 'from' . ucfirst($ext);
-
-            if (method_exists(get_called_class(), $fxnName))
-            {
-                $this->handleDependencies($ext);
-                $this->saveToTracker(
-                    $name,
-                    $this->$fxnName($content),
-                    $this->fs->getRelativePath($dataItem),
-                    (!is_null($alias)) ? $alias : null
-                );
-            }
-            else
-            {
-                $this->output->warning("There is no function to handle '$ext' file format.");
-            }
+            $this->handleDependencies($ext);
+            $this->saveOptions($relFilePath, $options);
+            $this->saveToTracker(
+                $name,
+                $this->$fxnName($content),
+                $relFilePath,
+                (array_key_exists('namespace', $options)) ? $options['namespace'] : null
+            );
         }
-
-        return $dataItems;
+        else
+        {
+            $this->output->warning("There is no function to handle '$ext' file format.");
+        }
     }
 
     /**
