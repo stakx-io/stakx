@@ -174,7 +174,7 @@ class DataManager extends TrackingManager
      */
     private function fromYaml ($content)
     {
-        return Yaml::parse($content);
+        return Yaml::parse($content, Yaml::PARSE_DATETIME);
     }
 
     /**
