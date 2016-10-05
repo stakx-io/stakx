@@ -14,7 +14,7 @@ use allejo\stakx\Object\FrontMatterObject;
  *
  * @package allejo\stakx\Manager
  */
-abstract class TrackingManager extends BaseManager implements ITrackable
+abstract class TrackingManager extends BaseManager implements Trackable
 {
     protected $trackedItemsFlattened;
 
