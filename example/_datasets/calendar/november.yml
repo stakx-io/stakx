@@ -1,14 +1,4 @@
-- date:
-    day: 11
-    month: 11
-    year: 2016
-    dayOfWeek: 5
+- date: 2016-11-11
   localName: Veterans' Day
-  englishName: Veterans' Day
-- date:
-    day: 24
-    month: 11
-    year: 2016
-    dayOfWeek: 4
+- date: 2016-11-24
   localName: Thanksgiving Day
-  englishName: Thanksgiving Day

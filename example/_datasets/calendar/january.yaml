@@ -1,14 +1,4 @@
-- date:
-    day: 1
-    month: 1
-    year: 2016
-    dayOfWeek: 5
+- date: 2016-01-01 00:00:00.00 -8
   localName: New Year's Day
-  englishName: New Year's Day
-- date:
-    day: 18
-    month: 1
-    year: 2016
-    dayOfWeek: 1
+- date: 2016-01-18
   localName: Birthday of Martin Luther King, Jr.
-  englishName: Birthday of Martin Luther King, Jr.
