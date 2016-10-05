@@ -78,14 +78,14 @@ class DataManager extends TrackingManager
          */
         foreach ($dataSets as $dataSet)
         {
-            $this->parseTrackableItems($dataSet['folder']);
+            $this->parseTrackableItems($dataSet['folder'], $dataSet['name']);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function parseTrackableItems ($folder)
+    protected function parseTrackableItems ($folder, $alias = null)
     {
         $dataItems = array();
         $finder    = new Finder();
@@ -107,7 +107,8 @@ class DataManager extends TrackingManager
                 $this->saveToTracker(
                     $name,
                     $this->$fxnName($content),
-                    $this->fs->getRelativePath($dataItem)
+                    $this->fs->getRelativePath($dataItem),
+                    (!is_null($alias)) ? $alias : null
                 );
             }
             else
