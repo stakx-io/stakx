@@ -228,6 +228,17 @@ class PageManager extends BaseManager
     }
 
     /**
+     * Update an existing Twig variable that's injected globally
+     *
+     * @param string $variable
+     * @param string $value
+     */
+    public function updateTwigVariable ($variable, $value)
+    {
+        $this->twig->addGlobal($variable, $value);
+    }
+
+    /**
      * A dynamic PageView is one that is built from a collection and each collection item deserves its own page. This
      * function goes through all of the dynamic PageViews and compiles each page
      */

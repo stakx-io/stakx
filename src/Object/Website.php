@@ -205,6 +205,12 @@ class Website
                 {
                     $this->tm->copyFile($filePath);
                 }
+                else if ($this->dm->isTracked($filePath))
+                {
+                    $this->dm->refreshItem($filePath);
+                    $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
+                    $this->pm->compileAll($this->outputDirectory);
+                }
                 else if ($this->am->isFileAsset($filePath))
                 {
                     $this->am->copyFile($filePath);
