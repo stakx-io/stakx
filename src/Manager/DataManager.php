@@ -52,7 +52,7 @@ class DataManager extends TrackingManager
 
         foreach ($folders as $folder)
         {
-            $this->parseTrackableItems($folder);
+            $this->scanTrackableItems($folder);
         }
     }
 
@@ -77,7 +77,7 @@ class DataManager extends TrackingManager
          */
         foreach ($dataSets as $dataSet)
         {
-            $this->parseTrackableItems(
+            $this->scanTrackableItems(
                 $dataSet['folder'],
                 array(
                     'namespace' => $dataSet['name']
@@ -89,7 +89,7 @@ class DataManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function parseTrackableItem ($filePath, $options = array())
+    protected function handleTrackableItem ($filePath, $options = array())
     {
         $relFilePath = $this->fs->getRelativePath($filePath);
         $ext     = strtolower($this->fs->getExtension($filePath));

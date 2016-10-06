@@ -8,7 +8,6 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\FrontMatterObject;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
@@ -156,7 +155,7 @@ abstract class TrackingManager extends BaseManager implements Trackable
      */
     public function refreshItem ($filePath)
     {
-        $this->parseTrackableItem(
+        $this->handleTrackableItem(
             $filePath,
             $this->trackedItemsOptions[$filePath]
         );
@@ -177,19 +176,21 @@ abstract class TrackingManager extends BaseManager implements Trackable
      * Parse the specified folder for items to track
      *
      * @param string $folder
-     * @param mixed  $options Special options that will be passed to the static::parseTrackableItem() implementation
+     * @param mixed  $options  Special options that will be passed to the static::parseTrackableItem() implementation
+     * @param array  $includes
+     * @param array  $excludes
      */
-    protected function parseTrackableItems ($folder, $options = array())
+    protected function scanTrackableItems ($folder, $options = array(), $includes = array(), $excludes = array())
     {
-        $finder = new Finder();
-        $finder->files()
-               ->ignoreDotFiles(true)
-               ->ignoreUnreadableDirs()
-               ->in($this->fs->absolutePath($folder));
+        $finder = $this->fs->getFinder(
+            $includes,
+            $excludes,
+            $this->fs->absolutePath($folder)
+        );
 
         foreach ($finder as $dataItem)
         {
-            $this->parseTrackableItem($dataItem, $options);
+            $this->handleTrackableItem($dataItem, $options);
         }
     }
 
@@ -199,5 +200,5 @@ abstract class TrackingManager extends BaseManager implements Trackable
      *
      * @return mixed
      */
-    abstract protected function parseTrackableItem ($filePath, $options = array());
+    abstract protected function handleTrackableItem ($filePath, $options = array());
 }
