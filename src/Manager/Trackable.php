@@ -18,11 +18,50 @@ use Symfony\Component\Finder\SplFileInfo;
 interface Trackable
 {
     /**
+     * Save data to the tracker with a reference to the file it came from
+     *
+     * @param string      $key       The name of the file
+     * @param mixed       $data      The data to save the
+     * @param string      $filePath  The relative file path from the root of the website
+     * @param string|null $namespace The name of the collection this data belongs to, if any
+     */
+    public function addArrayToTracker ($key, $data, $filePath, $namespace = null);
+
+    /**
      * Add a FrontMatterObject based object to the tracker
      *
      * @param FrontMatterObject $trackedItem
+     * @param string|null       $namespace
+     *
+     * @return
      */
-    public function addToTracker (&$trackedItem, $collection = null);
+    public function addObjectToTracker (&$trackedItem, $namespace = null);
+
+    /**
+     * Remove all data related to an array that was saved
+     *
+     * @param string      $key
+     * @param string      $filePath
+     * @param string|null $namespace
+     */
+    public function delArrayFromTracker ($key, $filePath, $namespace = null);
+
+    /**
+     * Remove an entry from the tracked items array
+     *
+     * @param mixed       $trackedItem
+     * @param string|null $namespace
+     */
+    public function delObjectFromTracker ($trackedItem, $namespace = null);
+
+    /**
+     * Whether or not to enable tracking of files.
+     *
+     * Setting this to false will disable a lot of the overhead and caching done when a project is being watched
+     *
+     * @param bool $enabled
+     */
+    public function enableTracking ($enabled);
 
     /**
      * Check whether a file is tracked
@@ -39,21 +78,4 @@ interface Trackable
      * @param SplFileInfo|string $filePath The relative path of the file
      */
     public function refreshItem ($filePath);
-
-    /**
-     * Save data to the tracker with a reference to the file it came from
-     *
-     * @param string      $key       The name of the file
-     * @param mixed       $data      The data to save the
-     * @param string      $filePath  The relative file path from the root of the website
-     * @param string|null $namespace The name of the collection this data belongs to, if any
-     */
-    public function saveToTracker ($key, $data, $filePath, $namespace = null);
-
-    /**
-     * Remove an entry from the tracked items array
-     *
-     * @param mixed $trackedItem
-     */
-    public function delFromTracker ($trackedItem, $namespace = null);
 }

@@ -18,46 +18,129 @@ use Symfony\Component\Finder\SplFileInfo;
  */
 abstract class TrackingManager extends BaseManager implements Trackable
 {
+    /**
+     * The storage which contains the same information as $trackedItems but organized by relative file path instead of a
+     * namespace or file name without extension.
+     *
+     * $trackedItemsOptions['<relative file path>'] = mixed
+     *
+     * @var array
+     */
     protected $trackedItemsFlattened;
 
+    /**
+     * The storage used to cache any information needed for a specific FrontMatterObject or DataItem.
+     *
+     * For example, with a DataItem, which is just an array, the file path to the original file can be stored in this
+     * array to be accessible in the future to refresh the contents without parsing all of the files again.
+     *
+     * $trackedItemsOptions['<relative file path>'] = array
+     *
+     * @var array
+     */
     protected $trackedItemsOptions;
 
     /**
-     * $trackedItems['<collection name>']['<file name w/o extension>'] = typeof(FrontMatterObject)
-     * $trackedItems['<file name w/o extension>'] = typeof(FrontMatterObject)
+     * The storage used for either FrontMatterObjects or DataItems in the respective static classes
+     *
+     * $trackedItems['<namespace>']['<file name w/o extension>'] = mixed
+     * $trackedItems['<file name w/o extension>'] = mixed
      *
      * @var array
      */
     protected $trackedItems;
+
+    /**
+     * Set to true when file tracking is enabled
+     *
+     * @var bool
+     */
+    protected $tracking;
 
     public function __construct()
     {
         parent::__construct();
 
         $this->trackedItemsFlattened = array();
+        $this->trackedItemsOptions = array();
         $this->trackedItems = array();
+        $this->tracking = false;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addToTracker (&$trackedItem, $collection = null)
+    public function addArrayToTracker ($key, $data, $filePath, $namespace = null)
+    {
+        if (is_null($namespace))
+        {
+            $this->trackedItems[$key] = $data;
+        }
+        else
+        {
+            $this->trackedItems[$namespace][$key] = $data;
+        }
+
+        $this->trackedItemsFlattened[$filePath] = $data;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addObjectToTracker (&$trackedItem, $namespace = null)
     {
         if (!($trackedItem instanceof FrontMatterObject))
         {
             throw new \InvalidArgumentException('Only objects can be added to the tracker');
         }
 
-        if (is_null($collection))
+        if (is_null($namespace))
         {
             $this->trackedItems[$trackedItem->getFileName()] = &$trackedItem;
         }
         else
         {
-            $this->trackedItems[$collection][$trackedItem->getFileName()] = &$trackedItem;
+            $this->trackedItems[$namespace][$trackedItem->getFileName()] = &$trackedItem;
         }
 
         $this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()] = &$trackedItem;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function delArrayFromTracker($key, $filePath, $namespace = null)
+    {
+        if (is_null($namespace))
+        {
+            unset($this->trackedItems[$key]);
+        }
+        else
+        {
+            unset($this->trackedItems[$namespace][$key]);
+        }
+
+        unset($this->trackedItemsFlattened[$filePath]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function delObjectFromTracker ($trackedItem, $namespace = null)
+    {
+        $this->delArrayFromTracker(
+            $trackedItem->getFileName(),
+            $trackedItem->getRelativeFilePath(),
+            $namespace
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function enableTracking ($enabled)
+    {
+        $this->tracking = $enabled;
     }
 
     /**
@@ -80,23 +163,6 @@ abstract class TrackingManager extends BaseManager implements Trackable
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function saveToTracker ($key, $data, $filePath, $namespace = null)
-    {
-        if (is_null($namespace))
-        {
-            $this->trackedItems[$key] = $data;
-        }
-        else
-        {
-            $this->trackedItems[$namespace][$key] = $data;
-        }
-
-        $this->trackedItemsFlattened[$filePath] = $data;
-    }
-
-    /**
      * Save any options related to an item needed in order to refresh the content
      *
      * @param string $filePath
@@ -105,23 +171,6 @@ abstract class TrackingManager extends BaseManager implements Trackable
     public function saveOptions ($filePath, $options = array())
     {
         $this->trackedItemsOptions[$filePath] = $options;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function delFromTracker ($trackedItem, $namespace = null)
-    {
-        if (is_null($namespace))
-        {
-            unset($this->trackedItems[$trackedItem->getFileName()]);
-        }
-        else
-        {
-            unset($this->trackedItems[$namespace][$trackedItem->getFileName()]);
-        }
-
-        unset($this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()]);
     }
 
     /**

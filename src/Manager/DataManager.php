@@ -101,7 +101,7 @@ class DataManager extends TrackingManager
         {
             $this->handleDependencies($ext);
             $this->saveOptions($relFilePath, $options);
-            $this->saveToTracker(
+            $this->addArrayToTracker(
                 $name,
                 $this->$fxnName($content),
                 $relFilePath,
