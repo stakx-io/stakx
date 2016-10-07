@@ -154,7 +154,7 @@ class Website
         $this->am = new AssetManager($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
         $this->am->setConsoleOutput($this->output);
         $this->am->setFolder($this->outputDirectory);
-        $this->am->setTracking($tracking);
+        $this->am->enableTracking($tracking);
         $this->am->copyFiles();
 
         //

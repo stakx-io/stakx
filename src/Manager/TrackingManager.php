@@ -188,9 +188,10 @@ abstract class TrackingManager extends BaseManager implements Trackable
             $this->fs->absolutePath($folder)
         );
 
-        foreach ($finder as $dataItem)
+        /** @var SplFileInfo $file */
+        foreach ($finder as $file)
         {
-            $this->handleTrackableItem($dataItem, $options);
+            $this->handleTrackableItem($file, $options);
         }
     }
 
