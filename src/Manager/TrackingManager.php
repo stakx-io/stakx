@@ -95,11 +95,11 @@ abstract class TrackingManager extends BaseManager implements Trackable
 
         if (is_null($namespace))
         {
-            $this->trackedItems[$trackedItem->getFileName()] = &$trackedItem;
+            $this->trackedItems[$trackedItem->getName()] = &$trackedItem;
         }
         else
         {
-            $this->trackedItems[$namespace][$trackedItem->getFileName()] = &$trackedItem;
+            $this->trackedItems[$namespace][$trackedItem->getName()] = &$trackedItem;
         }
 
         $this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()] = &$trackedItem;
