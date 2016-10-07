@@ -73,6 +73,15 @@ class AssetManager extends TrackingManager
     {
         if (!$this->fs->exists($file)) { return; }
 
+        if (!($file instanceof SplFileInfo))
+        {
+            $file = new SplFileInfo(
+                $this->fs->absolutePath($file),
+                $file,
+                $this->fs->getBaseName($file)
+            );
+        }
+
         $filePath = $file->getRealPath();
         $pathToStrip = $this->fs->appendPath(getcwd(), $options['prefix']);
         $siteTargetPath = ltrim(str_replace($pathToStrip, "", $filePath), DIRECTORY_SEPARATOR);
@@ -84,6 +93,7 @@ class AssetManager extends TrackingManager
                 array(),
                 $file->getRelativePathname()
             );
+            $this->saveOptions($file->getRelativePathname(), $options);
             $this->outputDirectory->copyFile($filePath, $siteTargetPath);
             $this->output->info('Copying file: {file}...', array(
                 'file' => $file->getRelativePathname()

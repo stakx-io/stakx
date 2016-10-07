@@ -211,9 +211,9 @@ class Website
                     $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
                     $this->pm->compileAll($this->outputDirectory);
                 }
-                else if ($this->am->isFileAsset($filePath))
+                else if ($this->am->isTracked($filePath))
                 {
-                    $this->am->copyFile($filePath);
+                    $this->am->refreshItem($filePath);
                 }
             }
             catch (\Exception $e)
