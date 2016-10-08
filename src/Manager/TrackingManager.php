@@ -8,6 +8,7 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\FrontMatterObject;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**

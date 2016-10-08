@@ -141,9 +141,10 @@ class Website
         {
             $this->output->notice("Looking for '${theme}' theme...");
 
-            $this->tm = new ThemeManager($theme, $this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
+            $this->tm = new ThemeManager($theme);
+            $this->tm->configureFinder($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
             $this->tm->setConsoleOutput($this->output);
-            $this->tm->setTracking($tracking);
+            $this->tm->enableTracking($tracking);
             $this->tm->setFolder($this->outputDirectory);
             $this->tm->copyFiles();
         }
@@ -151,7 +152,8 @@ class Website
         //
         // Static file management
         //
-        $this->am = new AssetManager($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
+        $this->am = new AssetManager();
+        $this->am->configureFinder($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
         $this->am->setConsoleOutput($this->output);
         $this->am->setFolder($this->outputDirectory);
         $this->am->enableTracking($tracking);
@@ -201,9 +203,9 @@ class Website
 
                     $this->pm->compileContentItem($contentItem);
                 }
-                else if ($this->tm->isFileAsset($filePath))
+                else if ($this->tm->isTracked($filePath))
                 {
-                    $this->tm->copyFile($filePath);
+                    $this->tm->refreshItem($filePath);
                 }
                 else if ($this->dm->isTracked($filePath))
                 {

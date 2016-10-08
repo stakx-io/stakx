@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\System\Folder;
 use Symfony\Component\Finder\SplFileInfo;
 
 class AssetManager extends TrackingManager
@@ -11,32 +12,24 @@ class AssetManager extends TrackingManager
      *
      * @var Folder
      */
-    private $outputDirectory;
+    protected $outputDirectory;
 
     /**
      * Files or patterns to exclude from copying
      *
      * @var array
      */
-    private $excludes;
+    protected $excludes;
 
     /**
      * Files or patterns to ensure are copied regardless of excluded patterns
      *
      * @var array
      */
-    private $includes;
+    protected $includes;
 
-    /**
-     * AssetManager constructor.
-     *
-     * @param array $includes
-     * @param array $excludes
-     */
-    public function __construct($includes = array(), $excludes = array())
+    public function configureFinder ($includes = array(), $excludes = array())
     {
-        parent::__construct();
-
         $this->excludes = $excludes;
         $this->includes = $includes;
     }
@@ -71,14 +64,19 @@ class AssetManager extends TrackingManager
      */
     protected function handleTrackableItem($file, $options = array())
     {
+        if (is_string($file))
+        {
+            $file = $this->fs->appendPath($options['prefix'], $file);
+        }
+
         if (!$this->fs->exists($file)) { return; }
 
         if (!($file instanceof SplFileInfo))
         {
             $file = new SplFileInfo(
                 $this->fs->absolutePath($file),
-                $file,
-                $this->fs->getBaseName($file)
+                $this->fs->getFolderPath($file),
+                $file
             );
         }
 
