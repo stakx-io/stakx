@@ -1,12 +1,24 @@
 <?php
 
+/**
+ * @copyright 2016 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\ContentItem;
 
+/**
+ * Class CollectionManager
+ *
+ * @package allejo\stakx\Manager
+ */
 class CollectionManager extends TrackingManager
 {
     /**
+     * A copy of the collection definitions to be available for later usage
+     *
      * @var string[][]
      */
     private $collectionDefinitions;
@@ -21,14 +33,14 @@ class CollectionManager extends TrackingManager
         return $this->trackedItemsFlattened[$filePath];
     }
 
+    /**
+     * Get all of the Content Items grouped by Collection
+     *
+     * @return ContentItem[][]
+     */
     public function getCollections ()
     {
         return $this->trackedItems;
-    }
-
-    public function getFlatCollections ()
-    {
-        return $this->trackedItemsFlattened;
     }
 
     /**
@@ -63,6 +75,11 @@ class CollectionManager extends TrackingManager
         return '';
     }
 
+    /**
+     * Parse every collection and store them in the manager
+     *
+     * @param string[][] $collections An array of definitions for collections
+     */
     public function parseCollections ($collections)
     {
         if ($collections === null)

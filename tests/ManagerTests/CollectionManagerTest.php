@@ -32,23 +32,6 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
         $this->assertCount(1, $collections);
     }
 
-    public function testContentItemCount ()
-    {
-        $collections = $this->cm->getFlatCollections();
-
-        $this->assertCount(3, $collections);
-    }
-
-    public function testContentItemCollection ()
-    {
-        $contentItems = $this->cm->getFlatCollections();
-
-        foreach ($contentItems as $contentItem)
-        {
-            $this->assertEquals('Sample', $contentItem->getCollection());
-        }
-    }
-
     public function testCollectionEmpty ()
     {
         $cm = new CollectionManager();
@@ -56,7 +39,6 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
         $cm->parseCollections(array());
 
         $this->assertEmpty($cm->getCollections());
-        $this->assertEmpty($cm->getFlatCollections());
     }
 
     public function testCollectionManagerContainsContentItem ()
