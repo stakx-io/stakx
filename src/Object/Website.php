@@ -192,9 +192,9 @@ class Website
 
             try
             {
-                if ($this->pm->isPageView($filePath))
+                if ($this->pm->isTracked($filePath))
                 {
-                    $this->pm->compileSingle($filePath);
+                    $this->pm->refreshItem($filePath);
                 }
                 else if ($this->cm->isTracked($filePath))
                 {

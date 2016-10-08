@@ -6,6 +6,7 @@ use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\PageView;
 use allejo\stakx\System\Folder;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Twig_Error_Syntax;
 use Twig_Template;
 
@@ -18,18 +19,8 @@ use Twig_Template;
  *
  * @package allejo\stakx\Manager
  */
-class PageManager extends BaseManager
+class PageManager extends TrackingManager
 {
-    /**
-     * @var PageView[]
-     */
-    private $dynamicPageViews;
-
-    /**
-     * @var PageView[]
-     */
-    private $staticPageViews;
-
     /**
      * @var ContentItem[][]
      */
@@ -53,9 +44,6 @@ class PageManager extends BaseManager
     public function __construct()
     {
         parent::__construct();
-
-        $this->dynamicPageViews = array();
-        $this->staticPageViews  = array();
     }
 
     public function configureTwig ($configuration, $options)
@@ -100,26 +88,22 @@ class PageManager extends BaseManager
                 continue;
             }
 
-            $finder = new Finder();
-            $finder->files()
-                   ->name('/\.(html|twig)/')
-                   ->ignoreDotFiles(true)
-                   ->ignoreUnreadableDirs()
-                   ->in($pageViewFolder);
+            $finder = $this->fs->getFinder(array(), array(), $pageViewFolder);
+            $finder->name('/\.(html|twig)/');
 
-            foreach ($finder as $viewFile)
+            foreach ($finder as $file)
             {
-                $newPageView = new PageView($viewFile);
-                $file_id = $this->fs->getRelativePath($newPageView->getFilePath()->getPathName());
+                $newPageView = new PageView($file);
+                $namespace = ($newPageView->isDynamicPage()) ? 'dynamic' : 'static';
 
-                if ($newPageView->isDynamicPage())
-                {
-                    $this->dynamicPageViews[$file_id] = $newPageView;
-                }
-                else
+                $this->addObjectToTracker($newPageView, $newPageView->getRelativeFilePath(), $namespace);
+                $this->saveOptions($newPageView->getRelativeFilePath(), array(
+                    'viewType' => $namespace
+                ));
+
+                if (!$newPageView->isDynamicPage())
                 {
                     $this->addToSiteMenu($newPageView->getFrontMatter());
-                    $this->staticPageViews[$file_id] = $newPageView;
                 }
             }
         }
@@ -132,7 +116,7 @@ class PageManager extends BaseManager
      * ContentItem in a collection. This is called before dynamic PageViews are compiled in order to allow access to
      * this information to Twig by the time it is compiled.
      *
-     * @param ContentItem[] $collections
+     * @param ContentItem[][] $collections
      */
     public function prepareDynamicPageViews ($collections)
     {
@@ -140,7 +124,8 @@ class PageManager extends BaseManager
 
         $this->collections = $collections;
 
-        foreach ($this->dynamicPageViews as &$pageView)
+        /** @var PageView $pageView */
+        foreach ($this->trackedItems['dynamic'] as &$pageView)
         {
             $frontMatter = $pageView->getFrontMatter(false);
             $collection = $frontMatter['collection'];
@@ -163,37 +148,10 @@ class PageManager extends BaseManager
     {
         $this->targetDir = $targetDir;
 
-        $this->compileDynamicPageViews();
-        $this->compileStaticPageViews();
-    }
-
-    /**
-     * Compile a single PageView into the appropriate output path
-     *
-     * @param string $filePath
-     */
-    public function compileSingle ($filePath)
-    {
-        if (array_key_exists($filePath, $this->staticPageViews))
+        foreach (array_keys($this->trackedItemsFlattened) as $filePath)
         {
-            $this->output->notice("Compiling static page: {file}", array('file' => $filePath));
-
-            $this->staticPageViews[$filePath]->refreshFileContent();
-            $this->compileStaticPageView($this->staticPageViews[$filePath]);
-
-            return;
+            $this->compilePageView($filePath);
         }
-        else if (array_key_exists($filePath, $this->dynamicPageViews))
-        {
-            $this->output->notice("Compiling dynamic page: {file}", array('file' => $filePath));
-
-            $this->dynamicPageViews[$filePath]->refreshFileContent();
-            $this->compileDynamicPageView($this->dynamicPageViews[$filePath]);
-
-            return;
-        }
-
-        throw new \InvalidArgumentException('The given file path to compile is not a Page View');
     }
 
     /**
@@ -216,18 +174,6 @@ class PageManager extends BaseManager
     }
 
     /**
-     * Check whether or not a given file path is Page View
-     *
-     * @param  string $filePath
-     *
-     * @return bool True if the file path given is to a Page View
-     */
-    public function isPageView ($filePath)
-    {
-        return (array_key_exists($filePath, $this->staticPageViews) || array_key_exists($filePath, $this->dynamicPageViews));
-    }
-
-    /**
      * Update an existing Twig variable that's injected globally
      *
      * @param string $variable
@@ -239,28 +185,29 @@ class PageManager extends BaseManager
     }
 
     /**
-     * A dynamic PageView is one that is built from a collection and each collection item deserves its own page. This
-     * function goes through all of the dynamic PageViews and compiles each page
+     * {@inheritdoc}
      */
-    private function compileDynamicPageViews ()
+    protected function handleTrackableItem($filePath, $options = array())
     {
-        foreach ($this->dynamicPageViews as $pageView)
-        {
-            $this->compileDynamicPageView($pageView);
-        }
+        $this->compilePageView($filePath);
     }
 
-    /**
-     * A static PageView is built from a single Twig file and is not automatically rendered based on a collection's
-     * content. This function goes through all of the static PageViews and compiles them.
-     *
-     * @throws \Exception
-     */
-    private function compileStaticPageViews ()
+    private function compilePageView ($filePath)
     {
-        foreach ($this->staticPageViews as $pageView)
+        if (!$this->isTracked($filePath))
         {
-            $this->compileStaticPageView($pageView);
+            throw new \Exception('PageView not found');
+        }
+
+        $viewType = $this->trackedItemsOptions[$filePath]['viewType'];
+
+        if ($viewType === 'static')
+        {
+            $this->compileStaticPageView($this->trackedItemsFlattened[$filePath]);
+        }
+        else if ($viewType === 'dynamic')
+        {
+            $this->compileDynamicPageView($this->trackedItemsFlattened[$filePath]);
         }
     }
 

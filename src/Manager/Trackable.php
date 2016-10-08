@@ -31,11 +31,12 @@ interface Trackable
      * Add a FrontMatterObject based object to the tracker
      *
      * @param FrontMatterObject $trackedItem
+     * @param string            $key
      * @param string|null       $namespace
      *
      * @return
      */
-    public function addObjectToTracker (&$trackedItem, $namespace = null);
+    public function addObjectToTracker ($trackedItem, $key, $namespace = null);
 
     /**
      * Remove all data related to an array that was saved

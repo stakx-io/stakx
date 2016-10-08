@@ -75,35 +75,26 @@ abstract class TrackingManager extends BaseManager implements Trackable
         if (is_null($namespace))
         {
             $this->trackedItems[$key] = $data;
+            $this->trackedItemsFlattened[$filePath] = &$this->trackedItems[$key];
         }
         else
         {
             $this->trackedItems[$namespace][$key] = $data;
+            $this->trackedItemsFlattened[$filePath] = &$this->trackedItems[$namespace][$key];
         }
-
-        $this->trackedItemsFlattened[$filePath] = $data;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addObjectToTracker (&$trackedItem, $namespace = null)
+    public function addObjectToTracker ($trackedItem, $key, $namespace = null)
     {
         if (!($trackedItem instanceof FrontMatterObject))
         {
             throw new \InvalidArgumentException('Only objects can be added to the tracker');
         }
 
-        if (is_null($namespace))
-        {
-            $this->trackedItems[$trackedItem->getName()] = &$trackedItem;
-        }
-        else
-        {
-            $this->trackedItems[$namespace][$trackedItem->getName()] = &$trackedItem;
-        }
-
-        $this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()] = &$trackedItem;
+        $this->addArrayToTracker($key, $trackedItem, $trackedItem->getRelativeFilePath(), $namespace);
     }
 
     /**
@@ -176,18 +167,25 @@ abstract class TrackingManager extends BaseManager implements Trackable
     /**
      * Parse the specified folder for items to track
      *
-     * @param string $folder
+     * @param Finder|string $pathOrFinder
      * @param mixed  $options  Special options that will be passed to the static::parseTrackableItem() implementation
      * @param array  $includes
      * @param array  $excludes
      */
-    protected function scanTrackableItems ($folder, $options = array(), $includes = array(), $excludes = array())
+    protected function scanTrackableItems ($pathOrFinder, $options = array(), $includes = array(), $excludes = array())
     {
-        $finder = $this->fs->getFinder(
-            $includes,
-            $excludes,
-            $this->fs->absolutePath($folder)
-        );
+        if ($pathOrFinder instanceof Finder)
+        {
+            $finder = $pathOrFinder;
+        }
+        else
+        {
+            $finder = $this->fs->getFinder(
+                $includes,
+                $excludes,
+                $this->fs->absolutePath($pathOrFinder)
+            );
+        }
 
         /** @var SplFileInfo $file */
         foreach ($finder as $file)
