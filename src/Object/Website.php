@@ -323,15 +323,15 @@ class Website
 
             $this->pm->compileContentItem($contentItem);
         }
-        else if ($this->tm->isTracked($filePath))
-        {
-            $this->tm->refreshItem($filePath);
-        }
         else if ($this->dm->isTracked($filePath))
         {
             $this->dm->refreshItem($filePath);
             $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
             $this->pm->compileAll($this->outputDirectory);
+        }
+        else if ($this->tm->isTracked($filePath))
+        {
+            $this->tm->refreshItem($filePath);
         }
         else if ($this->am->isTracked($filePath))
         {
