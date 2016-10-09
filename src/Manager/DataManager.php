@@ -100,7 +100,7 @@ class DataManager extends TrackingManager
         if (method_exists(get_called_class(), $fxnName))
         {
             $this->handleDependencies($ext);
-            $this->saveOptions($relFilePath, $options);
+            $this->saveTrackerOptions($relFilePath, $options);
             $this->addArrayToTracker(
                 $name,
                 $this->$fxnName($content),

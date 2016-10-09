@@ -16,7 +16,7 @@ use Symfony\Component\Finder\SplFileInfo;
  *
  * @package allejo\stakx\Manager
  */
-abstract class TrackingManager extends BaseManager implements Trackable
+abstract class TrackingManager extends BaseManager
 {
     /**
      * The storage which contains the same information as $trackedItems but organized by relative file path instead of a
@@ -68,7 +68,12 @@ abstract class TrackingManager extends BaseManager implements Trackable
     }
 
     /**
-     * {@inheritdoc}
+     * Save data to the tracker with a reference to the file it came from
+     *
+     * @param string      $key       The name of the file
+     * @param mixed       $data      The data to save the
+     * @param string      $filePath  The relative file path from the root of the website
+     * @param string|null $namespace The name of the collection this data belongs to, if any
      */
     public function addArrayToTracker ($key, $data, $filePath, $namespace = null)
     {
@@ -85,7 +90,11 @@ abstract class TrackingManager extends BaseManager implements Trackable
     }
 
     /**
-     * {@inheritdoc}
+     * Add a FrontMatterObject based object to the tracker
+     *
+     * @param FrontMatterObject $trackedItem
+     * @param string            $key
+     * @param string|null       $namespace
      */
     public function addObjectToTracker ($trackedItem, $key, $namespace = null)
     {
@@ -98,7 +107,11 @@ abstract class TrackingManager extends BaseManager implements Trackable
     }
 
     /**
-     * {@inheritdoc}
+     * Remove all data related to an array that was saved
+     *
+     * @param string      $key
+     * @param string      $filePath
+     * @param string|null $namespace
      */
     public function delArrayFromTracker($key, $filePath, $namespace = null)
     {
@@ -115,7 +128,10 @@ abstract class TrackingManager extends BaseManager implements Trackable
     }
 
     /**
-     * {@inheritdoc}
+     * Remove an entry from the tracked items array
+     *
+     * @param mixed       $trackedItem
+     * @param string|null $namespace
      */
     public function delObjectFromTracker ($trackedItem, $namespace = null)
     {
@@ -127,7 +143,11 @@ abstract class TrackingManager extends BaseManager implements Trackable
     }
 
     /**
-     * {@inheritdoc}
+     * Whether or not to enable tracking of files.
+     *
+     * Setting this to false will disable a lot of the overhead and caching done when a project is being watched
+     *
+     * @param bool $enabled
      */
     public function enableTracking ($enabled)
     {
@@ -135,7 +155,12 @@ abstract class TrackingManager extends BaseManager implements Trackable
     }
 
     /**
-     * {@inheritdoc}
+    /**
+     * Check whether a file is tracked
+     *
+     * @param  string $filePath The relative path of the file
+     *
+     * @return bool
      */
     public function isTracked ($filePath)
     {
@@ -143,7 +168,9 @@ abstract class TrackingManager extends BaseManager implements Trackable
     }
 
     /**
-     * {@inheritdoc}
+     * Update the contents of a specified file
+     *
+     * @param SplFileInfo|string $filePath The relative path of the file
      */
     public function refreshItem ($filePath)
     {
@@ -159,7 +186,7 @@ abstract class TrackingManager extends BaseManager implements Trackable
      * @param string $filePath
      * @param array $options
      */
-    public function saveOptions ($filePath, $options = array())
+    public function saveTrackerOptions ($filePath, $options = array())
     {
         $this->trackedItemsOptions[$filePath] = $options;
     }

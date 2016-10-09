@@ -91,7 +91,7 @@ class AssetManager extends TrackingManager
                 array(),
                 $file->getRelativePathname()
             );
-            $this->saveOptions($file->getRelativePathname(), $options);
+            $this->saveTrackerOptions($file->getRelativePathname(), $options);
             $this->outputDirectory->copyFile($filePath, $siteTargetPath);
             $this->output->info('Copying file: {file}...', array(
                 'file' => $file->getRelativePathname()

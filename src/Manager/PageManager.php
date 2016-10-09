@@ -95,7 +95,7 @@ class PageManager extends TrackingManager
                 $namespace = ($newPageView->isDynamicPage()) ? 'dynamic' : 'static';
 
                 $this->addObjectToTracker($newPageView, $newPageView->getRelativeFilePath(), $namespace);
-                $this->saveOptions($newPageView->getRelativeFilePath(), array(
+                $this->saveTrackerOptions($newPageView->getRelativeFilePath(), array(
                     'viewType' => $namespace
                 ));
 
