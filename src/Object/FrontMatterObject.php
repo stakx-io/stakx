@@ -186,15 +186,15 @@ abstract class FrontMatterObject
      */
     final public function getTargetFile ()
     {
-        $extension  = $this->fs->getExtension($this->getPermalink());
-        $targetFile = $this->getPermalink();
+        $permalink  = $this->getPermalink();
+        $extension  = $this->fs->getExtension($permalink);
 
         if (empty($extension))
         {
-            $targetFile = rtrim($this->getPermalink(), '/') . '/index.html';
+            $permalink = rtrim($permalink, '/') . '/index.html';
         }
 
-        return ltrim($targetFile, '/');
+        return ltrim($permalink, '/');
     }
 
     /**
