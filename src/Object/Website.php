@@ -10,6 +10,8 @@ use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\System\Folder;
+use JasonLewis\ResourceWatcher\Event;
+use JasonLewis\ResourceWatcher\Resource\FileResource;
 use JasonLewis\ResourceWatcher\Tracker;
 use JasonLewis\ResourceWatcher\Watcher;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -186,7 +188,7 @@ class Website
 
         $this->output->notice('Watch started successfully');
 
-        $listener->onModify(function ($resource, $path) use ($targetPath) {
+        $listener->onAnything(function (Event $event, FileResource $resouce, $path) use ($targetPath) {
             $filePath = $this->fs->getRelativePath($path);
 
             if ((substr($filePath, 0, strlen($targetPath)) === $targetPath) ||
@@ -195,34 +197,13 @@ class Website
                 return;
             }
 
-            $this->output->writeln(sprintf("File change detected: %s", $filePath));
-
             try
             {
-                if ($this->pm->isTracked($filePath))
+                switch ($event->getCode())
                 {
-                    $this->pm->refreshItem($filePath);
-                }
-                else if ($this->cm->isTracked($filePath))
-                {
-                    $contentItem = &$this->cm->getContentItem($filePath);
-                    $contentItem->refreshFileContent();
-
-                    $this->pm->compileContentItem($contentItem);
-                }
-                else if ($this->tm->isTracked($filePath))
-                {
-                    $this->tm->refreshItem($filePath);
-                }
-                else if ($this->dm->isTracked($filePath))
-                {
-                    $this->dm->refreshItem($filePath);
-                    $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
-                    $this->pm->compileAll($this->outputDirectory);
-                }
-                else if ($this->am->isTracked($filePath))
-                {
-                    $this->am->refreshItem($filePath);
+                    case Event::RESOURCE_MODIFIED:
+                        $this->modificationWatcher($filePath);
+                        break;
                 }
             }
             catch (\Exception $e)
@@ -231,6 +212,8 @@ class Website
                     $e->getMessage()
                 ));
             }
+
+            $this->output->writeln(sprintf("File created: %s", $filePath));
         });
 
         $watcher->start();
@@ -323,6 +306,37 @@ class Website
     public function setNoClean($noClean)
     {
         $this->noClean = $noClean;
+    }
+
+    private function modificationWatcher ($filePath)
+    {
+        $this->output->writeln(sprintf("File change detected: %s", $filePath));
+
+        if ($this->pm->isTracked($filePath))
+        {
+            $this->pm->refreshItem($filePath);
+        }
+        else if ($this->cm->isTracked($filePath))
+        {
+            $contentItem = &$this->cm->getContentItem($filePath);
+            $contentItem->refreshFileContent();
+
+            $this->pm->compileContentItem($contentItem);
+        }
+        else if ($this->tm->isTracked($filePath))
+        {
+            $this->tm->refreshItem($filePath);
+        }
+        else if ($this->dm->isTracked($filePath))
+        {
+            $this->dm->refreshItem($filePath);
+            $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
+            $this->pm->compileAll($this->outputDirectory);
+        }
+        else if ($this->am->isTracked($filePath))
+        {
+            $this->am->refreshItem($filePath);
+        }
     }
 
     /**
