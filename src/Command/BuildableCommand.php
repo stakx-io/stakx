@@ -44,6 +44,7 @@ abstract class BuildableCommand extends Command
         $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', $this->fs->absolutePath(Configuration::DEFAULT_NAME));
         $this->addOption('safe', 's', InputOption::VALUE_NONE, 'Disable file system access from Twig');
         $this->addOption('no-conf', 'l', InputOption::VALUE_NONE, 'Build a Stakx website without a configuration file');
+        $this->addOption('no-clean', 'x', InputOption::VALUE_NONE, "Don't clean the _site before recompiling the website");
     }
 
     /**
@@ -53,6 +54,7 @@ abstract class BuildableCommand extends Command
     {
         $this->website = new Website($output);
         $this->website->setConfLess($input->getOption('no-conf'));
+        $this->website->setNoClean($input->getOption('no-clean'));
     }
 
     /**

@@ -46,6 +46,13 @@ class Website
     private $safeMode;
 
     /**
+     * When set to true, Stakx will not clean the _site folder after a rebuild
+     *
+     * @var bool
+     */
+    private $noClean;
+
+    /**
      * @var ConsoleInterface
      */
     private $output;
@@ -100,10 +107,10 @@ class Website
      * @param bool $cleanDirectory Clean the target directing before rebuilding
      * @param bool $tracking       Whether or not to keep track of files as they're compiled to save time in 'watch'
      */
-    public function build ($cleanDirectory, $tracking = false)
+    public function build ($tracking = false)
     {
         // Configure the environment
-        $this->createFolderStructure($cleanDirectory);
+        $this->createFolderStructure(!$this->noClean);
 
         // Parse DataItems
         $this->dm->setConsoleOutput($this->output);
@@ -170,7 +177,7 @@ class Website
 
     public function watch ()
     {
-        $this->build(true, true);
+        $this->build(true);
 
         $tracker    = new Tracker();
         $watcher    = new Watcher($tracker, $this->fs);
@@ -300,6 +307,22 @@ class Website
     public function setSafeMode ($bool)
     {
         $this->safeMode = $bool;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isNoClean()
+    {
+        return $this->noClean;
+    }
+
+    /**
+     * @param boolean $noClean
+     */
+    public function setNoClean($noClean)
+    {
+        $this->noClean = $noClean;
     }
 
     /**
