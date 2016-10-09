@@ -44,6 +44,21 @@ class PageManager extends TrackingManager
         parent::__construct();
     }
 
+    public function setCollections ($collections)
+    {
+        if (empty($collections)) { return; }
+
+        $this->collections = $collections;
+    }
+
+    /**
+     * @param Folder $folder The relative target directory as specified from the configuration file
+     */
+    public function setTargetFolder (&$folder)
+    {
+        $this->targetDir = &$folder;
+    }
+
     public function configureTwig ($configuration, $options)
     {
         $twig = new TwigManager();
@@ -89,63 +104,17 @@ class PageManager extends TrackingManager
             $finder = $this->fs->getFinder(array(), array(), $pageViewFolder);
             $finder->name('/\.(html|twig)/');
 
-            foreach ($finder as $file)
-            {
-                $newPageView = new PageView($file);
-                $namespace = ($newPageView->isDynamicPage()) ? 'dynamic' : 'static';
-
-                $this->addObjectToTracker($newPageView, $newPageView->getRelativeFilePath(), $namespace);
-                $this->saveTrackerOptions($newPageView->getRelativeFilePath(), array(
-                    'viewType' => $namespace
-                ));
-
-                if (!$newPageView->isDynamicPage())
-                {
-                    $this->addToSiteMenu($newPageView->getFrontMatter());
-                }
-            }
-        }
-    }
-
-    /**
-     * Go through all of the dynamic PageViews and prepare the necessary information for each one.
-     *
-     * For example, permalinks are dynamic generated based on FrontMatter so this function sets the permalink for each
-     * ContentItem in a collection. This is called before dynamic PageViews are compiled in order to allow access to
-     * this information to Twig by the time it is compiled.
-     *
-     * @param ContentItem[][] $collections
-     */
-    public function prepareDynamicPageViews ($collections)
-    {
-        if (empty($collections)) { return; }
-
-        $this->collections = $collections;
-
-        /** @var PageView $pageView */
-        foreach ($this->trackedItems['dynamic'] as &$pageView)
-        {
-            $frontMatter = $pageView->getFrontMatter(false);
-            $collection = $frontMatter['collection'];
-
-            /** @var $item ContentItem */
-            foreach ($collections[$collection] as &$item)
-            {
-                $item->evaluateFrontMatter($frontMatter);
-                $pageView->addContentItem($item);
-            }
+            $this->scanTrackableItems($finder, array(
+                'refresh' => false
+            ));
         }
     }
 
     /**
      * Compile dynamic and static PageViews
-     *
-     * @param Folder $targetDir The relative target directory as specified from the configuration file
      */
-    public function compileAll (&$targetDir)
+    public function compileAll ()
     {
-        $this->targetDir = $targetDir;
-
         foreach (array_keys($this->trackedItemsFlattened) as $filePath)
         {
             $this->compilePageView($filePath);
@@ -187,9 +156,41 @@ class PageManager extends TrackingManager
      */
     protected function handleTrackableItem($filePath, $options = array())
     {
-        $this->compilePageView($filePath, true);
+        $pageView = new PageView($filePath);
+        $namespace = 'static';
+
+        if ($pageView->isDynamicPage())
+        {
+            $namespace = 'dynamic';
+            $frontMatter = $pageView->getFrontMatter(false);
+            $collection = $frontMatter['collection'];
+
+            foreach ($this->collections[$collection] as &$item)
+            {
+                $item->evaluateFrontMatter($frontMatter);
+                $pageView->addContentItem($item);
+            }
+        }
+
+        $this->addObjectToTracker($pageView, $pageView->getRelativeFilePath(), $namespace);
+        $this->saveTrackerOptions($pageView->getRelativeFilePath(), array(
+            'viewType' => $namespace
+        ));
+
+        if ($namespace === 'static')
+        {
+            $this->addToSiteMenu($pageView->getFrontMatter());
+        }
     }
 
+    /**
+     * Compile a given PageView
+     *
+     * @param string $filePath The file path to the PageView to compile
+     * @param bool   $refresh  When set to true, the PageView will reread its contents
+     *
+     * @throws \Exception
+     */
     private function compilePageView ($filePath, $refresh = false)
     {
         if (!$this->isTracked($filePath))

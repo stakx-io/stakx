@@ -114,6 +114,10 @@ class Website
         // Configure the environment
         $this->createFolderStructure(!$this->noClean);
 
+        // Our output directory
+        $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
+        $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
+
         // Parse DataItems
         $this->dm->setConsoleOutput($this->output);
         $this->dm->parseDataItems($this->getConfiguration()->getDataFolders());
@@ -125,8 +129,9 @@ class Website
 
         // Handle PageViews
         $this->pm->setConsoleOutput($this->output);
+        $this->pm->setTargetFolder($this->outputDirectory);
+        $this->pm->setCollections($this->cm->getCollections());
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
-        $this->pm->prepareDynamicPageViews($this->cm->getCollections());
         $this->pm->configureTwig($this->getConfiguration(), array(
             'safe'    => $this->safeMode,
             'globals' => array(
@@ -136,10 +141,7 @@ class Website
                 array('name' => 'data',        'value' => $this->dm->getDataItems())
             )
         ));
-
-        // Our output directory
-        $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
-        $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
+        $this->pm->compileAll();
 
         //
         // Theme Management
@@ -167,14 +169,6 @@ class Website
         $this->am->setFolder($this->outputDirectory);
         $this->am->enableTracking($tracking);
         $this->am->copyFiles();
-
-        //
-        // Compiler
-        //
-        $this->output->notice('Compiling files...');
-        $this->pm->compileAll(
-            $this->outputDirectory
-        );
     }
 
     public function watch ()
