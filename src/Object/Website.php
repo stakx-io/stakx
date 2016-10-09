@@ -206,8 +206,6 @@ class Website
                     $e->getMessage()
                 ));
             }
-
-            $this->output->writeln(sprintf("File created: %s", $filePath));
         });
 
         $watcher->start();
@@ -321,7 +319,7 @@ class Website
         {
             $this->dm->refreshItem($filePath);
             $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
-            $this->pm->compileAll($this->outputDirectory);
+            $this->pm->compileAll();
         }
         else if ($this->tm->isTracked($filePath))
         {

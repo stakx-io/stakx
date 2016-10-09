@@ -154,6 +154,14 @@ class PageManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
+    public function refreshItem($filePath)
+    {
+        $this->compilePageView($filePath, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function handleTrackableItem($filePath, $options = array())
     {
         $pageView = new PageView($filePath);
