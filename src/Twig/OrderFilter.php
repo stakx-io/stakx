@@ -8,6 +8,11 @@ class OrderFilter
 {
     public function __invoke ($array, $key, $order = "ASC")
     {
+        if (!is_array($array))
+        {
+            return $array;
+        }
+
         usort($array, function ($a, $b) use ($key, $order)
         {
             $a = ($a instanceof ContentItem) ? $a->getFrontMatter() : $a;
