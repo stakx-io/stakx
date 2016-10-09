@@ -11,6 +11,15 @@ use Symfony\Component\Yaml\Yaml;
 abstract class FrontMatterObject
 {
     /**
+     * A list of Front Matter values that should not be returned directly from the $frontMatter array. Values listed
+     * here have dedicated functions that handle those Front Matter values and the respective functions should be called
+     * instead.
+     *
+     * @var string[]
+     */
+    protected $frontMatterBlacklist;
+
+    /**
      * Set to true if the permalink has been sanitized
      *
      * @var bool
@@ -77,6 +86,8 @@ abstract class FrontMatterObject
      */
     public function __construct ($filePath)
     {
+        $this->frontMatterBlacklist = array('permalink');
+
         $this->filePath = $filePath;
         $this->fs       = new Filesystem();
 
@@ -113,7 +124,7 @@ abstract class FrontMatterObject
      */
     public function __isset ($name)
     {
-        return array_key_exists($name, $this->frontMatter);
+        return (!in_array($name, $this->frontMatterBlacklist)) && array_key_exists($name, $this->frontMatter);
     }
 
     /**
