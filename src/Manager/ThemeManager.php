@@ -3,10 +3,9 @@
 namespace allejo\stakx\Manager;
 
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
-class ThemeManager extends FileManager
+class ThemeManager extends AssetManager
 {
     const THEME_FOLDER = "_themes";
     const THEME_DEFINITION_FILE = "stakx-theme.yml";
@@ -17,7 +16,7 @@ class ThemeManager extends FileManager
     private $themeData;
     private $themeName;
 
-    public function __construct ($themeName, $includes = array(), $excludes = array())
+    public function __construct ($themeName)
     {
         parent::__construct();
 
@@ -46,45 +45,40 @@ class ThemeManager extends FileManager
         {
             $include = $this->fs->appendPath($this->themeFolder, $include);
         }
+    }
 
-        $this->finder = $this->fs->getFinder(
-            array_merge(
-                $includes,
-                $this->themeData['include']
-            ),
-            array_merge(
-                $excludes,
-                $this->themeData['exclude'],
-                array('.twig')
-            ),
-            $this->themeFolder
-        );
+    public function isTracked($filePath)
+    {
+        $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
+
+        return parent::isTracked($relativeFilePath);
+    }
+
+    public function refreshItem($filePath)
+    {
+        $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
+
+        parent::refreshItem($relativeFilePath);
     }
 
     public function copyFiles ()
     {
         $this->output->notice('Copying theme files...');
 
-        /** @var SplFileInfo $file */
-        foreach ($this->finder as $file)
-        {
-            if ($this->tracking)
-            {
-                $fileName = $this->fs->appendPath($this->themeFolderRelative, $file->getRelativePathname());
-                $this->files[$fileName] = $file;
-            }
-
-            $this->copyToCompiledSite($file, $this->themeFolderRelative);
-        }
-    }
-
-    public function copyFile($filePath)
-    {
-        if ($this->isFileAsset($filePath))
-        {
-            $this->output->notice('Copying theme asset: {file}', array('file' => $filePath));
-
-            $this->copyToCompiledSite($this->files[$filePath], $this->themeFolderRelative);
-        }
+        $this->scanTrackableItems(
+            $this->themeFolder,
+            array(
+                'prefix' => $this->themeFolderRelative
+            ),
+            array_merge(
+                $this->includes,
+                $this->themeData['include']
+            ),
+            array_merge(
+                $this->excludes,
+                $this->themeData['exclude'],
+                array('.twig')
+            )
+        );
     }
 }

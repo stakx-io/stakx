@@ -32,23 +32,6 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
         $this->assertCount(1, $collections);
     }
 
-    public function testContentItemCount ()
-    {
-        $collections = $this->cm->getFlatCollections();
-
-        $this->assertCount(3, $collections);
-    }
-
-    public function testContentItemCollection ()
-    {
-        $contentItems = $this->cm->getFlatCollections();
-
-        foreach ($contentItems as $contentItem)
-        {
-            $this->assertEquals('Sample', $contentItem->getCollection());
-        }
-    }
-
     public function testCollectionEmpty ()
     {
         $cm = new CollectionManager();
@@ -56,18 +39,17 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
         $cm->parseCollections(array());
 
         $this->assertEmpty($cm->getCollections());
-        $this->assertEmpty($cm->getFlatCollections());
     }
 
     public function testCollectionManagerContainsContentItem ()
     {
-        $this->assertTrue($this->cm->isTrackedByManager('Tale-of-Despereaux'));
-        $this->assertTrue($this->cm->isTrackedByManager('Tiger-Rising'));
+        $this->assertTrue($this->cm->isTracked('tests/ManagerTests/SampleCollection/Tale-of-Despereaux.md'));
+        $this->assertTrue($this->cm->isTracked('tests/ManagerTests/SampleCollection/Tiger-Rising.md'));
     }
 
     public function testCollectionManagerGetContentItem ()
     {
-        $contentItem = $this->cm->getContentItem('Tiger-Rising');
+        $contentItem = $this->cm->getContentItem('tests/ManagerTests/SampleCollection/Tiger-Rising.md');
 
         $this->assertNotNull($contentItem);
         $this->assertEquals('Sample', $contentItem->getCollection());

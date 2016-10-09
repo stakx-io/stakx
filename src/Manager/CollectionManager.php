@@ -1,79 +1,46 @@
 <?php
 
+/**
+ * @copyright 2016 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\ContentItem;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Symfony\Component\Finder\SplFileInfo;
 
-class CollectionManager extends BaseManager
+/**
+ * Class CollectionManager
+ *
+ * @package allejo\stakx\Manager
+ */
+class CollectionManager extends TrackingManager
 {
     /**
+     * A copy of the collection definitions to be available for later usage
+     *
      * @var string[][]
      */
     private $collectionDefinitions;
 
     /**
-     * @var ContentItem[]
-     */
-    private $collectionsFlat;
-
-    /**
-     * @var ContentItem[][]
-     */
-    private $collections;
-
-    public function __construct ()
-    {
-        parent::__construct();
-
-        $this->collections = array();
-        $this->collectionsFlat = array();
-    }
-
-    /**
-     * @param $filePath
+     * @param  string $filePath
      *
      * @return ContentItem|null
      */
     public function &getContentItem ($filePath)
     {
-        if ($this->isTrackedByManager($filePath))
-        {
-            $contentItemId = $this->fs->getBaseName($filePath);
-
-            return $this->collectionsFlat[$contentItemId];
-        }
-
-        return null;
-    }
-
-    public function getCollections ()
-    {
-        return $this->collections;
-    }
-
-    public function getFlatCollections ()
-    {
-        $this->flattenCollections();
-
-        return $this->collectionsFlat;
+        return $this->trackedItemsFlattened[$filePath];
     }
 
     /**
-     * Check whether a given file path to a content item is already being tracked as part of a collection
+     * Get all of the Content Items grouped by Collection
      *
-     * @param  string $filePath
-     *
-     * @return bool
+     * @return ContentItem[][]
      */
-    public function isTrackedByManager ($filePath)
+    public function getCollections ()
     {
-        $this->flattenCollections();
-
-        $contentItemId = $this->fs->getBaseName($filePath);
-
-        return (array_key_exists($contentItemId, $this->collectionsFlat));
+        return $this->trackedItems;
     }
 
     /**
@@ -108,26 +75,11 @@ class CollectionManager extends BaseManager
         return '';
     }
 
-    public function addToCollection ($filePath)
-    {
-        $relativePath = $filePath;
-        $filePath = $this->fs->absolutePath($filePath);
-
-        if (!$this->fs->exists($filePath))
-        {
-            throw new FileNotFoundException(sprintf("Collection item to be added cannot be found: %s", $relativePath));
-        }
-
-        $collectionName = $this->getTentativeCollectionName($relativePath);
-        $contentItem    = $this->addContentItemToCollection($filePath, $collectionName);
-        $fileName       = $this->fs->getBaseName($contentItem->getRelativeFilePath());
-
-        if (!empty($this->collectionsFlat))
-        {
-            $this->collectionsFlat[$fileName] = $contentItem;
-        }
-    }
-
+    /**
+     * Parse every collection and store them in the manager
+     *
+     * @param string[][] $collections An array of definitions for collections
+     */
     public function parseCollections ($collections)
     {
         if ($collections === null)
@@ -158,26 +110,31 @@ class CollectionManager extends BaseManager
                 continue;
             }
 
-            $finder = $this->fs->getFinder(array(), array(), $collectionFolder);
-
-            /** @var $file SplFileInfo */
-            foreach ($finder as $file)
-            {
-                $filePath = $this->fs->appendPath($collectionFolder, $file->getRelativePathname());
-
-                $this->addContentItemToCollection($filePath, $collection['name']);
-            }
+            $this->scanTrackableItems($collectionFolder, array(
+                'namespace' => $collection['name']
+            ));
         }
     }
 
-    private function addContentItemToCollection ($filePath, $collectionName)
+    /**
+     * {@inheritdoc}
+     */
+    public function refreshItem($filePath)
     {
-        $fileName = $this->fs->getBaseName($filePath);
+        return;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function handleTrackableItem($filePath, $options = array())
+    {
+        $collectionName = $options['namespace'];
 
         $contentItem = new ContentItem($filePath);
         $contentItem->setCollection($collectionName);
 
-        $this->collections[$collectionName][$fileName] = $contentItem;
+        $this->addObjectToTracker($contentItem, $contentItem->getName(), $collectionName);
 
         $this->output->info(sprintf(
             "Loading ContentItem into '%s' collection: %s",
@@ -186,13 +143,5 @@ class CollectionManager extends BaseManager
         ));
 
         return $contentItem;
-    }
-
-    private function flattenCollections ()
-    {
-        if (empty($this->collectionsFlat) && !empty($this->collections))
-        {
-            $this->collectionsFlat = call_user_func_array('array_merge', $this->collections);
-        }
     }
 }

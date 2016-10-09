@@ -2,28 +2,104 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\System\Folder;
 use Symfony\Component\Finder\SplFileInfo;
 
-class AssetManager extends FileManager
+class AssetManager extends TrackingManager
 {
-    public function __construct($includes = array(), $excludes = array())
-    {
-        parent::__construct();
+    /**
+     * The location of where to write files to
+     *
+     * @var Folder
+     */
+    protected $outputDirectory;
 
-        $this->finder = $this->fs->getFinder($includes, $excludes);
+    /**
+     * Files or patterns to exclude from copying
+     *
+     * @var array
+     */
+    protected $excludes;
+
+    /**
+     * Files or patterns to ensure are copied regardless of excluded patterns
+     *
+     * @var array
+     */
+    protected $includes;
+
+    public function configureFinder ($includes = array(), $excludes = array())
+    {
+        $this->excludes = $excludes;
+        $this->includes = $includes;
     }
 
+    /**
+     * Set the target directory of where files should be written to
+     *
+     * @param Folder $directory
+     */
+    public function setFolder ($directory)
+    {
+        $this->outputDirectory = $directory;
+    }
+
+    /**
+     * Copy all of the assets
+     */
     public function copyFiles()
     {
-        /** @var $file SplFileInfo */
-        foreach ($this->finder as $file)
-        {
-            if ($this->tracking)
-            {
-                $this->files[$file->getRelativePathname()] = $file;
-            }
+        $this->scanTrackableItems(
+            '.',
+            array(
+                'prefix' => ''
+            ),
+            $this->includes,
+            $this->excludes
+        );
+    }
 
-            $this->copyToCompiledSite($file);
+    /**
+     * {@inheritdoc}
+     */
+    protected function handleTrackableItem($file, $options = array())
+    {
+        if (is_string($file))
+        {
+            $file = $this->fs->appendPath($options['prefix'], $file);
+        }
+
+        if (!$this->fs->exists($file)) { return; }
+
+        if (!($file instanceof SplFileInfo))
+        {
+            $file = new SplFileInfo(
+                $this->fs->absolutePath($file),
+                $this->fs->getFolderPath($file),
+                $file
+            );
+        }
+
+        $filePath = $file->getRealPath();
+        $pathToStrip = $this->fs->appendPath(getcwd(), $options['prefix']);
+        $siteTargetPath = ltrim(str_replace($pathToStrip, "", $filePath), DIRECTORY_SEPARATOR);
+
+        try
+        {
+            $this->addArrayToTracker(
+                $file->getRelativePathname(),
+                array(),
+                $file->getRelativePathname()
+            );
+            $this->saveOptions($file->getRelativePathname(), $options);
+            $this->outputDirectory->copyFile($filePath, $siteTargetPath);
+            $this->output->info('Copying file: {file}...', array(
+                'file' => $file->getRelativePathname()
+            ));
+        }
+        catch (\Exception $e)
+        {
+            $this->output->error($e->getMessage());
         }
     }
 }

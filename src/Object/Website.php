@@ -141,9 +141,10 @@ class Website
         {
             $this->output->notice("Looking for '${theme}' theme...");
 
-            $this->tm = new ThemeManager($theme, $this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
+            $this->tm = new ThemeManager($theme);
+            $this->tm->configureFinder($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
             $this->tm->setConsoleOutput($this->output);
-            $this->tm->setTracking($tracking);
+            $this->tm->enableTracking($tracking);
             $this->tm->setFolder($this->outputDirectory);
             $this->tm->copyFiles();
         }
@@ -151,10 +152,11 @@ class Website
         //
         // Static file management
         //
-        $this->am = new AssetManager($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
+        $this->am = new AssetManager();
+        $this->am->configureFinder($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
         $this->am->setConsoleOutput($this->output);
         $this->am->setFolder($this->outputDirectory);
-        $this->am->setTracking($tracking);
+        $this->am->enableTracking($tracking);
         $this->am->copyFiles();
 
         //
@@ -190,24 +192,30 @@ class Website
 
             try
             {
-                if ($this->pm->isPageView($filePath))
+                if ($this->pm->isTracked($filePath))
                 {
-                    $this->pm->compileSingle($filePath);
+                    $this->pm->refreshItem($filePath);
                 }
-                else if ($this->cm->isTrackedByManager($filePath))
+                else if ($this->cm->isTracked($filePath))
                 {
                     $contentItem = &$this->cm->getContentItem($filePath);
                     $contentItem->refreshFileContent();
 
                     $this->pm->compileContentItem($contentItem);
                 }
-                else if ($this->tm->isFileAsset($filePath))
+                else if ($this->tm->isTracked($filePath))
                 {
-                    $this->tm->copyFile($filePath);
+                    $this->tm->refreshItem($filePath);
                 }
-                else if ($this->am->isFileAsset($filePath))
+                else if ($this->dm->isTracked($filePath))
                 {
-                    $this->am->copyFile($filePath);
+                    $this->dm->refreshItem($filePath);
+                    $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
+                    $this->pm->compileAll($this->outputDirectory);
+                }
+                else if ($this->am->isTracked($filePath))
+                {
+                    $this->am->refreshItem($filePath);
                 }
             }
             catch (\Exception $e)

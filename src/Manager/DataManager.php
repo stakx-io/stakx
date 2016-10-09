@@ -12,7 +12,6 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Exception\DependencyMissingException;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -28,23 +27,8 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @package allejo\stakx\Object
  */
-class DataManager extends BaseManager
+class DataManager extends TrackingManager
 {
-    /**
-     * @var array
-     */
-    protected $dataItems;
-
-    /**
-     * DataManager constructor.
-     */
-    public function __construct ()
-    {
-        parent::__construct();
-
-        $this->dataItems = array();
-    }
-
     /**
      * Get all of the DataItems and DataSets in this manager
      *
@@ -52,7 +36,7 @@ class DataManager extends BaseManager
      */
     public function getDataItems ()
     {
-        return $this->dataItems;
+        return $this->trackedItems;
     }
 
     /**
@@ -68,10 +52,7 @@ class DataManager extends BaseManager
 
         foreach ($folders as $folder)
         {
-            $this->dataItems = array_merge(
-                $this->dataItems,
-                $this->parseFinderFiles($folder)
-            );
+            $this->scanTrackableItems($folder);
         }
     }
 
@@ -96,45 +77,41 @@ class DataManager extends BaseManager
          */
         foreach ($dataSets as $dataSet)
         {
-            $this->dataItems[$dataSet['name']] = $this->parseFinderFiles($dataSet['folder']);
+            $this->scanTrackableItems(
+                $dataSet['folder'],
+                array(
+                    'namespace' => $dataSet['name']
+                )
+            );
         }
     }
 
     /**
-     * Parse all of the data files in a specified folder
-     *
-     * @param string   $folder   A folder that contains data files
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    private function parseFinderFiles ($folder)
+    protected function handleTrackableItem ($filePath, $options = array())
     {
-        $dataItems = array();
-        $finder    = new Finder();
-        $finder->files()
-               ->ignoreDotFiles(true)
-               ->ignoreUnreadableDirs()
-               ->in($this->fs->absolutePath($folder));
+        $relFilePath = $this->fs->getRelativePath($filePath);
+        $ext     = strtolower($this->fs->getExtension($filePath));
+        $name    = $this->fs->getBaseName($filePath);
+        $content = file_get_contents($filePath);
+        $fxnName = 'from' . ucfirst($ext);
 
-        foreach ($finder as $dataItem)
+        if (method_exists(get_called_class(), $fxnName))
         {
-            $ext     = strtolower($this->fs->getExtension($dataItem));
-            $name    = $this->fs->getBaseName($dataItem);
-            $content = file_get_contents($dataItem);
-            $fxnName = 'from' . ucfirst($ext);
-
-            if (method_exists(get_called_class(), $fxnName))
-            {
-                $this->handleDependencies($ext);
-                $dataItems[$name] = $this->$fxnName($content);
-            }
-            else
-            {
-                $this->output->warning("There is no function to handle '$ext' file format.");
-            }
+            $this->handleDependencies($ext);
+            $this->saveOptions($relFilePath, $options);
+            $this->addArrayToTracker(
+                $name,
+                $this->$fxnName($content),
+                $relFilePath,
+                (array_key_exists('namespace', $options)) ? $options['namespace'] : null
+            );
         }
-
-        return $dataItems;
+        else
+        {
+            $this->output->warning("There is no function to handle '$ext' file format.");
+        }
     }
 
     /**
@@ -191,7 +168,19 @@ class DataManager extends BaseManager
      */
     private function fromYaml ($content)
     {
-        return Yaml::parse($content);
+        return Yaml::parse($content, Yaml::PARSE_DATETIME);
+    }
+
+    /**
+     * An alias for handling `*.yml` files
+     *
+     * @param  string $content YAML formatted text
+     *
+     * @return array
+     */
+    private function fromYml ($content)
+    {
+        return $this->fromYaml($content);
     }
 
     /**
