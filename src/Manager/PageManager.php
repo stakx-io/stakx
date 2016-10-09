@@ -5,8 +5,6 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\PageView;
 use allejo\stakx\System\Folder;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 use Twig_Error_Syntax;
 use Twig_Template;
 
@@ -189,32 +187,39 @@ class PageManager extends TrackingManager
      */
     protected function handleTrackableItem($filePath, $options = array())
     {
-        $this->compilePageView($filePath);
+        $this->compilePageView($filePath, true);
     }
 
-    private function compilePageView ($filePath)
+    private function compilePageView ($filePath, $refresh = false)
     {
         if (!$this->isTracked($filePath))
         {
             throw new \Exception('PageView not found');
         }
 
+        /** @var PageView $pageView */
+        $pageView = &$this->trackedItemsFlattened[$filePath];
         $viewType = $this->trackedItemsOptions[$filePath]['viewType'];
+
+        if ($refresh)
+        {
+            $pageView->refreshFileContent();
+        }
 
         if ($viewType === 'static')
         {
-            $this->compileStaticPageView($this->trackedItemsFlattened[$filePath]);
+            $this->compileStaticPageView($pageView);
         }
         else if ($viewType === 'dynamic')
         {
-            $this->compileDynamicPageView($this->trackedItemsFlattened[$filePath]);
+            $this->compileDynamicPageView($pageView);
         }
     }
 
     /**
      * @param PageView $pageView
      */
-    private function compileDynamicPageView ($pageView)
+    private function compileDynamicPageView (&$pageView)
     {
         $template = $this->createTemplate($pageView);
 
@@ -235,7 +240,7 @@ class PageManager extends TrackingManager
     /**
      * @param PageView $pageView
      */
-    private function compileStaticPageView ($pageView)
+    private function compileStaticPageView (&$pageView)
     {
         $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
 
