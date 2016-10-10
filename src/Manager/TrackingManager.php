@@ -171,10 +171,12 @@ abstract class TrackingManager extends BaseManager
      * Update the contents of a specified file
      *
      * @param SplFileInfo|string $filePath The relative path of the file
+     *
+     * @return mixed|null
      */
     public function refreshItem ($filePath)
     {
-        $this->handleTrackableItem(
+        return $this->handleTrackableItem(
             $filePath,
             $this->trackedItemsOptions[$filePath]
         );

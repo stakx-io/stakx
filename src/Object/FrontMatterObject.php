@@ -285,6 +285,19 @@ abstract class FrontMatterObject
     }
 
     /**
+     * Check whether this object has a reference to a collection or data item
+     *
+     * @param  string $namespace 'collections' or 'data'
+     * @param  string $needle
+     *
+     * @return bool
+     */
+    final public function hasTwigDependency ($namespace, $needle)
+    {
+        return (in_array($needle, $this->dataDependencies[$namespace]));
+    }
+
+    /**
      * Evaluate an array of data for FrontMatter variables. This function will modify the array in place.
      *
      * @param  array $yaml An array of data containing FrontMatter variables
@@ -368,6 +381,11 @@ abstract class FrontMatterObject
         }
     }
 
+    /**
+     * Get all of the references to either DataItems or ContentItems inside of given string
+     *
+     * @param string $filter 'collections' or 'data'
+     */
     private function findTwigDataDependencies ($filter)
     {
         $regex = '/{[{%](?:.+)?(?:' . $filter . ')(?:\.|\[\')(\w+)(?:\'\])?.+[%}]}/';

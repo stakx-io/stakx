@@ -317,9 +317,13 @@ class Website
         }
         else if ($this->dm->isTracked($filePath))
         {
-            $this->dm->refreshItem($filePath);
+            $change = $this->dm->refreshItem($filePath);
+
             $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
-            $this->pm->compileAll();
+            $this->pm->compileSome(array(
+                'namespace' => 'data',
+                'dependency' => $change
+            ));
         }
         else if ($this->tm->isTracked($filePath))
         {

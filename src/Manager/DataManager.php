@@ -112,6 +112,8 @@ class DataManager extends TrackingManager
         {
             $this->output->warning("There is no function to handle '$ext' file format.");
         }
+
+        return $name;
     }
 
     /**

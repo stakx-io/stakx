@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\PageView;
 use allejo\stakx\System\Folder;
@@ -117,7 +118,19 @@ class PageManager extends TrackingManager
     {
         foreach (array_keys($this->trackedItemsFlattened) as $filePath)
         {
-            $this->compilePageView($filePath);
+            $this->compileFromFilePath($filePath);
+        }
+    }
+
+    public function compileSome ($filter = array())
+    {
+        /** @var PageView $pageView */
+        foreach ($this->trackedItemsFlattened as &$pageView)
+        {
+            if ($pageView->hasTwigDependency($filter['namespace'], $filter['dependency']))
+            {
+                $this->compilePageView($pageView);
+            }
         }
     }
 
@@ -156,7 +169,7 @@ class PageManager extends TrackingManager
      */
     public function refreshItem($filePath)
     {
-        $this->compilePageView($filePath, true);
+        $this->compileFromFilePath($filePath, true);
     }
 
     /**
@@ -199,29 +212,37 @@ class PageManager extends TrackingManager
      *
      * @throws \Exception
      */
-    private function compilePageView ($filePath, $refresh = false)
+    private function compileFromFilePath ($filePath, $refresh = false)
     {
         if (!$this->isTracked($filePath))
         {
-            throw new \Exception('PageView not found');
+            throw new TrackedItemNotFoundException('PageView not found');
         }
 
         /** @var PageView $pageView */
         $pageView = &$this->trackedItemsFlattened[$filePath];
-        $viewType = $this->trackedItemsOptions[$filePath]['viewType'];
 
+        $this->compilePageView($pageView, $refresh);
+    }
+
+    /**
+     * @param PageView $pageView
+     * @param bool     $refresh
+     */
+    private function compilePageView ($pageView, $refresh = false)
+    {
         if ($refresh)
         {
             $pageView->refreshFileContent();
         }
 
-        if ($viewType === 'static')
-        {
-            $this->compileStaticPageView($pageView);
-        }
-        else if ($viewType === 'dynamic')
+        if ($pageView->isDynamicPage())
         {
             $this->compileDynamicPageView($pageView);
+        }
+        else
+        {
+            $this->compileStaticPageView($pageView);
         }
     }
 
@@ -242,6 +263,7 @@ class PageManager extends TrackingManager
                 'this' => $contentItem
             ));
 
+            $this->output->notice("Writing file: {file}", array('file' => $contentItem->getTargetFile()));
             $this->targetDir->writeFile($contentItem->getTargetFile(), $output);
         }
     }
@@ -258,6 +280,7 @@ class PageManager extends TrackingManager
             'this' => $pageView->getFrontMatter()
         ));
 
+        $this->output->notice("Writing file: {file}", array('file' => $pageView->getTargetFile()));
         $this->targetDir->writeFile($pageView->getTargetFile(), $output);
     }
 
