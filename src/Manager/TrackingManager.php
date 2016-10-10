@@ -19,6 +19,24 @@ use Symfony\Component\Finder\SplFileInfo;
 abstract class TrackingManager extends BaseManager
 {
     /**
+     * An array corresponding with $folderDefinitions to store metadata regarding a specificc folder
+     *
+     * $folderDefinitionsOption['<folder path>'] = array()
+     *
+     * @var string[]
+     */
+    protected $folderDefinitionsOptions;
+
+    /**
+     * An array of folders which tracked items are stored in
+     *
+     * $folderDefinitions[] = '<folder path>'
+     *
+     * @var string[]
+     */
+    protected $folderDefinitions;
+
+    /**
      * The storage which contains the same information as $trackedItems but organized by relative file path instead of a
      * namespace or file name without extension.
      *
@@ -61,6 +79,8 @@ abstract class TrackingManager extends BaseManager
     {
         parent::__construct();
 
+        $this->folderDefinitionsOptions = array();
+        $this->folderDefinitions = array();
         $this->trackedItemsFlattened = array();
         $this->trackedItemsOptions = array();
         $this->trackedItems = array();
@@ -155,6 +175,25 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
+     * Check to see if the file belongs inside of one the folders being tracked by this manager
+     *
+     * @param  string $filePath
+     *
+     * @return bool True if the file is inside a tracked folder
+     */
+    public function isHandled ($filePath)
+    {
+        foreach ($this->folderDefinitions as $folder)
+        {
+            if (substr($filePath, 0, strlen($folder)) === $folder)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Check whether a file is tracked
      *
@@ -165,6 +204,14 @@ abstract class TrackingManager extends BaseManager
     public function isTracked ($filePath)
     {
         return array_key_exists($filePath, $this->trackedItemsFlattened);
+    }
+
+    /**
+     * @param SplFileInfo|string $filePath
+     */
+    public function createNewItem ($filePath)
+    {
+        $this->handleTrackableItem($filePath);
     }
 
     /**
@@ -180,6 +227,18 @@ abstract class TrackingManager extends BaseManager
             $filePath,
             $this->trackedItemsOptions[$filePath]
         );
+    }
+
+    /**
+     * Save a folder that is tracked by this manager and its respective options
+     *
+     * @param string $folderPath
+     * @param array  $options
+     */
+    public function saveFolderDefinition ($folderPath, $options = array())
+    {
+        $this->folderDefinitions[] = $folderPath;
+        $this->folderDefinitionsOptions[$folderPath] = $options;
     }
 
     /**
@@ -227,7 +286,7 @@ abstract class TrackingManager extends BaseManager
      * @param  SplFileInfo $filePath
      * @param  mixed       $options
      *
-     * @return mixed
+     * @return mixed|null
      */
     abstract protected function handleTrackableItem ($filePath, $options = array());
 }
