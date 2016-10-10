@@ -195,6 +195,10 @@ class Website
             {
                 switch ($event->getCode())
                 {
+                    case Event::RESOURCE_CREATED:
+                        $this->creationWatcher($filePath);
+                        break;
+
                     case Event::RESOURCE_MODIFIED:
                         $this->modificationWatcher($filePath);
                         break;
@@ -298,6 +302,11 @@ class Website
     public function setNoClean($noClean)
     {
         $this->noClean = $noClean;
+    }
+
+    private function creationWatcher ($filePath)
+    {
+        $this->output->writeln(sprintf("File creation detected: %s", $filePath));
     }
 
     private function modificationWatcher ($filePath)
