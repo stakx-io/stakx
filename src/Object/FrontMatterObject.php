@@ -11,6 +11,16 @@ use Symfony\Component\Yaml\Yaml;
 abstract class FrontMatterObject
 {
     /**
+     * An array to keep track of collection or data dependencies used inside of a Twig template
+     *
+     * $dataDependencies['collections'] = array()
+     * $dataDependencies['data'] = array()
+     *
+     * @var array
+     */
+    protected $dataDependencies;
+
+    /**
      * A list of Front Matter values that should not be returned directly from the $frontMatter array. Values listed
      * here have dedicated functions that handle those Front Matter values and the respective functions should be called
      * instead.
@@ -270,6 +280,8 @@ abstract class FrontMatterObject
         $this->permalinkEvaluated = false;
 
         $this->handleSpecialFrontMatter();
+        $this->findTwigDataDependencies('collections');
+        $this->findTwigDataDependencies('data');
     }
 
     /**
@@ -354,6 +366,16 @@ abstract class FrontMatterObject
                 $this->frontMatter['day']   = $itemDate->format('d');
             }
         }
+    }
+
+    private function findTwigDataDependencies ($filter)
+    {
+        $regex = '/{[{%](?:.+)?(?:' . $filter . ')(?:\.|\[\')(\w+)(?:\'\])?.+[%}]}/';
+        $results = array();
+
+        preg_match_all($regex, $this->bodyContent, $results);
+
+        $this->dataDependencies[$filter] = array_unique($results[1]);
     }
 
     /**
