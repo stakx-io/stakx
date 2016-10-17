@@ -45,11 +45,11 @@ class PageManager extends TrackingManager
         parent::__construct();
     }
 
-    public function setCollections ($collections)
+    public function setCollections (&$collections)
     {
         if (empty($collections)) { return; }
 
-        $this->collections = $collections;
+        $this->collections = &$collections;
     }
 
     /**
@@ -125,7 +125,7 @@ class PageManager extends TrackingManager
     public function compileSome ($filter = array())
     {
         /** @var PageView $pageView */
-        foreach ($this->trackedItemsFlattened as &$pageView)
+        foreach ($this->trackedItemsFlattened as $pageView)
         {
             if ($pageView->hasTwigDependency($filter['namespace'], $filter['dependency']))
             {
@@ -140,8 +140,14 @@ class PageManager extends TrackingManager
     public function compileContentItem (&$contentItem)
     {
         $pageView = $contentItem->getPageView();
-        $template = $this->createTemplate($pageView);
 
+        // This ContentItem doesn't have an individual PageView dedicated to displaying this item
+        if (is_null($pageView))
+        {
+            return;
+        }
+
+        $template = $this->createTemplate($pageView);
         $contentItem->evaluateFrontMatter(
             $pageView->getFrontMatter(false)
         );
@@ -256,8 +262,8 @@ class PageManager extends TrackingManager
         $pageViewFrontMatter = $pageView->getFrontMatter(false);
         $collection = $pageViewFrontMatter['collection'];
 
-        /** @var $contentItem ContentItem */
-        foreach ($this->collections[$collection] as $contentItem)
+        /** @var ContentItem $contentItem */
+        foreach ($this->collections[$collection] as &$contentItem)
         {
             $output = $template->render(array(
                 'this' => $contentItem

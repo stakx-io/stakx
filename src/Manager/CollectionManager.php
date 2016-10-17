@@ -38,7 +38,7 @@ class CollectionManager extends TrackingManager
      *
      * @return ContentItem[][]
      */
-    public function getCollections ()
+    public function &getCollections ()
     {
         return $this->trackedItems;
     }
