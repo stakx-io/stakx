@@ -323,6 +323,10 @@ class Website
             $contentItem->refreshFileContent();
 
             $this->pm->compileContentItem($contentItem);
+            $this->pm->compileSome(array(
+                'namespace' => 'collections',
+                'dependency' => $contentItem->getCollection()
+            ));
         }
         else if ($this->dm->isTracked($filePath))
         {
