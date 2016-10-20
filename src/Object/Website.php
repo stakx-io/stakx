@@ -2,7 +2,7 @@
 
 namespace allejo\stakx\Object;
 
-use allejo\stakx\Core\ConsoleInterface;
+use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
@@ -55,7 +55,7 @@ class Website
     private $noClean;
 
     /**
-     * @var ConsoleInterface
+     * @var StakxLogger
      */
     private $output;
 
@@ -96,7 +96,7 @@ class Website
      */
     public function __construct (OutputInterface $output)
     {
-        $this->output = new ConsoleInterface($output);
+        $this->output = new StakxLogger($output);
         $this->cm = new CollectionManager();
         $this->dm = new DataManager();
         $this->pm = new PageManager();
@@ -119,16 +119,16 @@ class Website
         $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
         // Parse DataItems
-        $this->dm->setConsoleOutput($this->output);
+        $this->dm->setLogger($this->output);
         $this->dm->parseDataItems($this->getConfiguration()->getDataFolders());
         $this->dm->parseDataSets($this->getConfiguration()->getDataSets());
 
         // Prepare Collections
-        $this->cm->setConsoleOutput($this->output);
+        $this->cm->setLogger($this->output);
         $this->cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
 
         // Handle PageViews
-        $this->pm->setConsoleOutput($this->output);
+        $this->pm->setLogger($this->output);
         $this->pm->setTargetFolder($this->outputDirectory);
         $this->pm->setCollections($this->cm->getCollections());
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
@@ -154,7 +154,7 @@ class Website
 
             $this->tm = new ThemeManager($theme);
             $this->tm->configureFinder($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
-            $this->tm->setConsoleOutput($this->output);
+            $this->tm->setLogger($this->output);
             $this->tm->enableTracking($tracking);
             $this->tm->setFolder($this->outputDirectory);
             $this->tm->copyFiles();
@@ -165,7 +165,7 @@ class Website
         //
         $this->am = new AssetManager();
         $this->am->configureFinder($this->getConfiguration()->getIncludes(), $this->getConfiguration()->getExcludes());
-        $this->am->setConsoleOutput($this->output);
+        $this->am->setLogger($this->output);
         $this->am->setFolder($this->outputDirectory);
         $this->am->enableTracking($tracking);
         $this->am->copyFiles();
@@ -243,7 +243,9 @@ class Website
             $configFile = "";
         }
 
-        $this->configuration = new Configuration($configFile, $this->output);
+        $this->configuration = new Configuration();
+        $this->configuration->setLogger($this->output);
+        $this->configuration->parseConfiguration($configFile);
     }
 
     /**

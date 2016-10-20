@@ -2,13 +2,15 @@
 
 namespace allejo\stakx\Object;
 
-use allejo\stakx\Core\ConsoleInterface;
+use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Utilities\ArrayUtilities;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-class Configuration
+class Configuration implements LoggerAwareInterface
 {
     const DEFAULT_NAME = "_config.yml";
 
@@ -20,7 +22,7 @@ class Configuration
     private $configuration;
 
     /**
-     * @var ConsoleInterface
+     * @var StakxLogger
      */
     private $output;
 
@@ -31,16 +33,15 @@ class Configuration
 
     /**
      * Configuration constructor.
-     *
-     * @param string                $configFile
-     * @param ConsoleInterface|null $output
      */
-    public function __construct($configFile, $output = null)
+    public function __construct()
     {
         $this->configuration = array();
-        $this->output        = new ConsoleInterface($output);
         $this->fs            = new Filesystem();
+    }
 
+    public function parseConfiguration ($configFile)
+    {
         if ($this->fs->exists($configFile))
         {
             try
@@ -58,6 +59,14 @@ class Configuration
 
         $this->defaultConfiguration();
         $this->handleDeprecations();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->output = $logger;
     }
 
     public function isDebug ()

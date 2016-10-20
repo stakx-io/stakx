@@ -16,7 +16,7 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
     public function setUp ()
     {
         $this->cm = new CollectionManager();
-        $this->cm->setConsoleOutput($this->outputMock());
+        $this->cm->setLogger($this->outputMock());
         $this->cm->parseCollections(array(
             array(
                 'name' => 'Sample',
@@ -35,7 +35,7 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
     public function testCollectionEmpty ()
     {
         $cm = new CollectionManager();
-        $cm->setConsoleOutput($this->outputMock());
+        $cm->setLogger($this->outputMock());
         $cm->parseCollections(array());
 
         $this->assertEmpty($cm->getCollections());

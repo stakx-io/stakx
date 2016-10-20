@@ -2,14 +2,16 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Core\ConsoleInterface;
+use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\System\Filesystem;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class BaseManager
+abstract class BaseManager implements LoggerAwareInterface
 {
     /**
-     * @var ConsoleInterface
+     * @var StakxLogger
      */
     protected $output;
 
@@ -24,10 +26,10 @@ abstract class BaseManager
     }
 
     /**
-     * @param ConsoleInterface|OutputInterface|null $output
+     * {@inheritdoc}
      */
-    public function setConsoleOutput ($output)
+    public function setLogger(LoggerInterface $logger)
     {
-        $this->output = new ConsoleInterface($output);
+        $this->output = $logger;
     }
 }
