@@ -106,8 +106,7 @@ class Website
     /**
      * Compile the website.
      *
-     * @param bool $cleanDirectory Clean the target directing before rebuilding
-     * @param bool $tracking       Whether or not to keep track of files as they're compiled to save time in 'watch'
+     * @param bool $tracking Whether or not to keep track of files as they're compiled to save time in 'watch'
      */
     public function build ($tracking = false)
     {

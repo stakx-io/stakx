@@ -5,6 +5,7 @@ namespace allejo\stakx\tests;
 use allejo\stakx\Object\Configuration;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit_Framework_TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ConfigurationTests extends PHPUnit_Framework_TestCase
@@ -21,9 +22,14 @@ class ConfigurationTests extends PHPUnit_Framework_TestCase
 
     public function setup ()
     {
-        $output = $this->getMock(OutputInterface::class);
-        $this->sampleConfig = new Configuration(__DIR__ . '/assets/sample.yml', $output);
-        $this->defaultConfig = new Configuration(null, $output);
+        $output = $this->loggerMock();
+        $this->sampleConfig = new Configuration();
+        $this->sampleConfig->setLogger($output);
+        $this->sampleConfig->parseConfiguration(__DIR__ . '/assets/sample.yml');
+
+        $this->defaultConfig = new Configuration();
+        $this->defaultConfig->setLogger($output);
+        $this->defaultConfig->parseConfiguration();
     }
 
     public function testSampleConfigIsDebug ()
@@ -119,7 +125,7 @@ class ConfigurationTests extends PHPUnit_Framework_TestCase
 
     public function testInvalidConfigFile ()
     {
-        $output = $this->getMock(OutputInterface::class);
+        $output = $this->loggerMock();
 
         $file = vfsStream::newFile('_config.yml');
         $root = vfsStream::setup();
@@ -128,8 +134,18 @@ class ConfigurationTests extends PHPUnit_Framework_TestCase
              ->at($root);
 
         $config = new Configuration($file->url(), $output);
+        $config->setLogger($output);
+        $config->parseConfiguration();
 
         // This is part of the default configuration, so we should expect it here
         $this->assertEquals('_site', $config->getTargetFolder());
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    private function loggerMock ()
+    {
+        return $this->getMock(LoggerInterface::class);
     }
 }

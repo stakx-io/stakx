@@ -40,7 +40,15 @@ class Configuration implements LoggerAwareInterface
         $this->fs            = new Filesystem();
     }
 
-    public function parseConfiguration ($configFile)
+    /**
+     * Parse a given configuration file and configure this Configuration instance.
+     *
+     * This function should be called with 'null' passed when "configuration-less" mode is used
+     *
+     * @param string|null $configFile The path to the configuration file. If null, the default configuration will be
+     *                                used
+     */
+    public function parseConfiguration ($configFile = null)
     {
         if ($this->fs->exists($configFile))
         {

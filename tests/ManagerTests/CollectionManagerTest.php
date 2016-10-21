@@ -4,6 +4,7 @@ namespace allejo\stakx\tests;
 
 use allejo\stakx\Manager\CollectionManager;
 use PHPUnit_Framework_TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CollectionManagerTests extends PHPUnit_Framework_TestCase
@@ -16,7 +17,7 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
     public function setUp ()
     {
         $this->cm = new CollectionManager();
-        $this->cm->setLogger($this->outputMock());
+        $this->cm->setLogger($this->loggerMock());
         $this->cm->parseCollections(array(
             array(
                 'name' => 'Sample',
@@ -35,7 +36,7 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
     public function testCollectionEmpty ()
     {
         $cm = new CollectionManager();
-        $cm->setLogger($this->outputMock());
+        $cm->setLogger($this->loggerMock());
         $cm->parseCollections(array());
 
         $this->assertEmpty($cm->getCollections());
@@ -57,10 +58,10 @@ class CollectionManagerTests extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return OutputInterface
+     * @return LoggerInterface
      */
-    private function outputMock ()
+    private function loggerMock ()
     {
-        return $this->getMock(OutputInterface::class);
+        return $this->getMock(LoggerInterface::class);
     }
 }
