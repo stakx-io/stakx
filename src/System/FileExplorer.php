@@ -9,7 +9,25 @@ namespace allejo\stakx\System;
 
 class FileExplorer extends \RecursiveFilterIterator
 {
+    /**
+     * A list of version control folders to ignore
+     *
+     * @var string[]
+     */
+    public static $vcsPatterns =  array('.git', '.hg', '.svn', '_svn', 'CVS', '_darcs', '.arch-params', '.monotone', '.bzr');
+
+    /**
+     * A list of phrases to exclude from the search
+     *
+     * @var string[]
+     */
     private $excludes;
+
+    /**
+     * A list of phrases to explicitly include in the search
+     *
+     * @var string[]
+     */
     private $includes;
 
     /**
@@ -17,13 +35,14 @@ class FileExplorer extends \RecursiveFilterIterator
      *
      * @param \RecursiveIterator $iterator
      * @param array              $excludes
+     * @param array              $includes
      */
-    public function __construct(\RecursiveIterator $iterator, array $excludes = array())
+    public function __construct(\RecursiveIterator $iterator, array $excludes = array(), array $includes = array())
     {
         parent::__construct($iterator);
 
-        // I can't get this to work without hard coding it
-        $this->excludes = $excludes;
+        $this->excludes = array_merge(self::$vcsPatterns, $excludes);
+        $this->includes = $includes;
     }
 
     /**
@@ -39,7 +58,12 @@ class FileExplorer extends \RecursiveFilterIterator
      */
     public function accept ()
     {
-        return $this->strpos_array($this->current()->getPathname(), $this->excludes) === false;
+        $filePath = str_replace(getcwd() . '/', '', $this->current()->getPathname());
+
+        if ($this->strpos_array($filePath, $this->includes)) { return true; }
+        if (preg_match('#(^|/)\..+(/|$)#', $filePath) === 1) { return false; }
+
+        return ($this->strpos_array($filePath, $this->excludes) === false);
     }
 
     /**
@@ -47,7 +71,11 @@ class FileExplorer extends \RecursiveFilterIterator
      */
     public function getChildren()
     {
-        return new self($this->getInnerIterator()->getChildren(), $this->excludes);
+        return (new self(
+            $this->getInnerIterator()->getChildren(),
+            $this->excludes,
+            $this->includes
+        ));
     }
 
     /**
@@ -63,16 +91,17 @@ class FileExplorer extends \RecursiveFilterIterator
     /**
      * Create an instance of FileExplorer from a directory path as a string
      *
-     * @param  string $folder   The path to the folder we're scanning
-     * @param  array  $excludes An array of
+     * @param  string   $folder   The path to the folder we're scanning
+     * @param  string[] $excludes
+     * @param  string[] $includes
      *
      * @return FileExplorer
      */
-    public static function create ($folder, $excludes = array())
+    public static function create ($folder, $excludes = array(), $includes = array())
     {
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
 
-        return (new self($iterator, $excludes));
+        return (new self($iterator, $excludes, $includes));
     }
 
     /**
@@ -84,14 +113,14 @@ class FileExplorer extends \RecursiveFilterIterator
      *
      * @return bool True if an element from the given array was found in the string
      */
-    private function strpos_array($haystack, $needle, $offset=0)
+    private function strpos_array ($haystack, $needle, $offset = 0)
     {
         if (!is_array($needle))
         {
             $needle = array($needle);
         }
 
-        foreach($needle as $query)
+        foreach ($needle as $query)
         {
             if (strpos($haystack, $query, $offset) !== false) // stop on first true result
             {
