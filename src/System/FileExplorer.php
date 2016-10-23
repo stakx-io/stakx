@@ -83,7 +83,7 @@ class FileExplorer extends \RecursiveFilterIterator
         $filePath = str_replace(getcwd() . '/', '', $this->current()->getPathname());
 
         if ($this->strpos_array($filePath, $this->includes)) { return true; }
-        if ($this->flags & self::INCLUDE_ONLY_FILES) { return false; }
+        if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir()) { return false; }
 
         if (!($this->flags & self::ALLOW_DOT_FILES) &&
             preg_match('#(^|/)\..+(/|$)#', $filePath) === 1) { return false; }
