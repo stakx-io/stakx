@@ -13,7 +13,6 @@ namespace allejo\stakx\System;
 
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
@@ -104,45 +103,6 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     public function getRelativePath ($path)
     {
         return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $path);
-    }
-
-    public function getFinder ($explicitIncludes = array(), $explicitIgnores = array(), $searchIn = "")
-    {
-        $finder = new Finder();
-        $finder->files()
-               ->ignoreVCS(true)
-               ->ignoreDotFiles(true)
-               ->ignoreUnreadableDirs();
-
-        $finder->in(
-            empty(trim($searchIn)) ? getcwd() : $searchIn
-        );
-
-        foreach ($explicitIgnores as $ignoreRule)
-        {
-            $isRegex = @preg_match($ignoreRule, null);
-
-            if (substr($ignoreRule, -1, 1) === '/' || $isRegex !== false)
-            {
-                $finder->notPath($ignoreRule);
-            }
-            else
-            {
-                $finder->notName($ignoreRule);
-            }
-        }
-
-        if (count($explicitIncludes) > 0)
-        {
-            foreach ($explicitIncludes as &$include)
-            {
-                $include = new SplFileInfo($include, $this->getFolderPath($include), $include);
-            }
-
-            $finder->append($explicitIncludes);
-        }
-
-        return $finder;
     }
 
     /**

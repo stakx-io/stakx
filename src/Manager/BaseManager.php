@@ -6,7 +6,6 @@ use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\System\Filesystem;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class BaseManager implements LoggerAwareInterface
 {

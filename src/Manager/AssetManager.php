@@ -71,15 +71,6 @@ class AssetManager extends TrackingManager
 
         if (!$this->fs->exists($file)) { return; }
 
-        if (!($file instanceof SplFileInfo))
-        {
-            $file = new SplFileInfo(
-                $this->fs->absolutePath($file),
-                $this->fs->getFolderPath($file),
-                $file
-            );
-        }
-
         $filePath = $file->getRealPath();
         $pathToStrip = $this->fs->appendPath(getcwd(), $options['prefix']);
         $siteTargetPath = ltrim(str_replace($pathToStrip, "", $filePath), DIRECTORY_SEPARATOR);
