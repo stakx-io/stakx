@@ -8,6 +8,7 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\FrontMatterObject;
+use allejo\stakx\System\FileExplorer;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -255,28 +256,17 @@ abstract class TrackingManager extends BaseManager
     /**
      * Parse the specified folder for items to track
      *
-     * @param Finder|string $pathOrFinder
+     * @param string $path
      * @param mixed  $options  Special options that will be passed to the static::parseTrackableItem() implementation
      * @param array  $includes
      * @param array  $excludes
      */
-    protected function scanTrackableItems ($pathOrFinder, $options = array(), $includes = array(), $excludes = array())
+    public function scanTrackableItems($path, $options = array(), $includes = array(), $excludes = array())
     {
-        if ($pathOrFinder instanceof Finder)
-        {
-            $finder = $pathOrFinder;
-        }
-        else
-        {
-            $finder = $this->fs->getFinder(
-                $includes,
-                $excludes,
-                $this->fs->absolutePath($pathOrFinder)
-            );
-        }
+        $fe = FileExplorer::create($path, $excludes, $includes);
+        $fileExplorer = $fe->getExplorer();
 
-        /** @var SplFileInfo $file */
-        foreach ($finder as $file)
+        foreach ($fileExplorer as $file)
         {
             $this->handleTrackableItem($file, $options);
         }

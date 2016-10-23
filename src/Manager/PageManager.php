@@ -102,12 +102,10 @@ class PageManager extends TrackingManager
                 continue;
             }
 
-            $finder = $this->fs->getFinder(array(), array(), $pageViewFolder);
-            $finder->name('/\.(html|twig)/');
-
-            $this->scanTrackableItems($finder, array(
+            // @TODO Replace this with a regular expression or have wildcard support
+            $this->scanTrackableItems($pageViewFolder, array(
                 'refresh' => false
-            ));
+            ), array('.html', '.twig'));
         }
     }
 
