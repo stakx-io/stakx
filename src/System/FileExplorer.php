@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\System;
 
+use Symfony\Component\Finder\SplFileInfo;
+
 class FileExplorer extends \RecursiveFilterIterator
 {
     /**
@@ -64,6 +66,23 @@ class FileExplorer extends \RecursiveFilterIterator
         if (preg_match('#(^|/)\..+(/|$)#', $filePath) === 1) { return false; }
 
         return ($this->strpos_array($filePath, $this->excludes) === false);
+    }
+
+    /**
+     * Get the current SplFileInfo object
+     *
+     * @return SplFileInfo
+     */
+    public function current()
+    {
+        /** @var \SplFileInfo $current */
+        $current = parent::current();
+
+        return (new SplFileInfo(
+            $current->getPathname(),
+            $this->getRelativePath($current->getPath()),
+            $this->getRelativePath($current->getPathname())
+        ));
     }
 
     /**
@@ -129,5 +148,17 @@ class FileExplorer extends \RecursiveFilterIterator
         }
 
         return false;
+    }
+
+    /**
+     * Strip the current working directory from an absolute path
+     *
+     * @param  string $path An absolute path
+     *
+     * @return string
+     */
+    private function getRelativePath ($path)
+    {
+        return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $path);
     }
 }
