@@ -9,7 +9,6 @@ namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\FrontMatterObject;
 use allejo\stakx\System\FileExplorer;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
@@ -263,7 +262,8 @@ abstract class TrackingManager extends BaseManager
      */
     public function scanTrackableItems($path, $options = array(), $includes = array(), $excludes = array())
     {
-        $fe = FileExplorer::create($path, $excludes, $includes);
+        $feFlags = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
+        $fe = FileExplorer::create($path, $excludes, $includes, $feFlags);
         $fileExplorer = $fe->getExplorer();
 
         foreach ($fileExplorer as $file)

@@ -12,6 +12,17 @@ use Symfony\Component\Finder\SplFileInfo;
 class FileExplorer extends \RecursiveFilterIterator
 {
     /**
+     * A bitwise flag to have FileExplorer ignore all files unless its been explicitly included; all other files will be
+     * ignored.
+     */
+    const INCLUDE_ONLY_FILES = 0x1;
+
+    /**
+     * A bitwise flag to have FileExplorer search files starting with a period as well
+     */
+    const ALLOW_DOT_FILES    = 0x2;
+
+    /**
      * A list of version control folders to ignore
      *
      * @var string[]
@@ -33,18 +44,27 @@ class FileExplorer extends \RecursiveFilterIterator
     private $includes;
 
     /**
+     * The bitwise sum of the flags applied to this FileExplorer instance
+     *
+     * @var int|null
+     */
+    private $flags;
+
+    /**
      * FileExplorer constructor.
      *
      * @param \RecursiveIterator $iterator
      * @param array              $excludes
      * @param array              $includes
+     * @param int|null           $flags
      */
-    public function __construct(\RecursiveIterator $iterator, array $excludes = array(), array $includes = array())
+    public function __construct(\RecursiveIterator $iterator, array $excludes = array(), array $includes = array(), $flags = null)
     {
         parent::__construct($iterator);
 
         $this->excludes = array_merge(self::$vcsPatterns, $excludes);
         $this->includes = $includes;
+        $this->flags = $flags;
     }
 
     /**
@@ -63,7 +83,10 @@ class FileExplorer extends \RecursiveFilterIterator
         $filePath = str_replace(getcwd() . '/', '', $this->current()->getPathname());
 
         if ($this->strpos_array($filePath, $this->includes)) { return true; }
-        if (preg_match('#(^|/)\..+(/|$)#', $filePath) === 1) { return false; }
+        if ($this->flags & self::INCLUDE_ONLY_FILES) { return false; }
+
+        if (!($this->flags & self::ALLOW_DOT_FILES) &&
+            preg_match('#(^|/)\..+(/|$)#', $filePath) === 1) { return false; }
 
         return ($this->strpos_array($filePath, $this->excludes) === false);
     }
@@ -93,7 +116,8 @@ class FileExplorer extends \RecursiveFilterIterator
         return (new self(
             $this->getInnerIterator()->getChildren(),
             $this->excludes,
-            $this->includes
+            $this->includes,
+            $this->flags
         ));
     }
 
@@ -113,14 +137,15 @@ class FileExplorer extends \RecursiveFilterIterator
      * @param  string   $folder   The path to the folder we're scanning
      * @param  string[] $excludes
      * @param  string[] $includes
+     * @param  int|null $flags
      *
      * @return FileExplorer
      */
-    public static function create ($folder, $excludes = array(), $includes = array())
+    public static function create ($folder, $excludes = array(), $includes = array(), $flags = null)
     {
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
 
-        return (new self($iterator, $excludes, $includes));
+        return (new self($iterator, $excludes, $includes, $flags));
     }
 
     /**

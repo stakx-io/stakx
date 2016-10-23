@@ -5,6 +5,7 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\PageView;
+use allejo\stakx\System\FileExplorer;
 use allejo\stakx\System\Folder;
 use Twig_Error_Syntax;
 use Twig_Template;
@@ -104,7 +105,8 @@ class PageManager extends TrackingManager
 
             // @TODO Replace this with a regular expression or have wildcard support
             $this->scanTrackableItems($pageViewFolder, array(
-                'refresh' => false
+                'refresh' => false,
+                'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES
             ), array('.html', '.twig'));
         }
     }
