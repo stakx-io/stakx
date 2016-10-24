@@ -54,7 +54,10 @@ class ThemeManager extends AssetManager
     {
         $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
 
-        parent::refreshItem($relativeFilePath);
+        return $this->handleTrackableItem(
+            $relativeFilePath,
+            $this->trackedItemsOptions[$filePath]
+        );
     }
 
     /**
