@@ -1,6 +1,6 @@
 ## 0.1.0 Beta 2 (In Development)
 
-Compile time of websites has been increased exponentially.
+The compile time of a website and watch command startup time has been improved drastically.
 
 **New**
 
@@ -14,6 +14,8 @@ Compile time of websites has been increased exponentially.
 - All internal manager classes now support tracking files for the `watch` command
 - New `--no-clean` option has been added to **not** clean the `_site` (target) folder on build
 - Verbose messages now show timestamps
+- Using the `exclude` option in configuration files now ignores files or directories instead of filtering them out
+    - e.g. `node_modules` is ignored by stakx by default; now, `node_modules` will be skipped entirely instead of being scanned and later ignored during the compile process
 
 **Changes**
 
