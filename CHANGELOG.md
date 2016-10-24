@@ -15,7 +15,8 @@ The compile time of a website and watch command startup time has been improved d
 - New `--no-clean` option has been added to **not** clean the `_site` (target) folder on build
 - Verbose messages now show timestamps
 - Using the `exclude` option in configuration files now ignores files or directories instead of filtering them out
-    - e.g. `node_modules` is ignored by stakx by default; now, `node_modules` will be skipped entirely instead of being scanned and later ignored during the compile process
+    - e.g. `node_modules` is ignored by stakx by default; now, `node_modules` will be skipped entirely instead of being
+      scanned and later ignored during the compile process
 
 **Changes**
 
@@ -41,7 +42,8 @@ The compile time of a website and watch command startup time has been improved d
 **Fixes**
 
 - An error message now appears with SimpleXML isn't installed; e.g. PHP 7
-- Having a base URL in the configuration file now outputs that website into that specified folder. For example, a website with a base URL of `super-site` will now create the website at: `_site/super-site/`
+- Having a base URL in the configuration file now outputs that website into that specified folder. For example, a
+  website with a base URL of `super-site` will now create the website at: `_site/super-site/`
 - The target directory where the compiled website is now cleared at every build
 - The `url()` Twig function correctly outputs the base URL
 - Exceptions no longer cause the program to die
