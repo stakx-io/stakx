@@ -49,12 +49,15 @@ class AssetManager extends TrackingManager
     public function copyFiles()
     {
         $this->scanTrackableItems(
-            '.',
+            getcwd(),
             array(
                 'prefix' => ''
             ),
             $this->includes,
-            $this->excludes
+            array_merge(
+                array('_themes'),
+                $this->excludes
+            )
         );
     }
 

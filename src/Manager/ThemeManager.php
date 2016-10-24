@@ -76,8 +76,7 @@ class ThemeManager extends AssetManager
             ),
             array_merge(
                 $this->excludes,
-                $this->themeData['exclude'],
-                array('.twig')
+                $this->themeData['exclude']
             )
         );
     }

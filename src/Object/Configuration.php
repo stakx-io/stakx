@@ -180,8 +180,8 @@ class Configuration implements LoggerAwareInterface
                 '.htaccess'
             ),
             'exclude' => array(
-                '/^_.*/',
-                '*.twig',
+                '/^_(?!themes).*/',
+                '/.twig$/',
                 'node_modules/',
                 'stakx-theme.yml'
             )

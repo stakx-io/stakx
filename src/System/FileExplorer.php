@@ -23,11 +23,20 @@ class FileExplorer extends \RecursiveFilterIterator
     const ALLOW_DOT_FILES    = 0x2;
 
     /**
-     * A list of version control folders to ignore
+     * A list of common version control folders to ignore.
+     *
+     * The following folders should be ignored explicitly by the end user. Their usage isn't as popular so adding more
+     * conditions to loop through will only slow down FileExplorer.
+     *
+     *   - 'CVS'
+     *   - '_darcs'
+     *   - '.arch-params'
+     *   - '.monotone'
+     *   - '.bzr'
      *
      * @var string[]
      */
-    public static $vcsPatterns =  array('.git', '.hg', '.svn', '_svn', 'CVS', '_darcs', '.arch-params', '.monotone', '.bzr');
+    public static $vcsPatterns =  array('.git', '.hg', '.svn', '_svn');
 
     /**
      * A list of phrases to exclude from the search
@@ -86,7 +95,7 @@ class FileExplorer extends \RecursiveFilterIterator
         if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir()) { return false; }
 
         if (!($this->flags & self::ALLOW_DOT_FILES) &&
-            preg_match('#(^|/)\..+(/|$)#', $filePath) === 1) { return false; }
+            preg_match('#(^|\/)\..+(\/|$)#', $filePath) === 1) { return false; }
 
         return ($this->strpos_array($filePath, $this->excludes) === false);
     }
@@ -166,6 +175,11 @@ class FileExplorer extends \RecursiveFilterIterator
 
         foreach ($needle as $query)
         {
+            if (substr($query, 0, 1) == '/' && substr($query, -1, 1) == '/' && preg_match($query, $haystack) === 1)
+            {
+                return true;
+            }
+
             if (strpos($haystack, $query, $offset) !== false) // stop on first true result
             {
                 return true;
