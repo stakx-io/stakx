@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/allejo/resource-watcher.git",
-                "reference": "fcb8c97fff00847029899ecb9357b0d0029535f4"
+                "reference": "906730a8c39d6282b1552df7dfab58f3eb32d2b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/allejo/resource-watcher/zipball/fcb8c97fff00847029899ecb9357b0d0029535f4",
-                "reference": "fcb8c97fff00847029899ecb9357b0d0029535f4",
+                "url": "https://api.github.com/repos/allejo/resource-watcher/zipball/906730a8c39d6282b1552df7dfab58f3eb32d2b7",
+                "reference": "906730a8c39d6282b1552df7dfab58f3eb32d2b7",
                 "shasum": ""
             },
             "require": {
@@ -51,7 +51,7 @@
                 "resource",
                 "symfony"
             ],
-            "time": "2016-08-20 20:24:00"
+            "time": "2016-10-24 14:28:16"
         },
         {
             "name": "aptoma/twig-markdown",
