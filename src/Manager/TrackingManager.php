@@ -19,6 +19,11 @@ use Symfony\Component\Finder\SplFileInfo;
 abstract class TrackingManager extends BaseManager
 {
     /**
+     * @var FileExplorer
+     */
+    protected $fileExplorer;
+
+    /**
      * An array corresponding with $folderDefinitions to store metadata regarding a specificc folder
      *
      * $folderDefinitionsOption['<folder path>'] = array()
@@ -264,9 +269,9 @@ abstract class TrackingManager extends BaseManager
      */
     public function scanTrackableItems($path, $options = array(), $includes = array(), $excludes = array())
     {
-        $feFlags = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
-        $fe = FileExplorer::create($path, $excludes, $includes, $feFlags);
-        $fileExplorer = $fe->getExplorer();
+        $fileExplorerFlags  = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
+        $this->fileExplorer = FileExplorer::create($path, $excludes, $includes, $fileExplorerFlags);
+        $fileExplorer = $this->fileExplorer->getExplorer();
 
         foreach ($fileExplorer as $file)
         {

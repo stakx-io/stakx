@@ -94,6 +94,22 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
+     * Create an instance of Symfony's SplFileInfo with relative path information
+     *
+     * @param  string $filePath
+     *
+     * @return SplFileInfo
+     */
+    public function createSplFileInfo ($filePath)
+    {
+        return (new SplFileInfo(
+            $this->absolutePath($filePath),
+            $this->getRelativePath($this->getFolderPath($filePath)),
+            $this->getRelativePath($filePath)
+        ));
+    }
+
+    /**
      * Strip the current working directory from an absolute path
      *
      * @param  string $path An absolute path
@@ -154,7 +170,11 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
-     * @param string $folderPath
+     * Check whether or not if a given path is a directory
+     *
+     * @param  string $folderPath
+     *
+     * @return bool
      */
     public function isDir ($folderPath)
     {

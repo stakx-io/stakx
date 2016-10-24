@@ -91,13 +91,7 @@ class FileExplorer extends \RecursiveFilterIterator
     {
         $filePath = str_replace(getcwd() . '/', '', $this->current()->getPathname());
 
-        if ($this->strpos_array($filePath, $this->includes)) { return true; }
-        if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir()) { return false; }
-
-        if (!($this->flags & self::ALLOW_DOT_FILES) &&
-            preg_match('#(^|\/)\..+(\/|$)#', $filePath) === 1) { return false; }
-
-        return ($this->strpos_array($filePath, $this->excludes) === false);
+        return $this->matchesPattern($filePath);
     }
 
     /**
@@ -138,6 +132,24 @@ class FileExplorer extends \RecursiveFilterIterator
     public function getExplorer ()
     {
         return (new \RecursiveIteratorIterator($this));
+    }
+
+    /**
+     * Check whether or not a relative file path matches the definition given to this FileExplorer instance.
+     *
+     * @param  string $filePath
+     *
+     * @return bool
+     */
+    public function matchesPattern ($filePath)
+    {
+        if ($this->strpos_array($filePath, $this->includes)) { return true; }
+        if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir()) { return false; }
+
+        if (!($this->flags & self::ALLOW_DOT_FILES) &&
+            preg_match('#(^|\/)\..+(\/|$)#', $filePath) === 1) { return false; }
+
+        return ($this->strpos_array($filePath, $this->excludes) === false);
     }
 
     /**

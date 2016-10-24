@@ -64,11 +64,30 @@ class AssetManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
+    public function isHandled($filePath)
+    {
+        return $this->fileExplorer->matchesPattern($filePath);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createNewItem($filePath)
+    {
+        return $this->handleTrackableItem($filePath, array(
+            'prefix' => ''
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function handleTrackableItem($file, $options = array())
     {
         if (is_string($file))
         {
-            $file = $this->fs->appendPath($options['prefix'], $file);
+            $file = ltrim($this->fs->appendPath($options['prefix'], $file), '/');
+            $file = $this->fs->createSplFileInfo($file);
         }
 
         if (!$this->fs->exists($file)) { return; }

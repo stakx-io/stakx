@@ -47,18 +47,36 @@ class ThemeManager extends AssetManager
         }
     }
 
-    public function isTracked($filePath)
-    {
-        $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
-
-        return parent::isTracked($relativeFilePath);
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     public function refreshItem($filePath)
     {
         $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
 
         parent::refreshItem($relativeFilePath);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isHandled($filePath)
+    {
+        $isThemeAsset = (substr($filePath, 0, strlen($this->themeFolderRelative)) === $this->themeFolderRelative);
+
+        return $isThemeAsset && parent::isHandled($filePath);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createNewItem($filePath)
+    {
+        $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
+
+        return $this->handleTrackableItem($relativeFilePath, array(
+            'prefix' => $this->themeFolderRelative
+        ));
     }
 
     public function copyFiles ()
