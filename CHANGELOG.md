@@ -1,4 +1,4 @@
-## 0.1.0 Beta 2 (In Development)
+## 0.1.0 Beta 2 "The Flash"
 
 The compile time of a website and watch command startup time has been improved drastically.
 
@@ -25,7 +25,7 @@ The compile time of a website and watch command startup time has been improved d
 - The `watch` command has been marked as experimental and has been rewritten from scratch
 - Collection items are now stored by file name instead of counter-intuitive hashes
 - Permalinks are now always lowercase
-- File paths are shown with Twig errors instead of random hashes
+- Twig errors now display file paths instead of random hashes
 
 **Fixes**
 
