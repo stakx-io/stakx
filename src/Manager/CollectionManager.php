@@ -44,18 +44,6 @@ class CollectionManager extends TrackingManager
     }
 
     /**
-     * Check whether a given file path is inside a directory of a known Collection
-     *
-     * @param  string $filePath
-     *
-     * @return bool
-     */
-    public function belongsToCollection ($filePath)
-    {
-        return (!empty($this->getTentativeCollectionName($filePath)));
-    }
-
-    /**
      * Get the name of the Collection this Content Item belongs to
      *
      * @param  string $filePath
@@ -110,10 +98,23 @@ class CollectionManager extends TrackingManager
                 continue;
             }
 
+            $this->saveFolderDefinition($collection['folder'], $collection);
             $this->scanTrackableItems($collectionFolder, array(
                 'namespace' => $collection['name']
             ));
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createNewItem($filePath)
+    {
+        $collection = $this->getTentativeCollectionName($filePath);
+
+        return $this->handleTrackableItem($filePath, array(
+            'namespace' => $collection
+        ));
     }
 
     /**

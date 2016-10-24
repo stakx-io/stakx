@@ -308,6 +308,42 @@ class Website
     private function creationWatcher ($filePath)
     {
         $this->output->writeln(sprintf("File creation detected: %s", $filePath));
+
+        if ($this->pm->isHandled($filePath))
+        {
+            $this->pm->createNewItem($filePath);
+            $this->pm->refreshItem($filePath);
+        }
+        else if ($this->cm->isHandled($filePath))
+        {
+            $contentItem = $this->cm->createNewItem($filePath);
+
+            $this->pm->updateTwigVariable('collections', $this->cm->getCollections());
+            $this->pm->updatePageView($contentItem);
+            $this->pm->compileContentItem($contentItem);
+            $this->pm->compileSome(array(
+                'namespace' => 'collections',
+                'dependency' => $contentItem->getCollection()
+            ));
+        }
+        else if ($this->dm->isHandled($filePath))
+        {
+            $change = $this->dm->createNewItem($filePath);
+
+            $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
+            $this->pm->compileSome(array(
+                'namespace' => 'data',
+                'dependency' => $change
+            ));
+        }
+        else if ($this->tm->isHandled($filePath))
+        {
+            $this->tm->createNewItem($filePath);
+        }
+        else if ($this->am->isHandled($filePath))
+        {
+            $this->am->createNewItem($filePath);
+        }
     }
 
     private function modificationWatcher ($filePath)

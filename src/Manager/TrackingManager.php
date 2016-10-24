@@ -208,10 +208,12 @@ abstract class TrackingManager extends BaseManager
 
     /**
      * @param SplFileInfo|string $filePath
+     *
+     * @return mixed|null
      */
     public function createNewItem ($filePath)
     {
-        $this->handleTrackableItem($filePath);
+        return $this->handleTrackableItem($filePath);
     }
 
     /**

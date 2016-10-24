@@ -108,6 +108,7 @@ class PageManager extends TrackingManager
                 'refresh' => false,
                 'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES
             ), array('.html', '.twig'));
+            $this->saveFolderDefinition($pageViewFolderName);
         }
     }
 
@@ -157,6 +158,25 @@ class PageManager extends TrackingManager
         ));
 
         $this->targetDir->writeFile($contentItem->getTargetFile(), $output);
+    }
+
+    /**
+     * Add a new ContentItem to the respective parent PageView of the ContentItem
+     *
+     * @param ContentItem $contentItem
+     */
+    public function updatePageView ($contentItem)
+    {
+        /** @var PageView $pageView */
+        foreach ($this->trackedItems['dynamic'] as &$pageView)
+        {
+            $fm = $pageView->getFrontMatter(false);
+
+            if ($fm['collection'] == $contentItem->getCollection())
+            {
+                $pageView->addContentItem($contentItem);
+            }
+        }
     }
 
     /**

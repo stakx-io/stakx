@@ -3,7 +3,6 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\System\Folder;
-use Symfony\Component\Finder\SplFileInfo;
 
 class AssetManager extends TrackingManager
 {
