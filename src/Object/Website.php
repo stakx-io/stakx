@@ -6,6 +6,7 @@ use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
+use allejo\stakx\System\FileExplorer;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
@@ -172,14 +173,21 @@ class Website
 
     public function watch ()
     {
+        $this->output->writeln('Building website...');
         $this->build(true);
+        $this->output->writeln(sprintf('Watching %s', getcwd()));
 
+        $fileExplorer = FileExplorer::create(
+            getcwd(),
+            $this->getConfiguration()->getExcludes(),
+            $this->getConfiguration()->getIncludes()
+        );
         $tracker    = new Tracker();
         $watcher    = new Watcher($tracker, $this->fs);
-        $listener   = $watcher->watch(getcwd());
+        $listener   = $watcher->watch(getcwd(), $fileExplorer->getExplorer());
         $targetPath = $this->getConfiguration()->getTargetFolder();
 
-        $this->output->notice('Watch started successfully');
+        $this->output->writeln('Watch started successfully');
 
         $listener->onAnything(function (Event $event, FileResource $resouce, $path) use ($targetPath) {
             $filePath = $this->fs->getRelativePath($path);
