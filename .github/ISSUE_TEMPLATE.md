@@ -1,14 +1,3 @@
-<!--
-  Hi! Thanks for considering to file a bug with Stakx. Please take the
-  time to answer the basic questions. You can convert `[ ]` into `[x]`
-  to check boxes (or submit and check.) If there is no need for certain
-  fields like actual behavior, please delete those headers before
-  submitting. We know not all tickets require those steps. Otherwise,
-  please try to be as detailed as possible.
-
-  Thanks!
--->
-
 ### System Information
 
 **PHP Version:**

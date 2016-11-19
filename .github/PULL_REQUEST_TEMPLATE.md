@@ -10,5 +10,5 @@ Write here
 
 ### Check List
 
-- [ ] All test passed
-- [ ] Added test to ensure to fix/ensure properly.
+- [ ] All unit tests passed
+- [ ] Added unit test to ensure fix works as intended

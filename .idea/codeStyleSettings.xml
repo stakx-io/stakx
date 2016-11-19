@@ -4,7 +4,8 @@
     <option name="PER_PROJECT_SETTINGS">
       <value>
         <MarkdownNavigatorCodeStyleSettings>
-          <option name="RIGHT_MARGIN" value="72" />
+          <option name="TABLE_LEFT_ALIGN_MARKER" value="0" />
+          <option name="RIGHT_MARGIN" value="-1" />
         </MarkdownNavigatorCodeStyleSettings>
         <PHPCodeStyleSettings>
           <option name="ALIGN_KEY_VALUE_PAIRS" value="true" />
