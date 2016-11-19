@@ -44,6 +44,8 @@ class PageManager extends TrackingManager
     public function __construct()
     {
         parent::__construct();
+
+        $this->siteMenu = array();
     }
 
     public function setCollections (&$collections)
@@ -226,7 +228,7 @@ class PageManager extends TrackingManager
 
         if ($namespace === 'static')
         {
-            $this->addToSiteMenu($pageView->getFrontMatter());
+            $this->addToSiteMenu($pageView);
         }
     }
 
@@ -313,10 +315,12 @@ class PageManager extends TrackingManager
     /**
      * Add a static PageView to the menu array. Dynamic PageViews are not added to the menu
      *
-     * @param array $frontMatter
+     * @param PageView $pageView
      */
-    private function addToSiteMenu ($frontMatter)
+    private function addToSiteMenu (&$pageView)
     {
+        $frontMatter = $pageView->getFrontMatter();
+
         if (!array_key_exists('permalink', $frontMatter) ||
             (array_key_exists('menu', $frontMatter) && !$frontMatter['menu']))
         {
@@ -333,17 +337,28 @@ class PageManager extends TrackingManager
             $name = array_shift($dirs);
             $name = (!empty($name)) ? $name : '.';
 
-            if (!isset($root[$name]) && !is_null($name) && count($dirs) == 0)
+            if (!is_null($name) && count($dirs) == 0)
             {
-                $link = (pathinfo($url, PATHINFO_EXTENSION) !== "") ? $url : $permalink . DIRECTORY_SEPARATOR;
+                $children = array();
 
-                $root[$name] = array_merge($frontMatter, array(
-                    "url"  => '/' . $link,
-                    "children" => array()
-                ));
+                if (array_key_exists($name, $root) && is_array($root[$name]))
+                {
+                    $children = $root[$name]['children'];
+                }
+
+                $root[$name] = &$pageView;
+                $root = &$root[$name]->getChildren();
+
+                if (!empty($children))
+                {
+                    $root = $children;
+                }
             }
-
-            $root = &$root[$name]['children'];
+            else
+            {
+                $root[$name]['children'] = array();
+                $root = &$root[$name]['children'];
+            }
         }
     }
 

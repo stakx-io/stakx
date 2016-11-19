@@ -12,6 +12,21 @@ class PageView extends FrontMatterObject
     private $contentItems;
 
     /**
+     * @var PageView[]
+     */
+    private $children;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($filePath)
+    {
+        parent::__construct($filePath);
+
+        $this->children = array();
+    }
+
+    /**
      * @param ContentItem $contentItem
      */
     public function addContentItem (&$contentItem)
@@ -20,6 +35,19 @@ class PageView extends FrontMatterObject
 
         $this->contentItems[$filePath] = &$contentItem;
         $contentItem->setPageView($this);
+    }
+
+    /**
+     * Get child PageViews
+     *
+     * A child is defined as a static PageView whose URL has a parent. For example, a PageView with a URL of
+     * `/gallery/france/` would have the PageView whose URL is `/gallery` as a parent.
+     *
+     * @return PageView[]
+     */
+    public function &getChildren ()
+    {
+        return $this->children;
     }
 
     /**
@@ -48,5 +76,16 @@ class PageView extends FrontMatterObject
     public function isDynamicPage ()
     {
         return isset($this->frontMatter['collection']);
+    }
+
+    /**
+     * A fallback for the site menus that use the `url` field.
+     *
+     * @deprecated 0.1.0
+     * @todo Remove this in the next major release
+     */
+    public function getUrl ()
+    {
+        return $this->getPermalink();
     }
 }
