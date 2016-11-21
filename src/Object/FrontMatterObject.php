@@ -30,13 +30,6 @@ abstract class FrontMatterObject
     protected $frontMatterBlacklist;
 
     /**
-     * Set to true if the permalink has been sanitized
-     *
-     * @var bool
-     */
-    protected $permalinkEvaluated;
-
-    /**
      * Set to true if the front matter has already been evaluated with variable interpolation
      *
      * @var bool
@@ -86,6 +79,20 @@ abstract class FrontMatterObject
     protected $fs;
 
     /**
+     * The permalink for this object
+     *
+     * @var string
+     */
+    private $permalink;
+
+    /**
+     * A list URLs that will redirect to this object
+     *
+     * @var string[]
+     */
+    private $redirects;
+
+    /**
      * ContentItem constructor.
      *
      * @param string $filePath The path to the file that will be parsed into a ContentItem
@@ -96,10 +103,11 @@ abstract class FrontMatterObject
      */
     public function __construct ($filePath)
     {
-        $this->frontMatterBlacklist = array('permalink');
+        $this->frontMatterBlacklist = array('permalink', 'redirects');
 
-        $this->filePath = $filePath;
-        $this->fs       = new Filesystem();
+        $this->redirects = array();
+        $this->filePath  = $filePath;
+        $this->fs        = new Filesystem();
 
         if (!$this->fs->exists($filePath))
         {
@@ -186,18 +194,38 @@ abstract class FrontMatterObject
      */
     final public function getPermalink ()
     {
-        if ($this->permalinkEvaluated)
+        if (!is_null($this->permalink))
         {
-            return $this->frontMatter['permalink'];
+            return $this->permalink;
         }
 
         $permalink = (is_array($this->frontMatter) && array_key_exists('permalink', $this->frontMatter)) ?
             $this->frontMatter['permalink'] : $this->getPathPermalink();
 
-        $this->frontMatter['permalink'] = $this->sanitizePermalink($permalink);
-        $this->permalinkEvaluated = true;
+        if (is_array($permalink))
+        {
+            $this->permalink = $permalink[0];
+            array_shift($permalink);
+            $this->redirects = $permalink;
+        }
+        else
+        {
+            $this->permalink = $permalink;
+        }
 
-        return $this->frontMatter['permalink'];
+        $this->permalink = $this->sanitizePermalink($this->permalink);
+
+        return $this->permalink;
+    }
+
+    /**
+     * Get an array of URLs that will redirect to
+     *
+     * @return string[]
+     */
+    final public function getRedirects ()
+    {
+        return $this->redirects;
     }
 
     /**
@@ -277,7 +305,7 @@ abstract class FrontMatterObject
 
         $this->frontMatterEvaluated = false;
         $this->bodyContentEvaluated = false;
-        $this->permalinkEvaluated = false;
+        $this->permalink = null;
 
         $this->handleSpecialFrontMatter();
         $this->findTwigDataDependencies('collections');
