@@ -41,8 +41,10 @@ class MarkdownEngine extends \Parsedown
                 $block['element']['text']['text'] = $highlighted->value;
             }
             catch (\DomainException $exception) {}
+
+            return $block;
         }
 
-        return $block;
+        return parent::blockFencedCodeComplete($block);
     }
 }
