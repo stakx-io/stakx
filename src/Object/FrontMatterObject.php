@@ -105,7 +105,6 @@ abstract class FrontMatterObject
     {
         $this->frontMatterBlacklist = array('permalink', 'redirects');
 
-        $this->redirects = array();
         $this->filePath  = $filePath;
         $this->fs        = new Filesystem();
 
@@ -211,6 +210,7 @@ abstract class FrontMatterObject
         else
         {
             $this->permalink = $permalink;
+            $this->redirects = array();
         }
 
         $this->permalink = $this->sanitizePermalink($this->permalink);
@@ -225,6 +225,11 @@ abstract class FrontMatterObject
      */
     final public function getRedirects ()
     {
+        if (is_null($this->redirects))
+        {
+            $this->getPermalink();
+        }
+
         return $this->redirects;
     }
 

@@ -327,7 +327,7 @@ class PageManager extends TrackingManager
             return;
         }
 
-        $url = $frontMatter['permalink'];
+        $url = $pageView->getPermalink();
         $root = &$this->siteMenu;
         $permalink = trim($url, DIRECTORY_SEPARATOR);
         $dirs = explode(DIRECTORY_SEPARATOR, $permalink);
