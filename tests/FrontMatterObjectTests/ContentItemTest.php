@@ -248,6 +248,7 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
         $contentItem = $this->createSampleValidFile($frontMatter);
 
         $this->assertEquals("canonical/index.html", $contentItem->getTargetFile());
+        $this->assertEquals("/canonical/", $contentItem->getPermalink());
         $this->assertContains("/redirect/", $contentItem->getRedirects());
         $this->assertContains("/redirect-me/", $contentItem->getRedirects());
     }
