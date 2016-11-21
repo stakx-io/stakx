@@ -251,6 +251,13 @@ class PageManager extends TrackingManager
         $pageView = &$this->trackedItemsFlattened[$filePath];
 
         $this->compilePageView($pageView, $refresh);
+
+        foreach ($pageView->getRedirects() as $redirect)
+        {
+            $redirectPageView = PageView::createRedirect($redirect, $pageView->getPermalink());
+
+            $this->compilePageView($redirectPageView);
+        }
     }
 
     /**
