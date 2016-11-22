@@ -2,12 +2,26 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\System\Filesystem;
+use allejo\stakx\System\StakxResource;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use Symfony\Component\Yaml\Yaml;
 
 class PageView extends FrontMatterObject
 {
+    const TEMPLATE = "---\n%s\n---\n\n%s";
+
+    /**
+     * @var vfsStreamDirectory
+     */
+    private static $vfsRoot;
+
+    /**
+     * @var Filesystem
+     */
+    private static $fileSys;
+
     /**
      * The Content Items that belong to this Page View. This array will only have elements if it is a dynamic Page View.
      *
@@ -19,11 +33,6 @@ class PageView extends FrontMatterObject
      * @var PageView[]
      */
     private $children;
-
-    /**
-     * @var vfsStreamDirectory
-     */
-    private static $vfsRoot;
 
     /**
      * {@inheritdoc}
@@ -101,37 +110,38 @@ class PageView extends FrontMatterObject
     /**
      * Create a virtual PageView to create redirect files
      *
-     * @param  string $redirectFrom The URL that will be redirecting to the target location
-     * @param  string $redirectTo   The URL of the destination
+     * @param  string      $redirectFrom     The URL that will be redirecting to the target location
+     * @param  string      $redirectTo       The URL of the destination
+     * @param  string|bool $redirectTemplate The path to the template
      *
      * @return PageView A virtual PageView with the redirection template
      */
-    public static function createRedirect ($redirectFrom, $redirectTo)
+    public static function createRedirect ($redirectFrom, $redirectTo, $redirectTemplate = false)
     {
         if (is_null(self::$vfsRoot))
         {
             self::$vfsRoot = vfsStream::setup();
+            self::$fileSys = new Filesystem();
         }
 
-        $fileTemplate = "---\n%s\n---\n\n%s";
         $redirectFile = vfsStream::newFile(sprintf('%s.html.twig', uniqid()));
+        $frontMatter  = array(
+            'permalink' => $redirectFrom,
+            'redirect'  => $redirectTo,
+            'menu' => false
+        );
+
+        if (!$redirectTemplate || !self::$fileSys->exists(self::$fileSys->absolutePath($redirectTemplate)))
+        {
+            $contentItemBody = StakxResource::getResource('redirect.html.twig');
+        }
+        else
+        {
+            $contentItemBody = file_get_contents(self::$fileSys->absolutePath($redirectTemplate));
+        }
 
         $redirectFile
-            ->setContent(
-                sprintf(
-                    $fileTemplate,
-                    Yaml::dump(array(
-                        'permalink' => $redirectFrom,
-                        'redirect'  => $redirectTo,
-                        'menu' => false
-                    ), 2),
-                    file_get_contents(
-                        implode(DIRECTORY_SEPARATOR, array(
-                            __DIR__, '..', 'Resources', 'redirect.html.twig'
-                        ))
-                    )
-                )
-            )
+            ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $contentItemBody))
             ->at(self::$vfsRoot);
 
         return (new PageView($redirectFile->url()));

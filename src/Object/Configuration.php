@@ -155,6 +155,11 @@ class Configuration implements LoggerAwareInterface
         return $this->configuration['twig']['autoescape'];
     }
 
+    public function getRedirectTemplate ()
+    {
+        return $this->configuration['templates']['redirect'];
+    }
+
     /**
      * Return the specified configuration option if available, otherwise return the default
      *
@@ -184,6 +189,9 @@ class Configuration implements LoggerAwareInterface
                 '/.twig$/',
                 'node_modules/',
                 'stakx-theme.yml'
+            ),
+            'templates' => array(
+                'redirect' => false
             )
         );
 
