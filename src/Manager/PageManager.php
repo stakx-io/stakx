@@ -22,6 +22,13 @@ use Twig_Template;
 class PageManager extends TrackingManager
 {
     /**
+     * The relative (to the stakx project) file path to the redirect template
+     *
+     * @var string|bool
+     */
+    private $redirectTemplate;
+
+    /**
      * @var ContentItem[][]
      */
     private $collections;
@@ -53,6 +60,11 @@ class PageManager extends TrackingManager
         if (empty($collections)) { return; }
 
         $this->collections = &$collections;
+    }
+
+    public function setRedirectTemplate ($filePath)
+    {
+        $this->redirectTemplate = $filePath;
     }
 
     /**
@@ -251,6 +263,18 @@ class PageManager extends TrackingManager
         $pageView = &$this->trackedItemsFlattened[$filePath];
 
         $this->compilePageView($pageView, $refresh);
+
+        // Create redirect files as needed
+        foreach ($pageView->getRedirects() as $redirect)
+        {
+            $redirectPageView = PageView::createRedirect(
+                $redirect,
+                $pageView->getPermalink(),
+                $this->redirectTemplate
+            );
+
+            $this->compilePageView($redirectPageView);
+        }
     }
 
     /**
@@ -327,7 +351,7 @@ class PageManager extends TrackingManager
             return;
         }
 
-        $url = $frontMatter['permalink'];
+        $url = $pageView->getPermalink();
         $root = &$this->siteMenu;
         $permalink = trim($url, DIRECTORY_SEPARATOR);
         $dirs = explode(DIRECTORY_SEPARATOR, $permalink);

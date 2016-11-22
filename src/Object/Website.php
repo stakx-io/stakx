@@ -131,6 +131,7 @@ class Website
         $this->pm->setLogger($this->output);
         $this->pm->setTargetFolder($this->outputDirectory);
         $this->pm->setCollections($this->cm->getCollections());
+        $this->pm->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
         $this->pm->configureTwig($this->getConfiguration(), array(
             'safe'    => $this->safeMode,
