@@ -173,11 +173,11 @@ abstract class FrontMatterObject
      */
     final public function getFrontMatter ($evaluateYaml = true)
     {
-        if ($this->frontMatter === null)
+        if (is_null($this->frontMatter))
         {
             $this->frontMatter = array();
         }
-        else if (!$this->frontMatterEvaluated && $evaluateYaml && !empty($evaluateYaml))
+        else if (!$this->frontMatterEvaluated && $evaluateYaml)
         {
             $this->evaluateYaml($this->frontMatter);
             $this->frontMatterEvaluated = true;
@@ -365,7 +365,7 @@ abstract class FrontMatterObject
     private function evaluateYamlVar ($string, $yaml)
     {
         $variables = array();
-        $varRegex  = '/(%[a-zA-Z]+)/';
+        $varRegex  = '/((?<!\\)%[a-zA-Z]+)/';
         $output    = $string;
 
         preg_match_all($varRegex, $string, $variables);
