@@ -365,7 +365,7 @@ abstract class FrontMatterObject
     private function evaluateYamlVar ($string, $yaml)
     {
         $variables = array();
-        $varRegex  = '/((?<!\\)%[a-zA-Z]+)/';
+        $varRegex  = '/((?<!\\\\)%[a-zA-Z]+)/';
         $output    = $string;
 
         preg_match_all($varRegex, $string, $variables);
