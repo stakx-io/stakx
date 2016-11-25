@@ -220,7 +220,7 @@ class PageManager extends TrackingManager
         $pageView = new PageView($filePath);
         $namespace = 'static';
 
-        if ($pageView->isDynamicPage())
+        if ($pageView->getType() == PageView::DYNAMIC_TYPE)
         {
             $namespace = 'dynamic';
             $frontMatter = $pageView->getFrontMatter(false);
@@ -288,13 +288,14 @@ class PageManager extends TrackingManager
             $pageView->refreshFileContent();
         }
 
-        if ($pageView->isDynamicPage())
+        switch ($pageView->getType())
         {
-            $this->compileDynamicPageView($pageView);
-        }
-        else
-        {
-            $this->compileStaticPageView($pageView);
+            case PageView::DYNAMIC_TYPE:
+                $this->compileDynamicPageView($pageView);
+                break;
+
+            case PageView::STATIC_TYPE:
+                $this->compileStaticPageView($pageView);
         }
     }
 
