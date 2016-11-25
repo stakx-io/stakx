@@ -118,13 +118,6 @@ class PageView extends FrontMatterObject
      */
     public static function createRedirect ($redirectFrom, $redirectTo, $redirectTemplate = false)
     {
-        if (is_null(self::$vfsRoot))
-        {
-            self::$vfsRoot = vfsStream::setup();
-            self::$fileSys = new Filesystem();
-        }
-
-        $redirectFile = vfsStream::newFile(sprintf('%s.html.twig', uniqid()));
         $frontMatter  = array(
             'permalink' => $redirectFrom,
             'redirect'  => $redirectTo,
@@ -140,8 +133,28 @@ class PageView extends FrontMatterObject
             $contentItemBody = file_get_contents(self::$fileSys->absolutePath($redirectTemplate));
         }
 
+        return self::createVirtual($frontMatter, $contentItemBody);
+    }
+
+    /**
+     * Create a virtual PageView
+     *
+     * @param  array  $frontMatter The Front Matter that this virtual PageView will have
+     * @param  string $body        The body of the virtual PageView
+     *
+     * @return PageView
+     */
+    public static function createVirtual ($frontMatter, $body)
+    {
+        if (is_null(self::$vfsRoot))
+        {
+            self::$vfsRoot = vfsStream::setup();
+            self::$fileSys = new Filesystem();
+        }
+
+        $redirectFile = vfsStream::newFile(sprintf('%s.html.twig', uniqid()));
         $redirectFile
-            ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $contentItemBody))
+            ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $body))
             ->at(self::$vfsRoot);
 
         return (new PageView($redirectFile->url()));
