@@ -173,11 +173,23 @@ class FrontMatterParser
             $this->expansionUsed = true;
             $wip = array();
 
-            foreach ($fmStatement as $statement)
+            foreach ($fmStatement as &$statement)
             {
+                if (!is_array($statement))
+                {
+                    $stringValue = $statement;
+                    $statement = array(
+                        'iterator' => array()
+                    );
+                    $statement['evaluated'] = $stringValue;
+                }
+
                 foreach ($this->frontMatter[$variable] as $value)
                 {
-                    $wip[] = str_replace('%' . $variable, $value, $statement);
+                    $wip[] = array(
+                        'evaluated' => str_replace('%' . $variable, $value, $statement['evaluated']),
+                        'iterator'  => array_merge($statement['iterator'], array($variable => $value))
+                    );
                 }
             }
 
