@@ -136,7 +136,13 @@ class FrontMatterParser
         foreach ($fmStatement as $statement)
         {
             $value = $this->evaluateBasicType($key, $statement, true);
-            $value = $this->evaluateArrayType($key, $value);
+
+            // Only continue expanding a Front Matter value if variables still exist
+            $expandingVars = $this->getFrontMatterVariables($value);
+            if (!empty($expandingVars))
+            {
+                $value = $this->evaluateArrayType($key, $value, $expandingVars);
+            }
 
             $wip[] = $value;
         }
@@ -149,15 +155,14 @@ class FrontMatterParser
      *
      * @param  string $key
      * @param  string $fmStatement
+     * @param  array  $variables
      *
      * @return array
      *
      * @throws YamlUnsupportedVariableException If a multidimensional array is given for value expansion
      */
-    private function evaluateArrayType ($key, $fmStatement)
+    private function evaluateArrayType ($key, $fmStatement, $variables)
     {
-        $variables = $this->getFrontMatterVariables($fmStatement);
-
         if (!is_array($fmStatement))
         {
             $fmStatement = array($fmStatement);

@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Engines\FrontMatterParser;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Exception\YamlVariableUndefinedException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -35,6 +36,11 @@ abstract class FrontMatterObject
      * @var bool
      */
     protected $frontMatterEvaluated;
+
+    /**
+     * @var FrontMatterParser
+     */
+    protected $frontMatterParser;
 
     /**
      * An array containing the Yaml of the file
@@ -190,15 +196,21 @@ abstract class FrontMatterObject
      * Get the permalink of this Content Item
      *
      * @return string
+     * @throws \Exception
      */
     final public function getPermalink ()
     {
+        if (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion())
+        {
+            throw new \Exception(sprintf('%s::%s() should not be called on a repeater template', __CLASS__, __FUNCTION__));
+        }
+
         if (!is_null($this->permalink))
         {
             return $this->permalink;
         }
 
-        $permalink = (is_array($this->frontMatter) && array_key_exists('permalink', $this->frontMatter)) ?
+        $permalink = (is_array($this->frontMatter) && isset($this->frontMatter['permalink'])) ?
             $this->frontMatter['permalink'] : $this->getPathPermalink();
 
         if (is_array($permalink))
@@ -339,52 +351,7 @@ abstract class FrontMatterObject
      */
     final protected function evaluateYaml (&$yaml)
     {
-        foreach ($yaml as $key => $value)
-        {
-            if (is_array($yaml[$key]))
-            {
-                $this->evaluateYaml($yaml[$key]);
-            }
-            else
-            {
-                $yaml[$key] = $this->evaluateYamlVar($value, $this->frontMatter);
-            }
-        }
-    }
-
-    /**
-     * Evaluate an string for FrontMatter variables and replace them with the corresponding values
-     *
-     * @param  string $string The string that will be evaluated
-     * @param  array  $yaml   The existing front matter from which the variable values will be pulled from
-     *
-     * @return string The final string with variables evaluated
-     *
-     * @throws YamlVariableUndefinedException A FrontMatter variable used does not exist
-     */
-    private function evaluateYamlVar ($string, $yaml)
-    {
-        $variables = array();
-        $varRegex  = '/((?<!\\\\)%[a-zA-Z]+)/';
-        $output    = $string;
-
-        preg_match_all($varRegex, $string, $variables);
-
-        // Default behavior causes $variables[0] is the entire string that was matched. $variables[1] will be each
-        // matching result individually.
-        foreach ($variables[1] as $variable)
-        {
-            $yamlVar = substr($variable, 1); // Trim the '%' from the YAML variable name
-
-            if (!array_key_exists($yamlVar, $yaml))
-            {
-                throw new YamlVariableUndefinedException("Yaml variable `$variable` is not defined");
-            }
-
-            $output = str_replace($variable, $yaml[$yamlVar], $output);
-        }
-
-        return $output;
+        $this->frontMatterParser = new FrontMatterParser($yaml);
     }
 
     /**
