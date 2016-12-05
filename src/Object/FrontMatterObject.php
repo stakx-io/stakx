@@ -2,9 +2,9 @@
 
 namespace allejo\stakx\Object;
 
-use allejo\stakx\Engines\FrontMatterParser;
+use allejo\stakx\FrontMatter\FrontMatterParser;
+use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
 use allejo\stakx\System\Filesystem;
-use allejo\stakx\Exception\YamlVariableUndefinedException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Yaml\Yaml;

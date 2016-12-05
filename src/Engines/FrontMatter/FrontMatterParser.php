@@ -5,10 +5,8 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Engines;
+namespace allejo\stakx\FrontMatter;
 
-use allejo\stakx\Exception\YamlUnsupportedVariableException;
-use allejo\stakx\Exception\YamlVariableUndefinedException;
 use allejo\stakx\Utilities\ArrayUtilities;
 
 class FrontMatterParser
@@ -137,7 +135,8 @@ class FrontMatterParser
         {
             $value = $this->evaluateBasicType($key, $statement, true);
 
-            // Only continue expanding a Front Matter value if variables still exist
+            // Only continue expansion if there are Front Matter variables remain in the string, this means there'll be
+            // Front Matter variables referencing arrays
             $expandingVars = $this->getFrontMatterVariables($value);
             if (!empty($expandingVars))
             {
@@ -151,57 +150,50 @@ class FrontMatterParser
     }
 
     /**
-     * Convert a string or an array into an array of values created through "value expansion"
+     * Convert a string or an array into an array of ExpandedValue objects created through "value expansion"
      *
-     * @param  string $key
-     * @param  string $fmStatement
-     * @param  array  $variables
+     * @param  string $frontMatterKey     The current hierarchy of the Front Matter keys being used
+     * @param  string $expandableValue    The Front Matter value that will be expanded
+     * @param  array  $arrayVariableNames The Front Matter variable names that reference arrays
      *
      * @return array
      *
      * @throws YamlUnsupportedVariableException If a multidimensional array is given for value expansion
      */
-    private function evaluateArrayType ($key, $fmStatement, $variables)
+    private function evaluateArrayType ($frontMatterKey, $expandableValue, $arrayVariableNames)
     {
-        if (!is_array($fmStatement))
+        if (!is_array($expandableValue))
         {
-            $fmStatement = array($fmStatement);
+            $expandableValue = array($expandableValue);
         }
 
-        foreach ($variables as $variable)
+        $this->expansionUsed = true;
+
+        foreach ($arrayVariableNames as $variable)
         {
             if (ArrayUtilities::is_multidimensional($this->frontMatter[$variable]))
             {
-                throw new YamlUnsupportedVariableException("Yaml array expansion is not supported with multidimensional arrays with `$variable` for key `$key`");
+                throw new YamlUnsupportedVariableException("Yaml array expansion is not supported with multidimensional arrays with `$variable` for key `$frontMatterKey`");
             }
 
-            $this->expansionUsed = true;
             $wip = array();
 
-            foreach ($fmStatement as &$statement)
+            foreach ($expandableValue as &$statement)
             {
-                if (!is_array($statement))
-                {
-                    $stringValue = $statement;
-                    $statement = array(
-                        'iterator' => array()
-                    );
-                    $statement['evaluated'] = $stringValue;
-                }
-
                 foreach ($this->frontMatter[$variable] as $value)
                 {
-                    $wip[] = array(
-                        'evaluated' => str_replace('%' . $variable, $value, $statement['evaluated']),
-                        'iterator'  => array_merge($statement['iterator'], array($variable => $value))
-                    );
+                    $evaluatedValue = ($statement instanceof ExpandedValue) ? clone($statement) : new ExpandedValue($statement);
+                    $evaluatedValue->setEvaluated(str_replace('%' . $variable, $value, $evaluatedValue->getEvaluated()));
+                    $evaluatedValue->setIterator($variable, $value);
+
+                    $wip[] = $evaluatedValue;
                 }
             }
 
-            $fmStatement = $wip;
+            $expandableValue = $wip;
         }
 
-        return $fmStatement;
+        return $expandableValue;
     }
 
     /**

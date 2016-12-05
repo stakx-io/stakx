@@ -1,8 +1,9 @@
 <?php
 
-use allejo\stakx\Engines\FrontMatterParser;
-use allejo\stakx\Exception\YamlUnsupportedVariableException;
-use allejo\stakx\Exception\YamlVariableUndefinedException;
+use allejo\stakx\FrontMatter\ExpandedValue;
+use allejo\stakx\FrontMatter\FrontMatterParser;
+use allejo\stakx\FrontMatter\YamlUnsupportedVariableException;
+use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
 
 class FrontMatterParserTest extends PHPUnit_Framework_TestCase
 {
@@ -102,22 +103,18 @@ class FrontMatterParserTest extends PHPUnit_Framework_TestCase
 
         $fmp = new FrontMatterParser($frontMatter);
 
+        $firstEval = new ExpandedValue('/blog/en/');
+        $firstEval->setIterator('languages', 'en');
+
+        $secondEval = new ExpandedValue('/blog/fr/');
+        $secondEval->setIterator('languages', 'fr');
+
         $expected = array(
             'languages' => $frontMatter['languages'],
             'permalink' => array(
                 array(
-                    array(
-                        'evaluated' => '/blog/en/',
-                        'iterator'  => array(
-                            'languages' => 'en'
-                        )
-                    ),
-                    array(
-                        'evaluated' => '/blog/fr/',
-                        'iterator'  => array(
-                            'languages' => 'fr'
-                        )
-                    )
+                    $firstEval,
+                    $secondEval
                 )
             )
         );
@@ -141,36 +138,28 @@ class FrontMatterParserTest extends PHPUnit_Framework_TestCase
 
         $fmp = new FrontMatterParser($frontMatter);
 
+        $firstEval = new ExpandedValue('/blog/en/');
+        $firstEval->setIterator('languages', 'en');
+
+        $secondEval = new ExpandedValue('/blog/fr/');
+        $secondEval->setIterator('languages', 'fr');
+
+        $thirdEval = new ExpandedValue('/el-blog/en/');
+        $thirdEval->setIterator('languages', 'en');
+
+        $fourthEval = new ExpandedValue('/el-blog/fr/');
+        $fourthEval->setIterator('languages', 'fr');
+
         $expected = array(
             'languages' => $frontMatter['languages'],
             'permalink' => array(
                 array(
-                    array(
-                        'evaluated' => '/blog/en/',
-                        'iterator'  => array(
-                            'languages' => 'en'
-                        )
-                    ),
-                    array(
-                        'evaluated' => '/blog/fr/',
-                        'iterator'  => array(
-                            'languages' => 'fr'
-                        )
-                    )
+                    $firstEval,
+                    $secondEval
                 ),
                 array(
-                    array(
-                        'evaluated' => '/el-blog/en/',
-                        'iterator'  => array(
-                            'languages' => 'en'
-                        )
-                    ),
-                    array(
-                        'evaluated' => '/el-blog/fr/',
-                        'iterator'  => array(
-                            'languages' => 'fr'
-                        )
-                    )
+                    $thirdEval,
+                    $fourthEval
                 )
             )
         );

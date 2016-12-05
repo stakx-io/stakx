@@ -4,7 +4,7 @@ namespace allejo\stakx\tests;
 
 use allejo\stakx\Engines\MarkdownEngine;
 use allejo\stakx\Engines\RstEngine;
-use allejo\stakx\Exception\YamlVariableUndefinedException;
+use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
 use allejo\stakx\Object\ContentItem;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
