@@ -19,7 +19,7 @@
     }
   },
   "require": {
-    "twig/twig": "1.26.*",
+    "twig/twig": "^1.26.0",
     "symfony/yaml": "3.1.*",
     "erusev/parsedown": "1.6.*",
     "symfony/filesystem": "3.1.*",
