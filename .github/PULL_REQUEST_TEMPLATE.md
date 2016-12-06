@@ -10,5 +10,5 @@ Write here
 
 ### Check List
 
-- [ ] All unit tests passed
+- [ ] Added appropriate PhpDoc for modifications
 - [ ] Added unit test to ensure fix works as intended
