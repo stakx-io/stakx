@@ -26,9 +26,37 @@ class PageView extends FrontMatterObject
      */
     private static $fileSys;
 
+    /**
+     * @var PageView[]
+     */
+    private $children;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($filePath)
+    {
+        parent::__construct($filePath);
+
+        $this->children = array();
+    }
+
     //
     // Getters
     // =======
+
+    /**
+     * Get child PageViews
+     *
+     * A child is defined as a static PageView whose URL has a parent. For example, a PageView with a URL of
+     * `/gallery/france/` would have the PageView whose URL is `/gallery` as a parent.
+     *
+     * @return PageView[]
+     */
+    public function &getChildren ()
+    {
+        return $this->children;
+    }
 
     /**
      * @return string Twig body
