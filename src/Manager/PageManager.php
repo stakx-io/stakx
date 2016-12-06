@@ -400,7 +400,7 @@ class PageManager extends TrackingManager
         }
         catch (Twig_Error_Syntax $e)
         {
-            $e->setTemplateFile($pageView->getRelativeFilePath());
+            $e->setTemplateName($pageView->getRelativeFilePath());
 
             throw $e;
         }
