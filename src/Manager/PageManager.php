@@ -217,12 +217,11 @@ class PageManager extends TrackingManager
      */
     protected function handleTrackableItem($filePath, $options = array())
     {
-        $pageView = new PageView($filePath);
-        $namespace = 'static';
+        $pageView  = PageView::create($filePath);
+        $namespace = $pageView->getType();
 
-        if ($pageView->getType() == PageView::DYNAMIC_TYPE)
+        if ($namespace == PageView::DYNAMIC_TYPE)
         {
-            $namespace = 'dynamic';
             $frontMatter = $pageView->getFrontMatter(false);
             $collection = $frontMatter['collection'];
 
@@ -238,7 +237,7 @@ class PageManager extends TrackingManager
             'viewType' => $namespace
         ));
 
-        if ($namespace === 'static')
+        if ($namespace == PageView::STATIC_TYPE)
         {
             $this->addToSiteMenu($pageView);
         }

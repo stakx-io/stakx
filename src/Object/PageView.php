@@ -12,6 +12,7 @@ class PageView extends FrontMatterObject
 {
     const TEMPLATE = "---\n%s\n---\n\n%s";
 
+    const REPEATER_TYPE = 'repeater';
     const DYNAMIC_TYPE  = 'dynamic';
     const STATIC_TYPE   = 'static';
 
@@ -25,71 +26,9 @@ class PageView extends FrontMatterObject
      */
     private static $fileSys;
 
-    /**
-     * The Content Items that belong to this Page View. This array will only have elements if it is a dynamic Page View.
-     *
-     * @var ContentItem[]
-     */
-    private $contentItems;
-
-    /**
-     * @var PageView[]
-     */
-    private $children;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct($filePath)
-    {
-        parent::__construct($filePath);
-
-        $this->children = array();
-    }
-
-    //
-    // Dynamic PageView functionality
-    // ==============================
-
-    /**
-     * Add a ContentItem to this Dynamic PageView
-     *
-     * @param ContentItem $contentItem
-     */
-    public function addContentItem (&$contentItem)
-    {
-        $filePath = $this->fs->getRelativePath($contentItem->getFilePath());
-
-        $this->contentItems[$filePath] = &$contentItem;
-        $contentItem->setPageView($this);
-    }
-
-    /**
-     * Get all of the ContentItems that belong to this Dynamic PageView
-     *
-     * @return ContentItem[]
-     */
-    public function getContentItems ()
-    {
-        return $this->contentItems;
-    }
-
     //
     // Getters
     // =======
-
-    /**
-     * Get child PageViews
-     *
-     * A child is defined as a static PageView whose URL has a parent. For example, a PageView with a URL of
-     * `/gallery/france/` would have the PageView whose URL is `/gallery` as a parent.
-     *
-     * @return PageView[]
-     */
-    public function &getChildren ()
-    {
-        return $this->children;
-    }
 
     /**
      * @return string Twig body
@@ -106,6 +45,10 @@ class PageView extends FrontMatterObject
      */
     public function getType ()
     {
+        if (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion())
+        {
+            return self::REPEATER_TYPE;
+        }
 
         if (isset($this->frontMatter['collection']))
         {
@@ -124,6 +67,34 @@ class PageView extends FrontMatterObject
     public function getUrl ()
     {
         return $this->getPermalink();
+    }
+
+    //
+    // Factory
+    // =======
+
+    /**
+     * Create the appropriate object type when parsing a PageView
+     *
+     * @param  string $filePath The path to the file that will be parsed into a PageView
+     *
+     * @return DynamicPageView|PageView|RepeaterPageView
+     */
+    public static function create ($filePath)
+    {
+        $instance = new self($filePath);
+
+        switch ($instance->getType())
+        {
+            case self::REPEATER_TYPE:
+                return (new RepeaterPageView($filePath));
+
+            case self::DYNAMIC_TYPE:
+                return (new DynamicPageView($filePath));
+
+            default:
+                return $instance;
+        }
     }
 
     //
