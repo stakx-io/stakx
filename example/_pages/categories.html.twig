@@ -1,0 +1,16 @@
+---
+title: Repeater Template
+slug: My very first repeater template
+categories:
+  - one
+  - two
+  - three
+permalink:
+  - /categories/%categories/
+---
+
+{% extends "_layouts/base.html.twig" %}
+
+{% block content %}
+    {{ dump(this.iterators) }}
+{% endblock %}

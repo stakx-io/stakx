@@ -78,18 +78,18 @@ abstract class FrontMatterObject
     protected $filePath;
 
     /**
+     * The permalink for this object
+     *
+     * @var string
+     */
+    protected $permalink;
+
+    /**
      * A filesystem object
      *
      * @var Filesystem
      */
     protected $fs;
-
-    /**
-     * The permalink for this object
-     *
-     * @var string
-     */
-    private $permalink;
 
     /**
      * A list URLs that will redirect to this object
@@ -200,14 +200,14 @@ abstract class FrontMatterObject
      */
     final public function getPermalink ()
     {
-        if (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion())
-        {
-            throw new \Exception(sprintf('%s::%s() should not be called on a repeater template', __CLASS__, __FUNCTION__));
-        }
-
         if (!is_null($this->permalink))
         {
             return $this->permalink;
+        }
+
+        if (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion())
+        {
+            throw new \Exception('The permalink for this item has not been set');
         }
 
         $permalink = (is_array($this->frontMatter) && isset($this->frontMatter['permalink'])) ?
@@ -291,6 +291,16 @@ abstract class FrontMatterObject
     final public function getRelativeFilePath ()
     {
         return $this->fs->getRelativePath($this->filePath);
+    }
+
+    /**
+     * Returns true when the evaluated Front Matter has expanded values embeded
+     *
+     * @return bool
+     */
+    final public function hasExpandedFrontMatter ()
+    {
+        return (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion());
     }
 
     /**

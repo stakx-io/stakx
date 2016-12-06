@@ -24,6 +24,7 @@ class DynamicPageView extends PageView
         parent::__construct($filePath);
 
         $this->contentItems = array();
+        $this->type = PageView::DYNAMIC_TYPE;
     }
 
     /**

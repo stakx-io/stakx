@@ -27,6 +27,11 @@ class PageView extends FrontMatterObject
     private static $fileSys;
 
     /**
+     * @var string
+     */
+    protected $type;
+
+    /**
      * @var PageView[]
      */
     private $children;
@@ -39,6 +44,7 @@ class PageView extends FrontMatterObject
         parent::__construct($filePath);
 
         $this->children = array();
+        $this->type = PageView::STATIC_TYPE;
     }
 
     //
@@ -73,17 +79,7 @@ class PageView extends FrontMatterObject
      */
     public function getType ()
     {
-        if (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion())
-        {
-            return self::REPEATER_TYPE;
-        }
-
-        if (isset($this->frontMatter['collection']))
-        {
-            return self::DYNAMIC_TYPE;
-        }
-
-        return self::STATIC_TYPE;
+        return $this->type;
     }
 
     /**
@@ -112,17 +108,19 @@ class PageView extends FrontMatterObject
     {
         $instance = new self($filePath);
 
-        switch ($instance->getType())
+        if (isset($instance->getFrontMatter(false)['collection']))
         {
-            case self::REPEATER_TYPE:
-                return (new RepeaterPageView($filePath));
-
-            case self::DYNAMIC_TYPE:
-                return (new DynamicPageView($filePath));
-
-            default:
-                return $instance;
+            return (new DynamicPageView($filePath));
         }
+
+        $instance->getFrontMatter();
+
+        if ($instance->hasExpandedFrontMatter())
+        {
+            return (new RepeaterPageView($filePath));
+        }
+
+        return $instance;
     }
 
     //

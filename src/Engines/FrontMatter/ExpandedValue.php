@@ -19,6 +19,11 @@ class ExpandedValue
         $this->evaluated = $string;
     }
 
+    public function __toString()
+    {
+        return $this->getEvaluated();
+    }
+
     public function getEvaluated ()
     {
         return $this->evaluated;
