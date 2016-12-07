@@ -1,9 +1,10 @@
 # Stakx
 
-[![Build Status](https://img.shields.io/travis/stakx-io/stakx.svg?maxAge=2592000)](https://travis-ci.org/stakx-io/stakx)
-[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/stakx-io/stakx.svg?maxAge=2592000)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/stakx-io/stakx.svg?maxAge=2592000)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
-[![Dependency Status](https://img.shields.io/versioneye/d/user/projects/57b8ba4e090d4d0039befe69.svg?maxAge=2592000)](https://www.versioneye.com/user/projects/57b8ba4e090d4d0039befe69)
+[![*nix build Status](https://img.shields.io/travis/stakx-io/stakx.svg)](https://travis-ci.org/stakx-io/stakx)
+[![Windows build status](https://ci.appveyor.com/api/projects/status/0otqsetd0079jipd?svg=true)](https://ci.appveyor.com/project/allejo/stakx)
+[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/stakx-io/stakx.svg?maxAge=7200)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/stakx-io/stakx.svg?maxAge=7200)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
+[![Dependency Status](https://img.shields.io/versioneye/d/user/projects/57b8ba4e090d4d0039befe69.svg?maxAge=7200)](https://www.versioneye.com/user/projects/57b8ba4e090d4d0039befe69)
 
 Stakx is a static website generator built in PHP as a powerful alternative to Jekyll or Sculpin. If you have PHP installed on your computer, download Stakx from our Releases and run it! There is no need to download dependencies (`bundle install` or `composer install`) like other tools, everything is bundled in a single executable that just works.
 
