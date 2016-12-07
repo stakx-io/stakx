@@ -5,7 +5,9 @@ php:
   - 7
   - hhvm
 
+dist: trusty
 sudo: false
+group: beta
 
 cache:
   directories:
