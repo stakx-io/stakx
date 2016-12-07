@@ -18,6 +18,11 @@
       "Gregwar\\RST\\HTML\\Nodes\\": "src/Engines/RST/HTML/Nodes/"
     }
   },
+  "autoload-dev": {
+    "classmap": [
+      "tests/Utilities/"
+    ]
+  },
   "require": {
     "twig/twig": "^1.26.0",
     "symfony/yaml": "3.1.*",

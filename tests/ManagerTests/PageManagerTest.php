@@ -6,7 +6,7 @@ use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\Folder;
 use Psr\Log\LoggerInterface;
 
-class PageManagerTest extends PHPUnit_Framework_TestCase
+class PageManagerTest extends PHPUnit_Stakx_TestCase
 {
     private $pageManager;
 
@@ -39,9 +39,17 @@ class PageManagerTest extends PHPUnit_Framework_TestCase
 
     public function testRepeaterTemplateCreation ()
     {
-        $this->assertFileExists(__DIR__ . '/output/menu/breakfast/index.html');
-        $this->assertFileExists(__DIR__ . '/output/menu/lunch/index.html');
-        $this->assertFileExists(__DIR__ . '/output/menu/dinner/index.html');
+        $breakfast = __DIR__ . '/output/menu/breakfast/index.html';
+        $this->assertFileExistsAndContains($breakfast, 'meals:breakfast');
+        $this->assertFileExistsAndContains($breakfast, '/menu/breakfast/');
+
+        $lunch = __DIR__ . '/output/menu/lunch/index.html';
+        $this->assertFileExistsAndContains($lunch, 'meals:lunch');
+        $this->assertFileExistsAndContains($lunch, '/menu/lunch/');
+
+        $dinner = __DIR__ . '/output/menu/dinner/index.html';
+        $this->assertFileExistsAndContains($dinner, 'meals:dinner');
+        $this->assertFileExistsAndContains($dinner, '/menu/dinner/');
     }
 
     /**
