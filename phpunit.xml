@@ -5,9 +5,14 @@
         colors="true">
     <testsuites>
         <testsuite name="Stakx Test Suite">
-            <directory suffix="Test.php" phpVersion="5.3.0" phpVersionOperator=">=">tests</directory>
+            <directory suffix="Test.php" phpVersion="5.4.0" phpVersionOperator=">=">tests</directory>
         </testsuite>
     </testsuites>
+
+    <php>
+        <ini name="display_errors" value="On" />
+        <ini name="display_startup_errors" value="On" />
+    </php>
 
     <filter>
         <blacklist>
