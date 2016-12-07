@@ -6,6 +6,7 @@ use allejo\stakx\Engines\MarkdownEngine;
 use allejo\stakx\Engines\RstEngine;
 use allejo\stakx\Exception\YamlVariableUndefinedException;
 use allejo\stakx\Object\ContentItem;
+use allejo\stakx\System\Filesystem;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
@@ -32,11 +33,17 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
      */
     protected $rootDir;
 
+    /**
+     * @var Filesystem
+     */
+    protected $fs;
+
     public function setUp ()
     {
         $this->fileTemplate = "---\n%s\n---\n\n%s";
         $this->dummyFile    = vfsStream::newFile('foo.html.twig');
         $this->rootDir      = vfsStream::setup();
+        $this->fs           = new Filesystem();
     }
 
     public function testContentItemFilePath ()
@@ -232,7 +239,7 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
 
         $contentItem = $this->createSampleValidFile($frontMatter);
 
-        $this->assertEquals("about/index.html", $contentItem->getTargetFile());
+        $this->assertEquals($this->fs->appendPath('about', 'index.html'), $contentItem->getTargetFile());
     }
 
     public function testContentItemTargetFileFromPrettyUrlWithRedirects ()
@@ -247,7 +254,7 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
         );
         $contentItem = $this->createSampleValidFile($frontMatter);
 
-        $this->assertEquals("canonical/index.html", $contentItem->getTargetFile());
+        $this->assertEquals($this->fs->appendPath('canonical', 'index.html'), $contentItem->getTargetFile());
         $this->assertEquals("/canonical/", $contentItem->getPermalink());
         $this->assertContains("/redirect/", $contentItem->getRedirects());
         $this->assertContains("/redirect-me/", $contentItem->getRedirects());
@@ -261,14 +268,14 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
 
         $contentItem = $this->createSampleValidFile($frontMatter);
 
-        $this->assertEquals("home/about.html", $contentItem->getTargetFile());
+        $this->assertEquals($this->fs->appendPath('home', 'about.html'), $contentItem->getTargetFile());
     }
 
     public function testContentItemTargetFileFromFileWithoutPermalinkAtRoot ()
     {
         $contentItem = $this->createValidFileWithEmptyFrontMatter();
 
-        $this->assertEquals("root/foo.html", $contentItem->getTargetFile());
+        $this->assertEquals($this->fs->appendPath('root', 'foo.html'), $contentItem->getTargetFile());
     }
 
     public function testContentItemTargetFileFromFileWithoutPermalinkInDir ()
@@ -281,7 +288,7 @@ class ContentItemTests extends PHPUnit_Framework_TestCase
 
         $contentItem = new ContentItem($root->getChild('dir/foo.html.twig')->url());
 
-        $this->assertEquals('root/dir/foo.html', $contentItem->getTargetFile());
+        $this->assertEquals($this->fs->appendPath('root', 'dir', 'foo.html'), $contentItem->getTargetFile());
     }
 
     public function testContentItemTargetFileFromFileWithStakxDataFolder ()

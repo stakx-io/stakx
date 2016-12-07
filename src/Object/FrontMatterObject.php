@@ -240,15 +240,16 @@ abstract class FrontMatterObject
      */
     final public function getTargetFile ()
     {
-        $permalink  = $this->getPermalink();
-        $extension  = $this->fs->getExtension($permalink);
+        $permalink = $this->getPermalink();
+        $extension = $this->fs->getExtension($permalink);
+        $permalink = str_replace('/', DIRECTORY_SEPARATOR, $permalink);
 
         if (empty($extension))
         {
-            $permalink = rtrim($permalink, '/') . '/index.html';
+            $permalink = rtrim($permalink, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.html';
         }
 
-        return ltrim($permalink, '/');
+        return ltrim($permalink, DIRECTORY_SEPARATOR);
     }
 
     /**
@@ -470,7 +471,7 @@ abstract class FrontMatterObject
         $permalink = str_replace(' ', '-', $permalink);
 
         // Remove all disallowed characters
-        $permalink = preg_replace('/[^0-9a-zA-Z-_\/\.]/', '', $permalink);
+        $permalink = preg_replace('/[^0-9a-zA-Z-_\/\\\.]/', '', $permalink);
 
         // Handle unnecessary extensions
         $extensionsToStrip = array('twig');
@@ -481,7 +482,7 @@ abstract class FrontMatterObject
         }
 
         // Remove a special './' combination from the beginning of a path
-        if (substr($permalink, 0, 2) === './')
+        if (substr($permalink, 0, 2) === '.' . DIRECTORY_SEPARATOR)
         {
             $permalink = substr($permalink, 2);
         }
