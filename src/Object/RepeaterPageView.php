@@ -63,19 +63,18 @@ class RepeaterPageView extends PageView
 
     private function configureValues ()
     {
-        if (!$this->configured)
-        {
-            $this->getFrontMatter();
-            $evaluated = $this->frontMatter['permalink'];
+        if ($this->configured) { return; }
 
-            $this->permalinks = $evaluated[0];
-            array_shift($evaluated);
-            $this->redirects = $evaluated;
+        $this->getFrontMatter();
+        $evaluated = $this->frontMatter['permalink'];
 
-            $this->permalinksIterator = new \ArrayIterator($this->permalinks);
-            $this->redirectsIterator  = new \ArrayIterator($this->redirects);
+        $this->permalinks = $evaluated[0];
+        array_shift($evaluated);
+        $this->redirects = $evaluated;
 
-            $this->configured = true;
-        }
+        $this->permalinksIterator = new \ArrayIterator($this->permalinks);
+        $this->redirectsIterator  = new \ArrayIterator($this->redirects);
+
+        $this->configured = true;
     }
 }
