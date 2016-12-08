@@ -89,7 +89,7 @@ class FileExplorer extends \RecursiveFilterIterator
      */
     public function accept ()
     {
-        $filePath = str_replace(getcwd() . '/', '', $this->current()->getPathname());
+        $filePath = str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $this->current()->getPathname());
 
         return $this->matchesPattern($filePath);
     }
@@ -147,7 +147,7 @@ class FileExplorer extends \RecursiveFilterIterator
         if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir()) { return false; }
 
         if (!($this->flags & self::ALLOW_DOT_FILES) &&
-            preg_match('#(^|\/)\..+(\/|$)#', $filePath) === 1) { return false; }
+            preg_match('#(^|\\\\|\/)\..+(\\\\|\/|$)#', $filePath) === 1) { return false; }
 
         return ($this->strpos_array($filePath, $this->excludes) === false);
     }
