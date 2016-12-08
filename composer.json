@@ -41,7 +41,7 @@
     "build": [
       "composer install --no-dev",
       "box build",
-      "shasum stakx.phar > stakx.phar.version"
+      "php -r \"file_put_contents('stakx.phar.version', sha1_file('stakx.phar'));\""
     ]
   }
 }
