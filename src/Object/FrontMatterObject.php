@@ -439,11 +439,11 @@ abstract class FrontMatterObject
     private function getPathPermalink ()
     {
         // Remove the protocol of the path, if there is one and prepend a '/' to the beginning
-        $cleanPath = preg_replace('/[\w|\d]+:\/\//', '', $this->filePath);
+        $cleanPath = preg_replace('/[\w|\d]+:\/\//', '', $this->getRelativeFilePath());
         $cleanPath = ltrim($cleanPath, DIRECTORY_SEPARATOR);
 
         // Check the first folder and see if it's a data folder (starts with an underscore) intended for stakx
-        $folders = explode('/', $cleanPath);
+        $folders = explode(DIRECTORY_SEPARATOR, $cleanPath);
 
         if (substr($folders[0], 0, 1) === '_')
         {
