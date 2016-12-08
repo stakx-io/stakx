@@ -12,6 +12,10 @@ class PageView extends FrontMatterObject
 {
     const TEMPLATE = "---\n%s\n---\n\n%s";
 
+    const REPEATER_TYPE = 'repeater';
+    const DYNAMIC_TYPE  = 'dynamic';
+    const STATIC_TYPE   = 'static';
+
     /**
      * @var vfsStreamDirectory
      */
@@ -23,11 +27,9 @@ class PageView extends FrontMatterObject
     private static $fileSys;
 
     /**
-     * The Content Items that belong to this Page View. This array will only have elements if it is a dynamic Page View.
-     *
-     * @var ContentItem[]
+     * @var string
      */
-    private $contentItems;
+    protected $type;
 
     /**
      * @var PageView[]
@@ -42,18 +44,12 @@ class PageView extends FrontMatterObject
         parent::__construct($filePath);
 
         $this->children = array();
+        $this->type = PageView::STATIC_TYPE;
     }
 
-    /**
-     * @param ContentItem $contentItem
-     */
-    public function addContentItem (&$contentItem)
-    {
-        $filePath = $this->fs->getRelativePath($contentItem->getFilePath());
-
-        $this->contentItems[$filePath] = &$contentItem;
-        $contentItem->setPageView($this);
-    }
+    //
+    // Getters
+    // =======
 
     /**
      * Get child PageViews
@@ -77,23 +73,13 @@ class PageView extends FrontMatterObject
     }
 
     /**
-     * Get all of the Content Items
+     * Returns the type of the PageView
      *
-     * @return ContentItem[]
+     * @return string
      */
-    public function getContentItems ()
+    public function getType ()
     {
-        return $this->contentItems;
-    }
-
-    /**
-     * A page is considered "dynamic" if it is dynamically generated from data in a collection.
-     *
-     * @return bool
-     */
-    public function isDynamicPage ()
-    {
-        return isset($this->frontMatter['collection']);
+        return $this->type;
     }
 
     /**
@@ -107,6 +93,63 @@ class PageView extends FrontMatterObject
         return $this->getPermalink();
     }
 
+    //
+    // Factory
+    // =======
+
+    /**
+     * Create the appropriate object type when parsing a PageView
+     *
+     * @param  string $filePath The path to the file that will be parsed into a PageView
+     *
+     * @return DynamicPageView|PageView|RepeaterPageView
+     */
+    public static function create ($filePath)
+    {
+        $instance = new self($filePath);
+
+        if (isset($instance->getFrontMatter(false)['collection']))
+        {
+            return (new DynamicPageView($filePath));
+        }
+
+        $instance->getFrontMatter();
+
+        if ($instance->hasExpandedFrontMatter())
+        {
+            return (new RepeaterPageView($filePath));
+        }
+
+        return $instance;
+    }
+
+    //
+    // Virtual PageViews
+    // =================
+
+    /**
+     * Create a virtual PageView
+     *
+     * @param  array  $frontMatter The Front Matter that this virtual PageView will have
+     * @param  string $body        The body of the virtual PageView
+     *
+     * @return PageView
+     */
+    public static function createVirtual ($frontMatter, $body)
+    {
+        if (is_null(self::$vfsRoot))
+        {
+            self::$vfsRoot = vfsStream::setup();
+        }
+
+        $redirectFile = vfsStream::newFile(sprintf('%s.html.twig', uniqid()));
+        $redirectFile
+            ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $body))
+            ->at(self::$vfsRoot);
+
+        return (new PageView($redirectFile->url()));
+    }
+
     /**
      * Create a virtual PageView to create redirect files
      *
@@ -118,13 +161,11 @@ class PageView extends FrontMatterObject
      */
     public static function createRedirect ($redirectFrom, $redirectTo, $redirectTemplate = false)
     {
-        if (is_null(self::$vfsRoot))
+        if (is_null(self::$fileSys))
         {
-            self::$vfsRoot = vfsStream::setup();
             self::$fileSys = new Filesystem();
         }
 
-        $redirectFile = vfsStream::newFile(sprintf('%s.html.twig', uniqid()));
         $frontMatter  = array(
             'permalink' => $redirectFrom,
             'redirect'  => $redirectTo,
@@ -140,10 +181,6 @@ class PageView extends FrontMatterObject
             $contentItemBody = file_get_contents(self::$fileSys->absolutePath($redirectTemplate));
         }
 
-        $redirectFile
-            ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $contentItemBody))
-            ->at(self::$vfsRoot);
-
-        return (new PageView($redirectFile->url()));
+        return self::createVirtual($frontMatter, $contentItemBody);
     }
 }

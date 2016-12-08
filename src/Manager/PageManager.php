@@ -3,8 +3,11 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Exception\TrackedItemNotFoundException;
+use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Object\ContentItem;
+use allejo\stakx\Object\DynamicPageView;
 use allejo\stakx\Object\PageView;
+use allejo\stakx\Object\RepeaterPageView;
 use allejo\stakx\System\FileExplorer;
 use allejo\stakx\System\Folder;
 use Twig_Error_Syntax;
@@ -181,7 +184,7 @@ class PageManager extends TrackingManager
      */
     public function updatePageView ($contentItem)
     {
-        /** @var PageView $pageView */
+        /** @var DynamicPageView $pageView */
         foreach ($this->trackedItems['dynamic'] as &$pageView)
         {
             $fm = $pageView->getFrontMatter(false);
@@ -217,12 +220,11 @@ class PageManager extends TrackingManager
      */
     protected function handleTrackableItem($filePath, $options = array())
     {
-        $pageView = new PageView($filePath);
-        $namespace = 'static';
+        $pageView  = PageView::create($filePath);
+        $namespace = $pageView->getType();
 
-        if ($pageView->isDynamicPage())
+        if ($namespace == PageView::DYNAMIC_TYPE)
         {
-            $namespace = 'dynamic';
             $frontMatter = $pageView->getFrontMatter(false);
             $collection = $frontMatter['collection'];
 
@@ -238,7 +240,7 @@ class PageManager extends TrackingManager
             'viewType' => $namespace
         ));
 
-        if ($namespace === 'static')
+        if ($namespace == PageView::STATIC_TYPE)
         {
             $this->addToSiteMenu($pageView);
         }
@@ -263,23 +265,11 @@ class PageManager extends TrackingManager
         $pageView = &$this->trackedItemsFlattened[$filePath];
 
         $this->compilePageView($pageView, $refresh);
-
-        // Create redirect files as needed
-        foreach ($pageView->getRedirects() as $redirect)
-        {
-            $redirectPageView = PageView::createRedirect(
-                $redirect,
-                $pageView->getPermalink(),
-                $this->redirectTemplate
-            );
-
-            $this->compilePageView($redirectPageView);
-        }
     }
 
     /**
-     * @param PageView $pageView
-     * @param bool     $refresh
+     * @param DynamicPageView|PageView|RepeaterPageView $pageView
+     * @param bool                                      $refresh
      */
     private function compilePageView ($pageView, $refresh = false)
     {
@@ -288,13 +278,50 @@ class PageManager extends TrackingManager
             $pageView->refreshFileContent();
         }
 
-        if ($pageView->isDynamicPage())
+        switch ($pageView->getType())
         {
-            $this->compileDynamicPageView($pageView);
+            case PageView::REPEATER_TYPE:
+                $this->compileRepeaterPageView($pageView);
+                $this->compileExpandedRedirects($pageView);
+                break;
+
+            case PageView::DYNAMIC_TYPE:
+                $this->compileDynamicPageView($pageView);
+                $this->compileNormalRedirects($pageView);
+                break;
+
+            case PageView::STATIC_TYPE:
+                $this->compileStaticPageView($pageView);
+                $this->compileNormalRedirects($pageView);
+                break;
         }
-        else
+    }
+
+    /**
+     * @param RepeaterPageView $pageView
+     */
+    private function compileRepeaterPageView (&$pageView)
+    {
+        $template = $this->createTemplate($pageView);
+
+        foreach ($pageView->getRepeaterPermalinks() as $permalink)
         {
-            $this->compileStaticPageView($pageView);
+            $pageView->bumpPermalink();
+
+            $frontMatter = array_merge(
+                $pageView->getFrontMatter(),
+                array(
+                    'permalink' => $permalink->getEvaluated(),
+                    'iterators' => $permalink->getIterators()
+                )
+            );
+
+            $output = $template->render(array(
+                'this' => $frontMatter
+            ));
+
+            $this->output->notice("Writing repeater file: {file}", array('file' => $pageView->getTargetFile()));
+            $this->targetDir->writeFile($pageView->getTargetFile(), $output);
         }
     }
 
@@ -334,6 +361,49 @@ class PageManager extends TrackingManager
 
         $this->output->notice("Writing file: {file}", array('file' => $pageView->getTargetFile()));
         $this->targetDir->writeFile($pageView->getTargetFile(), $output);
+    }
+
+    /**
+     * @param DynamicPageView|PageView $pageView
+     */
+    private function compileNormalRedirects (&$pageView)
+    {
+        foreach ($pageView->getRedirects() as $redirect)
+        {
+            $redirectPageView = PageView::createRedirect(
+                $redirect,
+                $pageView->getPermalink(),
+                $this->redirectTemplate
+            );
+
+            $this->compilePageView($redirectPageView);
+        }
+    }
+
+    /**
+     * @param RepeaterPageView $pageView
+     */
+    private function compileExpandedRedirects (&$pageView)
+    {
+        $permalinks = $pageView->getRepeaterPermalinks();
+
+        foreach ($pageView->getRepeaterRedirects() as $repeaterRedirect)
+        {
+            /**
+             * @var int           $index
+             * @var ExpandedValue $redirect
+             */
+            foreach ($repeaterRedirect as $index => $redirect)
+            {
+                $redirectPageView = PageView::createRedirect(
+                    $redirect->getEvaluated(),
+                    $permalinks[$index]->getEvaluated(),
+                    $this->redirectTemplate
+                );
+
+                $this->compilePageView($redirectPageView);
+            }
+        }
     }
 
     /**
@@ -400,7 +470,7 @@ class PageManager extends TrackingManager
         }
         catch (Twig_Error_Syntax $e)
         {
-            $e->setTemplateFile($pageView->getRelativeFilePath());
+            $e->setTemplateName($pageView->getRelativeFilePath());
 
             throw $e;
         }

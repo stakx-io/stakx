@@ -4,6 +4,17 @@ namespace allejo\stakx\Utilities;
 
 abstract class ArrayUtilities
 {
+    public static function is_multidimensional (array &$array)
+    {
+        foreach ($array as $element)
+        {
+            if (is_array($element))
+                return true;
+        }
+
+        return false;
+    }
+    
     public static function array_merge_defaults (array &$array1, array &$array2, $keyField)
     {
         $merged = $array1;

@@ -58,6 +58,7 @@ class ContentItem extends FrontMatterObject
 
                 case "rst":
                     $pd = new RstEngine();
+                    $pd->setIncludePolicy(true, getcwd());
                     break;
 
                 default:

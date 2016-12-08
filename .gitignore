@@ -151,5 +151,6 @@ fabric.properties
 .stakx-cache
 .sass-cache
 _site
+output
 *.phar*
 .travis/phar-deploy.pem
