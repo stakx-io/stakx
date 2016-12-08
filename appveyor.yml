@@ -9,6 +9,10 @@ branches:
   except:
     - gh-pages
 
+cache:
+  - vendor
+  - '%LocalAppData%\Composer'
+
 install:
   - cinst -y OpenSSL.Light
   - SET PATH=C:\Program Files\OpenSSL;%PATH%
@@ -21,7 +25,7 @@ install:
   - SET PATH=C:\tools\php;%PATH%
   - cd C:\projects\stakx
   - php -r "readfile('http://getcomposer.org/installer');" | php
-  - php composer.phar install --prefer-source --no-interaction
+  - php composer.phar install --no-interaction --prefer-dist
 
 test_script:
   - cd C:\projects\stakx
