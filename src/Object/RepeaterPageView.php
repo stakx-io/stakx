@@ -52,20 +52,19 @@ class RepeaterPageView extends PageView
         return $this->redirects;
     }
 
-    public function bump ()
+    public function bumpPermalink ()
     {
         $this->permalink = $this->permalinksIterator->current()->getEvaluated();
-        $this->redirects = $this->redirectsIterator->current();
-
         $this->permalinksIterator->next();
-        $this->redirectsIterator->next();
     }
 
     private function configureValues ()
     {
         if ($this->configured) { return; }
 
+        // Cause the Front Matter to be evaluated
         $this->getFrontMatter();
+
         $evaluated = $this->frontMatter['permalink'];
 
         $this->permalinks = $evaluated[0];
