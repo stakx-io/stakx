@@ -442,6 +442,12 @@ abstract class FrontMatterObject
         $cleanPath = preg_replace('/[\w|\d]+:\/\//', '', $this->getRelativeFilePath());
         $cleanPath = ltrim($cleanPath, DIRECTORY_SEPARATOR);
 
+        // Handle vfs:// paths by replacing their forward slashes with the OS appropriate directory separator
+        if (DIRECTORY_SEPARATOR !== '/')
+        {
+            $cleanPath = str_replace('/', DIRECTORY_SEPARATOR, $cleanPath);
+        }
+
         // Check the first folder and see if it's a data folder (starts with an underscore) intended for stakx
         $folders = explode(DIRECTORY_SEPARATOR, $cleanPath);
 
