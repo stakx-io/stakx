@@ -1,4 +1,4 @@
-## 0.1.0 Beta 3 "Repeat Stuff, Repeat Stuff, Gotta Repeat Stuff"
+## (In Development) 0.1.0 Beta 3 "Repeat Stuff, Repeat Stuff, Gotta Repeat Stuff"
 
 Bug fixes, improved Windows support, and repeaters!
 
