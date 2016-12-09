@@ -1,3 +1,31 @@
+## 0.1.0 Beta 3 "Repeat Stuff, Repeat Stuff, Gotta Repeat Stuff"
+
+Bug fixes, improved Windows support, and repeaters!
+
+**New**
+
+- Introduction of a new Repeater PageView
+    - Repeater PageViews can also support automatic redirects to the permalink
+- Added support for redirecting to PageViews or ContentItems
+    - By making the `permalink` Front Matter attribute an array of URLs instead of a single one, you will enable automatic redirects. The first element in that list will be the permalink while all the others will redirect automatically to the first link
+    - Redirects can be special templates you define in your `_config.yml` or a generic will be used
+- Percent signs can be escaped in Front Matter now by using `\` to escape it
+- Unit tests are now tested on AppVeyor in addition to Travis to test Windows
+
+**Changes**
+
+- The `menu` Twig variable is now an array of PageViews instead of an array with limited information
+- FrontMatter evaluation has evolved into its own parser with supported for "expanded values"
+
+**Fixes**
+
+- The `order` Twig filter now works with PageViews
+- Fixed fenced code blocks wouldn't render as escaped HTML
+- RST include vulnerability has been fixed; everything is now jailed to the current working directory while building the website
+- Fix `composer build` functionality on Windows
+- Fix file paths used by Stakx internally to be Windows friendly
+- Fix automatic permalink generation based on relative paths
+
 ## 0.1.0 Beta 2 "The Flash"
 
 The compile time of a website and watch command startup time has been improved drastically.
