@@ -26,7 +26,7 @@ class CollectionManager extends TrackingManager
     /**
      * @param  string $filePath
      *
-     * @return ContentItem|null
+     * @return ContentItem
      */
     public function &getContentItem ($filePath)
     {

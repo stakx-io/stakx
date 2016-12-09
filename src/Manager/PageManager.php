@@ -387,6 +387,7 @@ class PageManager extends TrackingManager
     {
         $permalinks = $pageView->getRepeaterPermalinks();
 
+        /** @var ExpandedValue[] $repeaterRedirect */
         foreach ($pageView->getRepeaterRedirects() as $repeaterRedirect)
         {
             /**

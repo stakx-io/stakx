@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 abstract class BaseManager implements LoggerAwareInterface
 {
     /**
-     * @var StakxLogger
+     * @var LoggerInterface
      */
     protected $output;
 

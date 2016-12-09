@@ -9,7 +9,7 @@ namespace allejo\stakx\System;
 
 use Symfony\Component\Finder\SplFileInfo;
 
-class FileExplorer extends \RecursiveFilterIterator
+class FileExplorer extends \RecursiveFilterIterator implements \Iterator
 {
     /**
      * A bitwise flag to have FileExplorer ignore all files unless its been explicitly included; all other files will be

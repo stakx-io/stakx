@@ -13,9 +13,9 @@ class MarkdownEngine extends \Parsedown
         $this->highlighter = new Highlighter();
     }
 
-    protected function blockHeader($Line)
+    protected function blockHeader($line)
     {
-        $Block = parent::blockHeader($Line);
+        $Block = parent::blockHeader($line);
 
         // Create our unique ids by sanitizing the header content
         $id = strtolower($Block['element']['text']);
@@ -39,10 +39,12 @@ class MarkdownEngine extends \Parsedown
             {
                 $highlighted = $this->highlighter->highlight($language, $block['element']['text']['text']);
                 $block['element']['text']['text'] = $highlighted->value;
-            }
-            catch (\DomainException $exception) {}
 
-            return $block;
+                // Only return the block if Highlighter knew the language and how to handle it.
+                return $block;
+            }
+            // Exception thrown when language not supported, so just catch it and ignore it.
+            catch (\DomainException $exception) {}
         }
 
         return parent::blockFencedCodeComplete($block);

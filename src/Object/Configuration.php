@@ -22,7 +22,7 @@ class Configuration implements LoggerAwareInterface
     private $configuration;
 
     /**
-     * @var StakxLogger
+     * @var LoggerInterface
      */
     private $output;
 

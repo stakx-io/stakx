@@ -21,16 +21,16 @@ class RepeaterPageView extends PageView
     /**
      * All of the expanded permalinks
      *
-     * @var ExpandedValue
+     * @var ExpandedValue[]
      */
     private $permalinks;
 
     /**
      * All of expanded redirects that should point to the respective permalink; this is estimated by index
      *
-     * @var ExpandedValue[]
+     * @var ExpandedValue[][]
      */
-    private $redirects;
+    private $redirectLinks;
 
     /**
      * {@inheritdoc}
@@ -47,7 +47,7 @@ class RepeaterPageView extends PageView
     /**
      * Get the expanded values for the permalinks to this PageView
      *
-     * @return ExpandedValue
+     * @return ExpandedValue[]
      */
     public function getRepeaterPermalinks ()
     {
@@ -57,11 +57,11 @@ class RepeaterPageView extends PageView
     /**
      * Get the expanded values for the redirects pointing to this PageView
      *
-     * @return ExpandedValue[]
+     * @return ExpandedValue[][]
      */
     public function getRepeaterRedirects ()
     {
-        return $this->redirects;
+        return $this->redirectLinks;
     }
 
     /**
@@ -94,9 +94,8 @@ class RepeaterPageView extends PageView
 
         $this->permalinks = $evaluated[0];
         array_shift($evaluated);
-        $this->redirects = $evaluated;
+        $this->redirectLinks = $evaluated;
 
         $this->permalinksIterator = new \ArrayIterator($this->permalinks);
-        $this->configured = true;
     }
 }
