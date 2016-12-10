@@ -7,6 +7,7 @@ use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
 use allejo\stakx\System\Filesystem;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
 abstract class FrontMatterObject implements Jailable
@@ -85,7 +86,7 @@ abstract class FrontMatterObject implements Jailable
     /**
      * The original file path to the ContentItem
      *
-     * @var string
+     * @var SplFileInfo
      */
     protected $filePath;
 
@@ -109,6 +110,13 @@ abstract class FrontMatterObject implements Jailable
      * @var string[]
      */
     private $redirects;
+
+    /**
+     * The number of lines that Twig template errors should offset
+     *
+     * @var int
+     */
+    private $lineOffset;
 
     /**
      * ContentItem constructor.
@@ -324,7 +332,23 @@ abstract class FrontMatterObject implements Jailable
      */
     final public function getRelativeFilePath ()
     {
+        if ($this->filePath instanceof SplFileInfo)
+        {
+            return $this->filePath->getRelativePathname();
+        }
+
+        // TODO ensure that we always get SplFileInfo objects, even when handling VFS documents
         return $this->fs->getRelativePath($this->filePath);
+    }
+
+    /**
+     * The number of lines that are taken up by FrontMatter and white space
+     *
+     * @return int
+     */
+    final public function getLineOffset ()
+    {
+        return $this->lineOffset;
     }
 
     /**
@@ -345,24 +369,25 @@ abstract class FrontMatterObject implements Jailable
         $rawFileContents = file_get_contents($this->filePath);
 
         $frontMatter = array();
-        preg_match('/---(.*?)---(.*)/s', $rawFileContents, $frontMatter);
+        preg_match('/---(.*?)---(\n(?:[\s|\n]+)?)(.*)/s', $rawFileContents, $frontMatter);
 
-        if (count($frontMatter) != 3)
+        if (count($frontMatter) != 4)
         {
             throw new IOException(sprintf("'%s' is not a valid ContentItem",
                     $this->fs->getFileName($this->filePath))
             );
         }
 
-        if (empty(trim($frontMatter[2])))
+        if (empty(trim($frontMatter[3])))
         {
             throw new IOException(sprintf('A ContentItem (%s) must have a body to render',
                     $this->fs->getFileName($this->filePath))
             );
         }
 
+        $this->lineOffset  = substr_count($frontMatter[1], "\n") + substr_count($frontMatter[2], "\n");
         $this->frontMatter = Yaml::parse($frontMatter[1]);
-        $this->bodyContent = trim($frontMatter[2]);
+        $this->bodyContent = $frontMatter[3];
 
         $this->frontMatterEvaluated = false;
         $this->bodyContentEvaluated = false;

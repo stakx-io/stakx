@@ -27,6 +27,8 @@ Bug fixes, improved Windows support, and repeaters!
 - Fix file paths used by Stakx internally to be Windows friendly
 - Fix automatic permalink generation based on relative paths
 - `this` in Twig will always refer to an object now, instead of just FrontMatter (which PageView was an offender of and didn't allow functions to be called)
+- Twig error line numbers now take into account the offset of the FrontMatter in the document
+- Twig errors now show the correct relative file path instead of just the filename
 
 ## 0.1.0 Beta 2 "The Flash"
 
