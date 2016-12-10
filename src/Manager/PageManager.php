@@ -307,17 +307,13 @@ class PageManager extends TrackingManager
         foreach ($pageView->getRepeaterPermalinks() as $permalink)
         {
             $pageView->bumpPermalink();
-
-            $frontMatter = array_merge(
-                $pageView->getFrontMatter(),
-                array(
-                    'permalink' => $permalink->getEvaluated(),
-                    'iterators' => $permalink->getIterators()
-                )
-            );
+            $pageView->setFrontMatter(array(
+                'permalink' => $permalink->getEvaluated(),
+                'iterators' => $permalink->getIterators()
+            ));
 
             $output = $template->render(array(
-                'this' => $frontMatter
+                'this' => $pageView
             ));
 
             $this->output->notice("Writing repeater file: {file}", array('file' => $pageView->getTargetFile()));
@@ -356,7 +352,7 @@ class PageManager extends TrackingManager
 
         $template = $this->createTemplate($pageView);
         $output = $template->render(array(
-            'this' => $pageView->getFrontMatter()
+            'this' => $pageView
         ));
 
         $this->output->notice("Writing file: {file}", array('file' => $pageView->getTargetFile()));

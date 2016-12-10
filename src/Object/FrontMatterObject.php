@@ -22,6 +22,14 @@ abstract class FrontMatterObject
     protected $dataDependencies;
 
     /**
+     * FrontMatter values that can be injected or set after the file has been parsed. Values in this array will take
+     * precedence over values in $frontMatter
+     *
+     * @var array
+     */
+    protected $writableFrontMatter;
+
+    /**
      * A list of Front Matter values that should not be returned directly from the $frontMatter array. Values listed
      * here have dedicated functions that handle those Front Matter values and the respective functions should be called
      * instead.
@@ -110,6 +118,7 @@ abstract class FrontMatterObject
     public function __construct ($filePath)
     {
         $this->frontMatterBlacklist = array('permalink', 'redirects');
+        $this->writableFrontMatter = array();
 
         $this->filePath  = $filePath;
         $this->fs        = new Filesystem();
@@ -134,7 +143,12 @@ abstract class FrontMatterObject
      */
     public function __get ($name)
     {
-        return (array_key_exists($name, $this->frontMatter) ? $this->frontMatter[$name] : null);
+        if (isset($this->writableFrontMatter[$name]))
+        {
+            return $this->writableFrontMatter[$name];
+        }
+
+        return (isset($this->frontMatter[$name]) ? $this->frontMatter[$name] : null);
     }
 
     /**
@@ -147,7 +161,10 @@ abstract class FrontMatterObject
      */
     public function __isset ($name)
     {
-        return (!in_array($name, $this->frontMatterBlacklist)) && array_key_exists($name, $this->frontMatter);
+        return (
+            !isset($this->frontMatterBlacklist[$name])) &&
+            (isset($this->frontMatter[$name]) || isset($this->writableFrontMatter[$name])
+        );
     }
 
     /**
@@ -351,6 +368,51 @@ abstract class FrontMatterObject
     final public function hasTwigDependency ($namespace, $needle)
     {
         return (in_array($needle, $this->dataDependencies[$namespace]));
+    }
+
+    /**
+     * Append a custom FrontMatter value
+     *
+     * @param array $frontMatter
+     */
+    final public function appendFrontMatter (array $frontMatter)
+    {
+        foreach ($frontMatter as $key => $value)
+        {
+            $this->writableFrontMatter[$key] = $value;
+        }
+    }
+
+    /**
+     * Delete a custom FrontMatter value
+     *
+     * This will not delete a FrontMatter value parsed from the file
+     *
+     * @param string $key
+     */
+    final public function deleteFrontMatter ($key)
+    {
+        if (!isset($this->writableFrontMatter[$key])) { return; }
+
+        unset($this->writableFrontMatter[$key]);
+    }
+
+    /**
+     * Set custom FrontMatter values
+     *
+     * These custom values are temporary and will take precedence over Front Matter evaluated from the file but is only
+     * available to Twig templates
+     *
+     * @param array $frontMatter
+     */
+    final public function setFrontMatter (array $frontMatter)
+    {
+        if (!is_array($frontMatter))
+        {
+            throw new \InvalidArgumentException('An array is required for setting the writable FrontMatter');
+        }
+
+        $this->writableFrontMatter = $frontMatter;
     }
 
     /**
