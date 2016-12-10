@@ -16,6 +16,7 @@ Bug fixes, improved Windows support, and repeaters!
 
 - The `menu` Twig variable is now an array of PageViews instead of an array with limited information
 - FrontMatter evaluation has evolved into its own parser with supported for "expanded values"
+- All objects passed to Twig as `this` are now *JailObjects* which restrict the functions that can be called from Twig; this will prevent undefined behavior
 
 **Fixes**
 
@@ -25,6 +26,7 @@ Bug fixes, improved Windows support, and repeaters!
 - Fix `composer build` functionality on Windows
 - Fix file paths used by Stakx internally to be Windows friendly
 - Fix automatic permalink generation based on relative paths
+- `this` in Twig will always refer to an object now, instead of just FrontMatter (which PageView was an offender of and didn't allow functions to be called)
 
 ## 0.1.0 Beta 2 "The Flash"
 
