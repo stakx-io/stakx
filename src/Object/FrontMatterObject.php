@@ -9,8 +9,12 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class FrontMatterObject
+abstract class FrontMatterObject implements Jailable
 {
+    protected static $whiteListFunctions = array(
+        'getPermalink', 'getRedirects', 'getTargetFile', 'getName', 'getFilePath', 'getRelativeFilePath', 'getContent'
+    );
+
     /**
      * An array to keep track of collection or data dependencies used inside of a Twig template
      *
@@ -160,6 +164,18 @@ abstract class FrontMatterObject
      * @return bool
      */
     public function __isset ($name)
+    {
+        return $this->isMagicGet($name);
+    }
+
+    /**
+     * Check if a specific value is defined in the Front Matter
+     *
+     * @param  string $name
+     *
+     * @return bool
+     */
+    public function isMagicGet ($name)
     {
         return (
             !in_array($name, $this->frontMatterBlacklist)) &&

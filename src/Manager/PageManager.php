@@ -313,7 +313,7 @@ class PageManager extends TrackingManager
             ));
 
             $output = $template->render(array(
-                'this' => $pageView
+                'this' => $pageView->createJail()
             ));
 
             $this->output->notice("Writing repeater file: {file}", array('file' => $pageView->getTargetFile()));
@@ -335,7 +335,7 @@ class PageManager extends TrackingManager
         foreach ($this->collections[$collection] as &$contentItem)
         {
             $output = $template->render(array(
-                'this' => $contentItem
+                'this' => $contentItem->createJail()
             ));
 
             $this->output->notice("Writing file: {file}", array('file' => $contentItem->getTargetFile()));
@@ -352,7 +352,7 @@ class PageManager extends TrackingManager
 
         $template = $this->createTemplate($pageView);
         $output = $template->render(array(
-            'this' => $pageView
+            'this' => $pageView->createJail()
         ));
 
         $this->output->notice("Writing file: {file}", array('file' => $pageView->getTargetFile()));

@@ -22,6 +22,16 @@ class ContentItem extends FrontMatterObject
      */
     private $parentPageView;
 
+    /**
+     * {@inheritdoc}
+     */
+    public function createJail ()
+    {
+        return (new JailObject($this, array_merge(self::$whiteListFunctions, array(
+            'getCollection'
+        )), array('getPageView' => 'getJailedPageView')));
+    }
+
     public function getCollection ()
     {
         return $this->parentCollection;
@@ -83,6 +93,11 @@ class ContentItem extends FrontMatterObject
     public function &getPageView ()
     {
         return $this->parentPageView;
+    }
+
+    public function getJailedPageView ()
+    {
+        return $this->parentPageView->createJail();
     }
 
     /**

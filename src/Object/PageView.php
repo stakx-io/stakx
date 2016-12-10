@@ -48,6 +48,32 @@ class PageView extends FrontMatterObject
     }
 
     //
+    // Twig Jail
+    // =========
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createJail ()
+    {
+        return (new JailObject($this, array_merge(self::$whiteListFunctions, array(
+            'getUrl'
+        )), array('getChildren' => 'getJailedChildren')));
+    }
+
+    public function getJailedChildren ()
+    {
+        $children = $this->children;
+
+        foreach ($children as &$child)
+        {
+            $child = $child->createJail();
+        }
+
+        return $children;
+    }
+
+    //
     // Getters
     // =======
 
