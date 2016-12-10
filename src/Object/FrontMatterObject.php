@@ -93,6 +93,14 @@ abstract class FrontMatterObject
     protected $permalink;
 
     /**
+     * When set to true, only certain functions will be allowed to be called. This is to allow limited functionality
+     * from within Twig templates
+     *
+     * @var bool
+     */
+    protected $protectedMode;
+
+    /**
      * A filesystem object
      *
      * @var Filesystem
@@ -162,7 +170,7 @@ abstract class FrontMatterObject
     public function __isset ($name)
     {
         return (
-            !isset($this->frontMatterBlacklist[$name])) &&
+            !in_array($name, $this->frontMatterBlacklist)) &&
             (isset($this->frontMatter[$name]) || isset($this->writableFrontMatter[$name])
         );
     }
