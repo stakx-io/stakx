@@ -489,9 +489,14 @@ abstract class FrontMatterObject implements Jailable
 
             if (!$itemDate === false)
             {
-                $this->frontMatter['year']  = $itemDate->format('Y');
-                $this->frontMatter['month'] = $itemDate->format('m');
-                $this->frontMatter['day']   = $itemDate->format('d');
+                // Localize dates in FrontMatter based on the timezone set in the PHP configuration
+                $timezone = new \DateTimeZone(date_default_timezone_get());
+                $localizedDate = new \DateTime($itemDate->format('Y-m-d h:i:s'), $timezone);
+
+                $this->frontMatter['date']  = $localizedDate->format('U');
+                $this->frontMatter['year']  = $localizedDate->format('Y');
+                $this->frontMatter['month'] = $localizedDate->format('m');
+                $this->frontMatter['day']   = $localizedDate->format('d');
             }
         }
     }
