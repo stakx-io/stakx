@@ -7,6 +7,14 @@ use Twig_Error_Syntax;
 
 class WhereFilter
 {
+    /**
+     * @param  array|FrontMatterObject[] $array      The elements to filter through
+     * @param  string                    $key        The key value in an associative array or FrontMatter
+     * @param  string                    $comparison The actual comparison symbols being used
+     * @param  mixed                     $value      The value we're searching for
+     *
+     * @return array
+     */
     public function __invoke ($array, $key, $comparison, $value)
     {
         $results = array();
@@ -15,11 +23,23 @@ class WhereFilter
         return $results;
     }
 
+    /**
+     * @return \Twig_SimpleFilter
+     */
     public static function get ()
     {
         return new \Twig_SimpleFilter('where', new self());
     }
 
+    /**
+     * Recursive searching calling our comparison
+     *
+     * @param array|FrontMatterObject[] $array      The elements to filter through
+     * @param string                    $key        The key value in an associative array or FrontMatter
+     * @param string                    $comparison The actual comparison symbols being used
+     * @param string                    $value      The value we're searching for
+     * @param array                     $results    The reference to where to keep the filtered elements
+     */
     private function search_r ($array, $key, $comparison, $value, &$results)
     {
         if (!is_array($array) && !($array instanceof FrontMatterObject))
@@ -38,6 +58,18 @@ class WhereFilter
         }
     }
 
+    /**
+     * The logic for determining if an element matches the filter
+     *
+     * @param  array|FrontMatterObject[] $array      The elements to filter through
+     * @param  string                    $key        The key value in an associative array or FrontMatter
+     * @param  string                    $comparison The actual comparison symbols being used
+     * @param  mixed                     $value      The value we're searching for
+     *
+     * @return bool
+     *
+     * @throws Twig_Error_Syntax
+     */
     private function compare ($array, $key, $comparison, $value)
     {
         $fm = false;
