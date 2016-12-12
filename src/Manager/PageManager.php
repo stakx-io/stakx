@@ -261,8 +261,13 @@ class PageManager extends TrackingManager
             throw new TrackedItemNotFoundException('PageView not found');
         }
 
-        /** @var PageView $pageView */
+        /** @var DynamicPageView|PageView|RepeaterPageView $pageView */
         $pageView = &$this->trackedItemsFlattened[$filePath];
+
+        if ($pageView->getType() === PageView::REPEATER_TYPE)
+        {
+            $pageView->rewindPermalink();
+        }
 
         $this->compilePageView($pageView, $refresh);
     }

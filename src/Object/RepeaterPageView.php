@@ -77,7 +77,7 @@ class RepeaterPageView extends PageView
     /**
      * Rewind the permalink iterator to the beginning
      */
-    public function resetPermalink ()
+    public function rewindPermalink ()
     {
         $this->permalinksIterator->rewind();
     }
