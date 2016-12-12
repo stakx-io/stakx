@@ -2,15 +2,17 @@
 
 namespace allejo\stakx\tests;
 
+use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Twig\WhereFilter;
-use PHPUnit_Framework_TestCase;
 
-class WhereFilterTests extends PHPUnit_Framework_TestCase
+class WhereFilterTests extends \PHPUnit_Stakx_TestCase
 {
     private $dataset;
 
     public function setUp ()
     {
+        parent::setUp();
+
         $this->dataset = array(
             array(
                 'name' => 'One Five',
@@ -117,5 +119,30 @@ class WhereFilterTests extends PHPUnit_Framework_TestCase
         $twigSimpleFilter = WhereFilter::get();
 
         $this->assertInstanceOf(\Twig_SimpleFilter::class, $twigSimpleFilter);
+    }
+
+    public function testWhereFilterAgainstContentItem ()
+    {
+        $elements = array(
+            $this->createVirtualFile(ContentItem::class, array(
+                'aggregate' => 'toast',
+                'category'  => 'warm'
+            )),
+            $this->createVirtualFile(ContentItem::class, array(
+                'aggregate' => 'bacon',
+                'category'  => 'warm'
+            )),
+            $this->createVirtualFile(ContentItem::class, array(
+                'aggregate' => 'pancake',
+                'category'  => 'cold'
+            ))
+        );
+
+        $whereFilter = new WhereFilter();
+        $filteredAggregate = $whereFilter($elements, 'aggregate', '==', 'toast');
+        $filteredCategory  = $whereFilter($elements, 'category',  '==', 'warm');
+
+        $this->assertCount(1, $filteredAggregate);
+        $this->assertCount(2, $filteredCategory);
     }
 }

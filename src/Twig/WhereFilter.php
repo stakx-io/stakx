@@ -2,7 +2,7 @@
 
 namespace allejo\stakx\Twig;
 
-use allejo\stakx\Object\ContentItem;
+use allejo\stakx\Object\FrontMatterObject;
 use Twig_Error_Syntax;
 
 class WhereFilter
@@ -22,7 +22,7 @@ class WhereFilter
 
     private function search_r ($array, $key, $comparison, $value, &$results)
     {
-        if (!is_array($array) && !($array instanceof ContentItem))
+        if (!is_array($array) && !($array instanceof FrontMatterObject))
         {
             return;
         }
@@ -42,7 +42,7 @@ class WhereFilter
     {
         $fm = false;
 
-        if ($array instanceof ContentItem)
+        if ($array instanceof FrontMatterObject)
         {
             $array = $array->getFrontMatter();
             $fm = true;

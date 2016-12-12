@@ -32,7 +32,7 @@ abstract class PHPUnit_Stakx_TestCase extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->dummyFile    = vfsStream::newFile('foo.html.twig');
+        $this->dummyFile    = vfsStream::newFile('stakx.html.twig');
         $this->rootDir      = vfsStream::setup();
         $this->fs           = new Filesystem();
     }
@@ -54,7 +54,7 @@ abstract class PHPUnit_Stakx_TestCase extends PHPUnit_Framework_TestCase
     // Utility Functions
     //
 
-    protected function createVirtualFile ($frontMatter = array(), $body = "Body Text", $classType)
+    protected function createVirtualFile ($classType, $frontMatter = array(), $body = "Body Text")
     {
         $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
 

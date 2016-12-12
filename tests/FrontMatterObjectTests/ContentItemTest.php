@@ -242,7 +242,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     {
         $contentItem = $this->createContentItemWithEmptyFrontMatter();
 
-        $this->assertEquals($this->fs->appendPath('root', 'foo.html'), $contentItem->getTargetFile());
+        $this->assertEquals($this->fs->appendPath('root', 'stakx.html'), $contentItem->getTargetFile());
     }
 
     public function testContentItemTargetFileFromFileWithoutPermalinkInDir ()
@@ -335,11 +335,11 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
 
     private function createContentItemWithEmptyFrontMatter ($body = "Body Text")
     {
-        return $this->createVirtualFile(array(), $body, ContentItem::class);
+        return $this->createVirtualFile(ContentItem::class, array(), $body);
     }
 
     private function createContentItem ($frontMatter, $body = "Body Text")
     {
-        return $this->createVirtualFile($frontMatter, $body, ContentItem::class);
+        return $this->createVirtualFile(ContentItem::class, $frontMatter, $body);
     }
 }
