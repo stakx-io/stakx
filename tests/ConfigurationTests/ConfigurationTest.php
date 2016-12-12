@@ -4,11 +4,8 @@ namespace allejo\stakx\tests;
 
 use allejo\stakx\Object\Configuration;
 use org\bovigo\vfs\vfsStream;
-use PHPUnit_Framework_TestCase;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
-class ConfigurationTests extends PHPUnit_Framework_TestCase
+class ConfigurationTests extends \PHPUnit_Stakx_TestCase
 {
     /**
      * @var Configuration
@@ -123,6 +120,40 @@ class ConfigurationTests extends PHPUnit_Framework_TestCase
         $this->assertEquals('_site', $this->defaultConfig->getTargetFolder());
     }
 
+    public function testDeprecatedBase ()
+    {
+        $output = $this->loggerMock();
+
+        $file = vfsStream::newFile('_config.yml');
+        $root = vfsStream::setup();
+
+        $file->setContent('base: /my-deprecated')
+             ->at($root);
+
+        $config = new Configuration();
+        $config->setLogger($output);
+        $config->parseConfiguration($file->url());
+
+        $this->assertEquals('/my-deprecated', $config->getBaseUrl());
+    }
+
+    public function testDeprecatedBasePriority ()
+    {
+        $output = $this->loggerMock();
+
+        $file = vfsStream::newFile('_config.yml');
+        $root = vfsStream::setup();
+
+        $file->setContent("base: /my-deprecated\nbaseurl: /my-new")
+            ->at($root);
+
+        $config = new Configuration();
+        $config->setLogger($output);
+        $config->parseConfiguration($file->url());
+
+        $this->assertEquals('/my-new', $config->getBaseUrl());
+    }
+
     public function testInvalidConfigFile ()
     {
         $output = $this->loggerMock();
@@ -139,13 +170,5 @@ class ConfigurationTests extends PHPUnit_Framework_TestCase
 
         // This is part of the default configuration, so we should expect it here
         $this->assertEquals('_site', $config->getTargetFolder());
-    }
-
-    /**
-     * @return LoggerInterface
-     */
-    private function loggerMock ()
-    {
-        return $this->getMock(LoggerInterface::class);
     }
 }

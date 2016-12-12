@@ -368,6 +368,7 @@ abstract class FrontMatterObject implements Jailable
     {
         $rawFileContents = file_get_contents($this->filePath);
 
+        /** @var string[] $frontMatter */
         $frontMatter = array();
         preg_match('/---(.*?)---(\n(?:[\s|\n]+)?)(.*)/s', $rawFileContents, $frontMatter);
 

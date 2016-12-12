@@ -97,10 +97,11 @@ class Configuration implements LoggerAwareInterface
     public function getBaseUrl ()
     {
         $base = $this->returnConfigOption('base');
+        $baseUrl = $this->returnConfigOption('baseurl');
 
-        if (is_null($base))
+        if (is_null($base) || (!empty($baseUrl)))
         {
-            return $this->returnConfigOption('baseurl');
+            return $baseUrl;
         }
 
         return $base;
@@ -201,14 +202,7 @@ class Configuration implements LoggerAwareInterface
             )
         );
 
-        if (is_array($this->configuration))
-        {
-            $this->configuration = ArrayUtilities::array_merge_defaults($defaultConfig, $this->configuration, 'name');
-        }
-        else
-        {
-            $this->configuration = $defaultConfig;
-        }
+        $this->configuration = ArrayUtilities::array_merge_defaults($defaultConfig, $this->configuration, 'name');
     }
 
     private function handleDeprecations ()

@@ -9,6 +9,7 @@ use allejo\stakx\System\Filesystem;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Yaml\Yaml;
 
 abstract class PHPUnit_Stakx_TestCase extends PHPUnit_Framework_TestCase
@@ -54,6 +55,13 @@ abstract class PHPUnit_Stakx_TestCase extends PHPUnit_Framework_TestCase
     // Utility Functions
     //
 
+    /**
+     * @param  string $classType
+     * @param  array  $frontMatter
+     * @param  string $body
+     *
+     * @return mixed
+     */
     protected function createVirtualFile ($classType, $frontMatter = array(), $body = "Body Text")
     {
         $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
@@ -64,4 +72,13 @@ abstract class PHPUnit_Stakx_TestCase extends PHPUnit_Framework_TestCase
 
         return (new $classType($this->dummyFile->url()));
     }
+
+    /**
+     * @return LoggerInterface
+     */
+    protected function loggerMock ()
+    {
+        return $this->getMock(LoggerInterface::class);
+    }
+
 }

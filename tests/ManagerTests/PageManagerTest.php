@@ -51,12 +51,4 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertFileExistsAndContains($dinner, 'meals:dinner');
         $this->assertFileExistsAndContains($dinner, '/menu/dinner/');
     }
-
-    /**
-     * @return LoggerInterface
-     */
-    private function loggerMock ()
-    {
-        return $this->getMock(LoggerInterface::class);
-    }
 }

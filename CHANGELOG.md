@@ -29,6 +29,9 @@ Bug fixes, improved Windows support, and repeaters!
 - `this` in Twig will always refer to an object now, instead of just FrontMatter (which PageView was an offender of and didn't allow functions to be called)
 - Twig error line numbers now take into account the offset of the FrontMatter in the document
 - Twig errors now show the correct relative file path instead of just the filename
+- Fix broken Watch command where nothing would rebuild
+- The `where` Twig filter now works with any PageView type in addition to ContentItems
+- Declaring both `baseurl` and `base` in the site's configuration leads to `baseurl` taking precedence
 
 ## 0.1.0 Beta 2 "The Flash"
 
