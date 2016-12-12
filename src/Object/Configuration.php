@@ -2,7 +2,6 @@
 
 namespace allejo\stakx\Object;
 
-use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Utilities\ArrayUtilities;
 use Psr\Log\LoggerAwareInterface;
@@ -13,6 +12,14 @@ use Symfony\Component\Yaml\Yaml;
 class Configuration implements LoggerAwareInterface
 {
     const DEFAULT_NAME = "_config.yml";
+
+    /**
+     * A list of regular expressions or files directly related to stakx websites that should not be copied over to the
+     * compiled website as an asset.
+     *
+     * @var array
+     */
+    public static $stakxSourceFiles = array('/^_(?!themes).*/', '/.twig$/');
 
     /**
      * An array representation of the main Yaml configuration
@@ -185,10 +192,9 @@ class Configuration implements LoggerAwareInterface
                 '.htaccess'
             ),
             'exclude' => array(
-                '/^_(?!themes).*/',
-                '/.twig$/',
                 'node_modules/',
-                'stakx-theme.yml'
+                'stakx-theme.yml',
+                self::DEFAULT_NAME
             ),
             'templates' => array(
                 'redirect' => false

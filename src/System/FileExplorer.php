@@ -89,7 +89,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public function accept ()
     {
-        $filePath = str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $this->current()->getPathname());
+        $filePath = $this->current()->getRelativePathname();
 
         return $this->matchesPattern($filePath);
     }
