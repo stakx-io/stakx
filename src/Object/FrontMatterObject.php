@@ -267,6 +267,7 @@ abstract class FrontMatterObject implements Jailable
         }
 
         $this->permalink = $this->sanitizePermalink($this->permalink);
+        $this->permalink = str_replace(DIRECTORY_SEPARATOR, '/', $this->permalink);
         $this->permalink = '/' . ltrim($this->permalink, '/'); // Permalinks should always use '/' and not be OS specific
 
         return $this->permalink;
@@ -574,11 +575,8 @@ abstract class FrontMatterObject implements Jailable
             $permalink = $this->fs->removeExtension($permalink);
         }
 
-        // Remove a special './' combination from the beginning of a path
-        if (substr($permalink, 0, 2) === '.' . DIRECTORY_SEPARATOR)
-        {
-            $permalink = substr($permalink, 2);
-        }
+        // Remove any special characters before a sane value
+        $permalink = preg_replace('/^[^0-9a-zA-Z-_]*/', '', $permalink);
 
         // Convert permalinks to lower case
         $permalink = mb_strtolower($permalink, 'UTF-8');
