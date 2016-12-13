@@ -525,25 +525,25 @@ abstract class FrontMatterObject implements Jailable
      */
     private function getPathPermalink ()
     {
-        // Remove the protocol of the path, if there is one and prepend a '/' to the beginning
+        // Remove the protocol of the path, if there is one
         $cleanPath = preg_replace('/[\w|\d]+:\/\//', '', $this->getRelativeFilePath());
         $cleanPath = ltrim($cleanPath, DIRECTORY_SEPARATOR);
 
-        // Handle vfs:// paths by replacing their forward slashes with the OS appropriate directory separator
+        // Convert all permalinks in Windows to always use '/' as that's the standard for URLs
         if (DIRECTORY_SEPARATOR !== '/')
         {
-            $cleanPath = str_replace('/', DIRECTORY_SEPARATOR, $cleanPath);
+            $cleanPath = str_replace(DIRECTORY_SEPARATOR, '/', $cleanPath);
         }
 
         // Check the first folder and see if it's a data folder (starts with an underscore) intended for stakx
-        $folders = explode(DIRECTORY_SEPARATOR, $cleanPath);
+        $folders = explode('/', $cleanPath);
 
         if (substr($folders[0], 0, 1) === '_')
         {
             array_shift($folders);
         }
 
-        $cleanPath = implode(DIRECTORY_SEPARATOR, $folders);
+        $cleanPath = implode('/', $folders);
 
         return $cleanPath;
     }
@@ -574,8 +574,9 @@ abstract class FrontMatterObject implements Jailable
             $permalink = $this->fs->removeExtension($permalink);
         }
 
-        // Remove a special './' combination from the beginning of a path
-        if (substr($permalink, 0, 2) === '.' . DIRECTORY_SEPARATOR)
+        // Remove a special './' combination from the beginning of a path; at this point the permalink being given to
+        // this function will have the standard '/' for URLs
+        if (substr($permalink, 0, 2) === './')
         {
             $permalink = substr($permalink, 2);
         }
