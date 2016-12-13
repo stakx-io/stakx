@@ -267,6 +267,7 @@ abstract class FrontMatterObject implements Jailable
         }
 
         $this->permalink = $this->sanitizePermalink($this->permalink);
+        $this->permalink = '/' . ltrim($this->permalink, '/'); // Permalinks should always use '/' and not be OS specific
 
         return $this->permalink;
     }

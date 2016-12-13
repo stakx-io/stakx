@@ -329,6 +329,42 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
         $this->assertEquals($htmlContent, $contentItem->getContent());
     }
 
+    public function testContentItemPermalinkSanitationMultipleForwardSlashes ()
+    {
+        $multipleForwardSlashes = $this->createContentItem(array('permalink' => '////index.html'));
+        $this->assertEquals('/index.html', $multipleForwardSlashes->getPermalink());
+    }
+
+    public function testContentItemPermalinkSanitationReplaceSpaces ()
+    {
+        $replaceSpaces = $this->createContentItem(array('permalink' => 'i like/toast and bacon.html'));
+        $this->assertEquals('/i-like/toast-and-bacon.html', $replaceSpaces->getPermalink());
+    }
+
+    public function testContentItemPermalinkSanitationDisallowedChars ()
+    {
+        $disallowedCharacters = $this->createContentItem(array('permalink' => '/index-?!@#in_dex$%^&.html'));
+        $this->assertEquals('/index-in_dex.html', $disallowedCharacters->getPermalink());
+    }
+
+    public function testContentItemPermalinkSanitationStripExtensions ()
+    {
+        $stripExtensions = $this->createContentItem(array('permalink' => 'parent/foo.html.twig'));
+        $this->assertEquals('/parent/foo.html', $stripExtensions->getPermalink());
+    }
+
+    public function testContentItemPermalinkSanitationSpecialDotSlash ()
+    {
+        $specialDotSlash = $this->createContentItem(array('permalink' => './index.html'));
+        $this->assertEquals('/index.html', $specialDotSlash->getPermalink());
+    }
+
+    public function testContentItemPermalinkSanitationUpperCaseToLower ()
+    {
+        $uppercase = $this->createContentItem(array('permalink' => 'UPPER_CASE.html'));
+        $this->assertEquals('/upper_case.html', $uppercase->getPermalink());
+    }
+
     //
     // Utilities
     //
@@ -338,6 +374,12 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
         return $this->createVirtualFile(ContentItem::class, array(), $body);
     }
 
+    /**
+     * @param  array  $frontMatter
+     * @param  string $body
+     *
+     * @return ContentItem
+     */
     private function createContentItem ($frontMatter, $body = "Body Text")
     {
         return $this->createVirtualFile(ContentItem::class, $frontMatter, $body);
