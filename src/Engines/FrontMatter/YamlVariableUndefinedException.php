@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\FrontMatter;
 
-use allejo\stakx\Exception\FileAwareException;
+use Symfony\Component\Filesystem\Exception\IOException;
 
-class YamlVariableUndefinedException extends FileAwareException
+class YamlVariableUndefinedException extends IOException
 {
 }

@@ -4,6 +4,7 @@ namespace allejo\stakx\tests;
 
 use allejo\stakx\Engines\MarkdownEngine;
 use allejo\stakx\Engines\RstEngine;
+use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
 use allejo\stakx\Object\ContentItem;
 use org\bovigo\vfs\vfsStream;
@@ -278,9 +279,19 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
         new ContentItem('foo.html.twig');
     }
 
-    public function testContentItemWithNoBodyThrowsIOException ()
+    public function testContentItemWithEmptyBodyThrowsInvalidSyntaxException ()
     {
-        $this->setExpectedException(IOException::class);
+        $this->setExpectedException(InvalidSyntaxException::class, 'must have a body to render');
+
+        $this->dummyFile->setContent("---\n---\n\n  \n \t\n")
+                        ->at($this->rootDir);
+
+        new ContentItem($this->dummyFile->url());
+    }
+
+    public function testContentItemWithNoBodyThrowsInvalidSyntaxException ()
+    {
+        $this->setExpectedException(InvalidSyntaxException::class, 'Invalid FrontMatter file');
 
         $this->dummyFile->setContent("---\n---")
                         ->at($this->rootDir);
@@ -288,13 +299,22 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
         new ContentItem($this->dummyFile->url());
     }
 
-    public function testContentItemWithEmptyFileThrowsIOException ()
+    public function testContentItemWithEmptyFileThrowsInvalidSyntaxException ()
     {
-        $this->setExpectedException(IOException::class);
+        $this->setExpectedException(InvalidSyntaxException::class, 'Invalid FrontMatter file');
 
         $file = vfsStream::newFile('foo.html.twig')->at($this->rootDir);
 
         new ContentItem($file->url());
+    }
+
+    public function testContentItemWithDeletedFileAfterCreationThrowsFileNotFoundException ()
+    {
+        $this->setExpectedException(FileNotFoundException::class);
+
+        $content = $this->createContentItem(array());
+        $this->fs->remove($content->getFilePath());
+        $content->refreshFileContent();
     }
 
     public function testContentItemWithMdExtensionFile ()

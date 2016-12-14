@@ -5,10 +5,10 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\FrontMatter;
+namespace allejo\stakx\Exception;
 
 use Symfony\Component\Filesystem\Exception\IOException;
 
-class YamlUnsupportedVariableException extends IOException
+class InvalidSyntaxException extends IOException
 {
 }

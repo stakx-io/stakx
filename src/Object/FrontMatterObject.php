@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\FrontMatterParser;
 use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
 use allejo\stakx\System\Filesystem;
@@ -368,24 +369,26 @@ abstract class FrontMatterObject implements Jailable
      */
     final public function refreshFileContent ()
     {
+        // This function can be called after the initial object was created and the file may have been deleted since the
+        // creation of the object.
+        if (!$this->fs->exists($this->filePath))
+        {
+            throw new FileNotFoundException(null, 0, null, $this->filePath);
+        }
+
         $rawFileContents = file_get_contents($this->filePath);
 
-        /** @var string[] $frontMatter */
         $frontMatter = array();
         preg_match('/---(.*?)---(\n(?:[\s|\n]+)?)(.*)/s', $rawFileContents, $frontMatter);
 
         if (count($frontMatter) != 4)
         {
-            throw new IOException(sprintf("'%s' is not a valid ContentItem",
-                    $this->fs->getFileName($this->filePath))
-            );
+            throw new InvalidSyntaxException('Invalid FrontMatter file', 0, null, $this->getRelativeFilePath());
         }
 
         if (empty(trim($frontMatter[3])))
         {
-            throw new IOException(sprintf('A ContentItem (%s) must have a body to render',
-                    $this->fs->getFileName($this->filePath))
-            );
+            throw new InvalidSyntaxException('FrontMatter files must have a body to render', 0, null, $this->getRelativeFilePath());
         }
 
         $this->lineOffset  = substr_count($frontMatter[1], "\n") + substr_count($frontMatter[2], "\n");
