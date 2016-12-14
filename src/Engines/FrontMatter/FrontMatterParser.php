@@ -102,7 +102,16 @@ class FrontMatterParser
     {
         if (!isset($this->frontMatter['date'])) { return; }
 
-        $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
+        try
+        {
+            // Coming from a string variable
+            $itemDate = new \DateTime($this->frontMatter['date']);
+        }
+        catch (\Exception $e)
+        {
+            // YAML has parsed them to Epoch time
+            $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
+        }
 
         if (!$itemDate === false)
         {
