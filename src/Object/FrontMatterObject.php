@@ -11,10 +11,11 @@ use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class FrontMatterObject implements Jailable
+abstract class FrontMatterObject implements FrontMatterable, Jailable
 {
     protected static $whiteListFunctions = array(
-        'getPermalink', 'getRedirects', 'getTargetFile', 'getName', 'getFilePath', 'getRelativeFilePath', 'getContent'
+        'getPermalink', 'getRedirects', 'getTargetFile', 'getName', 'getFilePath', 'getRelativeFilePath', 'getContent',
+        'getExtension'
     );
 
     /**
@@ -78,20 +79,6 @@ abstract class FrontMatterObject implements Jailable
     protected $bodyContent;
 
     /**
-     * The extension of the file
-     *
-     * @var string
-     */
-    protected $extension;
-
-    /**
-     * The original file path to the ContentItem
-     *
-     * @var SplFileInfo
-     */
-    protected $filePath;
-
-    /**
      * The permalink for this object
      *
      * @var string
@@ -106,11 +93,11 @@ abstract class FrontMatterObject implements Jailable
     protected $fs;
 
     /**
-     * A list URLs that will redirect to this object
+     * The extension of the file
      *
-     * @var string[]
+     * @var string
      */
-    private $redirects;
+    private $extension;
 
     /**
      * The number of lines that Twig template errors should offset
@@ -118,6 +105,20 @@ abstract class FrontMatterObject implements Jailable
      * @var int
      */
     private $lineOffset;
+
+    /**
+     * A list URLs that will redirect to this object
+     *
+     * @var string[]
+     */
+    private $redirects;
+
+    /**
+     * The original file path to the ContentItem
+     *
+     * @var SplFileInfo
+     */
+    private $filePath;
 
     /**
      * ContentItem constructor.
@@ -178,21 +179,6 @@ abstract class FrontMatterObject implements Jailable
     }
 
     /**
-     * Check if a specific value is defined in the Front Matter
-     *
-     * @param  string $name
-     *
-     * @return bool
-     */
-    public function isMagicGet ($name)
-    {
-        return (
-            !in_array($name, $this->frontMatterBlacklist)) &&
-            (isset($this->frontMatter[$name]) || isset($this->writableFrontMatter[$name])
-        );
-    }
-
-    /**
      * Return the body of the Content Item
      *
      * @return string
@@ -200,39 +186,149 @@ abstract class FrontMatterObject implements Jailable
     abstract public function getContent ();
 
     /**
-     * @param array|null $variables An array of YAML variables to use in evaluating the `$permalink` value
+     * Get the extension of the current file
+     *
+     * @return string
      */
-    final public function evaluateFrontMatter ($variables = null)
+    final public function getExtension ()
     {
-        if (!is_null($variables))
-        {
-            $this->frontMatter = array_merge($this->frontMatter, $variables);
-            $this->handleSpecialFrontMatter();
-            $this->evaluateYaml($this->frontMatter);
-        }
+        return $this->extension;
     }
 
     /**
-     * Get the Front Matter of a ContentItem as an array
+     * Get the original file path
      *
-     * @param  bool $evaluateYaml When set to true, the YAML will be evaluated for variables
-     *
-     * @return array
+     * @return string
      */
-    final public function getFrontMatter ($evaluateYaml = true)
+    final public function getFilePath ()
     {
-        if (is_null($this->frontMatter))
+        return $this->filePath;
+    }
+
+    /**
+     * The number of lines that are taken up by FrontMatter and white space
+     *
+     * @return int
+     */
+    final public function getLineOffset ()
+    {
+        return $this->lineOffset;
+    }
+
+    /**
+     * Get the name of the item, which is just the file name without the extension
+     *
+     * @return string
+     */
+    final public function getName ()
+    {
+        return $this->fs->getBaseName($this->filePath);
+    }
+
+    /**
+     * Get the relative path to this file relative to the root of the Stakx website
+     *
+     * @return string
+     */
+    final public function getRelativeFilePath ()
+    {
+        if ($this->filePath instanceof SplFileInfo)
         {
-            $this->frontMatter = array();
-        }
-        else if (!$this->frontMatterEvaluated && $evaluateYaml)
-        {
-            $this->evaluateYaml($this->frontMatter);
-            $this->frontMatterEvaluated = true;
+            return $this->filePath->getRelativePathname();
         }
 
-        return $this->frontMatter;
+        // TODO ensure that we always get SplFileInfo objects, even when handling VFS documents
+        return $this->fs->getRelativePath($this->filePath);
     }
+
+    /**
+     * Get the destination of where this Content Item would be written to when the website is compiled
+     *
+     * @return string
+     */
+    final public function getTargetFile ()
+    {
+        $permalink = $this->getPermalink();
+        $extension = $this->fs->getExtension($permalink);
+        $permalink = str_replace('/', DIRECTORY_SEPARATOR, $permalink);
+
+        if (empty($extension))
+        {
+            $permalink = rtrim($permalink, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.html';
+        }
+
+        return ltrim($permalink, DIRECTORY_SEPARATOR);
+    }
+
+    /**
+     * Check whether this object has a reference to a collection or data item
+     *
+     * @param  string $namespace 'collections' or 'data'
+     * @param  string $needle
+     *
+     * @return bool
+     */
+    final public function hasTwigDependency ($namespace, $needle)
+    {
+        return (in_array($needle, $this->dataDependencies[$namespace]));
+    }
+
+    /**
+     * Read the file, and parse its contents
+     */
+    final public function refreshFileContent ()
+    {
+        // This function can be called after the initial object was created and the file may have been deleted since the
+        // creation of the object.
+        if (!$this->fs->exists($this->filePath))
+        {
+            throw new FileNotFoundException(null, 0, null, $this->filePath);
+        }
+
+        $rawFileContents = file_get_contents($this->filePath);
+        $fileStructure   = array();
+        preg_match('/---(.*?)---(\n(?:[\s|\n]+)?)(.*)/s', $rawFileContents, $fileStructure);
+
+        if (count($fileStructure) != 4)
+        {
+            throw new InvalidSyntaxException('Invalid FrontMatter file', 0, null, $this->getRelativeFilePath());
+        }
+
+        if (empty(trim($fileStructure[3])))
+        {
+            throw new InvalidSyntaxException('FrontMatter files must have a body to render', 0, null, $this->getRelativeFilePath());
+        }
+
+        $this->lineOffset  = substr_count($fileStructure[1], "\n") + substr_count($fileStructure[2], "\n");
+        $this->frontMatter = Yaml::parse($fileStructure[1]);
+        $this->bodyContent = $fileStructure[3];
+
+        $this->frontMatterEvaluated = false;
+        $this->bodyContentEvaluated = false;
+        $this->permalink = null;
+
+        $this->findTwigDataDependencies('collections');
+        $this->findTwigDataDependencies('data');
+    }
+
+    /**
+     * Get all of the references to either DataItems or ContentItems inside of given string
+     *
+     * @param string $filter 'collections' or 'data'
+     */
+    private function findTwigDataDependencies ($filter)
+    {
+        $regex = '/{[{%](?:.+)?(?:' . $filter . ')(?:\.|\[\')(\w+)(?:\'\])?.+[%}]}/';
+        $results = array();
+
+        preg_match_all($regex, $this->bodyContent, $results);
+
+        $this->dataDependencies[$filter] = array_unique($results[1]);
+    }
+
+    //
+    // Permalink and redirect functionality
+    //
 
     /**
      * Get the permalink of this Content Item
@@ -287,238 +383,6 @@ abstract class FrontMatterObject implements Jailable
         }
 
         return $this->redirects;
-    }
-
-    /**
-     * Get the destination of where this Content Item would be written to when the website is compiled
-     *
-     * @return string
-     */
-    final public function getTargetFile ()
-    {
-        $permalink = $this->getPermalink();
-        $extension = $this->fs->getExtension($permalink);
-        $permalink = str_replace('/', DIRECTORY_SEPARATOR, $permalink);
-
-        if (empty($extension))
-        {
-            $permalink = rtrim($permalink, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.html';
-        }
-
-        return ltrim($permalink, DIRECTORY_SEPARATOR);
-    }
-
-    /**
-     * Get the name of the item, which is just the file name without the extension
-     *
-     * @return string
-     */
-    final public function getName ()
-    {
-        return $this->fs->getBaseName($this->filePath);
-    }
-
-    /**
-     * Get the original file path
-     *
-     * @return string
-     */
-    final public function getFilePath ()
-    {
-        return $this->filePath;
-    }
-
-    /**
-     * Get the relative path to this file relative to the root of the Stakx website
-     *
-     * @return string
-     */
-    final public function getRelativeFilePath ()
-    {
-        if ($this->filePath instanceof SplFileInfo)
-        {
-            return $this->filePath->getRelativePathname();
-        }
-
-        // TODO ensure that we always get SplFileInfo objects, even when handling VFS documents
-        return $this->fs->getRelativePath($this->filePath);
-    }
-
-    /**
-     * The number of lines that are taken up by FrontMatter and white space
-     *
-     * @return int
-     */
-    final public function getLineOffset ()
-    {
-        return $this->lineOffset;
-    }
-
-    /**
-     * Returns true when the evaluated Front Matter has expanded values embeded
-     *
-     * @return bool
-     */
-    final public function hasExpandedFrontMatter ()
-    {
-        return (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion());
-    }
-
-    /**
-     * Read the file, and parse its contents
-     */
-    final public function refreshFileContent ()
-    {
-        // This function can be called after the initial object was created and the file may have been deleted since the
-        // creation of the object.
-        if (!$this->fs->exists($this->filePath))
-        {
-            throw new FileNotFoundException(null, 0, null, $this->filePath);
-        }
-
-        $rawFileContents = file_get_contents($this->filePath);
-
-        $frontMatter = array();
-        preg_match('/---(.*?)---(\n(?:[\s|\n]+)?)(.*)/s', $rawFileContents, $frontMatter);
-
-        if (count($frontMatter) != 4)
-        {
-            throw new InvalidSyntaxException('Invalid FrontMatter file', 0, null, $this->getRelativeFilePath());
-        }
-
-        if (empty(trim($frontMatter[3])))
-        {
-            throw new InvalidSyntaxException('FrontMatter files must have a body to render', 0, null, $this->getRelativeFilePath());
-        }
-
-        $this->lineOffset  = substr_count($frontMatter[1], "\n") + substr_count($frontMatter[2], "\n");
-        $this->frontMatter = Yaml::parse($frontMatter[1]);
-        $this->bodyContent = $frontMatter[3];
-
-        $this->frontMatterEvaluated = false;
-        $this->bodyContentEvaluated = false;
-        $this->permalink = null;
-
-        $this->handleSpecialFrontMatter();
-        $this->findTwigDataDependencies('collections');
-        $this->findTwigDataDependencies('data');
-    }
-
-    /**
-     * Check whether this object has a reference to a collection or data item
-     *
-     * @param  string $namespace 'collections' or 'data'
-     * @param  string $needle
-     *
-     * @return bool
-     */
-    final public function hasTwigDependency ($namespace, $needle)
-    {
-        return (in_array($needle, $this->dataDependencies[$namespace]));
-    }
-
-    /**
-     * Append a custom FrontMatter value
-     *
-     * @param array $frontMatter
-     */
-    final public function appendFrontMatter (array $frontMatter)
-    {
-        foreach ($frontMatter as $key => $value)
-        {
-            $this->writableFrontMatter[$key] = $value;
-        }
-    }
-
-    /**
-     * Delete a custom FrontMatter value
-     *
-     * This will not delete a FrontMatter value parsed from the file
-     *
-     * @param string $key
-     */
-    final public function deleteFrontMatter ($key)
-    {
-        if (!isset($this->writableFrontMatter[$key])) { return; }
-
-        unset($this->writableFrontMatter[$key]);
-    }
-
-    /**
-     * Set custom FrontMatter values
-     *
-     * These custom values are temporary and will take precedence over Front Matter evaluated from the file but is only
-     * available to Twig templates
-     *
-     * @param array $frontMatter
-     */
-    final public function setFrontMatter (array $frontMatter)
-    {
-        if (!is_array($frontMatter))
-        {
-            throw new \InvalidArgumentException('An array is required for setting the writable FrontMatter');
-        }
-
-        $this->writableFrontMatter = $frontMatter;
-    }
-
-    /**
-     * Evaluate an array of data for FrontMatter variables. This function will modify the array in place.
-     *
-     * @param  array $yaml An array of data containing FrontMatter variables
-     *
-     * @throws YamlVariableUndefinedException A FrontMatter variable used does not exist
-     */
-    final protected function evaluateYaml (&$yaml)
-    {
-        $this->frontMatterParser = new FrontMatterParser($yaml);
-    }
-
-    /**
-     * Handle special front matter values that need special treatment or have special meaning to a Content Item
-     */
-    private function handleSpecialFrontMatter ()
-    {
-        if (isset($this->frontMatter['date']))
-        {
-            try
-            {
-                // Coming from a string variable
-                $itemDate = new \DateTime($this->frontMatter['date']);
-            }
-            catch (\Exception $e)
-            {
-                // YAML has parsed them to Epoch time
-                $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
-            }
-
-            if (!$itemDate === false)
-            {
-                // Localize dates in FrontMatter based on the timezone set in the PHP configuration
-                $timezone = new \DateTimeZone(date_default_timezone_get());
-                $localizedDate = new \DateTime($itemDate->format('Y-m-d h:i:s'), $timezone);
-
-                $this->frontMatter['date']  = $localizedDate->format('U');
-                $this->frontMatter['year']  = $localizedDate->format('Y');
-                $this->frontMatter['month'] = $localizedDate->format('m');
-                $this->frontMatter['day']   = $localizedDate->format('d');
-            }
-        }
-    }
-
-    /**
-     * Get all of the references to either DataItems or ContentItems inside of given string
-     *
-     * @param string $filter 'collections' or 'data'
-     */
-    private function findTwigDataDependencies ($filter)
-    {
-        $regex = '/{[{%](?:.+)?(?:' . $filter . ')(?:\.|\[\')(\w+)(?:\'\])?.+[%}]}/';
-        $results = array();
-
-        preg_match_all($regex, $this->bodyContent, $results);
-
-        $this->dataDependencies[$filter] = array_unique($results[1]);
     }
 
     /**
@@ -585,5 +449,112 @@ abstract class FrontMatterObject implements Jailable
         $permalink = mb_strtolower($permalink, 'UTF-8');
 
         return $permalink;
+    }
+
+    //
+    // WritableFrontMatter Implementation
+    //
+
+    /**
+     * {@inheritdoc}
+     */
+    final public function evaluateFrontMatter ($variables = null)
+    {
+        if (!is_null($variables))
+        {
+            $this->frontMatter = array_merge($this->frontMatter, $variables);
+            $this->evaluateYaml($this->frontMatter);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    final public function getFrontMatter ($evaluateYaml = true)
+    {
+        if (is_null($this->frontMatter))
+        {
+            $this->frontMatter = array();
+        }
+        else if (!$this->frontMatterEvaluated && $evaluateYaml)
+        {
+            $this->evaluateYaml($this->frontMatter);
+        }
+
+        return $this->frontMatter;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    final public function hasExpandedFrontMatter ()
+    {
+        return (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion());
+    }
+
+    /**
+     * {@inheritdoc
+     */
+    final public function appendFrontMatter (array $frontMatter)
+    {
+        foreach ($frontMatter as $key => $value)
+        {
+            $this->writableFrontMatter[$key] = $value;
+        }
+    }
+
+    /**
+     * {@inheritdoc
+     */
+    final public function deleteFrontMatter ($key)
+    {
+        if (!isset($this->writableFrontMatter[$key])) { return; }
+
+        unset($this->writableFrontMatter[$key]);
+    }
+
+    /**
+     * {@inheritdoc
+     */
+    final public function setFrontMatter (array $frontMatter)
+    {
+        if (!is_array($frontMatter))
+        {
+            throw new \InvalidArgumentException('An array is required for setting the writable FrontMatter');
+        }
+
+        $this->writableFrontMatter = $frontMatter;
+    }
+
+    /**
+     * Evaluate an array of data for FrontMatter variables. This function will modify the array in place.
+     *
+     * @param  array $yaml An array of data containing FrontMatter variables
+     *
+     * @throws YamlVariableUndefinedException A FrontMatter variable used does not exist
+     */
+    private function evaluateYaml (&$yaml)
+    {
+        $this->frontMatterParser    = new FrontMatterParser($yaml);
+        $this->frontMatterEvaluated = true;
+    }
+
+    //
+    // Jailable Implementation
+    //
+
+    /**
+     * Check if a specific value is defined in the Front Matter
+     *
+     * @param  string $name
+     *
+     * @return bool
+     */
+    public function isMagicGet ($name)
+    {
+        return (
+            !in_array($name, $this->frontMatterBlacklist)) &&
+            (isset($this->frontMatter[$name]) || isset($this->writableFrontMatter[$name])
+            );
     }
 }

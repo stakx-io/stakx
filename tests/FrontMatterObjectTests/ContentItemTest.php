@@ -9,7 +9,6 @@ use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
 use allejo\stakx\Object\ContentItem;
 use org\bovigo\vfs\vfsStream;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Yaml\Exception\ParseException;
 
 class ContentItemTests extends \PHPUnit_Stakx_TestCase
@@ -67,9 +66,8 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
             "date" => sprintf("%s-%s-%s", $year, $month, $day)
         );
 
-        $this->createContentItem($frontMatter);
-
-        $contentItem = new ContentItem($this->dummyFile->url());
+        $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->getFrontMatter();
 
         $this->assertEquals($year,  $contentItem->year);
         $this->assertEquals($month, $contentItem->month);

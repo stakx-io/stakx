@@ -59,7 +59,7 @@ class ContentItem extends FrontMatterObject
                 $this->bodyContent = $template->render(array());
             }
 
-            switch ($this->extension)
+            switch ($this->getExtension())
             {
                 case "md":
                 case "markdown":

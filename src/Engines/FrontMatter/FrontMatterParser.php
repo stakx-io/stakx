@@ -69,6 +69,7 @@ class FrontMatterParser
 
         $this->frontMatter = &$rawFrontMatter;
 
+        $this->handleSpecialFrontMatter();
         $this->evaluateBlock($this->frontMatter);
     }
 
@@ -81,6 +82,53 @@ class FrontMatterParser
     {
         return $this->expansionUsed;
     }
+
+    //
+    // Special FrontMatter fields
+    //
+
+    /**
+     * Special treatment for some FrontMatter variables
+     */
+    private function handleSpecialFrontMatter ()
+    {
+        $this->handleDateField();
+    }
+
+    /**
+     * Special treatment for the `date` field in FrontMatter that creates three new variables: year, month, day
+     */
+    private function handleDateField ()
+    {
+        if (!isset($this->frontMatter['date'])) { return; }
+
+        try
+        {
+            // Coming from a string variable
+            $itemDate = new \DateTime($this->frontMatter['date']);
+        }
+        catch (\Exception $e)
+        {
+            // YAML has parsed them to Epoch time
+            $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
+        }
+
+        if (!$itemDate === false)
+        {
+            // Localize dates in FrontMatter based on the timezone set in the PHP configuration
+            $timezone = new \DateTimeZone(date_default_timezone_get());
+            $localizedDate = new \DateTime($itemDate->format('Y-m-d h:i:s'), $timezone);
+
+            $this->frontMatter['date']  = $localizedDate->format('U');
+            $this->frontMatter['year']  = $localizedDate->format('Y');
+            $this->frontMatter['month'] = $localizedDate->format('m');
+            $this->frontMatter['day']   = $localizedDate->format('d');
+        }
+    }
+
+    //
+    // Evaluation
+    //
 
     /**
      * Evaluate an array as Front Matter
@@ -228,6 +276,10 @@ class FrontMatterParser
 
         return $string;
     }
+
+    //
+    // Variable management
+    //
 
     /**
      * Get an array of FrontMatter variables in the specified string that need to be interpolated
