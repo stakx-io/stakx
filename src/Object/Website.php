@@ -190,7 +190,9 @@ class Website
 
         $fileExplorer = FileExplorer::create(
             getcwd(),
-            $this->getConfiguration()->getExcludes(),
+            array_merge($this->getConfiguration()->getExcludes(), array(
+                $this->getConfiguration()->getTargetFolder()
+            )),
             $this->getConfiguration()->getIncludes()
         );
         $tracker    = new Tracker();
@@ -200,14 +202,9 @@ class Website
 
         $this->output->writeln('Watch started successfully');
 
-        $listener->onAnything(function (Event $event, FileResource $resouce, $path) use ($targetPath) {
+        $listener->onAnything(function (Event $event, FileResource $resouce, $path) use ($targetPath)
+        {
             $filePath = $this->fs->getRelativePath($path);
-
-            if ((substr($filePath, 0, strlen($targetPath)) === $targetPath) ||
-                (substr($filePath, 0, 1) === '.'))
-            {
-                return;
-            }
 
             try
             {
