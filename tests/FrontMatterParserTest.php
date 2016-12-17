@@ -4,6 +4,7 @@ use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\FrontMatter\FrontMatterParser;
 use allejo\stakx\FrontMatter\YamlUnsupportedVariableException;
 use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
+use Symfony\Component\Yaml\Yaml;
 
 class FrontMatterParserTest extends PHPUnit_Framework_TestCase
 {
@@ -166,5 +167,42 @@ class FrontMatterParserTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $frontMatter);
         $this->assertTrue($fmp->hasExpansion());
+    }
+
+    public function testSpecialFieldsDateAsString ()
+    {
+        $frontMatter = array(
+            'date' => '2016-01-26'
+        );
+
+        new FrontMatterParser($frontMatter);
+
+        $this->assertEquals(2016, $frontMatter['year']);
+        $this->assertEquals(1, $frontMatter['month']);
+        $this->assertEquals(26, $frontMatter['day']);
+    }
+
+    public function testSpecialFieldsDateAsEpoch ()
+    {
+        $frontMatter = array(
+            'date' => 1456790400
+        );
+
+        new FrontMatterParser($frontMatter);
+
+        $this->assertEquals(2016, $frontMatter['year']);
+        $this->assertEquals(3, $frontMatter['month']);
+        $this->assertEquals(1, $frontMatter['day']);
+    }
+
+    public function testSpecialFieldsDateFromYaml ()
+    {
+        $frontMatter = Yaml::parse("date: '2016-02-28'");
+
+        new FrontMatterParser($frontMatter);
+
+        $this->assertEquals(2016, $frontMatter['year']);
+        $this->assertEquals(2, $frontMatter['month']);
+        $this->assertEquals(28, $frontMatter['day']);
     }
 }
