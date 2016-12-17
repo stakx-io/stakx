@@ -102,19 +102,24 @@ class FrontMatterParser
     {
         if (!isset($this->frontMatter['date'])) { return; }
 
-        try
-        {
-            // Coming from a string variable
-            $itemDate = new \DateTime($this->frontMatter['date']);
-        }
-        catch (\Exception $e)
+        $date = &$this->frontMatter['date'];
+
+        if (is_numeric($date))
         {
             // YAML has parsed them to Epoch time
-            $itemDate = \DateTime::createFromFormat('U', $this->frontMatter['date']);
+            $itemDate = \DateTime::createFromFormat('U', $date);
 
             // Localize dates in FrontMatter based on the timezone set in the PHP configuration
             $timezone = new \DateTimeZone(date_default_timezone_get());
-            $itemDate = new \DateTime($itemDate->format('Y-m-d h:i:s'), $timezone);
+            $itemDate->setTimezone($timezone);
+        }
+        else
+        {
+            try
+            {
+                $itemDate = new \DateTime($date);
+            }
+            catch (\Exception $e) { return; }
         }
 
         if (!$itemDate === false)

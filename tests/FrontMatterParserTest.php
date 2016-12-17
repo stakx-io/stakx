@@ -182,17 +182,36 @@ class FrontMatterParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(26, $frontMatter['day']);
     }
 
-    public function testSpecialFieldsDateAsEpoch ()
+    public function testSpecialFieldsDateAsEpochLosAngeles ()
     {
+        date_default_timezone_set('America/Los_Angeles');
+
+        // In the LA timezone, this Epoch should be the 7th of March
         $frontMatter = array(
-            'date' => 1456790400
+            'date' => 1457395200
         );
 
         new FrontMatterParser($frontMatter);
 
         $this->assertEquals(2016, $frontMatter['year']);
         $this->assertEquals(3, $frontMatter['month']);
-        $this->assertEquals(1, $frontMatter['day']);
+        $this->assertEquals(7, $frontMatter['day']);
+    }
+
+    public function testSpecialFieldsDateAsEpochUTC ()
+    {
+        date_default_timezone_set('UTC');
+
+        // In UTC, this Epoch should be the 8th of March
+        $frontMatter = array(
+            'date' => 1457395200
+        );
+
+        new FrontMatterParser($frontMatter);
+
+        $this->assertEquals(2016, $frontMatter['year']);
+        $this->assertEquals(3, $frontMatter['month']);
+        $this->assertEquals(8, $frontMatter['day']);
     }
 
     public function testSpecialFieldsDateFromYaml ()
