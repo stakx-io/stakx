@@ -80,5 +80,4 @@ abstract class PHPUnit_Stakx_TestCase extends PHPUnit_Framework_TestCase
     {
         return $this->getMock(LoggerInterface::class);
     }
-
 }

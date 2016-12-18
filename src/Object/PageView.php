@@ -12,9 +12,9 @@ class PageView extends FrontMatterObject
 {
     const TEMPLATE = "---\n%s\n---\n\n%s";
 
-    const REPEATER_TYPE = 'repeater';
-    const DYNAMIC_TYPE  = 'dynamic';
-    const STATIC_TYPE   = 'static';
+    const REPEATER_TYPE = 0;
+    const DYNAMIC_TYPE  = 1;
+    const STATIC_TYPE   = 2;
 
     /**
      * @var vfsStreamDirectory

@@ -80,4 +80,14 @@ class JailObject
 
         throw new \BadMethodCallException();
     }
+
+    public function __get($name)
+    {
+        if ($this->object->isMagicGet($name))
+        {
+            return $this->object->$name;
+        }
+
+        return NULL;
+    }
 }

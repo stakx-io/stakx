@@ -6,7 +6,7 @@ use allejo\stakx\Engines\MarkdownEngine;
 use allejo\stakx\Engines\RstEngine;
 use allejo\stakx\Manager\TwigManager;
 
-class ContentItem extends FrontMatterObject
+class ContentItem extends FrontMatterObject implements \JsonSerializable
 {
     /**
      * The collection this Content Item belongs to
@@ -108,5 +108,15 @@ class ContentItem extends FrontMatterObject
     public function setPageView (&$pageView)
     {
         $this->parentPageView = &$pageView;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function jsonSerialize()
+    {
+        return array_merge($this->getFrontMatter(), array(
+            'content' => $this->getContent()
+        ));
     }
 }
