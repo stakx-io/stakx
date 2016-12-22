@@ -416,7 +416,7 @@ class Website
         }
 
         $this->fs->remove($this->fs->absolutePath('.stakx-cache'));
-        $this->fs->mkdir('.stakx-cache/twig');
+        $this->fs->mkdir($this->fs->absolutePath('.stakx-cache/twig'));
         $this->fs->mkdir($tarDir);
     }
 }

@@ -53,7 +53,7 @@ class TwigManager extends BaseManager
         self::$twig = new Twig_Environment($loader, array(
             'autoescape'  => $configuration->getTwigAutoescape(),
             'auto_reload' => true,
-            'cache'      => '.stakx-cache/twig'
+            'cache'       => $this->fs->absolutePath('.stakx-cache/twig')
         ));
 
         foreach ($options['globals'] as $global)
