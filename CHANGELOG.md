@@ -1,4 +1,4 @@
-## (In Development) 0.1.0 Beta 3 "Repeat Stuff, Repeat Stuff, Gotta Repeat Stuff"
+## 0.1.0 Beta 3 "Repeat Stuff, Repeat Stuff, Gotta Repeat Stuff"
 
 Bug fixes, improved Windows support, and repeaters!
 
@@ -34,6 +34,7 @@ Bug fixes, improved Windows support, and repeaters!
 - The `where` Twig filter now works with any PageView type in addition to ContentItems
 - Declaring both `baseurl` and `base` in the site's configuration leads to `baseurl` taking precedence
 - Dates or timestamps evaluated from the `date` field (and the respective `year`, `month`, and `day` fields) in Front Matter are evaluated with respect to the timezone set in *php.ini*
+- Fix issue of cache creation when running from a PHAR
 
 ## 0.1.0 Beta 2 "The Flash"
 
