@@ -17,9 +17,11 @@ Bug fixes, improved Windows support, and repeaters!
 - The `menu` Twig variable is now an array of PageViews instead of an array with limited information
 - FrontMatter evaluation has evolved into its own parser with supported for "expanded values"
 - All objects passed to Twig as `this` are now *JailObjects* which restrict the functions that can be called from Twig; this will prevent undefined behavior
+- Improved messages thrown by exceptions
 
 **Fixes**
 
+- Fix broken Watch command where nothing would rebuild
 - The `order` Twig filter now works with PageViews
 - Fixed fenced code blocks wouldn't render as escaped HTML
 - RST include vulnerability has been fixed; everything is now jailed to the current working directory while building the website
@@ -29,9 +31,9 @@ Bug fixes, improved Windows support, and repeaters!
 - `this` in Twig will always refer to an object now, instead of just FrontMatter (which PageView was an offender of and didn't allow functions to be called)
 - Twig error line numbers now take into account the offset of the FrontMatter in the document
 - Twig errors now show the correct relative file path instead of just the filename
-- Fix broken Watch command where nothing would rebuild
 - The `where` Twig filter now works with any PageView type in addition to ContentItems
 - Declaring both `baseurl` and `base` in the site's configuration leads to `baseurl` taking precedence
+- Dates or timestamps evaluated from the `date` field (and the respective `year`, `month`, and `day` fields) in Front Matter are evaluated with respect to the timezone set in *php.ini*
 
 ## 0.1.0 Beta 2 "The Flash"
 
