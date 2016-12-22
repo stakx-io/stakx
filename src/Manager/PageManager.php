@@ -32,6 +32,11 @@ class PageManager extends TrackingManager
     private $redirectTemplate;
 
     /**
+     * @var PageView[]
+     */
+    private $twigExtendsDeps;
+
+    /**
      * @var ContentItem[][]
      */
     private $collections;
@@ -42,6 +47,8 @@ class PageManager extends TrackingManager
     private $targetDir;
 
     private $siteMenu;
+
+    private $twigOpts;
 
     /**
      * @var \Twig_Environment
@@ -80,8 +87,19 @@ class PageManager extends TrackingManager
 
     public function configureTwig ($configuration, $options)
     {
+        $this->twigOpts['configuration'] = $configuration;
+        $this->twigOpts['options']       = $options;
+
+        $this->createTwigManager();
+    }
+
+    public function createTwigManager ()
+    {
         $twig = new TwigManager();
-        $twig->configureTwig($configuration, $options);
+        $twig->configureTwig(
+            $this->twigOpts['configuration'],
+            $this->twigOpts['options']
+        );
 
         $this->twig = TwigManager::getInstance();
     }
@@ -210,9 +228,29 @@ class PageManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
+    public function isTracked($filePath)
+    {
+        return (parent::isTracked($filePath) || isset($this->twigExtendsDeps[$filePath]));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function refreshItem($filePath)
     {
-        $this->compileFromFilePath($filePath, true);
+        if (parent::isTracked($filePath))
+        {
+            $this->compileFromFilePath($filePath, true);
+
+            return;
+        }
+
+        $this->createTwigManager();
+
+        foreach ($this->twigExtendsDeps[$filePath] as $pageView)
+        {
+            $this->compilePageView($pageView);
+        }
     }
 
     /**
@@ -264,11 +302,6 @@ class PageManager extends TrackingManager
         /** @var DynamicPageView|PageView|RepeaterPageView $pageView */
         $pageView = &$this->trackedItemsFlattened[$filePath];
 
-        if ($pageView->getType() === PageView::REPEATER_TYPE)
-        {
-            $pageView->rewindPermalink();
-        }
-
         $this->compilePageView($pageView, $refresh);
     }
 
@@ -308,6 +341,7 @@ class PageManager extends TrackingManager
     private function compileRepeaterPageView (&$pageView)
     {
         $template = $this->createTemplate($pageView);
+        $pageView->rewindPermalink();
 
         foreach ($pageView->getRepeaterPermalinks() as $permalink)
         {
@@ -464,11 +498,15 @@ class PageManager extends TrackingManager
      * @return Twig_Template
      * @throws Twig_Error_Syntax
      */
-    private function createTemplate ($pageView)
+    private function createTemplate (&$pageView)
     {
         try
         {
-            return $this->twig->createTemplate($pageView->getContent());
+            $template = $this->twig->createTemplate($pageView->getContent());
+
+            $this->trackParentTwigTemplate($template, $pageView);
+
+            return $template;
         }
         catch (Twig_Error_Syntax $e)
         {
@@ -476,6 +514,28 @@ class PageManager extends TrackingManager
             $e->setTemplateName($pageView->getRelativeFilePath());
 
             throw $e;
+        }
+    }
+
+    /**
+     * Find the parent Twig templates of the given template and keep a list of it
+     *
+     * @param Twig_Template $template The template created from the PageView's content
+     * @param PageView      $pageView The PageView that has this content. Used to keep a reference of PageViews
+     */
+    private function trackParentTwigTemplate ($template, &$pageView)
+    {
+        if (!$this->tracking) { return; }
+
+        /** @var Twig_Template $parent */
+        $parent = $template->getParent(array());
+
+        while ($parent !== false)
+        {
+            $filePath = $this->fs->getRelativePath($parent->getSourceContext()->getPath());
+
+            $this->twigExtendsDeps[$filePath][(string)$pageView->getFilePath()] = &$pageView;
+            $parent = $parent->getParent(array());
         }
     }
 }
