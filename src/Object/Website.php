@@ -142,6 +142,7 @@ class Website
                 array('name' => 'site',        'value' => $this->getConfiguration()->getConfiguration()),
                 array('name' => 'collections', 'value' => $this->cm->getCollections()),
                 array('name' => 'menu',        'value' => $this->pm->getSiteMenu()),
+                array('name' => 'pages',       'value' => $this->pm->getFlatPages()),
                 array('name' => 'data',        'value' => $this->dm->getDataItems())
             )
         ));

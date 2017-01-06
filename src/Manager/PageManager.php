@@ -46,6 +46,11 @@ class PageManager extends TrackingManager
      */
     private $targetDir;
 
+    /**
+     * @var PageView[]
+     */
+    private $flatPages;
+
     private $siteMenu;
 
     private $twigOpts;
@@ -102,6 +107,11 @@ class PageManager extends TrackingManager
         );
 
         $this->twig = TwigManager::getInstance();
+    }
+
+    public function getFlatPages ()
+    {
+        return $this->flatPages;
     }
 
     /**
@@ -281,6 +291,10 @@ class PageManager extends TrackingManager
         if ($namespace == PageView::STATIC_TYPE)
         {
             $this->addToSiteMenu($pageView);
+
+            if (!empty($pageView->title)) {
+                $this->flatPages[$pageView->title] = &$pageView;
+            }
         }
     }
 
