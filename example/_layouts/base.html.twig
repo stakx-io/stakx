@@ -13,7 +13,7 @@
             {{ parent() }}
         </div>
         <div class="col-md-4">
-            <p class="text-center text-muted">Built with <i class="fa fa-fw fa-heart"></i> with Stakx</p>
+            <p class="text-center text-muted">Built with <i class="fa fa-fw fa-heart"></i> with <a href="https://stakx.io">stakx</a></p>
         </div>
         <div class="col-md-4">
             <ul class="list-inline">
@@ -22,7 +22,7 @@
                 </li>
                 {% for item in menu | order("title") %}
                     <li>
-                        <a href="{{ url(item.permalink) }}">{{ item.title }}</a>
+                        <a href="{{ url(item) }}">{{ item.title }}</a>
                     </li>
                 {% endfor %}
             </ul>
