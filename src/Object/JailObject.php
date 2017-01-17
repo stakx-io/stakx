@@ -15,7 +15,7 @@ namespace allejo\stakx\Object;
  *
  * @package allejo\stakx\Object
  */
-class JailObject
+class JailObject implements \ArrayAccess
 {
     /**
      * @var string[]
@@ -41,9 +41,9 @@ class JailObject
      */
     public function __construct (&$object, array $whiteListFunctions, array $jailedFunctions = array())
     {
-        if (!($object instanceof Jailable))
+        if (!($object instanceof Jailable) && !($object instanceof \ArrayAccess))
         {
-            throw new \InvalidArgumentException('Must implement Jailable interface');
+            throw new \InvalidArgumentException('Must implement the ArrayAccess and Jailable interfaces');
         }
 
         $this->object = &$object;
@@ -81,7 +81,7 @@ class JailObject
         throw new \BadMethodCallException();
     }
 
-    public function __get($name)
+    public function __get ($name)
     {
         if ($this->object->isMagicGet($name))
         {
@@ -89,5 +89,46 @@ class JailObject
         }
 
         return NULL;
+    }
+
+    public function coreInstanceOf ($class)
+    {
+        return is_subclass_of($this->object, $class);
+    }
+
+    //
+    // ArrayAccess Implementation
+    //
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists($offset)
+    {
+        return $this->object->offsetExists($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset)
+    {
+        return $this->object->offsetGet($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        return $this->object->offsetSet($offset, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        return $this->object->offsetUnset($offset);
     }
 }

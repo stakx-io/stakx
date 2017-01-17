@@ -11,11 +11,11 @@ use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class FrontMatterObject implements FrontMatterable, Jailable
+abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAccess
 {
     protected static $whiteListFunctions = array(
         'getPermalink', 'getRedirects', 'getTargetFile', 'getName', 'getFilePath', 'getRelativeFilePath', 'getContent',
-        'getExtension'
+        'getExtension', 'getFrontMatter'
     );
 
     /**
@@ -552,9 +552,65 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable
      */
     public function isMagicGet ($name)
     {
-        return (
-            !in_array($name, $this->frontMatterBlacklist)) &&
-            (isset($this->frontMatter[$name]) || isset($this->writableFrontMatter[$name])
-            );
+        return (!in_array($name, $this->frontMatterBlacklist)) &&
+               (isset($this->frontMatter[$name]) || isset($this->writableFrontMatter[$name]));
+    }
+
+    //
+    // ArrayAccess Implementation
+    //
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet ($offset, $value)
+    {
+        if (is_null($offset))
+        {
+            throw new \InvalidArgumentException('$offset cannot be null');
+        }
+
+        $this->writableFrontMatter[$offset] = $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists ($offset)
+    {
+        return $this->isMagicGet($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset ($offset)
+    {
+        unset($this->writableFrontMatter[$offset]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet ($offset)
+    {
+        if (!$this->isMagicGet($offset))
+        {
+            $fxnCall = 'get' . ucfirst($offset);
+
+            return $this->$fxnCall();
+        }
+
+        if (isset($this->writableFrontMatter[$offset]))
+        {
+            return $this->writableFrontMatter[$offset];
+        }
+
+        if (isset($this->frontMatter[$offset]))
+        {
+            return $this->frontMatter[$offset];
+        }
+
+        return null;
     }
 }
