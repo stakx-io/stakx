@@ -2,16 +2,15 @@
 
 namespace allejo\stakx\Twig;
 
-use allejo\stakx\Object\FrontMatterObject;
 use Twig_Error_Syntax;
 
 class WhereFilter
 {
     /**
-     * @param  array|FrontMatterObject[] $array      The elements to filter through
-     * @param  string                    $key        The key value in an associative array or FrontMatter
-     * @param  string                    $comparison The actual comparison symbols being used
-     * @param  mixed                     $value      The value we're searching for
+     * @param  array|\ArrayAccess[] $array      The elements to filter through
+     * @param  string               $key        The key value in an associative array or FrontMatter
+     * @param  string               $comparison The actual comparison symbols being used
+     * @param  mixed                $value      The value we're searching for
      *
      * @return array
      */
@@ -34,15 +33,15 @@ class WhereFilter
     /**
      * Recursive searching calling our comparison
      *
-     * @param array|FrontMatterObject[] $array      The elements to filter through
-     * @param string                    $key        The key value in an associative array or FrontMatter
-     * @param string                    $comparison The actual comparison symbols being used
-     * @param string                    $value      The value we're searching for
-     * @param array                     $results    The reference to where to keep the filtered elements
+     * @param array|\ArrayAccess[] $array      The elements to filter through
+     * @param string               $key        The key value in an associative array or FrontMatter
+     * @param string               $comparison The actual comparison symbols being used
+     * @param string               $value      The value we're searching for
+     * @param array                $results    The reference to where to keep the filtered elements
      */
     private function search_r ($array, $key, $comparison, $value, &$results)
     {
-        if (!is_array($array) && !($array instanceof FrontMatterObject))
+        if (!is_array($array) && !($array instanceof \ArrayAccess))
         {
             return;
         }
@@ -61,10 +60,10 @@ class WhereFilter
     /**
      * The logic for determining if an element matches the filter
      *
-     * @param  array|FrontMatterObject[] $array      The elements to filter through
-     * @param  string                    $key        The key value in an associative array or FrontMatter
-     * @param  string                    $comparison The actual comparison symbols being used
-     * @param  mixed                     $value      The value we're searching for
+     * @param  array|\ArrayAccess[] $array      The elements to filter through
+     * @param  string               $key        The key value in an associative array or FrontMatter
+     * @param  string               $comparison The actual comparison symbols being used
+     * @param  mixed                $value      The value we're searching for
      *
      * @return bool
      *
@@ -72,17 +71,9 @@ class WhereFilter
      */
     private function compare ($array, $key, $comparison, $value)
     {
-        $fm = false;
-
-        if ($array instanceof FrontMatterObject)
-        {
-            $array = $array->getFrontMatter();
-            $fm = true;
-        }
-
         if (!isset($array[$key]))
         {
-            return ($fm && $comparison === "==" && $value === null);
+            return false;
         }
 
         switch ($comparison)

@@ -121,7 +121,18 @@ class PageManager extends TrackingManager
      */
     public function getSiteMenu ()
     {
-        return $this->siteMenu;
+        static $jailedMenu = array();
+
+        if (!empty($jailedMenu)) {
+            return $jailedMenu;
+        }
+
+        foreach ($this->siteMenu as $key => $value)
+        {
+            $jailedMenu[$key] = $value->createJail();
+        }
+
+        return $jailedMenu;
     }
 
     /**
@@ -293,7 +304,7 @@ class PageManager extends TrackingManager
             $this->addToSiteMenu($pageView);
 
             if (!empty($pageView->title)) {
-                $this->flatPages[$pageView->title] = &$pageView;
+                $this->flatPages[$pageView->title] = $pageView->createJail();
             }
         }
     }
