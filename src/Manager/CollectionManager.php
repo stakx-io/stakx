@@ -8,6 +8,7 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Object\ContentItem;
+use allejo\stakx\Object\JailObject;
 
 /**
  * Class CollectionManager
@@ -41,6 +42,26 @@ class CollectionManager extends TrackingManager
     public function &getCollections ()
     {
         return $this->trackedItems;
+    }
+
+    /**
+     * Get jailed ContentItems
+     *
+     * @return JailObject[][]
+     */
+    public function getJailedCollections ()
+    {
+        $jailItems = array();
+
+        foreach ($this->trackedItems as $key => $items)
+        {
+            foreach ($items as $name => $contentItem)
+            {
+                $jailItems[$key][$name] = $contentItem->createJail();
+            }
+        }
+
+        return $jailItems;
     }
 
     /**
