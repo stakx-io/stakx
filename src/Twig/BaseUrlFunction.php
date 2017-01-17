@@ -2,7 +2,7 @@
 
 namespace allejo\stakx\Twig;
 
-use allejo\stakx\Object\JailObject;
+use allejo\stakx\Object\FrontMatterObject;
 use Twig_Environment;
 
 class BaseUrlFunction
@@ -11,14 +11,9 @@ class BaseUrlFunction
     {
         $globals = $env->getGlobals();
 
-        if ($assetPath instanceof JailObject) {
+        if ($assetPath instanceof FrontMatterObject)
+        {
             $assetPath = $assetPath->getPermalink();
-        }
-        else if (is_array($assetPath)) {
-            $assetPath = $assetPath['permalink'];
-        }
-        else if (is_null($assetPath)) {
-            $assetPath = '/';
         }
 
         // @TODO 1.0.0 Remove support for 'base' as it's been deprecated
