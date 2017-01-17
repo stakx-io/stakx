@@ -2,8 +2,6 @@
 
 namespace allejo\stakx\Twig;
 
-use allejo\stakx\Object\FrontMatterObject;
-
 class OrderFilter
 {
     public function __invoke ($array, $key, $order = "ASC")
@@ -15,9 +13,6 @@ class OrderFilter
 
         usort($array, function ($a, $b) use ($key, $order)
         {
-            $a = ($a instanceof FrontMatterObject) ? $a->getFrontMatter() : $a;
-            $b = ($b instanceof FrontMatterObject) ? $b->getFrontMatter() : $b;
-
             if ($a[$key] == $b[$key])
             {
                 return 0;
