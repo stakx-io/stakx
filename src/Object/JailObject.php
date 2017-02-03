@@ -60,7 +60,7 @@ class JailObject implements \ArrayAccess
 
         // Check if our function call is a jailed call, meaning the function should be mapped to special "jailed"
         // jailed version of the function call.
-        if (in_array($getFxnCall, $this->jailedFunctions))
+        if (array_key_exists($getFxnCall, $this->jailedFunctions))
         {
             return call_user_func_array(array($this->object, $this->jailedFunctions[$getFxnCall]), $arguments);
         }
