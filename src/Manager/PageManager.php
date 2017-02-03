@@ -129,6 +129,12 @@ class PageManager extends TrackingManager
 
         foreach ($this->siteMenu as $key => $value)
         {
+            // If it's an array, it means the parent is hidden from the site menu therefore its children should be too
+            if (is_array($this->siteMenu[$key]))
+            {
+                continue;
+            }
+
             $jailedMenu[$key] = $value->createJail();
         }
 
@@ -476,16 +482,20 @@ class PageManager extends TrackingManager
     {
         $frontMatter = $pageView->getFrontMatter();
 
-        if (!array_key_exists('permalink', $frontMatter) ||
-            (array_key_exists('menu', $frontMatter) && !$frontMatter['menu']))
+        if (isset($frontMatter['menu']) && !$frontMatter['menu'])
         {
             return;
         }
 
-        $url = $pageView->getPermalink();
+        $url = trim($pageView->getPermalink(), '/');
+
+        if (empty($url))
+        {
+            return;
+        }
+
         $root = &$this->siteMenu;
-        $permalink = trim($url, DIRECTORY_SEPARATOR);
-        $dirs = explode(DIRECTORY_SEPARATOR, $permalink);
+        $dirs = explode('/', $url);
 
         while (count($dirs) > 0)
         {
@@ -494,20 +504,13 @@ class PageManager extends TrackingManager
 
             if (!is_null($name) && count($dirs) == 0)
             {
-                $children = array();
-
-                if (array_key_exists($name, $root) && is_array($root[$name]))
+                if (isset($root[$name]) && is_array($root[$name]))
                 {
+                    $children = &$pageView->getChildren();
                     $children = $root[$name]['children'];
                 }
 
                 $root[$name] = &$pageView;
-                $root = &$root[$name]->getChildren();
-
-                if (!empty($children))
-                {
-                    $root = $children;
-                }
             }
             else
             {

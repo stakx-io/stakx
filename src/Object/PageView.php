@@ -37,6 +37,11 @@ class PageView extends FrontMatterObject
     private $children;
 
     /**
+     * @var JailObject
+     */
+    private $jailInstance;
+
+    /**
      * {@inheritdoc}
      */
     public function __construct($filePath)
@@ -56,9 +61,14 @@ class PageView extends FrontMatterObject
      */
     public function createJail ()
     {
-        return (new JailObject($this, array_merge(self::$whiteListFunctions, array(
-            'getUrl'
-        )), array('getChildren' => 'getJailedChildren')));
+        if (is_null($this->jailInstance))
+        {
+            $this->jailInstance = (new JailObject($this, array_merge(self::$whiteListFunctions, array(
+                'getUrl'
+            )), array('getChildren' => 'getJailedChildren')));
+        }
+
+        return $this->jailInstance;
     }
 
     public function getJailedChildren ()
