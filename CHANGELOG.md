@@ -1,3 +1,20 @@
+## HEAD
+
+**New**
+
+- Added new `pages` variable which provides access to all static pages a stakx website has
+- The `url()` Twig function now accepts any PageView or CollectionItem for generating URLs
+
+**Changes**
+
+- Ensure only JailObjects are given to Twig
+- Children of hidden parents in the `menu` variable are no longer accessible
+- All FrontMatter objects implement `ArrayAccess`
+
+**Fixes**
+
+- Fix calls to jailed functions in JailObjects
+
 ## 0.1.0 Beta 3 "Repeat Stuff, Repeat Stuff, Gotta Repeat Stuff"
 
 Bug fixes, improved Windows support, and repeaters!
