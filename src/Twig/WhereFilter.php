@@ -2,6 +2,8 @@
 
 namespace allejo\stakx\Twig;
 
+use allejo\stakx\Object\FrontMatterObject;
+use allejo\stakx\Object\JailObject;
 use Twig_Error_Syntax;
 
 class WhereFilter
@@ -71,14 +73,15 @@ class WhereFilter
      */
     private function compare ($array, $key, $comparison, $value)
     {
-        if (!isset($array[$key]))
+        if (!isset($array[$key]) &&
+            !($array instanceof JailObject && $array->coreInstanceOf(FrontMatterObject::class) && $comparison == '==' && is_null($value)))
         {
             return false;
         }
 
         switch ($comparison)
         {
-            case "==": return ($array[$key] === $value);
+            case "==": return ((is_null($value) && !isset($array[$key])) || $array[$key] === $value);
             case "!=": return ($array[$key] !== $value);
             case ">" : return ($array[$key] > $value);
             case ">=": return ($array[$key] >= $value);
