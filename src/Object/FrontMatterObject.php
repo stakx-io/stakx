@@ -288,7 +288,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
 
         $rawFileContents = file_get_contents($this->filePath);
         $fileStructure   = array();
-        preg_match('/---\R(?:(.*)?\R)?---(\R(?:[\s|\R]+)?)(.*)/s', $rawFileContents, $fileStructure);
+        preg_match('/---\R(.*?\R)?---(\s+)(.*)/s', $rawFileContents, $fileStructure);
 
         if (count($fileStructure) != 4)
         {
@@ -301,12 +301,20 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
         }
 
         $this->lineOffset  = substr_count($fileStructure[1], "\n") + substr_count($fileStructure[2], "\n");
-        $this->frontMatter = Yaml::parse($fileStructure[1]);
         $this->bodyContent = $fileStructure[3];
 
-        if (!empty($this->frontMatter) && !is_array($this->frontMatter))
+        if (!empty(trim($fileStructure[1])))
         {
-            throw new ParseException('The evaluated FrontMatter should be an array');
+            $this->frontMatter = Yaml::parse($fileStructure[1]);
+
+            if (!empty($this->frontMatter) && !is_array($this->frontMatter))
+            {
+                throw new ParseException('The evaluated FrontMatter should be an array');
+            }
+        }
+        else
+        {
+            $this->frontMatter = array();
         }
 
         $this->frontMatterEvaluated = false;
