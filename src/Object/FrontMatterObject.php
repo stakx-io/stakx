@@ -9,6 +9,7 @@ use allejo\stakx\System\Filesystem;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAccess
@@ -302,6 +303,11 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
         $this->lineOffset  = substr_count($fileStructure[1], "\n") + substr_count($fileStructure[2], "\n");
         $this->frontMatter = Yaml::parse($fileStructure[1]);
         $this->bodyContent = $fileStructure[3];
+
+        if (!empty($this->frontMatter) && !is_array($this->frontMatter))
+        {
+            throw new ParseException('The evaluated FrontMatter should be an array');
+        }
 
         $this->frontMatterEvaluated = false;
         $this->bodyContentEvaluated = false;
