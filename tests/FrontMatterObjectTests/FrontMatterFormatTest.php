@@ -44,6 +44,20 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
+    public function testEmptyWithLineFrontMatter ()
+    {
+        $expectedFormat = <<<LINE
+---
+
+
+---
+
+Some content
+LINE;
+
+        $this->createFile(ContentItem::class, $expectedFormat);
+    }
+
     public function testMultipleBlankLinesAfterFrontMatter ()
     {
         $expectedFormat = <<<LINE

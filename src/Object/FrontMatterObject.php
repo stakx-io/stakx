@@ -287,7 +287,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
 
         $rawFileContents = file_get_contents($this->filePath);
         $fileStructure   = array();
-        preg_match('/---(.*?)---(\n(?:[\s|\n]+)?)(.*)/s', $rawFileContents, $fileStructure);
+        preg_match('/---\R(?:(.*)?\R)?---(\R(?:[\s|\R]+)?)(.*)/s', $rawFileContents, $fileStructure);
 
         if (count($fileStructure) != 4)
         {
