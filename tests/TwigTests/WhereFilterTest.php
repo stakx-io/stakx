@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\tests;
 
+use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Twig\WhereFilter;
 
@@ -53,7 +54,7 @@ class WhereFilterTests extends \PHPUnit_Stakx_TestCase
         );
     }
 
-    public function dataProvider ()
+    public static function dataProvider ()
     {
         return array(
             array('assertEquals', 'cost', '==', 50),
@@ -144,5 +145,60 @@ class WhereFilterTests extends \PHPUnit_Stakx_TestCase
 
         $this->assertCount(1, $filteredAggregate);
         $this->assertCount(2, $filteredCategory);
+    }
+
+    private function contentItemProvider ()
+    {
+        $cm = new CollectionManager();
+        $cm->setLogger($this->loggerMock());
+        $cm->parseCollections(array(
+            array(
+                'name'   => 'books',
+                'folder' => 'tests/assets/MyBookCollection/'
+            )
+        ));
+
+        return $cm->getJailedCollections();
+    }
+
+    public static function fmDataProvider ()
+    {
+        return array(
+            array('completed', '==', true, 3),
+            array('completed', '==', false, 1),
+            array('completed', '==', null, 1),
+            array('completed', '!=', false, 4),
+            array('completed', '~=', false, 0),
+            array('page_count', '>=', 200, 2),
+            array('page_count', '~=', 200, 0),
+            array('shipping_weight', '>', 6, 3),
+            array('shipping_weight', '>=', 12.6, 2),
+            array('shipping_weight', '<', 12.6, 3),
+            array('shipping_weight', '<=', 12.6, 5),
+            array('publisher', '~=', 'Candle', 3),
+            array('publisher', '~=', 'candle', 0),
+            array('publisher', '~=', 'R', 4),
+            array('publisher', '_=', 'candle', 3),
+            array('publisher', '_=', 'r', 5),
+            array('publisher', '/=', '/.wick./', 3),
+        );
+    }
+
+    /**
+     * @dataProvider fmDataProvider
+     *
+     * @param string $fm         The front matter key we'll be checking
+     * @param string $comparison The comparison we'll be using
+     * @param mixed  $value      The value we're looking for the front matter to match
+     * @param int    $count      The amount of entries we're expecting to match this rule
+     */
+    public function testWhereFilterContentItemAssertCount ($fm, $comparison, $value, $count)
+    {
+        $collections = $this->contentItemProvider();
+        $books = $collections['books'];
+        $filter = new WhereFilter();
+
+        $trueResults = $filter($books, $fm, $comparison, $value);
+        $this->assertCount($count, $trueResults);
     }
 }
