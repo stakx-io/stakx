@@ -53,7 +53,12 @@ class DataManager extends TrackingManager
         foreach ($folders as $folder)
         {
             $this->saveFolderDefinition($folder);
-            $this->scanTrackableItems($folder);
+            $this->scanTrackableItems(
+                $folder,
+                array(),
+                array(),
+                array('/\.example$/')
+            );
         }
     }
 
@@ -81,9 +86,12 @@ class DataManager extends TrackingManager
             $this->saveFolderDefinition($dataSet['folder'], array(
                 'namespace' => $dataSet['name']
             ));
-            $this->scanTrackableItems($dataSet['folder'], array(
-                'namespace' => $dataSet['name']
-            ));
+            $this->scanTrackableItems(
+                $dataSet['folder'],
+                array('namespace' => $dataSet['name']),
+                array(''),
+                array('/\.example$/')
+            );
         }
     }
 
