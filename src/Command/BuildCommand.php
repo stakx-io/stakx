@@ -4,7 +4,7 @@ namespace allejo\stakx\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use allejo\stakx\Exception\InvalidSyntaxException;
+use Symfony\Component\Filesystem\Exception\IOException;
 
 class BuildCommand extends BuildableCommand
 {
@@ -35,7 +35,7 @@ class BuildCommand extends BuildableCommand
                 $this->website->getConfiguration()->getTargetFolder() . DIRECTORY_SEPARATOR
             ));
         }
-        catch (InvalidSyntaxException $e)
+        catch (IOException $e)
         {
             $output->writeln(sprintf("Your website failed to build with the following error in file '%s': %s",
                 $e->getPath(),
