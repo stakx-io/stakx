@@ -22,7 +22,7 @@ class ConfigurationTests extends \PHPUnit_Stakx_TestCase
         $output = $this->loggerMock();
         $this->sampleConfig = new Configuration();
         $this->sampleConfig->setLogger($output);
-        $this->sampleConfig->parseConfiguration(__DIR__ . '/assets/sample.yml');
+        $this->sampleConfig->parseConfiguration(__DIR__ . '/assets/ConfigurationFiles/sample.yml');
 
         $this->defaultConfig = new Configuration();
         $this->defaultConfig->setLogger($output);

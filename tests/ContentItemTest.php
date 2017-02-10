@@ -318,7 +318,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     public function testContentItemWithMdExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample Markdown.md');
-        $markdownContent = file_get_contents(__DIR__ . '/assets/Sample Markdown.md');
+        $markdownContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample Markdown.md');
 
         $contentItem = $this->createContentItemWithEmptyFrontMatter($markdownContent);
         $pd = new MarkdownEngine();
@@ -329,7 +329,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     public function testContentItemWithRstExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
-        $rstContent = file_get_contents(__DIR__ . '/assets/Sample reStructuredText.rst');
+        $rstContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample reStructuredText.rst');
 
         $contentItem = $this->createContentItemWithEmptyFrontMatter($rstContent);
         $pd = new RstEngine();
@@ -340,7 +340,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     public function testContentItemWithUnknownExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample HTML.html');
-        $htmlContent = file_get_contents(__DIR__ . '/assets/Sample HTML.html');
+        $htmlContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample HTML.html');
 
         $contentItem = $this->createContentItemWithEmptyFrontMatter($htmlContent);
 

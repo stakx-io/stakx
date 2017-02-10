@@ -1,4 +1,8 @@
 <?php
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
 
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Object\Configuration;
@@ -12,17 +16,19 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function setUp ()
     {
+        parent::setUp();
+
         mkdir(__DIR__ . '/output');
 
         $outputDir = new Folder(__DIR__ . '/output');
         $config    = new Configuration();
-        $config->parseConfiguration(__DIR__ . '/_config.yml');
+        $config->parseConfiguration($this->fs->appendPath(__DIR__, 'assets', 'ConfigurationFiles', 'simple.yml'));
 
         $this->pageManager = new PageManager();
         $this->pageManager->setLogger($this->loggerMock());
         $this->pageManager->setTargetFolder($outputDir);
         $this->pageManager->parsePageViews(array(
-            __DIR__ . '/PageViews/'
+            $this->fs->appendPath(__DIR__, 'assets', 'PageViews')
         ));
         $this->pageManager->configureTwig($config, array(
             'safe' => false,
@@ -33,8 +39,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function tearDown()
     {
-        $fs = new Filesystem();
-        $fs->remove(__DIR__ . '/output');
+        $this->fs->remove(__DIR__ . '/output');
     }
 
     public function testRepeaterTemplateCreation ()
