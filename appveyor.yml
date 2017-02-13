@@ -19,7 +19,7 @@ install:
   - sc config wuauserv start= auto
   - net start wuauserv
   - cinst -y php
-  - cd c:\tools\php
+  - cd c:\tools\php71
   - copy php.ini-production php.ini
   - echo date.timezone="UTC" >> php.ini
   - echo extension_dir=ext >> php.ini
