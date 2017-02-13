@@ -89,7 +89,7 @@ class DataManager extends TrackingManager
             $this->scanTrackableItems(
                 $dataSet['folder'],
                 array('namespace' => $dataSet['name']),
-                array(''),
+                array(),
                 array('/\.example$/')
             );
         }
