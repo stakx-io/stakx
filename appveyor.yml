@@ -24,7 +24,7 @@ install:
   - echo date.timezone="UTC" >> php.ini
   - echo extension_dir=ext >> php.ini
   - echo extension=php_openssl.dll >> php.ini
-  - SET PATH=C:\tools\php;%PATH%
+  - SET PATH=C:\tools\php71;%PATH%
   - cd C:\projects\stakx
   - php -r "readfile('http://getcomposer.org/installer');" | php
   - php composer.phar install --no-interaction --prefer-dist
