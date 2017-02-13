@@ -4,12 +4,14 @@ namespace allejo\stakx\Engines;
 
 use Highlight\Highlighter;
 
-class MarkdownEngine extends \Parsedown
+class MarkdownEngine extends \ParsedownExtra
 {
     protected $highlighter;
 
     public function __construct ()
     {
+        parent::__construct();
+
         $this->highlighter = new Highlighter();
     }
 
