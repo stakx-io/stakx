@@ -7,8 +7,6 @@
 
 namespace allejo\stakx\Exception;
 
-use Symfony\Component\Filesystem\Exception\IOException;
-
-class InvalidSyntaxException extends IOException
+class InvalidSyntaxException extends FileAwareException
 {
 }

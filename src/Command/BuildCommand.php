@@ -2,9 +2,9 @@
 
 namespace allejo\stakx\Command;
 
+use allejo\stakx\Exception\FileAwareException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Exception\IOException;
 
 class BuildCommand extends BuildableCommand
 {
@@ -35,7 +35,7 @@ class BuildCommand extends BuildableCommand
                 $this->website->getConfiguration()->getTargetFolder() . DIRECTORY_SEPARATOR
             ));
         }
-        catch (IOException $e)
+        catch (FileAwareException $e)
         {
             $output->writeln(sprintf("Your website failed to build with the following error in file '%s': %s",
                 $e->getPath(),
