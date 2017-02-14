@@ -4,16 +4,22 @@
 
 - Added new `pages` variable which provides access to all static pages a stakx website has
 - The `url()` Twig function now accepts any PageView or CollectionItem for generating URLs
+- Data files with a `.example` extension are ignored (#35)
+- Errors occurring due to a file's syntax now display the path to the file to the console (#34)
+- Add Markdown Extra support
 
 **Changes**
 
 - Ensure only JailObjects are given to Twig
 - Children of hidden parents in the `menu` variable are no longer accessible
 - All FrontMatter objects implement `ArrayAccess`
+- License file has been changed to MIT
 
 **Fixes**
 
 - Fix calls to jailed functions in JailObjects
+- Parsing FrontMatter files has improved cross-platform support
+- The `where` Twig filter works better with null values
 
 ## 0.1.0 Beta 3 "Repeat Stuff, Repeat Stuff, Gotta Repeat Stuff"
 
