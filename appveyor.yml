@@ -5,6 +5,21 @@ pull_requests:
 skip_tags: true
 clone_folder: C:\projects\stakx
 
+environment:
+  matrix:
+    - dependencies: current
+      php_ver_target: 5.6
+    - dependencies: highest
+      php_ver_target: 5.6
+    - dependencies: current
+      php_ver_target: 7.0
+    - dependencies: highest
+      php_ver_target: 7.0
+    - dependencies: current
+      php_ver_target: 7.1
+    - dependencies: highest
+      php_ver_target: 7.1
+
 branches:
   except:
     - gh-pages
@@ -13,21 +28,24 @@ cache:
   - vendor
   - '%LocalAppData%\Composer'
 
+## Set up environment variables
+init:
+  - SET PATH=C:\Program Files\OpenSSL;%PATH%
+  - SET COMPOSER_NO_INTERACTION=1
+  - SET PHP=1
+  - SET ANSICON=121x90 (121x90)
+
 install:
   - cinst -y OpenSSL.Light
-  - SET PATH=C:\Program Files\OpenSSL;%PATH%
   - sc config wuauserv start= auto
   - net start wuauserv
-  - cinst -y php
-  - cd c:\tools\php71
-  - copy php.ini-production php.ini
-  - echo date.timezone="UTC" >> php.ini
-  - echo extension_dir=ext >> php.ini
-  - echo extension=php_openssl.dll >> php.ini
-  - SET PATH=C:\tools\php71;%PATH%
+  - ps: cinst -y php --allow-empty-checksums --version ((choco search php --exact --all-versions -r | select-string -pattern $Env:php_ver_target | Select-Object -first 1) -replace '[php|]',''); cmd.exe /c 'appveyor.bat'
+  - refreshenv
   - cd C:\projects\stakx
   - php -r "readfile('http://getcomposer.org/installer');" | php
-  - php composer.phar install --no-interaction --prefer-dist
+  - IF %dependencies%==current php composer.phar install --no-progress --prefer-dist
+  - IF %dependencies%==highest php composer.phar update --no-progress --prefer-dist -n
+  - php composer.phar show
 
 test_script:
   - cd C:\projects\stakx
