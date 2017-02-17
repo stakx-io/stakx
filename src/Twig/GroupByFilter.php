@@ -10,9 +10,22 @@ class GroupByFilter
 
         foreach ($array as $key => $item)
         {
-            $arr[$item[$sortKey]][$key] = $item;
-        }
+            if (!isset($item[$sortKey])) { continue; }
 
+            $groupBy = $item[$sortKey];
+
+            if (is_bool($groupBy))
+            {
+                $groupBy = ($groupBy) ? 'true' : 'false';
+            }
+            else if (!is_scalar($groupBy))
+            {
+                //trigger_error('You cannot group by a non-scalar value', E_WARNING);
+                continue;
+            }
+
+            $arr[$groupBy][$key] = $item;
+        }
 
         return $arr;
     }

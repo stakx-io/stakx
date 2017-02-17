@@ -2,10 +2,10 @@
 
 namespace allejo\stakx\tests;
 
+use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Twig\GroupByFilter;
-use PHPUnit_Framework_TestCase;
 
-class GroupByFilterTests extends PHPUnit_Framework_TestCase
+class GroupByFilterTests extends \PHPUnit_Stakx_TestCase
 {
     public function testGroupByFilter ()
     {
@@ -41,5 +41,55 @@ class GroupByFilterTests extends PHPUnit_Framework_TestCase
         $grouped = $gbFilter($original, 'id');
 
         $this->assertEquals($expected, $grouped);
+    }
+
+    private function contentItemProvider ()
+    {
+        $cm = new CollectionManager();
+        $cm->setLogger($this->loggerMock());
+        $cm->parseCollections(array(
+            array(
+                'name'   => 'books',
+                'folder' => 'tests/assets/MyBookCollection/'
+            )
+        ));
+
+        return $cm->getJailedCollections();
+    }
+
+    public function testGroupByFilterContentItems ()
+    {
+        $books = $this->contentItemProvider()['books'];
+        $filter = new GroupByFilter();
+        $grouped = $filter($books, 'publisher');
+
+        $this->assertCount(2, $grouped);
+        $this->assertArrayHasKey('Candlewick', $grouped);
+        $this->assertArrayHasKey('Random House Books for Young Readers', $grouped);
+
+        $this->assertCount(3, $grouped['Candlewick']);
+        $this->assertCount(2, $grouped['Random House Books for Young Readers']);
+    }
+
+    public function testGroupByFilterBooleanFrontMatterKey ()
+    {
+        $books = $this->contentItemProvider()['books'];
+        $filter = new GroupByFilter();
+        $grouped = $filter($books, 'completed');
+
+        $this->assertCount(2, $grouped);
+        $this->assertArrayHasKey('true', $grouped);
+        $this->assertArrayHasKey('false', $grouped);
+        $this->assertCount(3, $grouped['true']);
+        $this->assertCount(1, $grouped['false']);
+    }
+
+    public function testGroupByFilterNullFrontMatterKey ()
+    {
+        $books = $this->contentItemProvider()['books'];
+        $filter = new GroupByFilter();
+        $grouped = $filter($books, 'non-existent-key');
+
+        $this->assertCount(0, $grouped);
     }
 }
