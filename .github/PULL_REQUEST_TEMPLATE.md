@@ -1,8 +1,17 @@
+### Summary
+
+| Q             | A
+| ------------- | ---
+| Bug fix?      | yes/no
+| New feature?  | yes/no
+| BC breaks?    | yes/no
+| Deprecations? | yes/no
+| Fixed issues  | #... <!-- #-prefixed issue number(s), if any -->
+
 ### Description
 
 <!--
-  - Describe what bug or issue your pull request is fixing. If there is
-    an existing issue, please reference that issue here as well.
+  - Describe what bug or issue your pull request is fixing.
   - Describe what new features your pull request are introducing.
 -->
 

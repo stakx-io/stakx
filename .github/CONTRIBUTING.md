@@ -89,19 +89,6 @@ Some things that will increase the chance that your pull request is accepted.
 - Follows the [specified coding style](#coding-style) properly
 - Update the documentation, the surrounding comments/docs, examples elsewhere, guides, whatever is affected by your contribution
 
-## Contributor License Agreement
-
-By committing to a source code repository or submitting a patch/pull request, you the developer are assigning copyright of the submission to the project maintainer, and his successors.
-
-### Grant of Copyright Assignment
-
-Each Contributor hereby assign to the project maintainer all right, title, and interest worldwide in all Copyright covering the Contribution.
-
-All submissions are subject to these terms.
-
-### Notes
-You may not place any restrictions on how the project maintainer maintains or handles your submitted works. Works that are derivations of existing works in the project are subject to the current project license and any other licenses the project may be released under. Authors that submit works must have the legal right to agree to these terms, either as original author or authorized licensee of derived works. Minors must have a parent or guardian sign the acceptance form for them.
-
 ## Acknowledgements
 
 - Thanks to the [Octokit team](https://github.com/octokit/octokit.net/blob/master/CONTRIBUTING.md) for inspiring these contributions guidelines.
