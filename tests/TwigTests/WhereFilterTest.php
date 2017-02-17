@@ -177,10 +177,10 @@ class WhereFilterTests extends \PHPUnit_Stakx_TestCase
             array('shipping_weight', '<=', 12.6, 5),
             array('publisher', '~=', 'Candle', 3),
             array('publisher', '~=', 'candle', 0),
-            array('publisher', '~=', 'R', 4),
+            array('publisher', '~=', 'R', 2),
             array('publisher', '_=', 'candle', 3),
-            array('publisher', '_=', 'r', 5),
-            array('publisher', '/=', '/.wick./', 3),
+            array('publisher', '_=', 'r', 2),
+            array('publisher', '/=', '/.wick.?/', 3),
         );
     }
 

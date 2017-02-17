@@ -2,7 +2,7 @@
 age: 3 - 7 years
 grade: Preschool - 2
 page_count: 63
-publisher: Random House Books for Young Readers (March 12, 1960)
+publisher: Random House Books for Young Readers
 language: English
 ibsn_10: "0394800133"
 isbn_13: "978-0394800134"

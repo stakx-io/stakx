@@ -2,7 +2,7 @@
 age: 7 - 10 years
 grade: 2 - 5
 page_count: 272
-publisher: Candlewick (December 8, 2015)
+publisher: Candlewick
 language: English
 isbn_10: "0763680893"
 isbn_13: "978-0763680893"

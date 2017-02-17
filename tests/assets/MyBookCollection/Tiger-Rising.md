@@ -2,7 +2,7 @@
 age: 10 and up
 grade: 5 and up
 page_count: 144
-publisher: Candlewick; Reissue edition (December 8, 2015)
+publisher: Candlewick
 language: English
 isbn_10: "0763680877"
 isbn_13: "978-0763680879"

@@ -2,7 +2,7 @@
 age: 9 - 12 years
 grade: 4 - 7
 page_count: 208
-publisher: Candlewick; Reprint edition (December 8, 2015)
+publisher: Candlewick
 language: English
 isbn_10: "0763680869"
 isbn_13: "978-0763680862"
