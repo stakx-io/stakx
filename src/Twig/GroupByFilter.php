@@ -20,7 +20,7 @@ class GroupByFilter
             }
             else if (!is_scalar($groupBy))
             {
-                //trigger_error('You cannot group by a non-scalar value', E_WARNING);
+                trigger_error('You cannot group by a non-scalar value', E_USER_WARNING);
                 continue;
             }
 
