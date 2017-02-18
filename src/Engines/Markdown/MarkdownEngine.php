@@ -45,8 +45,11 @@ class MarkdownEngine extends \ParsedownExtra
                 // Only return the block if Highlighter knew the language and how to handle it.
                 return $block;
             }
-            // Exception thrown when language not supported, so just catch it and ignore it.
-            catch (\DomainException $exception) {}
+            // Exception thrown when language not supported
+            catch (\DomainException $exception)
+            {
+                trigger_error("An unsupported language ($language) was detected in a code block", E_USER_WARNING);
+            }
         }
 
         return parent::blockFencedCodeComplete($block);
