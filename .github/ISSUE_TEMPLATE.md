@@ -8,14 +8,14 @@
 
 Write version here
 
-**Stakx Version:**
+**stakx Version:**
 
 <!--
   If you are running a PHAR from the Releases page, find the version of
-  Stakx by executing `stakx --version` via the command line.
+  stakx by executing `stakx --version` via the command line.
 
   If you are running from a Git clone of the project, find the version
-  of Stakx by executing `git rev-parse HEAD` via the command line.
+  of stakx by executing `git rev-parse HEAD` via the command line.
 -->
 
 Write version here
@@ -34,7 +34,7 @@ Write version here
 
 <!--
   Describe what you expected to see when building your website or
-  executing Stakx
+  executing stakx
 -->
 
 Write here.
@@ -43,7 +43,7 @@ Write here.
 
 <!--
   Describe what you actually saw when building your website or executing
-  Stakx. Be as detailed as possible and include logs or command line
+  stakx. Be as detailed as possible and include logs or command line
   output if possible  
 -->
 

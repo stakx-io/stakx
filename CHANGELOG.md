@@ -14,7 +14,7 @@
 - Children of hidden parents in the `menu` variable are no longer accessible
 - All FrontMatter objects implement `ArrayAccess`
 - License file has been changed to MIT
-- The `group` TWig filter has been improved with several crash bugs fixed
+- The `group` Twig filter has been improved with several crash bugs fixed
     - If a value is not set in the Front Matter, it will be discarded in the `group` result
     - Grouping by booleans is now possible; a 'true' or 'false' literal will be used
 
@@ -52,7 +52,7 @@ Bug fixes, improved Windows support, and repeaters!
 - Fixed fenced code blocks wouldn't render as escaped HTML
 - RST include vulnerability has been fixed; everything is now jailed to the current working directory while building the website
 - Fix `composer build` functionality on Windows
-- Fix file paths used by Stakx internally to be Windows friendly
+- Fix file paths used internally to be Windows friendly
 - Fix automatic permalink generation based on relative paths
 - `this` in Twig will always refer to an object now, instead of just FrontMatter (which PageView was an offender of and didn't allow functions to be called)
 - Twig error line numbers now take into account the offset of the FrontMatter in the document
@@ -79,7 +79,7 @@ The compile time of a website and watch command startup time has been improved d
 - New `--no-clean` option has been added to **not** clean the `_site` (target) folder on build
 - Verbose messages now show timestamps
 - Using the `exclude` option in configuration files now ignores files or directories instead of filtering them out
-    - e.g. `node_modules` is ignored by stakx by default; now, `node_modules` will be skipped entirely instead of being
+    - e.g. `node_modules` is ignored by default; now, `node_modules` will be skipped entirely instead of being
       scanned and later ignored during the compile process
 
 **Changes**
@@ -162,4 +162,4 @@ The compile time of a website and watch command startup time has been improved d
 
 ## 0.0.0 "It builds!"
 
-A very early tag of Stakx with only the `build` command mostly functional
+A very early tag of stakx with only the `build` command mostly functional
