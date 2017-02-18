@@ -2,7 +2,6 @@
 
 namespace allejo\stakx\tests;
 
-use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Twig\GroupByFilter;
 
 class GroupByFilterTests extends \PHPUnit_Stakx_TestCase
@@ -43,23 +42,9 @@ class GroupByFilterTests extends \PHPUnit_Stakx_TestCase
         $this->assertEquals($expected, $grouped);
     }
 
-    private function contentItemProvider ()
-    {
-        $cm = new CollectionManager();
-        $cm->setLogger($this->loggerMock());
-        $cm->parseCollections(array(
-            array(
-                'name'   => 'books',
-                'folder' => 'tests/assets/MyBookCollection/'
-            )
-        ));
-
-        return $cm->getJailedCollections();
-    }
-
     public function testGroupByFilterContentItems ()
     {
-        $books = $this->contentItemProvider()['books'];
+        $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();
         $grouped = $filter($books, 'publisher');
 
@@ -73,7 +58,7 @@ class GroupByFilterTests extends \PHPUnit_Stakx_TestCase
 
     public function testGroupByFilterBooleanFrontMatterKey ()
     {
-        $books = $this->contentItemProvider()['books'];
+        $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();
         $grouped = $filter($books, 'completed');
 
@@ -86,7 +71,7 @@ class GroupByFilterTests extends \PHPUnit_Stakx_TestCase
 
     public function testGroupByFilterNullFrontMatterKey ()
     {
-        $books = $this->contentItemProvider()['books'];
+        $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();
         $grouped = $filter($books, 'non-existent-key');
 

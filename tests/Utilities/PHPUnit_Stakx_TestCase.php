@@ -5,6 +5,7 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
+use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\System\Filesystem;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -54,6 +55,20 @@ abstract class PHPUnit_Stakx_TestCase extends PHPUnit_Framework_TestCase
     //
     // Utility Functions
     //
+
+    protected function bookCollectionProvider ()
+    {
+        $cm = new CollectionManager();
+        $cm->setLogger($this->loggerMock());
+        $cm->parseCollections(array(
+            array(
+                'name'   => 'books',
+                'folder' => 'tests/assets/MyBookCollection/'
+            )
+        ));
+
+        return $cm->getJailedCollections();
+    }
 
     /**
      * @param  string $classType

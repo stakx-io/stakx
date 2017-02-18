@@ -14,6 +14,9 @@
 - Children of hidden parents in the `menu` variable are no longer accessible
 - All FrontMatter objects implement `ArrayAccess`
 - License file has been changed to MIT
+- The `group` TWig filter has been improved with several crash bugs fixed
+    - If a value is not set in the Front Matter, it will be discarded in the `group` result
+    - Grouping by booleans is now possible; a 'true' or 'false' literal will be used
 
 **Fixes**
 

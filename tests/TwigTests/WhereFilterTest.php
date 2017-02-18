@@ -2,7 +2,6 @@
 
 namespace allejo\stakx\tests;
 
-use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Twig\WhereFilter;
 
@@ -147,20 +146,6 @@ class WhereFilterTests extends \PHPUnit_Stakx_TestCase
         $this->assertCount(2, $filteredCategory);
     }
 
-    private function contentItemProvider ()
-    {
-        $cm = new CollectionManager();
-        $cm->setLogger($this->loggerMock());
-        $cm->parseCollections(array(
-            array(
-                'name'   => 'books',
-                'folder' => 'tests/assets/MyBookCollection/'
-            )
-        ));
-
-        return $cm->getJailedCollections();
-    }
-
     public static function fmDataProvider ()
     {
         return array(
@@ -194,7 +179,7 @@ class WhereFilterTests extends \PHPUnit_Stakx_TestCase
      */
     public function testWhereFilterContentItemAssertCount ($fm, $comparison, $value, $count)
     {
-        $collections = $this->contentItemProvider();
+        $collections = $this->bookCollectionProvider();
         $books = $collections['books'];
         $filter = new WhereFilter();
 
