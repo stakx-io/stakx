@@ -353,7 +353,7 @@ class Website
                 'dependency' => $change
             ));
         }
-        else if ($this->tm->isHandled($filePath))
+        else if (!is_null($this->tm) && $this->tm->isHandled($filePath))
         {
             $this->tm->createNewItem($filePath);
         }
@@ -392,7 +392,7 @@ class Website
                 'dependency' => $change
             ));
         }
-        else if ($this->tm->isTracked($filePath))
+        else if (!is_null($this->tm) && $this->tm->isTracked($filePath))
         {
             $this->tm->refreshItem($filePath);
         }
