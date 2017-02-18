@@ -592,7 +592,11 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
      */
     public function offsetExists ($offset)
     {
-        return $this->isMagicGet($offset);
+        if ($this->isMagicGet($offset))
+            return true;
+
+        $fxnCall = 'get' . ucfirst($offset);
+        return method_exists($this, $fxnCall) && in_array($fxnCall, static::$whiteListFunctions);
     }
 
     /**
