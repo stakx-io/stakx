@@ -10,10 +10,12 @@ class BaseUrlFunction
     {
         $globals = $env->getGlobals();
 
-        if (is_array($assetPath) || ($assetPath instanceof \ArrayAccess)) {
-            $assetPath = $assetPath['permalink'];
+        if (is_array($assetPath) || ($assetPath instanceof \ArrayAccess))
+        {
+            $assetPath = (isset($assetPath['permalink'])) ? $assetPath['permalink'] : '/';
         }
-        else if (is_null($assetPath)) {
+        else if (is_null($assetPath))
+        {
             $assetPath = '/';
         }
 
@@ -22,6 +24,12 @@ class BaseUrlFunction
 
         $baseURL = (empty($base)) ? '/' : '/' . trim($base, '/') . '/';
         $url     = ltrim($assetPath, '/');
+
+        // Sanity check, remove any excess trailing '/'
+        if (!empty($url) && $url[strlen($url) - 1] == '/')
+        {
+            $url = rtrim($url, '/') . '/';
+        }
 
         return ($baseURL . $url);
     }
