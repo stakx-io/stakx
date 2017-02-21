@@ -9,27 +9,13 @@ class BaseUrlFunction
     public function __invoke (Twig_Environment $env, $assetPath)
     {
         $globals = $env->getGlobals();
-
-        if (is_array($assetPath) || ($assetPath instanceof \ArrayAccess))
-        {
-            $assetPath = (isset($assetPath['permalink'])) ? $assetPath['permalink'] : '/';
-        }
-        else if (is_null($assetPath))
-        {
-            $assetPath = '/';
-        }
+        $assetPath = $this->guessAssetPath($assetPath);
 
         // @TODO 1.0.0 Remove support for 'base' as it's been deprecated
         $base = (array_key_exists('base', $globals['site'])) ? $globals['site']['base'] : $globals['site']['baseurl'];
 
         $baseURL = (empty($base)) ? '/' : '/' . trim($base, '/') . '/';
-        $url     = ltrim($assetPath, '/');
-
-        // Sanity check, remove any excess trailing '/'
-        if (!empty($url) && $url[strlen($url) - 1] == '/')
-        {
-            $url = rtrim($url, '/') . '/';
-        }
+        $url = $this->trimSlashes($assetPath);
 
         return ($baseURL . $url);
     }
@@ -39,5 +25,31 @@ class BaseUrlFunction
         return new \Twig_SimpleFunction('url', new self(), array(
             'needs_environment' => true
         ));
+    }
+
+    private function guessAssetPath ($assetPath)
+    {
+        if (is_array($assetPath) || ($assetPath instanceof \ArrayAccess))
+        {
+            return (isset($assetPath['permalink'])) ? $assetPath['permalink'] : '/';
+        }
+        else if (is_null($assetPath))
+        {
+            return '/';
+        }
+
+        return $assetPath;
+    }
+
+    private function trimSlashes ($url)
+    {
+        $url = ltrim($url, '/');
+
+        if (!empty($url) && $url[strlen($url) - 1] == '/')
+        {
+            return rtrim($url, '/') . '/';
+        }
+
+        return $url;
     }
 }
