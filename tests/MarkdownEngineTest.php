@@ -36,7 +36,7 @@ echo "hello world";
 CODE;
         $compiled = $this->mdEngine->parse($codeBlock);
 
-        $this->assertContains('<code class="language-php">', $compiled);
+        $this->assertContains('<code class="hljs language-php">', $compiled);
     }
 
     public function testCodeBlockWithNoLanguage ()
