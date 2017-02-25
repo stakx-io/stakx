@@ -35,7 +35,9 @@ class MarkdownEngine extends \ParsedownExtra
         // The class has a `language-` prefix, remove this to get the language
         if (isset($block['element']['text']['attributes']))
         {
-            $language = substr($block['element']['text']['attributes']['class'], 9);
+            $cssClass = &$block['element']['text']['attributes']['class'];
+            $language = substr($cssClass, 9);
+            $cssClass = 'hljs ' . $cssClass;
 
             try
             {
