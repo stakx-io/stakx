@@ -124,6 +124,54 @@ class FrontMatterParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($fmp->hasExpansion());
     }
 
+    public function testVariableMultipleStringValueExpansion ()
+    {
+        $frontMatter = array(
+            'status' => array(
+                'final',
+                'drafts'
+            ),
+            'languages' => array(
+                'en',
+                'fr'
+            ),
+            'permalink' => '/blog/%languages/%status/'
+        );
+        $fmp = new FrontMatterParser($frontMatter);
+
+        $firstEval = new ExpandedValue('/blog/en/final/');
+        $firstEval->setIterator('languages', 'en');
+        $firstEval->setIterator('status', 'final');
+
+        $secondEval = new ExpandedValue('/blog/en/drafts/');
+        $secondEval->setIterator('languages', 'en');
+        $secondEval->setIterator('status', 'drafts');
+
+        $thirdEval = new ExpandedValue('/blog/fr/final/');
+        $thirdEval->setIterator('languages', 'fr');
+        $thirdEval->setIterator('status', 'final');
+
+        $fourthEval = new ExpandedValue('/blog/fr/drafts/');
+        $fourthEval->setIterator('languages', 'fr');
+        $fourthEval->setIterator('status', 'drafts');
+
+        $expected = array(
+            'status' => $frontMatter['status'],
+            'languages' => $frontMatter['languages'],
+            'permalink' => array(
+                array(
+                    $firstEval,
+                    $secondEval,
+                    $thirdEval,
+                    $fourthEval
+                )
+            )
+        );
+
+        $this->assertEquals($expected, $frontMatter);
+        $this->assertTrue($fmp->hasExpansion());
+    }
+
     public function testVariableArrayValueExpansion ()
     {
         $frontMatter = array(
