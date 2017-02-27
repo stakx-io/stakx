@@ -217,6 +217,19 @@ class FrontMatterParserTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($fmp->hasExpansion());
     }
 
+    public function testSepcialFieldsDataAsDateTime ()
+    {
+        $frontMatter = array(
+            'date' => new DateTime('2016-05-31')
+        );
+
+        new FrontMatterParser($frontMatter);
+
+        $this->assertEquals(2016, $frontMatter['year']);
+        $this->assertEquals(5, $frontMatter['month']);
+        $this->assertEquals(31, $frontMatter['day']);
+    }
+
     public function testSpecialFieldsDateAsString ()
     {
         $frontMatter = array(

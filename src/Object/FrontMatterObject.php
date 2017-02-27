@@ -305,7 +305,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
 
         if (!empty(trim($fileStructure[1])))
         {
-            $this->frontMatter = Yaml::parse($fileStructure[1]);
+            $this->frontMatter = Yaml::parse($fileStructure[1], Yaml::PARSE_DATETIME);
 
             if (!empty($this->frontMatter) && !is_array($this->frontMatter))
             {

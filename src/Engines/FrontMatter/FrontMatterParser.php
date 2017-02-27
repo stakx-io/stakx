@@ -103,24 +103,7 @@ class FrontMatterParser
         if (!isset($this->frontMatter['date'])) { return; }
 
         $date = &$this->frontMatter['date'];
-
-        if (is_numeric($date))
-        {
-            // YAML has parsed them to Epoch time
-            $itemDate = \DateTime::createFromFormat('U', $date);
-
-            // Localize dates in FrontMatter based on the timezone set in the PHP configuration
-            $timezone = new \DateTimeZone(date_default_timezone_get());
-            $itemDate->setTimezone($timezone);
-        }
-        else
-        {
-            try
-            {
-                $itemDate = new \DateTime($date);
-            }
-            catch (\Exception $e) { return; }
-        }
+        $itemDate = $this->guessDateTime($date);
 
         if (!$itemDate === false)
         {
@@ -157,9 +140,13 @@ class FrontMatterParser
             {
                 $this->evaluateBlock($value);
             }
-            else
+            else if (is_string($value))
             {
                 $value = $this->evaluateBasicType($keys, $value);
+            }
+            else if ($value instanceof \DateTime)
+            {
+                $value = $this->castDateTimeTimezone($value->format('U'));
             }
         }
 
@@ -321,5 +308,46 @@ class FrontMatterParser
         }
 
         return $this->frontMatter[$varName];
+    }
+
+    //
+    // Utility functions
+    //
+
+    /**
+     * @param  string $epochTime
+     *
+     * @return bool|\DateTime
+     */
+    private function castDateTimeTimezone ($epochTime)
+    {
+        $timezone = new \DateTimeZone(date_default_timezone_get());
+        $value = \DateTime::createFromFormat('U', $epochTime);
+        $value->setTimezone($timezone);
+
+        return $value;
+    }
+
+    /**
+     * @param $guess
+     *
+     * @return bool|\DateTime
+     */
+    private function guessDateTime ($guess)
+    {
+        if ($guess instanceof \DateTime)
+        {
+            return $guess;
+        }
+        else if (is_numeric($guess))
+        {
+            return $this->castDateTimeTimezone($guess);
+        }
+
+        try
+        {
+            return (new \DateTime($guess));
+        }
+        catch (\Exception $e) { return false; }
     }
 }
