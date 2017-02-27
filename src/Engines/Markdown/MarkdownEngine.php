@@ -4,7 +4,7 @@ namespace allejo\stakx\Engines;
 
 use Highlight\Highlighter;
 
-class MarkdownEngine extends \ParsedownExtra
+class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
 {
     protected $highlighter;
 
