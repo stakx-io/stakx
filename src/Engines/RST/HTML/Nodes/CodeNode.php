@@ -13,6 +13,6 @@ class CodeNode extends Base
 {
     public function render ()
     {
-        return "<pre><code class=\"language-" . $this->language . "\">" . $this->value . "</code></pre>";
+        return "<pre><code class=\"hljs language-" . $this->language . "\">" . $this->value . "</code></pre>";
     }
 }
