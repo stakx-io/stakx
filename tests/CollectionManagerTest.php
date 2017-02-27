@@ -63,6 +63,6 @@ class CollectionManagerTests extends \PHPUnit_Stakx_TestCase
 
         $this->assertNotNull($contentItem);
         $this->assertEquals('My Books', $contentItem->getCollection());
-        $this->assertEquals('0763680877', $contentItem->isbn_10);
+        $this->assertEquals('0763680877', $contentItem['isbn_10']);
     }
 }

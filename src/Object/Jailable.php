@@ -21,14 +21,4 @@ interface Jailable
      * @return JailObject
      */
     public function createJail ();
-
-    /**
-     * Check whether or not a value will be handled by a __get() definition in the object implementing this interface.
-     * If there are no __get() implementations, this function should just return FALSE.
-     *
-     * @param  mixed $value
-     *
-     * @return bool
-     */
-    public function isMagicGet ($value);
 }

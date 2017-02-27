@@ -149,37 +149,6 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     }
 
     /**
-     * The magic getter returns values from the front matter in order to make these values accessible to Twig templates
-     * in a simple fashion
-     *
-     * @param  string $name The key in the front matter
-     *
-     * @return mixed|null
-     */
-    public function __get ($name)
-    {
-        if (isset($this->writableFrontMatter[$name]))
-        {
-            return $this->writableFrontMatter[$name];
-        }
-
-        return (isset($this->frontMatter[$name]) ? $this->frontMatter[$name] : null);
-    }
-
-    /**
-     * The magic getter returns true if the value exists in the Front Matter. This is used in conjunction with the __get
-     * function
-     *
-     * @param  string $name The name of the Front Matter value being looked for
-     *
-     * @return bool
-     */
-    public function __isset ($name)
-    {
-        return $this->isMagicGet($name);
-    }
-
-    /**
      * Return the body of the Content Item
      *
      * @return string
@@ -551,25 +520,6 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     {
         $this->frontMatterParser    = new FrontMatterParser($yaml);
         $this->frontMatterEvaluated = true;
-    }
-
-    //
-    // Jailable Implementation
-    //
-
-    /**
-     * Check if a specific value is defined in the Front Matter
-     *
-     * @param  string $name
-     *
-     * @return bool
-     */
-    public function isMagicGet ($name)
-    {
-        return
-            (!in_array($name, $this->frontMatterBlacklist)) &&
-            (isset($this->frontMatter[$name]) || isset($this->writableFrontMatter[$name]))
-        ;
     }
 
     //

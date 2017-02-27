@@ -52,8 +52,8 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
 
         $contentItem = $this->createContentItem($frontMatter);
 
-        $this->assertTrue(isset($contentItem->foo));
-        $this->assertTrue(isset($contentItem->bar));
+        $this->assertTrue(isset($contentItem['foo']));
+        $this->assertTrue(isset($contentItem['bar']));
     }
 
     public function testContentItemFrontMatterDateParsing ()
@@ -69,9 +69,9 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
         $contentItem = $this->createContentItem($frontMatter);
         $contentItem->getFrontMatter();
 
-        $this->assertEquals($year,  $contentItem->year);
-        $this->assertEquals($month, $contentItem->month);
-        $this->assertEquals($day,   $contentItem->day);
+        $this->assertEquals($year,  $contentItem['year']);
+        $this->assertEquals($month, $contentItem['month']);
+        $this->assertEquals($day,   $contentItem['day']);
     }
 
     public function testContentItemFrontMatterInvalidDate ()
@@ -82,9 +82,9 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
 
         $contentItem = $this->createContentItem($frontMatter);
 
-        $this->assertNull($contentItem->year);
-        $this->assertNull($contentItem->month);
-        $this->assertNull($contentItem->day);
+        $this->assertNull($contentItem['year']);
+        $this->assertNull($contentItem['month']);
+        $this->assertNull($contentItem['day']);
     }
 
     public function testContentItemFrontMatterInvalidYaml ()
