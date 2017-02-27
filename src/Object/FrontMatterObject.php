@@ -616,10 +616,10 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
      */
     public function offsetGet ($offset)
     {
-        if (in_array($offset, $this->frontMatterBlacklist))
-        {
-            $fxnCall = 'get' . ucfirst($offset);
+        $fxnCall = 'get' . ucfirst($offset);
 
+        if (in_array($fxnCall, self::$whiteListFunctions) && method_exists($this, $fxnCall))
+        {
             return call_user_func_array(array($this, $fxnCall), array());
         }
 
