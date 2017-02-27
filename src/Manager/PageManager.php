@@ -309,8 +309,8 @@ class PageManager extends TrackingManager
         {
             $this->addToSiteMenu($pageView);
 
-            if (!empty($pageView->title)) {
-                $this->flatPages[$pageView->title] = $pageView->createJail();
+            if (!empty($pageView['title'])) {
+                $this->flatPages[$pageView['title']] = $pageView->createJail();
             }
         }
     }
