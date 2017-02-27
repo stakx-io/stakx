@@ -125,4 +125,13 @@ class OrderByFilterTest extends \PHPUnit_Stakx_TestCase
             $lastCount = $result[$sortKey];
         }
     }
+
+    public function testOrderFilterNonArray ()
+    {
+        $myString = 'Hello World';
+        $orderFilter = new OrderFilter();
+        $results = $orderFilter($myString, 'some-key');
+
+        $this->assertEquals($myString, $results);
+    }
 }

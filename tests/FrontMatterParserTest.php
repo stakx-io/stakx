@@ -92,6 +92,13 @@ class FrontMatterParserTest extends PHPUnit_Framework_TestCase
         new FrontMatterParser($frontMatter);
     }
 
+    public function testExpandedValueAsString ()
+    {
+        $val = '/blog/en/';
+        $eval = new ExpandedValue($val);
+        $this->assertEquals($val, (string)$eval);
+    }
+
     public function testVariableStringValueExpansion ()
     {
         $frontMatter = array(

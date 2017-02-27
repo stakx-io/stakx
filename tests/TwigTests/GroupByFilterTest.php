@@ -77,4 +77,13 @@ class GroupByFilterTests extends \PHPUnit_Stakx_TestCase
 
         $this->assertCount(0, $grouped);
     }
+
+    public function testGroupByFilterArrayThrowsWarning ()
+    {
+        $this->setExpectedException(\PHPUnit_Framework_Error_Warning::class);
+
+        $books = $this->bookCollectionProvider()['books'];
+        $filter = new GroupByFilter();
+        $filter($books, 'animals');
+    }
 }
