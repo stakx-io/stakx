@@ -8,6 +8,8 @@ ibsn_10: "067988629X"
 isbn_13: "978-0679886297"
 dimensions: 4.3 x 0.5 x 5.8 inches
 shipping_weight: 2.4
+animals:
+  - dog
 
 # should default to null; null != false
 # completed: false

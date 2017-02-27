@@ -24,7 +24,7 @@ class WhereFilterTests extends \PHPUnit_Stakx_TestCase
                 'name' => 'Two One',
                 'slug' => 'meeting',
                 'cost' => 40,
-                'tags' => array('fun', 'purple', 'red')
+                'tags' => array('fun', 'purple', 'red', 'Bacon')
             ),
             array(
                 'name' => 'Three Two',
@@ -42,7 +42,7 @@ class WhereFilterTests extends \PHPUnit_Stakx_TestCase
                 'name' => 'Five Five',
                 'slug' => 'bananas',
                 'cost' => 10,
-                'tags' => array('vegetable', 'purple', 'red')
+                'tags' => array('vegetable', 'purple', 'red', 'Bacon')
             ),
             array(
                 'name' => 'Six Three',
@@ -165,6 +165,7 @@ class WhereFilterTests extends \PHPUnit_Stakx_TestCase
             array('publisher', '~=', 'R', 2),
             array('publisher', '_=', 'candle', 3),
             array('publisher', '_=', 'r', 2),
+            array('animals', '_=', 'Dog', 2),
             array('publisher', '/=', '/.wick.?/', 3),
         );
     }
