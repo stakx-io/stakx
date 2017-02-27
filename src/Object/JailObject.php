@@ -71,24 +71,7 @@ class JailObject implements \ArrayAccess
             return call_user_func_array(array($this->object, $getFxnCall), $arguments);
         }
 
-        // Functions should take precedence over __get(), so if it's not a function we'll search to see if the __get()
-        // handles it
-        if ($this->object->isMagicGet($name))
-        {
-            return $this->object->$name;
-        }
-
         throw new \BadMethodCallException();
-    }
-
-    public function __get ($name)
-    {
-        if ($this->object->isMagicGet($name))
-        {
-            return $this->object->$name;
-        }
-
-        return NULL;
     }
 
     public function coreInstanceOf ($class)

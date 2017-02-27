@@ -566,8 +566,10 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
      */
     public function isMagicGet ($name)
     {
-        return (!in_array($name, $this->frontMatterBlacklist)) &&
-               (isset($this->frontMatter[$name]) || isset($this->writableFrontMatter[$name]));
+        return
+            (!in_array($name, $this->frontMatterBlacklist)) &&
+            (isset($this->frontMatter[$name]) || isset($this->writableFrontMatter[$name]))
+        ;
     }
 
     //
@@ -592,8 +594,10 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
      */
     public function offsetExists ($offset)
     {
-        if ($this->isMagicGet($offset))
+        if (isset($this->writableFrontMatter[$offset]) || isset($this->frontMatter[$offset]))
+        {
             return true;
+        }
 
         $fxnCall = 'get' . ucfirst($offset);
         return method_exists($this, $fxnCall) && in_array($fxnCall, static::$whiteListFunctions);
@@ -612,11 +616,11 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
      */
     public function offsetGet ($offset)
     {
-        if (!$this->isMagicGet($offset))
+        if (in_array($offset, $this->frontMatterBlacklist))
         {
             $fxnCall = 'get' . ucfirst($offset);
 
-            return $this->$fxnCall();
+            return call_user_func_array(array($this, $fxnCall), array());
         }
 
         if (isset($this->writableFrontMatter[$offset]))
