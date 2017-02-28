@@ -1,4 +1,5 @@
 ---
+title: Go Dog Go
 age: 3 - 7 years
 grade: Preschool - 2
 page_count: 24

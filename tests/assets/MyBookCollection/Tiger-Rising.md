@@ -1,4 +1,5 @@
 ---
+title: Tiger Rising
 age: 10 and up
 grade: 5 and up
 page_count: 144

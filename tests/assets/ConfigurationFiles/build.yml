@@ -1,0 +1,8 @@
+collections:
+  - name: books 
+    folder: assets/MyBookCollection
+
+pageviews:
+  - assets/PageViews
+
+target: output

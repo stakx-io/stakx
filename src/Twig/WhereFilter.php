@@ -153,13 +153,13 @@ class WhereFilter
             case '!=':
                 return ($lhs !== $rhs);
 
-            case '>' :
+            case '>':
                 return ($lhs > $rhs);
 
             case '>=':
                 return ($lhs >= $rhs);
 
-            case '<' :
+            case '<':
                 return ($lhs < $rhs);
 
             case '<=':

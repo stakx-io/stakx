@@ -1,4 +1,5 @@
 ---
+title: Because of Winn Dixie
 age: 9 - 12 years
 grade: 4 - 7
 page_count: 208
