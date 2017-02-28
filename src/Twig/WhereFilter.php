@@ -99,13 +99,9 @@ class WhereFilter
      */
     private function compare ($array, $key, $comparison, $value)
     {
-        if ($array instanceof JailObject && $array->coreInstanceOf(FrontMatterObject::class))
+        if ($this->compareNullValues($array, $key, $comparison, $value))
         {
-            if (!isset($array[$key]))
-            {
-                if ($comparison == '==' && is_null($value)) { return true; }
-                if ($comparison == '!=' && !is_null($value)) { return true; }
-            }
+            return true;
         }
 
         if (!isset($array[$key]))
@@ -113,23 +109,70 @@ class WhereFilter
             return false;
         }
 
+        return $this->comparisonSymbol($array[$key], $comparison, $value);
+    }
+
+    /**
+     * If the comparison is == or !=, then special behavior is defined for null values
+     *
+     * @param  array|\ArrayAccess[] $array      The elements to filter through
+     * @param  string               $key        The key value in an associative array or FrontMatter
+     * @param  string               $comparison The actual comparison symbols being used
+     * @param  mixed                $value      The value we're searching for
+     *
+     * @return bool
+     */
+    private function compareNullValues ($array, $key, $comparison, $value)
+    {
+        if ($comparison != '==' && $comparison != '!=')
+        {
+            return false;
+        }
+
+        if (!($array instanceof JailObject))
+        {
+            return false;
+        }
+
+        if ($array->coreInstanceOf(FrontMatterObject::class) && !isset($array[$key]))
+        {
+            if ($comparison == '==' && is_null($value))  { return true; }
+            if ($comparison == '!=' && !is_null($value)) { return true; }
+        }
+
+        return false;
+    }
+
+    private function comparisonSymbol ($lhs, $comparison, $rhs)
+    {
         switch ($comparison)
         {
-            case "==": return ($array[$key] === $value);
-            case "!=": return ($array[$key] !== $value);
-            case ">" : return ($array[$key] > $value);
-            case ">=": return ($array[$key] >= $value);
-            case "<" : return ($array[$key] < $value);
-            case "<=": return ($array[$key] <= $value);
+            case '==':
+                return ($lhs === $rhs);
 
-            case "~=":
-                return $this->contains($array[$key], $value);
+            case '!=':
+                return ($lhs !== $rhs);
 
-            case "_=":
-                return $this->containsCaseInsensitive($array[$key], $value);
+            case '>' :
+                return ($lhs > $rhs);
 
-            case "/=":
-                return $this->regexMatches($array[$key], $value);
+            case '>=':
+                return ($lhs >= $rhs);
+
+            case '<' :
+                return ($lhs < $rhs);
+
+            case '<=':
+                return ($lhs <= $rhs);
+
+            case '~=':
+                return $this->contains($lhs, $rhs);
+
+            case '_=':
+                return $this->containsCaseInsensitive($lhs, $rhs);
+
+            case '/=':
+                return $this->regexMatches($lhs, $rhs);
 
             default:
                 throw new Twig_Error_Syntax("Invalid where comparison ({$comparison})");
