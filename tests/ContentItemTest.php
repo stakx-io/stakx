@@ -326,6 +326,18 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
         $this->assertEquals($pd->parse($markdownContent), $contentItem->getContent());
     }
 
+    public function testContentItemJailWithMdExtensionFile ()
+    {
+        $this->dummyFile = vfsStream::newFile('Sample Markdown.md');
+        $markdownContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample Markdown.md');
+
+        $contentItem = $this->createContentItemWithEmptyFrontMatter($markdownContent);
+        $jailItem = $contentItem->createJail();
+
+        $this->assertEquals($contentItem->getContent(), $jailItem->getContent());
+        $this->assertEquals($jailItem->getContent(), $jailItem['content']);
+    }
+
     public function testContentItemWithRstExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
@@ -337,6 +349,18 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
         $this->assertEquals((string)$pd->parse($rstContent), $contentItem->getContent());
     }
 
+    public function testContentItemJailWithRstExtensionFile ()
+    {
+        $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
+        $rstContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample reStructuredText.rst');
+
+        $contentItem = $this->createContentItemWithEmptyFrontMatter($rstContent);
+        $jailItem = $contentItem->createJail();
+
+        $this->assertEquals($contentItem->getContent(), $jailItem->getContent());
+        $this->assertEquals($jailItem->getContent(), $jailItem['content']);
+    }
+
     public function testContentItemWithUnknownExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample HTML.html');
@@ -345,6 +369,18 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
         $contentItem = $this->createContentItemWithEmptyFrontMatter($htmlContent);
 
         $this->assertEquals($htmlContent, $contentItem->getContent());
+    }
+
+    public function testContentItemJailWithUnknownExtensionFile ()
+    {
+        $this->dummyFile = vfsStream::newFile('Sample HTML.html');
+        $htmlContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample HTML.html');
+
+        $contentItem = $this->createContentItemWithEmptyFrontMatter($htmlContent);
+        $jailItem = $contentItem->createJail();
+
+        $this->assertEquals($contentItem->getContent(), $jailItem->getContent());
+        $this->assertEquals($jailItem->getContent(), $jailItem['content']);
     }
 
     public function testContentItemPermalinkSanitationMultipleForwardSlashes ()
