@@ -6,6 +6,7 @@ use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\DynamicPageView;
+use allejo\stakx\Object\JailObject;
 use allejo\stakx\Object\PageView;
 use allejo\stakx\Object\RepeaterPageView;
 use allejo\stakx\System\FileExplorer;
@@ -117,7 +118,7 @@ class PageManager extends TrackingManager
     /**
      * An array representing the website's menu structure with children and grandchildren made from static PageViews
      *
-     * @return array
+     * @return JailObject[]
      */
     public function getSiteMenu ()
     {
@@ -305,13 +306,10 @@ class PageManager extends TrackingManager
             'viewType' => $namespace
         ));
 
-        if ($namespace == PageView::STATIC_TYPE)
+        if ($namespace == PageView::STATIC_TYPE && !empty($pageView['title']))
         {
             $this->addToSiteMenu($pageView);
-
-            if (!empty($pageView['title'])) {
-                $this->flatPages[$pageView['title']] = $pageView->createJail();
-            }
+            $this->flatPages[$pageView['title']] = $pageView->createJail();
         }
     }
 
@@ -514,7 +512,11 @@ class PageManager extends TrackingManager
             }
             else
             {
-                $root[$name]['children'] = array();
+                if (!isset($root[$name]['children']))
+                {
+                    $root[$name]['children'] = array();
+                }
+
                 $root = &$root[$name]['children'];
             }
         }
