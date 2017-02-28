@@ -6,6 +6,7 @@
 
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Object\Configuration;
+use allejo\stakx\Object\JailObject;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\Folder;
 use Psr\Log\LoggerInterface;
@@ -65,6 +66,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $this->assertArrayHasKey('static', $menu);
         $this->assertArrayHasKey('child-1', $menu['static']->getChildren());
+        $this->assertInstanceOf(JailObject::class, $menu['static']);
 
         $this->assertArrayNotHasKey('authors', $menu);
         $this->assertArrayNotHasKey('child-2', $menu['static']->getChildren());
@@ -77,5 +79,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertArrayHasKey('Static Page', $pages);
         $this->assertArrayHasKey('Static Child 1', $pages);
         $this->assertArrayNotHasKey('Repeater Page', $pages);
+
+        $this->assertInstanceOf(JailObject::class, $pages['Static Page']);
     }
 }
