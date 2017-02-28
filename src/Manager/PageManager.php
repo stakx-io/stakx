@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Object\ContentItem;
@@ -52,8 +53,14 @@ class PageManager extends TrackingManager
      */
     private $flatPages;
 
+    /**
+     * @var PageView[]
+     */
     private $siteMenu;
 
+    /**
+     * @var array
+     */
     private $twigOpts;
 
     /**
@@ -68,22 +75,36 @@ class PageManager extends TrackingManager
     {
         parent::__construct();
 
+        $this->redirectTemplate = false;
+        $this->twigExtendsDeps = array();
+        $this->collections = array();
+        $this->flatPages = array();
         $this->siteMenu = array();
     }
 
+    /**
+     * Give this manager the collections we'll be using for dynamic PageViews
+     *
+     * @param ContentItem[][] $collections
+     */
     public function setCollections (&$collections)
     {
-        if (empty($collections)) { return; }
-
         $this->collections = &$collections;
     }
 
+    /**
+     * Set the template used for redirects
+     *
+     * @param false|string $filePath The path to the redirect template
+     */
     public function setRedirectTemplate ($filePath)
     {
         $this->redirectTemplate = $filePath;
     }
 
     /**
+     * The location where the compiled website will be written to
+     *
      * @param Folder $folder The relative target directory as specified from the configuration file
      */
     public function setTargetFolder (&$folder)
@@ -99,17 +120,6 @@ class PageManager extends TrackingManager
         $this->createTwigManager();
     }
 
-    public function createTwigManager ()
-    {
-        $twig = new TwigManager();
-        $twig->configureTwig(
-            $this->twigOpts['configuration'],
-            $this->twigOpts['options']
-        );
-
-        $this->twig = TwigManager::getInstance();
-    }
-
     public function getFlatPages ()
     {
         return $this->flatPages;
@@ -122,11 +132,7 @@ class PageManager extends TrackingManager
      */
     public function getSiteMenu ()
     {
-        static $jailedMenu = array();
-
-        if (!empty($jailedMenu)) {
-            return $jailedMenu;
-        }
+        $jailedMenu = array();
 
         foreach ($this->siteMenu as $key => $value)
         {
@@ -311,6 +317,20 @@ class PageManager extends TrackingManager
             $this->addToSiteMenu($pageView);
             $this->flatPages[$pageView['title']] = $pageView->createJail();
         }
+    }
+
+    /**
+     * Create a Twig environment
+     */
+    private function createTwigManager ()
+    {
+        $twig = new TwigManager();
+        $twig->configureTwig(
+            $this->twigOpts['configuration'],
+            $this->twigOpts['options']
+        );
+
+        $this->twig = TwigManager::getInstance();
     }
 
     /**
