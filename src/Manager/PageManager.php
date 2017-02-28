@@ -351,7 +351,21 @@ class PageManager extends TrackingManager
         /** @var DynamicPageView|PageView|RepeaterPageView $pageView */
         $pageView = &$this->trackedItemsFlattened[$filePath];
 
-        $this->compilePageView($pageView, $refresh);
+        try
+        {
+            $this->compilePageView($pageView, $refresh);
+        }
+        catch (\Exception $e)
+        {
+            $exception = new FileAwareException(
+                $e->getMessage(),
+                $e->getCode(),
+                $e,
+                $filePath
+            );
+
+            throw $exception;
+        }
     }
 
     /**

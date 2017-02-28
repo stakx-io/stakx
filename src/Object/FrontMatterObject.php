@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\FrontMatterParser;
 use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
@@ -518,8 +519,22 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
      */
     private function evaluateYaml (&$yaml)
     {
-        $this->frontMatterParser    = new FrontMatterParser($yaml);
-        $this->frontMatterEvaluated = true;
+        try
+        {
+            $this->frontMatterParser    = new FrontMatterParser($yaml);
+            $this->frontMatterEvaluated = true;
+        }
+        catch (\Exception $e)
+        {
+            $exception = new FileAwareException(
+                $e->getMessage(),
+                $e->getCode(),
+                $e,
+                $this->getRelativeFilePath()
+            );
+
+            throw $exception;
+        }
     }
 
     //
