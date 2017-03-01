@@ -357,14 +357,7 @@ class PageManager extends TrackingManager
         }
         catch (\Exception $e)
         {
-            $exception = new FileAwareException(
-                $e->getMessage(),
-                $e->getCode(),
-                $e,
-                $filePath
-            );
-
-            throw $exception;
+            throw FileAwareException::castException($e, $filePath);
         }
     }
 

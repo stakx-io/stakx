@@ -526,14 +526,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
         }
         catch (\Exception $e)
         {
-            $exception = new FileAwareException(
-                $e->getMessage(),
-                $e->getCode(),
-                $e,
-                $this->getRelativeFilePath()
-            );
-
-            throw $exception;
+            throw FileAwareException::castException($e, $this->getRelativeFilePath());
         }
     }
 

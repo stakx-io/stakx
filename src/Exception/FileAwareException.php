@@ -34,4 +34,19 @@ class FileAwareException extends \RuntimeException
     {
         return $this->filePath;
     }
+
+    public static function castException (\Exception $e, $filePath)
+    {
+        $lineNumber = ($e instanceof \Twig_Error_Syntax) ? $e->getTemplateLine() : -1;
+
+        $exception = new self(
+            $e->getMessage(),
+            $e->getCode(),
+            $e,
+            $filePath,
+            $lineNumber
+        );
+
+        return $exception;
+    }
 }
