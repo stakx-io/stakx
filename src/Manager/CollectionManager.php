@@ -1,17 +1,18 @@
 <?php
 
 /**
- * @copyright 2016 Vladimir Jimenez
+ * @copyright 2017 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\JailObject;
 
 /**
- * Class CollectionManager
+ * The class that reads and saves information about all of the collections
  *
  * @package allejo\stakx\Manager
  */
@@ -25,17 +26,7 @@ class CollectionManager extends TrackingManager
     private $collectionDefinitions;
 
     /**
-     * @param  string $filePath
-     *
-     * @return ContentItem
-     */
-    public function &getContentItem ($filePath)
-    {
-        return $this->trackedItemsFlattened[$filePath];
-    }
-
-    /**
-     * Get all of the Content Items grouped by Collection
+     * Get all of the ContentItems grouped by Collection name
      *
      * @return ContentItem[][]
      */
@@ -45,7 +36,26 @@ class CollectionManager extends TrackingManager
     }
 
     /**
-     * Get jailed ContentItems
+     * Get a ContentItem from a Collection pased on it's path
+     *
+     * @param  string $filePath
+     *
+     * @throws TrackedItemNotFoundException
+     *
+     * @return ContentItem
+     */
+    public function &getContentItem ($filePath)
+    {
+        if (!isset($this->trackedItemsFlattened[$filePath]))
+        {
+            throw new TrackedItemNotFoundException("The ContentItem at '$filePath' was not found.");
+        }
+
+        return $this->trackedItemsFlattened[$filePath];
+    }
+
+    /**
+     * A jailed representation of CollectionManager::getCollections()
      *
      * @return JailObject[][]
      */
@@ -62,26 +72,6 @@ class CollectionManager extends TrackingManager
         }
 
         return $jailItems;
-    }
-
-    /**
-     * Get the name of the Collection this Content Item belongs to
-     *
-     * @param  string $filePath
-     *
-     * @return string
-     */
-    public function getTentativeCollectionName ($filePath)
-    {
-        foreach ($this->collectionDefinitions as $collection)
-        {
-            if (strpos($filePath, $collection['folder']) === 0)
-            {
-                return $collection['name'];
-            }
-        }
-
-        return '';
     }
 
     /**
@@ -166,4 +156,25 @@ class CollectionManager extends TrackingManager
 
         return $contentItem;
     }
+
+    /**
+     * Get the name of the Collection this Content Item belongs to
+     *
+     * @param  string $filePath
+     *
+     * @return string
+     */
+    private function getTentativeCollectionName ($filePath)
+    {
+        foreach ($this->collectionDefinitions as $collection)
+        {
+            if (strpos($filePath, $collection['folder']) === 0)
+            {
+                return $collection['name'];
+            }
+        }
+
+        return '';
+    }
+
 }
