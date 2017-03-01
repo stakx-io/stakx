@@ -358,7 +358,8 @@ class PageManager extends TrackingManager
 
         try
         {
-            $this->compilePageView($pageView, $refresh);
+            $pageView->refreshFileContent();
+            $this->compilePageView($pageView);
         }
         catch (\Exception $e)
         {
@@ -367,16 +368,10 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * @param DynamicPageView|PageView|RepeaterPageView $pageView
-     * @param bool                                      $refresh
+     * @param DynamicPageView|RepeaterPageView|PageView $pageView
      */
-    private function compilePageView ($pageView, $refresh = false)
+    private function compilePageView ($pageView)
     {
-        if ($refresh)
-        {
-            $pageView->refreshFileContent();
-        }
-
         switch ($pageView->getType())
         {
             case PageView::REPEATER_TYPE:
