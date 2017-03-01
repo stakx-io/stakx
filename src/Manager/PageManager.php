@@ -300,6 +300,11 @@ class PageManager extends TrackingManager
             $frontMatter = $pageView->getFrontMatter(false);
             $collection = $frontMatter['collection'];
 
+            if (!isset($this->collections[$collection]))
+            {
+                throw new \RuntimeException("The '$collection' collection is not defined");
+            }
+
             foreach ($this->collections[$collection] as &$item)
             {
                 $item->evaluateFrontMatter($frontMatter);
@@ -425,6 +430,11 @@ class PageManager extends TrackingManager
 
         $pageViewFrontMatter = $pageView->getFrontMatter(false);
         $collection = $pageViewFrontMatter['collection'];
+
+        if (!isset($this->collections[$collection]))
+        {
+            throw new \RuntimeException("The '$collection' collection is not defined");
+        }
 
         /** @var ContentItem $contentItem */
         foreach ($this->collections[$collection] as &$contentItem)

@@ -4,6 +4,7 @@ namespace allejo\stakx\tests;
 
 use allejo\stakx\Engines\MarkdownEngine;
 use allejo\stakx\Engines\RstEngine;
+use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
 use allejo\stakx\Object\ContentItem;
@@ -187,14 +188,23 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
 
     public function testContentItemFrontMatterYamlVariableNotFound ()
     {
-        $this->setExpectedException(YamlVariableUndefinedException::class);
-
         $frontMatter = array(
             "var"   => "%foobar"
         );
 
         $contentItem = $this->createContentItem($frontMatter);
-        $contentItem->getFrontMatter();
+
+        try
+        {
+            $contentItem->getFrontMatter();
+        }
+        catch (FileAwareException $f)
+        {
+            $this->assertInstanceOf(YamlVariableUndefinedException::class, $f->getPrevious());
+            return;
+        }
+
+        $this->fail();
     }
 
     public function testContentItemTargetFileFromPrettyURL ()

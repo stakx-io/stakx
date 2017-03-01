@@ -4,12 +4,11 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
+use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Object\Configuration;
 use allejo\stakx\Object\JailObject;
-use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\Folder;
-use Psr\Log\LoggerInterface;
 
 class PageManagerTest extends PHPUnit_Stakx_TestCase
 {
@@ -27,9 +26,19 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $config    = new Configuration();
         $config->parseConfiguration($this->fs->appendPath(__DIR__, 'assets', 'ConfigurationFiles', 'simple.yml'));
 
+        $collectionManager = new CollectionManager();
+        $collectionManager->setLogger($this->loggerMock());
+        $collectionManager->parseCollections(array(
+            array(
+                'name' => 'books',
+                'folder' => $this->fs->appendPath(__DIR__, 'assets', 'MyBookCollection')
+            )
+        ));
+
         $this->pageManager = new PageManager();
         $this->pageManager->setLogger($this->loggerMock());
         $this->pageManager->setTargetFolder($outputDir);
+        $this->pageManager->setCollections($collectionManager->getCollections());
         $this->pageManager->parsePageViews(array(
             $this->fs->appendPath(__DIR__, 'assets', 'PageViews')
         ));
