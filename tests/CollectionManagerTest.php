@@ -17,7 +17,7 @@ class CollectionManagerTests extends \PHPUnit_Stakx_TestCase
 
     public function setUp ()
     {
-        $this->fs = new Filesystem();
+        parent::setUp();
 
         $this->cm = new CollectionManager();
         $this->cm->setLogger($this->loggerMock());

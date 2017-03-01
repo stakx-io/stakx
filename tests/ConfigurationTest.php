@@ -19,6 +19,8 @@ class ConfigurationTests extends \PHPUnit_Stakx_TestCase
 
     public function setup ()
     {
+        parent::setUp();
+        
         $output = $this->loggerMock();
         $this->sampleConfig = new Configuration();
         $this->sampleConfig->setLogger($output);
