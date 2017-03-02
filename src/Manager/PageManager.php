@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Exception\FileAwareException;
@@ -172,11 +177,9 @@ class PageManager extends TrackingManager
                 continue;
             }
 
-            // @TODO Replace this with a regular expression or have wildcard support
             $this->scanTrackableItems($pageViewFolder, array(
-                'refresh' => false,
                 'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES
-            ), array('.html', '.twig'));
+            ), array('/.html$/', '/.twig$/'));
             $this->saveFolderDefinition($pageViewFolderName);
         }
     }
@@ -274,7 +277,7 @@ class PageManager extends TrackingManager
     {
         if (parent::isTracked($filePath))
         {
-            $this->compileFromFilePath($filePath, true);
+            $this->compileFromFilePath($filePath);
 
             return;
         }
@@ -295,33 +298,55 @@ class PageManager extends TrackingManager
         $pageView  = PageView::create($filePath);
         $namespace = $pageView->getType();
 
-        if ($namespace == PageView::DYNAMIC_TYPE)
+        switch ($namespace)
         {
-            $frontMatter = $pageView->getFrontMatter(false);
-            $collection = $frontMatter['collection'];
+            case PageView::DYNAMIC_TYPE:
+                $this->handleTrackableDynamicPageView($pageView);
+                break;
 
-            if (!isset($this->collections[$collection]))
-            {
-                throw new \RuntimeException("The '$collection' collection is not defined");
-            }
+            case PageView::STATIC_TYPE:
+                $this->handleTrackableStaticPageView($pageView);
+                break;
 
-            foreach ($this->collections[$collection] as &$item)
-            {
-                $item->evaluateFrontMatter($frontMatter);
-                $pageView->addContentItem($item);
-            }
+            default:
+                break;
         }
 
         $this->addObjectToTracker($pageView, $pageView->getRelativeFilePath(), $namespace);
         $this->saveTrackerOptions($pageView->getRelativeFilePath(), array(
             'viewType' => $namespace
         ));
+    }
 
-        if ($namespace == PageView::STATIC_TYPE && !empty($pageView['title']))
+    /**
+     * @param DynamicPageView $pageView
+     */
+    private function handleTrackableDynamicPageView ($pageView)
+    {
+        $frontMatter = $pageView->getFrontMatter(false);
+        $collection = $frontMatter['collection'];
+
+        if (!isset($this->collections[$collection]))
         {
-            $this->addToSiteMenu($pageView);
-            $this->flatPages[$pageView['title']] = $pageView->createJail();
+            throw new \RuntimeException("The '$collection' collection is not defined");
         }
+
+        foreach ($this->collections[$collection] as &$item)
+        {
+            $item->evaluateFrontMatter($frontMatter);
+            $pageView->addContentItem($item);
+        }
+    }
+
+    /**
+     * @param PageView $pageView
+     */
+    private function handleTrackableStaticPageView ($pageView)
+    {
+        if (empty($pageView['title'])) { return; }
+
+        $this->addToSiteMenu($pageView);
+        $this->flatPages[$pageView['title']] = $pageView->createJail();
     }
 
     /**
@@ -342,11 +367,10 @@ class PageManager extends TrackingManager
      * Compile a given PageView
      *
      * @param string $filePath The file path to the PageView to compile
-     * @param bool   $refresh  When set to true, the PageView will reread its contents
      *
      * @throws \Exception
      */
-    private function compileFromFilePath ($filePath, $refresh = false)
+    private function compileFromFilePath ($filePath)
     {
         if (!$this->isTracked($filePath))
         {
