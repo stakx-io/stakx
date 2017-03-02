@@ -138,7 +138,7 @@ abstract class TrackingManager extends BaseManager
      * @param string      $filePath
      * @param string|null $namespace
      */
-    public function delArrayFromTracker($key, $filePath, $namespace = null)
+    public function delArrayFromTracker ($key, $filePath, $namespace = null)
     {
         if (is_null($namespace))
         {
@@ -267,7 +267,7 @@ abstract class TrackingManager extends BaseManager
      * @param array  $includes
      * @param array  $excludes
      */
-    public function scanTrackableItems($path, $options = array(), $includes = array(), $excludes = array())
+    public function scanTrackableItems ($path, $options = array(), $includes = array(), $excludes = array())
     {
         $fileExplorerFlags  = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
         $this->fileExplorer = FileExplorer::create($path, $excludes, $includes, $fileExplorerFlags);
@@ -280,6 +280,14 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
+     * Handle a specific file type, parse it into the appropriate object type, and add it to the tracker
+     *
+     * This function should make use of the appropriate functions:
+     *
+     *  - TrackingManager::addObjectToTracker()
+     *  - TrackingManager::addArrayToTracker()
+     *  - TrackingManager::saveTrackerOptions()
+     *
      * @param  SplFileInfo $filePath
      * @param  mixed       $options
      *
