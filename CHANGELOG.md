@@ -7,6 +7,7 @@
 - Data files with a `.example` extension are ignored (#35)
 - Errors occurring due to a file's syntax now display the path to the file to the console (#34)
 - Add Markdown Extra support
+- All generated code blocks now have the `hljs` class added to it
 
 **Changes**
 
@@ -17,12 +18,18 @@
 - The `group` Twig filter has been improved with several crash bugs fixed
     - If a value is not set in the Front Matter, it will be discarded in the `group` result
     - Grouping by booleans is now possible; a 'true' or 'false' literal will be used
+- All FrontMatter objects no longer make use of magic methods (this should have no affect on websites)
+- The `menu` variable only contains pages with a `title` FrontMatter key
+- More errors thrown contain information regarding the path of the file that triggered the error instead of just the error
 
 **Fixes**
 
 - Fix calls to jailed functions in JailObjects
 - Parsing FrontMatter files has improved cross-platform support
 - The `where` Twig filter works better with null values
+- Don't crash when using `watch` and no theme is present
+- Nested siblings in the `menu` variable no longer override each other
+- An error is now thrown when an unknown collection is referenced in a dynamic PageView instead of crashing
 
 ## 0.1.0 Beta 3 "Repeat Stuff, Repeat Stuff, Gotta Repeat Stuff"
 
