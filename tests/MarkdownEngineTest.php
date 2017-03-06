@@ -2,7 +2,7 @@
 
 namespace allejo\stakx\tests;
 
-use allejo\stakx\Engines\MarkdownEngine;
+use allejo\stakx\Engines\Markdown\MarkdownEngine;
 
 class MarkdownEngineTest extends \PHPUnit_Stakx_TestCase
 {

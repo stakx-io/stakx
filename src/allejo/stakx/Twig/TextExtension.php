@@ -1,5 +1,11 @@
 <?php
 
+namespace allejo\stakx\Twig;
+
+use Twig_Environment;
+use Twig_Extension;
+use Twig_SimpleFilter;
+
 /**
  * This file is part of Twig.
  *
@@ -10,7 +16,7 @@
  *
  * @author Henrik Bjornskov <hb@peytz.dk>
  */
-class Twig_Extensions_Extension_Text extends Twig_Extension
+class TextExtension extends Twig_Extension
 {
     /**
      * Returns a list of filters.

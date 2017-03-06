@@ -1,7 +1,8 @@
 <?php
 
-namespace allejo\stakx\Engines;
+namespace allejo\stakx\Engines\Markdown;
 
+use allejo\stakx\Engines\ParsingEngine;
 use Highlight\Highlighter;
 
 class MarkdownEngine extends \ParsedownExtra implements ParsingEngine

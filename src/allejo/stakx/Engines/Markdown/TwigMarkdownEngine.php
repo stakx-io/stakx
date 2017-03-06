@@ -1,6 +1,6 @@
 <?php
 
-namespace allejo\stakx\Engines;
+namespace allejo\stakx\Engines\Markdown;
 
 use Aptoma\Twig\Extension\MarkdownEngineInterface;
 

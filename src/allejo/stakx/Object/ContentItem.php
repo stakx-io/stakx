@@ -2,9 +2,9 @@
 
 namespace allejo\stakx\Object;
 
-use allejo\stakx\Engines\MarkdownEngine;
+use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\PlainTextEngine;
-use allejo\stakx\Engines\RstEngine;
+use allejo\stakx\Engines\RST\RstEngine;
 use allejo\stakx\Manager\TwigManager;
 
 class ContentItem extends FrontMatterObject implements \JsonSerializable

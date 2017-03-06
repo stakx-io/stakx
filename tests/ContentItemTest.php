@@ -2,8 +2,8 @@
 
 namespace allejo\stakx\tests;
 
-use allejo\stakx\Engines\MarkdownEngine;
-use allejo\stakx\Engines\RstEngine;
+use allejo\stakx\Engines\Markdown\MarkdownEngine;
+use allejo\stakx\Engines\RST\RstEngine;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\YamlVariableUndefinedException;

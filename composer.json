@@ -11,11 +11,9 @@
     }
   ],
   "autoload": {
-    "classmap": [
-      "src/"
-    ],
     "psr-4": {
-      "Gregwar\\RST\\HTML\\Nodes\\": "src/Engines/RST/HTML/Nodes/"
+      "allejo\\stakx\\": "src/allejo/stakx/",
+      "Gregwar\\RST\\": "src/Gregwar/RST/"
     }
   },
   "autoload-dev": {

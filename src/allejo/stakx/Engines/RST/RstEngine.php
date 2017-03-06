@@ -1,8 +1,8 @@
 <?php
 
-namespace allejo\stakx\Engines;
+namespace allejo\stakx\Engines\RST;
 
-use allejo\stakx\Engines\RST\SyntaxBlock;
+use allejo\stakx\Engines\ParsingEngine;
 use Gregwar\RST\Parser;
 
 class RstEngine extends Parser implements ParsingEngine

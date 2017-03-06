@@ -2,9 +2,10 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Engines\TwigMarkdownEngine;
+use allejo\stakx\Engines\Markdown\TwigMarkdownEngine;
 use allejo\stakx\Object\Configuration;
 use allejo\stakx\Twig\FilesystemExtension;
+use allejo\stakx\Twig\TextExtension;
 use allejo\stakx\Twig\TwigExtension;
 use Aptoma\Twig\Extension\MarkdownExtension;
 use Twig_Environment;
@@ -65,7 +66,7 @@ class TwigManager extends BaseManager
         self::$twig->addGlobal('__currentTemplate', '');
 
         self::$twig->addExtension(new TwigExtension());
-        self::$twig->addExtension(new \Twig_Extensions_Extension_Text());
+        self::$twig->addExtension(new TextExtension());
         self::$twig->addExtension(new MarkdownExtension($mdEngine));
 
         if (!$options['safe'])
