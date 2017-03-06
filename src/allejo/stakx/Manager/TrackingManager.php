@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright 2016 Vladimir Jimenez
+ * @copyright 2017 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
@@ -93,81 +93,6 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Save data to the tracker with a reference to the file it came from
-     *
-     * @param string      $key       The name of the file
-     * @param mixed       $data      The data to save the
-     * @param string      $filePath  The relative file path from the root of the website
-     * @param string|null $namespace The name of the collection this data belongs to, if any
-     */
-    public function addArrayToTracker ($key, $data, $filePath, $namespace = null)
-    {
-        if (is_null($namespace))
-        {
-            $this->trackedItems[$key] = $data;
-            $this->trackedItemsFlattened[$filePath] = &$this->trackedItems[$key];
-        }
-        else
-        {
-            $this->trackedItems[$namespace][$key] = $data;
-            $this->trackedItemsFlattened[$filePath] = &$this->trackedItems[$namespace][$key];
-        }
-    }
-
-    /**
-     * Add a FrontMatterObject based object to the tracker
-     *
-     * @param FrontMatterObject $trackedItem
-     * @param string            $key
-     * @param string|null       $namespace
-     */
-    public function addObjectToTracker ($trackedItem, $key, $namespace = null)
-    {
-        if (!($trackedItem instanceof FrontMatterObject))
-        {
-            throw new \InvalidArgumentException('Only objects can be added to the tracker');
-        }
-
-        $this->addArrayToTracker($key, $trackedItem, $trackedItem->getRelativeFilePath(), $namespace);
-    }
-
-    /**
-     * Remove all data related to an array that was saved
-     *
-     * @param string      $key
-     * @param string      $filePath
-     * @param string|null $namespace
-     */
-    public function delArrayFromTracker ($key, $filePath, $namespace = null)
-    {
-        if (is_null($namespace))
-        {
-            unset($this->trackedItems[$key]);
-        }
-        else
-        {
-            unset($this->trackedItems[$namespace][$key]);
-        }
-
-        unset($this->trackedItemsFlattened[$filePath]);
-    }
-
-    /**
-     * Remove an entry from the tracked items array
-     *
-     * @param mixed       $trackedItem
-     * @param string|null $namespace
-     */
-    public function delObjectFromTracker ($trackedItem, $namespace = null)
-    {
-        $this->delArrayFromTracker(
-            $trackedItem->getFileName(),
-            $trackedItem->getRelativeFilePath(),
-            $namespace
-        );
-    }
-
-    /**
      * Whether or not to enable tracking of files.
      *
      * Setting this to false will disable a lot of the overhead and caching done when a project is being watched
@@ -237,12 +162,87 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
+     * Save data to the tracker with a reference to the file it came from
+     *
+     * @param string      $key       The name of the file
+     * @param mixed       $data      The data to save the
+     * @param string      $filePath  The relative file path from the root of the website
+     * @param string|null $namespace The name of the collection this data belongs to, if any
+     */
+    protected function addArrayToTracker ($key, $data, $filePath, $namespace = null)
+    {
+        if (is_null($namespace))
+        {
+            $this->trackedItems[$key] = $data;
+            $this->trackedItemsFlattened[$filePath] = &$this->trackedItems[$key];
+        }
+        else
+        {
+            $this->trackedItems[$namespace][$key] = $data;
+            $this->trackedItemsFlattened[$filePath] = &$this->trackedItems[$namespace][$key];
+        }
+    }
+
+    /**
+     * Add a FrontMatterObject based object to the tracker
+     *
+     * @param FrontMatterObject $trackedItem
+     * @param string            $key
+     * @param string|null       $namespace
+     */
+    protected function addObjectToTracker ($trackedItem, $key, $namespace = null)
+    {
+        if (!($trackedItem instanceof FrontMatterObject))
+        {
+            throw new \InvalidArgumentException('Only objects can be added to the tracker');
+        }
+
+        $this->addArrayToTracker($key, $trackedItem, $trackedItem->getRelativeFilePath(), $namespace);
+    }
+
+    /**
+     * Remove all data related to an array that was saved
+     *
+     * @param string      $key
+     * @param string      $filePath
+     * @param string|null $namespace
+     */
+    protected function delArrayFromTracker ($key, $filePath, $namespace = null)
+    {
+        if (is_null($namespace))
+        {
+            unset($this->trackedItems[$key]);
+        }
+        else
+        {
+            unset($this->trackedItems[$namespace][$key]);
+        }
+
+        unset($this->trackedItemsFlattened[$filePath]);
+    }
+
+    /**
+     * Remove an entry from the tracked items array
+     *
+     * @param mixed       $trackedItem
+     * @param string|null $namespace
+     */
+    protected function delObjectFromTracker ($trackedItem, $namespace = null)
+    {
+        $this->delArrayFromTracker(
+            $trackedItem->getFileName(),
+            $trackedItem->getRelativeFilePath(),
+            $namespace
+        );
+    }
+
+    /**
      * Save a folder that is tracked by this manager and its respective options
      *
      * @param string $folderPath
      * @param array  $options
      */
-    public function saveFolderDefinition ($folderPath, $options = array())
+    protected function saveFolderDefinition ($folderPath, $options = array())
     {
         $this->folderDefinitions[] = $folderPath;
         $this->folderDefinitionsOptions[$folderPath] = $options;
@@ -254,7 +254,7 @@ abstract class TrackingManager extends BaseManager
      * @param string $filePath
      * @param array $options
      */
-    public function saveTrackerOptions ($filePath, $options = array())
+    protected function saveTrackerOptions ($filePath, $options = array())
     {
         $this->trackedItemsOptions[$filePath] = $options;
     }
@@ -267,7 +267,7 @@ abstract class TrackingManager extends BaseManager
      * @param array  $includes
      * @param array  $excludes
      */
-    public function scanTrackableItems ($path, $options = array(), $includes = array(), $excludes = array())
+    protected function scanTrackableItems ($path, $options = array(), $includes = array(), $excludes = array())
     {
         $fileExplorerFlags  = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
         $this->fileExplorer = FileExplorer::create($path, $excludes, $includes, $fileExplorerFlags);
