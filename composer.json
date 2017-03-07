@@ -40,11 +40,13 @@
     "phpunit/phpunit": "4.8.*",
     "phpunit/phpunit-mock-objects": "2.3.*"
   },
+  "bin": ["bin/stakx"],
   "scripts": {
     "build": [
       "composer install --no-dev",
       "box build",
       "php -r \"file_put_contents('stakx.phar.version', sha1_file('stakx.phar'));\""
-    ]
+    ],
+    "test": "phpunit"
   }
 }
