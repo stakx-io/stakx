@@ -3,10 +3,6 @@
 namespace allejo\stakx\tests;
 
 use allejo\stakx\Manager\CollectionManager;
-use allejo\stakx\System\Filesystem;
-use PHPUnit_Framework_TestCase;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class CollectionManagerTests extends \PHPUnit_Stakx_TestCase
 {
