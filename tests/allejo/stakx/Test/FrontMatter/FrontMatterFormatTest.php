@@ -1,11 +1,17 @@
 <?php
 
-namespace FrontMatterObjectTests;
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\FrontMatter;
 
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\Object\ContentItem;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
-class FrontMatterFormatTest extends \PHPUnit_Stakx_TestCase
+class FrontMatterFormatTest extends PHPUnit_Stakx_TestCase
 {
     public function testBlankLineAfterFrontMatter ()
     {

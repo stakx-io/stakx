@@ -1,10 +1,16 @@
 <?php
 
-namespace allejo\stakx\tests;
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\Twig;
 
 use allejo\stakx\Twig\GroupByFilter;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
-class GroupByFilterTests extends \PHPUnit_Stakx_TestCase
+class GroupByFilterTests extends PHPUnit_Stakx_TestCase
 {
     public function testGroupByFilter ()
     {

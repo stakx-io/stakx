@@ -1,11 +1,17 @@
 <?php
 
-namespace allejo\stakx\tests;
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\Object;
 
 use allejo\stakx\Object\Configuration;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use org\bovigo\vfs\vfsStream;
 
-class ConfigurationTests extends \PHPUnit_Stakx_TestCase
+class ConfigurationTests extends PHPUnit_Stakx_TestCase
 {
     /**
      * @var Configuration
@@ -20,11 +26,11 @@ class ConfigurationTests extends \PHPUnit_Stakx_TestCase
     public function setup ()
     {
         parent::setUp();
-        
+
         $output = $this->loggerMock();
         $this->sampleConfig = new Configuration();
         $this->sampleConfig->setLogger($output);
-        $this->sampleConfig->parseConfiguration(__DIR__ . '/assets/ConfigurationFiles/sample.yml');
+        $this->sampleConfig->parseConfiguration(__DIR__ . '/../assets/ConfigurationFiles/sample.yml');
 
         $this->defaultConfig = new Configuration();
         $this->defaultConfig->setLogger($output);

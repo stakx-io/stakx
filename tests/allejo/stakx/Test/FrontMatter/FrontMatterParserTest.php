@@ -1,12 +1,20 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\FrontMatter;
+
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\FrontMatter\FrontMatterParser;
 use allejo\stakx\FrontMatter\YamlUnsupportedVariableException;
 use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use Symfony\Component\Yaml\Yaml;
 
-class FrontMatterParserTest extends PHPUnit_Framework_TestCase
+class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
 {
     public function testVariableUndefinedThrowsException ()
     {
@@ -227,7 +235,7 @@ class FrontMatterParserTest extends PHPUnit_Framework_TestCase
     public function testSepcialFieldsDataAsDateTime ()
     {
         $frontMatter = array(
-            'date' => new DateTime('2016-05-31')
+            'date' => new \DateTime('2016-05-31')
         );
 
         new FrontMatterParser($frontMatter);

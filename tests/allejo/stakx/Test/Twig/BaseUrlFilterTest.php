@@ -1,13 +1,19 @@
 <?php
 
-namespace allejo\stakx\tests;
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\Twig;
 
 use allejo\stakx\Object\PageView;
 use allejo\stakx\System\Filesystem;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Twig\BaseUrlFunction;
 use allejo\stakx\Twig\TwigExtension;
 
-class BaseUrlFilterTest extends \PHPUnit_Stakx_TestCase
+class BaseUrlFilterTest extends PHPUnit_Stakx_TestCase
 {
     /** @var \Twig_Environment */
     private $twig_env;

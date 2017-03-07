@@ -1,9 +1,11 @@
 <?php
 
 /**
- * @copyright 2016 Vladimir Jimenez
+ * @copyright 2017 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
+
+namespace allejo\stakx\Test;
 
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\System\Filesystem;
@@ -13,7 +15,7 @@ use org\bovigo\vfs\vfsStreamFile;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class PHPUnit_Stakx_TestCase extends PHPUnit_Framework_TestCase
+abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 {
     const FM_OBJ_TEMPLATE = "---\n%s\n---\n\n%s";
 
@@ -63,7 +65,7 @@ abstract class PHPUnit_Stakx_TestCase extends PHPUnit_Framework_TestCase
         $cm->parseCollections(array(
             array(
                 'name'   => 'books',
-                'folder' => 'tests/assets/MyBookCollection/'
+                'folder' => 'tests/allejo/stakx/Test/assets/MyBookCollection/'
             )
         ));
 

@@ -17,9 +17,9 @@
     }
   },
   "autoload-dev": {
-    "classmap": [
-      "tests/Utilities/"
-    ]
+    "psr-4": {
+      "allejo\\stakx\\Test\\": "tests/allejo/stakx/Test"
+    }
   },
   "require": {
     "twig/twig": "^1.26",

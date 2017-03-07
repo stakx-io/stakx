@@ -1,11 +1,17 @@
 <?php
 
-namespace allejo\stakx\tests;
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\Object;
 
 use allejo\stakx\Object\Website;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class WebsiteTest extends \PHPUnit_Stakx_TestCase
+class WebsiteTest extends PHPUnit_Stakx_TestCase
 {
     private $website;
 
@@ -18,7 +24,7 @@ class WebsiteTest extends \PHPUnit_Stakx_TestCase
         $outputMock = $this->getMockBuilder(OutputInterface::class)->getMock();
 
         $this->website = new Website($outputMock);
-        $this->website->setConfiguration(__DIR__ . '/assets/ConfigurationFiles/build.yml');
+        $this->website->setConfiguration(__DIR__ . '/../assets/ConfigurationFiles/build.yml');
         $this->website->build();
     }
 

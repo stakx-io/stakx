@@ -1,11 +1,17 @@
 <?php
 
-namespace allejo\stakx\tests;
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\Twig;
 
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Twig\WhereFilter;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
-class WhereFilterTests extends \PHPUnit_Stakx_TestCase
+class WhereFilterTests extends PHPUnit_Stakx_TestCase
 {
     private $dataset;
 

@@ -1,10 +1,16 @@
 <?php
 
-namespace allejo\stakx\tests;
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\Manager;
 
 use allejo\stakx\Manager\CollectionManager;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
-class CollectionManagerTests extends \PHPUnit_Stakx_TestCase
+class CollectionManagerTests extends PHPUnit_Stakx_TestCase
 {
     /**
      * @var CollectionManager
@@ -20,7 +26,7 @@ class CollectionManagerTests extends \PHPUnit_Stakx_TestCase
         $this->cm->parseCollections(array(
             array(
                 'name' => 'My Books',
-                'folder' => $this->fs->appendPath(__DIR__, 'assets', 'MyBookCollection')
+                'folder' => $this->fs->appendPath(__DIR__, '..', 'assets', 'MyBookCollection')
             )
         ));
     }
@@ -44,17 +50,17 @@ class CollectionManagerTests extends \PHPUnit_Stakx_TestCase
     public function testCollectionManagerContainsContentItem ()
     {
         $this->assertTrue($this->cm->isTracked(
-            $this->fs->appendPath('tests', 'assets', 'MyBookCollection', 'Tale-of-Despereaux.md')
+            $this->fs->appendPath('tests', 'allejo', 'stakx', 'Test', 'assets', 'MyBookCollection', 'Tale-of-Despereaux.md')
         ));
         $this->assertTrue($this->cm->isTracked(
-            $this->fs->appendPath('tests', 'assets', 'MyBookCollection', 'Tiger-Rising.md')
+            $this->fs->appendPath('tests', 'allejo', 'stakx', 'Test', 'assets', 'MyBookCollection', 'Tiger-Rising.md')
         ));
     }
 
     public function testCollectionManagerGetContentItem ()
     {
         $contentItem = $this->cm->getContentItem(
-            $this->fs->appendPath('tests', 'assets', 'MyBookCollection', 'Tiger-Rising.md')
+            $this->fs->appendPath('tests', 'allejo', 'stakx', 'Test', 'assets', 'MyBookCollection', 'Tiger-Rising.md')
         );
 
         $this->assertNotNull($contentItem);

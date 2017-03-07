@@ -1,10 +1,18 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\Manager;
+
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Object\Configuration;
 use allejo\stakx\Object\JailObject;
 use allejo\stakx\System\Folder;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class PageManagerTest extends PHPUnit_Stakx_TestCase
 {
@@ -20,14 +28,14 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $outputDir = new Folder(__DIR__ . '/output');
         $config    = new Configuration();
-        $config->parseConfiguration($this->fs->appendPath(__DIR__, 'assets', 'ConfigurationFiles', 'simple.yml'));
+        $config->parseConfiguration($this->fs->appendPath(__DIR__, '..', 'assets', 'ConfigurationFiles', 'simple.yml'));
 
         $collectionManager = new CollectionManager();
         $collectionManager->setLogger($this->loggerMock());
         $collectionManager->parseCollections(array(
             array(
                 'name' => 'books',
-                'folder' => $this->fs->appendPath(__DIR__, 'assets', 'MyBookCollection')
+                'folder' => $this->fs->appendPath(__DIR__, '..', 'assets', 'MyBookCollection')
             )
         ));
 
@@ -36,7 +44,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->pageManager->setTargetFolder($outputDir);
         $this->pageManager->setCollections($collectionManager->getCollections());
         $this->pageManager->parsePageViews(array(
-            $this->fs->appendPath(__DIR__, 'assets', 'PageViews')
+            $this->fs->appendPath(__DIR__, '..', 'assets', 'PageViews')
         ));
         $this->pageManager->configureTwig($config, array(
             'safe' => false,

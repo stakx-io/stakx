@@ -1,6 +1,11 @@
 <?php
 
-namespace allejo\stakx\tests;
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\Object;
 
 use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\RST\RstEngine;
@@ -8,11 +13,12 @@ use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
 use allejo\stakx\Object\ContentItem;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use org\bovigo\vfs\vfsStream;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Exception\ParseException;
 
-class ContentItemTests extends \PHPUnit_Stakx_TestCase
+class ContentItemTests extends PHPUnit_Stakx_TestCase
 {
     public function testContentItemFilePath ()
     {
@@ -328,7 +334,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     public function testContentItemWithMdExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample Markdown.md');
-        $markdownContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample Markdown.md');
+        $markdownContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample Markdown.md');
 
         $contentItem = $this->createContentItemWithEmptyFrontMatter($markdownContent);
         $pd = new MarkdownEngine();
@@ -339,7 +345,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     public function testContentItemJailWithMdExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample Markdown.md');
-        $markdownContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample Markdown.md');
+        $markdownContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample Markdown.md');
 
         $contentItem = $this->createContentItemWithEmptyFrontMatter($markdownContent);
         $jailItem = $contentItem->createJail();
@@ -351,7 +357,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     public function testContentItemWithRstExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
-        $rstContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample reStructuredText.rst');
+        $rstContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample reStructuredText.rst');
 
         $contentItem = $this->createContentItemWithEmptyFrontMatter($rstContent);
         $pd = new RstEngine();
@@ -362,7 +368,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     public function testContentItemJailWithRstExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
-        $rstContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample reStructuredText.rst');
+        $rstContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample reStructuredText.rst');
 
         $contentItem = $this->createContentItemWithEmptyFrontMatter($rstContent);
         $jailItem = $contentItem->createJail();
@@ -374,7 +380,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     public function testContentItemWithUnknownExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample HTML.html');
-        $htmlContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample HTML.html');
+        $htmlContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample HTML.html');
 
         $contentItem = $this->createContentItemWithEmptyFrontMatter($htmlContent);
 
@@ -384,7 +390,7 @@ class ContentItemTests extends \PHPUnit_Stakx_TestCase
     public function testContentItemJailWithUnknownExtensionFile ()
     {
         $this->dummyFile = vfsStream::newFile('Sample HTML.html');
-        $htmlContent = file_get_contents(__DIR__ . '/assets/EngineTemplates/Sample HTML.html');
+        $htmlContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample HTML.html');
 
         $contentItem = $this->createContentItemWithEmptyFrontMatter($htmlContent);
         $jailItem = $contentItem->createJail();

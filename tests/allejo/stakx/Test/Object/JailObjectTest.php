@@ -1,15 +1,21 @@
 <?php
 
-namespace allejo\stakx\tests;
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\Test\Object;
 
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\PageView;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
-class JailObjectTests extends \PHPUnit_Stakx_TestCase
+class JailObjectTests extends PHPUnit_Stakx_TestCase
 {
     public function getJailObject ()
     {
-        $pageView = new PageView($this->fs->appendPath(__DIR__, 'assets', 'PageViews', 'jail.html.twig'));
+        $pageView = new PageView($this->fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'jail.html.twig'));
         $pageView->getFrontMatter();
 
         return $pageView->createJail();
