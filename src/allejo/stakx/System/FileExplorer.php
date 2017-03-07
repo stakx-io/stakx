@@ -164,6 +164,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public static function create ($folder, $excludes = array(), $includes = array(), $flags = null)
     {
+        $folder = realpath($folder);
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
 
         return (new self($iterator, $excludes, $includes, $flags));
