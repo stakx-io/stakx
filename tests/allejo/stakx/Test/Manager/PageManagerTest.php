@@ -73,21 +73,9 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertFileExistsAndContains($dinner, '/menu/dinner/');
     }
 
-    public function testSiteMenu ()
-    {
-        $menu = $this->pageManager->getSiteMenu();
-
-        $this->assertArrayHasKey('static', $menu);
-        $this->assertArrayHasKey('child-1', $menu['static']->getChildren());
-        $this->assertInstanceOf(JailObject::class, $menu['static']);
-
-        $this->assertArrayNotHasKey('authors', $menu);
-        $this->assertArrayNotHasKey('child-2', $menu['static']->getChildren());
-    }
-
     public function testSitePagesList ()
     {
-        $pages = $this->pageManager->getFlatPages();
+        $pages = $this->pageManager->getJailedStaticPages();
 
         $this->assertArrayHasKey('Static Page', $pages);
         $this->assertArrayHasKey('Static Child 1', $pages);

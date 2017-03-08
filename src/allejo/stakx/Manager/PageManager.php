@@ -59,11 +59,6 @@ class PageManager extends TrackingManager
     private $flatPages;
 
     /**
-     * @var PageView[]
-     */
-    private $siteMenu;
-
-    /**
      * @var array
      */
     private $twigOpts;
@@ -84,7 +79,6 @@ class PageManager extends TrackingManager
         $this->twigExtendsDeps = array();
         $this->collections = array();
         $this->flatPages = array();
-        $this->siteMenu = array();
     }
 
     /**
@@ -125,32 +119,27 @@ class PageManager extends TrackingManager
         $this->createTwigManager();
     }
 
-    public function getFlatPages ()
+    public function getStaticPages ()
     {
         return $this->flatPages;
     }
 
-    /**
-     * An array representing the website's menu structure with children and grandchildren made from static PageViews
-     *
-     * @return JailObject[]
-     */
-    public function getSiteMenu ()
+    public function getJailedStaticPages ()
     {
-        $jailedMenu = array();
+        $jailedObjects = array();
 
-        foreach ($this->siteMenu as $key => $value)
+        foreach ($this->flatPages as $key => $value)
         {
             // If it's an array, it means the parent is hidden from the site menu therefore its children should be too
-            if (is_array($this->siteMenu[$key]))
+            if (is_array($value))
             {
                 continue;
             }
 
-            $jailedMenu[$key] = $value->createJail();
+            $jailedObjects[$key] = $value->createJail();
         }
 
-        return $jailedMenu;
+        return $jailedObjects;
     }
 
     /**
@@ -345,8 +334,7 @@ class PageManager extends TrackingManager
     {
         if (empty($pageView['title'])) { return; }
 
-        $this->addToSiteMenu($pageView);
-        $this->flatPages[$pageView['title']] = $pageView->createJail();
+        $this->flatPages[$pageView['title']] = $pageView;
     }
 
     /**
@@ -523,57 +511,6 @@ class PageManager extends TrackingManager
                 );
 
                 $this->compilePageView($redirectPageView);
-            }
-        }
-    }
-
-    /**
-     * Add a static PageView to the menu array. Dynamic PageViews are not added to the menu
-     *
-     * @param PageView $pageView
-     */
-    private function addToSiteMenu (&$pageView)
-    {
-        $frontMatter = $pageView->getFrontMatter();
-
-        if (isset($frontMatter['menu']) && !$frontMatter['menu'])
-        {
-            return;
-        }
-
-        $url = trim($pageView->getPermalink(), '/');
-
-        if (empty($url))
-        {
-            return;
-        }
-
-        $root = &$this->siteMenu;
-        $dirs = explode('/', $url);
-
-        while (count($dirs) > 0)
-        {
-            $name = array_shift($dirs);
-            $name = (!empty($name)) ? $name : '.';
-
-            if (!is_null($name) && count($dirs) == 0)
-            {
-                if (isset($root[$name]) && is_array($root[$name]))
-                {
-                    $children = &$pageView->getChildren();
-                    $children = $root[$name]['children'];
-                }
-
-                $root[$name] = &$pageView;
-            }
-            else
-            {
-                if (!isset($root[$name]['children']))
-                {
-                    $root[$name]['children'] = array();
-                }
-
-                $root = &$root[$name]['children'];
             }
         }
     }

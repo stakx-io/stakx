@@ -4,6 +4,7 @@ namespace allejo\stakx\Object;
 
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\AssetManager;
+use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\System\FileExplorer;
@@ -80,6 +81,9 @@ class Website
      */
     private $fs;
 
+    /** @var MenuManager */
+    private $mm;
+
     /**
      * @var PageManager
      */
@@ -100,6 +104,7 @@ class Website
         $this->output = new StakxLogger($output);
         $this->cm = new CollectionManager();
         $this->dm = new DataManager();
+        $this->mm = new MenuManager();
         $this->pm = new PageManager();
         $this->fs = new Filesystem();
     }
@@ -131,18 +136,22 @@ class Website
 
         // Handle PageViews
         $this->pm->setLogger($this->output);
+        $this->pm->enableTracking($tracking);
         $this->pm->setTargetFolder($this->outputDirectory);
         $this->pm->setCollections($this->cm->getCollections());
         $this->pm->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
-        $this->pm->enableTracking($tracking);
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
+
+        $this->mm->setLogger($this->output);
+        $this->mm->buildFromPageViews($this->pm->getStaticPages());
+
         $this->pm->configureTwig($this->getConfiguration(), array(
             'safe'    => $this->safeMode,
             'globals' => array(
                 array('name' => 'site',        'value' => $this->getConfiguration()->getConfiguration()),
                 array('name' => 'collections', 'value' => $this->cm->getJailedCollections()),
-                array('name' => 'menu',        'value' => $this->pm->getSiteMenu()),
-                array('name' => 'pages',       'value' => $this->pm->getFlatPages()),
+                array('name' => 'menu',        'value' => $this->mm->getSiteMenu()),
+                array('name' => 'pages',       'value' => $this->pm->getJailedStaticPages()),
                 array('name' => 'data',        'value' => $this->dm->getDataItems())
             )
         ));
