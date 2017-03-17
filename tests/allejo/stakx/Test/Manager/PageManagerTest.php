@@ -26,6 +26,8 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->fs->remove(__DIR__ . '/output');
         mkdir(__DIR__ . '/output');
 
+        $this->markTestSkipped();
+
         $outputDir = new Folder(__DIR__ . '/output');
         $config    = new Configuration();
         $config->parseConfiguration($this->fs->appendPath(__DIR__, '..', 'assets', 'ConfigurationFiles', 'simple.yml'));

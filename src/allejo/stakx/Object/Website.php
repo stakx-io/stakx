@@ -2,11 +2,13 @@
 
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Compiler;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
+use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\System\FileExplorer;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
@@ -94,6 +96,9 @@ class Website
      */
     private $tm;
 
+    /** @var Compiler */
+    private $compiler;
+
     /**
      * Website constructor.
      *
@@ -137,15 +142,16 @@ class Website
         // Handle PageViews
         $this->pm->setLogger($this->output);
         $this->pm->enableTracking($tracking);
-        $this->pm->setTargetFolder($this->outputDirectory);
         $this->pm->setCollections($this->cm->getCollections());
-        $this->pm->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
 
+        // Handle the site's menu
         $this->mm->setLogger($this->output);
         $this->mm->buildFromPageViews($this->pm->getStaticPages());
 
-        $this->pm->configureTwig($this->getConfiguration(), array(
+        // Configure our Twig environment
+        $twigEnv = new TwigManager();
+        $twigEnv->configureTwig($this->getConfiguration(), array(
             'safe'    => $this->safeMode,
             'globals' => array(
                 array('name' => 'site',        'value' => $this->getConfiguration()->getConfiguration()),
@@ -155,7 +161,14 @@ class Website
                 array('name' => 'data',        'value' => $this->dm->getDataItems())
             )
         ));
-        $this->pm->compileAll();
+
+        // Compile everything
+        $this->compiler = new Compiler();
+        $this->compiler->setLogger($this->output);
+        $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
+        $this->compiler->setPageViews($this->pm->getPageViews());
+        $this->compiler->setTargetFolder($this->outputDirectory);
+        $this->compiler->compileAll();
 
         // At this point, we are looking at static files to copy over meaning we need to ignore all of the files that
         // make up the source of a stakx website
@@ -346,21 +359,21 @@ class Website
 
             $this->pm->updateTwigVariable('collections', $this->cm->getCollections());
             $this->pm->updatePageView($contentItem);
-            $this->pm->compileContentItem($contentItem);
-            $this->pm->compileSome(array(
-                'namespace' => 'collections',
-                'dependency' => $contentItem->getCollection()
-            ));
+//            $this->pm->compileContentItem($contentItem);
+//            $this->pm->compileSome(array(
+//                'namespace' => 'collections',
+//                'dependency' => $contentItem->getCollection()
+//            ));
         }
         else if ($this->dm->isHandled($filePath))
         {
             $change = $this->dm->createNewItem($filePath);
 
             $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
-            $this->pm->compileSome(array(
-                'namespace' => 'data',
-                'dependency' => $change
-            ));
+//            $this->pm->compileSome(array(
+//                'namespace' => 'data',
+//                'dependency' => $change
+//            ));
         }
         else if (!is_null($this->tm) && $this->tm->isHandled($filePath))
         {
@@ -385,21 +398,21 @@ class Website
             $contentItem = &$this->cm->getContentItem($filePath);
             $contentItem->refreshFileContent();
 
-            $this->pm->compileContentItem($contentItem);
-            $this->pm->compileSome(array(
-                'namespace' => 'collections',
-                'dependency' => $contentItem->getCollection()
-            ));
+//            $this->pm->compileContentItem($contentItem);
+//            $this->pm->compileSome(array(
+//                'namespace' => 'collections',
+//                'dependency' => $contentItem->getCollection()
+//            ));
         }
         else if ($this->dm->isTracked($filePath))
         {
             $change = $this->dm->refreshItem($filePath);
 
-            $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
-            $this->pm->compileSome(array(
-                'namespace' => 'data',
-                'dependency' => $change
-            ));
+//            $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
+//            $this->pm->compileSome(array(
+//                'namespace' => 'data',
+//                'dependency' => $change
+//            ));
         }
         else if (!is_null($this->tm) && $this->tm->isTracked($filePath))
         {

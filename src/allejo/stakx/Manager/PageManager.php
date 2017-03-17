@@ -7,18 +7,11 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Exception\FileAwareException;
-use allejo\stakx\Exception\TrackedItemNotFoundException;
-use allejo\stakx\FrontMatter\ExpandedValue;
+use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\DynamicPageView;
-use allejo\stakx\Object\JailObject;
 use allejo\stakx\Object\PageView;
-use allejo\stakx\Object\RepeaterPageView;
 use allejo\stakx\System\FileExplorer;
-use allejo\stakx\System\Folder;
-use Twig_Error_Syntax;
-use Twig_Template;
 
 /**
  * This class is responsible for handling all of the PageViews within a website.
@@ -49,24 +42,9 @@ class PageManager extends TrackingManager
     private $collections;
 
     /**
-     * @var Folder
-     */
-    private $targetDir;
-
-    /**
      * @var PageView[]
      */
     private $flatPages;
-
-    /**
-     * @var array
-     */
-    private $twigOpts;
-
-    /**
-     * @var \Twig_Environment
-     */
-    private $twig;
 
     /**
      * PageManager constructor
@@ -89,34 +67,6 @@ class PageManager extends TrackingManager
     public function setCollections (&$collections)
     {
         $this->collections = &$collections;
-    }
-
-    /**
-     * Set the template used for redirects
-     *
-     * @param false|string $filePath The path to the redirect template
-     */
-    public function setRedirectTemplate ($filePath)
-    {
-        $this->redirectTemplate = $filePath;
-    }
-
-    /**
-     * The location where the compiled website will be written to
-     *
-     * @param Folder $folder The relative target directory as specified from the configuration file
-     */
-    public function setTargetFolder (&$folder)
-    {
-        $this->targetDir = &$folder;
-    }
-
-    public function configureTwig ($configuration, $options)
-    {
-        $this->twigOpts['configuration'] = $configuration;
-        $this->twigOpts['options']       = $options;
-
-        $this->createTwigManager();
     }
 
     public function getStaticPages ()
@@ -174,54 +124,6 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * Compile dynamic and static PageViews
-     */
-    public function compileAll ()
-    {
-        foreach (array_keys($this->trackedItemsFlattened) as $filePath)
-        {
-            $this->compileFromFilePath($filePath);
-        }
-    }
-
-    public function compileSome ($filter = array())
-    {
-        /** @var PageView $pageView */
-        foreach ($this->trackedItemsFlattened as $pageView)
-        {
-            if ($pageView->hasTwigDependency($filter['namespace'], $filter['dependency']))
-            {
-                $this->compilePageView($pageView);
-            }
-        }
-    }
-
-    /**
-     * @param ContentItem $contentItem
-     */
-    public function compileContentItem (&$contentItem)
-    {
-        $pageView = $contentItem->getPageView();
-
-        // This ContentItem doesn't have an individual PageView dedicated to displaying this item
-        if (is_null($pageView))
-        {
-            return;
-        }
-
-        $template = $this->createTemplate($pageView);
-        $contentItem->evaluateFrontMatter(
-            $pageView->getFrontMatter(false)
-        );
-
-        $output = $template->render(array(
-            'this' => $contentItem
-        ));
-
-        $this->targetDir->writeFile($contentItem->getTargetFile(), $output);
-    }
-
-    /**
      * Add a new ContentItem to the respective parent PageView of the ContentItem
      *
      * @param ContentItem $contentItem
@@ -241,17 +143,6 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * Update an existing Twig variable that's injected globally
-     *
-     * @param string $variable
-     * @param string $value
-     */
-    public function updateTwigVariable ($variable, $value)
-    {
-        $this->twig->addGlobal($variable, $value);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function isTracked($filePath)
@@ -260,23 +151,11 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * {@inheritdoc}
+     * @return PageView[]
      */
-    public function refreshItem($filePath)
+    public function getPageViews ()
     {
-        if (parent::isTracked($filePath))
-        {
-            $this->compileFromFilePath($filePath);
-
-            return;
-        }
-
-        $this->createTwigManager();
-
-        foreach ($this->twigExtendsDeps[$filePath] as $pageView)
-        {
-            $this->compilePageView($pageView);
-        }
+        return $this->trackedItemsFlattened;
     }
 
     /**
@@ -317,7 +196,7 @@ class PageManager extends TrackingManager
 
         if (!isset($this->collections[$collection]))
         {
-            throw new \RuntimeException("The '$collection' collection is not defined");
+            throw new CollectionNotFoundException("The '$collection' collection is not defined");
         }
 
         foreach ($this->collections[$collection] as &$item)
@@ -335,230 +214,5 @@ class PageManager extends TrackingManager
         if (empty($pageView['title'])) { return; }
 
         $this->flatPages[$pageView['title']] = $pageView;
-    }
-
-    /**
-     * Create a Twig environment
-     */
-    private function createTwigManager ()
-    {
-        $twig = new TwigManager();
-        $twig->configureTwig(
-            $this->twigOpts['configuration'],
-            $this->twigOpts['options']
-        );
-
-        $this->twig = TwigManager::getInstance();
-    }
-
-    /**
-     * Compile a given PageView
-     *
-     * @param string $filePath The file path to the PageView to compile
-     *
-     * @throws \Exception
-     */
-    private function compileFromFilePath ($filePath)
-    {
-        if (!$this->isTracked($filePath))
-        {
-            throw new TrackedItemNotFoundException('PageView not found');
-        }
-
-        /** @var DynamicPageView|PageView|RepeaterPageView $pageView */
-        $pageView = &$this->trackedItemsFlattened[$filePath];
-
-        try
-        {
-            $pageView->refreshFileContent();
-            $this->compilePageView($pageView);
-        }
-        catch (\Exception $e)
-        {
-            throw FileAwareException::castException($e, $filePath);
-        }
-    }
-
-    /**
-     * @param DynamicPageView|RepeaterPageView|PageView $pageView
-     */
-    private function compilePageView ($pageView)
-    {
-        switch ($pageView->getType())
-        {
-            case PageView::REPEATER_TYPE:
-                $this->compileRepeaterPageView($pageView);
-                $this->compileExpandedRedirects($pageView);
-                break;
-
-            case PageView::DYNAMIC_TYPE:
-                $this->compileDynamicPageView($pageView);
-                $this->compileNormalRedirects($pageView);
-                break;
-
-            case PageView::STATIC_TYPE:
-                $this->compileStaticPageView($pageView);
-                $this->compileNormalRedirects($pageView);
-                break;
-        }
-    }
-
-    /**
-     * @param RepeaterPageView $pageView
-     */
-    private function compileRepeaterPageView (&$pageView)
-    {
-        $template = $this->createTemplate($pageView);
-        $pageView->rewindPermalink();
-
-        foreach ($pageView->getRepeaterPermalinks() as $permalink)
-        {
-            $pageView->bumpPermalink();
-            $pageView->setFrontMatter(array(
-                'permalink' => $permalink->getEvaluated(),
-                'iterators' => $permalink->getIterators()
-            ));
-
-            $output = $template->render(array(
-                'this' => $pageView->createJail()
-            ));
-
-            $this->output->notice("Writing repeater file: {file}", array('file' => $pageView->getTargetFile()));
-            $this->targetDir->writeFile($pageView->getTargetFile(), $output);
-        }
-    }
-
-    /**
-     * @param PageView $pageView
-     */
-    private function compileDynamicPageView (&$pageView)
-    {
-        $template = $this->createTemplate($pageView);
-
-        $pageViewFrontMatter = $pageView->getFrontMatter(false);
-        $collection = $pageViewFrontMatter['collection'];
-
-        if (!isset($this->collections[$collection]))
-        {
-            throw new \RuntimeException("The '$collection' collection is not defined");
-        }
-
-        /** @var ContentItem $contentItem */
-        foreach ($this->collections[$collection] as &$contentItem)
-        {
-            $output = $template->render(array(
-                'this' => $contentItem->createJail()
-            ));
-
-            $this->output->notice("Writing file: {file}", array('file' => $contentItem->getTargetFile()));
-            $this->targetDir->writeFile($contentItem->getTargetFile(), $output);
-        }
-    }
-
-    /**
-     * @param PageView $pageView
-     */
-    private function compileStaticPageView (&$pageView)
-    {
-        $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
-
-        $template = $this->createTemplate($pageView);
-        $output = $template->render(array(
-            'this' => $pageView->createJail()
-        ));
-
-        $this->output->notice("Writing file: {file}", array('file' => $pageView->getTargetFile()));
-        $this->targetDir->writeFile($pageView->getTargetFile(), $output);
-    }
-
-    /**
-     * @param DynamicPageView|PageView $pageView
-     */
-    private function compileNormalRedirects (&$pageView)
-    {
-        foreach ($pageView->getRedirects() as $redirect)
-        {
-            $redirectPageView = PageView::createRedirect(
-                $redirect,
-                $pageView->getPermalink(),
-                $this->redirectTemplate
-            );
-
-            $this->compilePageView($redirectPageView);
-        }
-    }
-
-    /**
-     * @param RepeaterPageView $pageView
-     */
-    private function compileExpandedRedirects (&$pageView)
-    {
-        $permalinks = $pageView->getRepeaterPermalinks();
-
-        /** @var ExpandedValue[] $repeaterRedirect */
-        foreach ($pageView->getRepeaterRedirects() as $repeaterRedirect)
-        {
-            /**
-             * @var int           $index
-             * @var ExpandedValue $redirect
-             */
-            foreach ($repeaterRedirect as $index => $redirect)
-            {
-                $redirectPageView = PageView::createRedirect(
-                    $redirect->getEvaluated(),
-                    $permalinks[$index]->getEvaluated(),
-                    $this->redirectTemplate
-                );
-
-                $this->compilePageView($redirectPageView);
-            }
-        }
-    }
-
-    /**
-     * @param PageView $pageView
-     *
-     * @return Twig_Template
-     * @throws Twig_Error_Syntax
-     */
-    private function createTemplate (&$pageView)
-    {
-        try
-        {
-            $template = $this->twig->createTemplate($pageView->getContent());
-
-            $this->trackParentTwigTemplate($template, $pageView);
-
-            return $template;
-        }
-        catch (Twig_Error_Syntax $e)
-        {
-            $e->setTemplateLine($e->getTemplateLine() + $pageView->getLineOffset());
-            $e->setTemplateName($pageView->getRelativeFilePath());
-
-            throw $e;
-        }
-    }
-
-    /**
-     * Find the parent Twig templates of the given template and keep a list of it
-     *
-     * @param Twig_Template $template The template created from the PageView's content
-     * @param PageView      $pageView The PageView that has this content. Used to keep a reference of PageViews
-     */
-    private function trackParentTwigTemplate ($template, &$pageView)
-    {
-        if (!$this->tracking) { return; }
-
-        /** @var Twig_Template $parent */
-        $parent = $template->getParent(array());
-
-        while ($parent !== false)
-        {
-            $filePath = $this->fs->getRelativePath($parent->getSourceContext()->getPath());
-
-            $this->twigExtendsDeps[$filePath][(string)$pageView->getFilePath()] = &$pageView;
-            $parent = $parent->getParent(array());
-        }
     }
 }
