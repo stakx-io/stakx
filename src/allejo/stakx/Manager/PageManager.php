@@ -10,6 +10,7 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\DynamicPageView;
+use allejo\stakx\Object\JailObject;
 use allejo\stakx\Object\PageView;
 use allejo\stakx\System\FileExplorer;
 
@@ -17,34 +18,25 @@ use allejo\stakx\System\FileExplorer;
  * This class is responsible for handling all of the PageViews within a website.
  *
  * PageManager will parse all available dynamic and static PageViews. After, dynamic PageViews will be prepared by
- * setting the appropriate values for each ContentItem such as permalinks. Lastly, this class will compile all of the
- * PageViews and write them to the target directory.
+ * setting the appropriate values for each ContentItem such as permalinks.
  *
- * @package allejo\stakx\Manager
+ * @internal
  */
 class PageManager extends TrackingManager
 {
     /**
-     * The relative (to the stakx project) file path to the redirect template
+     * A reference to the collections available to this website
      *
-     * @var string|bool
-     */
-    private $redirectTemplate;
-
-    /**
-     * @var PageView[]
-     */
-    private $twigExtendsDeps;
-
-    /**
      * @var ContentItem[][]
      */
     private $collections;
 
     /**
+     * A place to store a reference to static PageViews with titles
+     *
      * @var PageView[]
      */
-    private $flatPages;
+    private $staticPages;
 
     /**
      * PageManager constructor
@@ -53,39 +45,55 @@ class PageManager extends TrackingManager
     {
         parent::__construct();
 
-        $this->redirectTemplate = false;
-        $this->twigExtendsDeps = array();
         $this->collections = array();
-        $this->flatPages = array();
+        $this->staticPages = array();
     }
 
     /**
      * Give this manager the collections we'll be using for dynamic PageViews
      *
      * @param ContentItem[][] $collections
+     * @since 0.1.0
      */
     public function setCollections (&$collections)
     {
         $this->collections = &$collections;
     }
 
-    public function getStaticPages ()
+    /**
+     * Get all of the PageViews tracked by this manager
+     *
+     * @since 0.1.0
+     * @return PageView[][]
+     */
+    public function getAllPageViews ()
     {
-        return $this->flatPages;
+        return $this->trackedItemsFlattened;
     }
 
-    public function getJailedStaticPages ()
+    /**
+     * Get the static PageViews tracked by this manager indexed by their title
+     *
+     * @since 0.1.0
+     * @return PageView[]
+     */
+    public function getStaticPageViews ()
+    {
+        return $this->staticPages;
+    }
+
+    /**
+     * Get the jailed version of the static PageViews indexed by their title
+     *
+     * @since 0.1.0
+     * @return JailObject[]
+     */
+    public function getJailedStaticPageViews ()
     {
         $jailedObjects = array();
 
-        foreach ($this->flatPages as $key => $value)
+        foreach ($this->staticPages as $key => $value)
         {
-            // If it's an array, it means the parent is hidden from the site menu therefore its children should be too
-            if (is_array($value))
-            {
-                continue;
-            }
-
             $jailedObjects[$key] = $value->createJail();
         }
 
@@ -96,30 +104,27 @@ class PageManager extends TrackingManager
      * Go through all of the PageView directories and create a respective PageView for each and classify them as a
      * dynamic or static PageView.
      *
-     * @param $pageViewFolders
+     * @param string[] $pageViewFolders
+     * @since 0.1.0
      */
     public function parsePageViews ($pageViewFolders)
     {
         if (empty($pageViewFolders)) { return; }
 
-        /**
-         * The name of the folder where PageViews are located
-         *
-         * @var $pageViewFolder string
-         */
         foreach ($pageViewFolders as $pageViewFolderName)
         {
-            $pageViewFolder = $this->fs->absolutePath($pageViewFolderName);
+            /** @var string $pageViewFolderPath */
+            $pageViewFolderPath = $this->fs->absolutePath($pageViewFolderName);
 
-            if (!$this->fs->exists($pageViewFolder))
+            if (!$this->fs->exists($pageViewFolderPath))
             {
+                $this->output->warning("The '$pageViewFolderName' folder could not be found");
                 continue;
             }
 
-            $this->scanTrackableItems($pageViewFolder, array(
+            $this->scanTrackableItems($pageViewFolderPath, array(
                 'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES
             ), array('/.html$/', '/.twig$/'));
-            $this->saveFolderDefinition($pageViewFolderName);
         }
     }
 
@@ -127,69 +132,61 @@ class PageManager extends TrackingManager
      * Add a new ContentItem to the respective parent PageView of the ContentItem
      *
      * @param ContentItem $contentItem
+     * @since 0.1.0
      */
-    public function updatePageView ($contentItem)
+    public function trackNewContentItem (&$contentItem)
     {
-        /** @var DynamicPageView $pageView */
-        foreach ($this->trackedItems['dynamic'] as &$pageView)
-        {
-            $fm = $pageView->getFrontMatter(false);
-
-            if ($fm['collection'] == $contentItem->getCollection())
-            {
-                $pageView->addContentItem($contentItem);
-            }
-        }
+        $collection = $contentItem->getCollection();
+        $this->trackedItems[PageView::DYNAMIC_TYPE][$collection]->addContentItem($contentItem);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isTracked($filePath)
-    {
-        return (parent::isTracked($filePath) || isset($this->twigExtendsDeps[$filePath]));
-    }
-
-    /**
-     * @return PageView[]
-     */
-    public function getPageViews ()
-    {
-        return $this->trackedItemsFlattened;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function handleTrackableItem($filePath, $options = array())
+    protected function handleTrackableItem ($filePath, $options = array())
     {
         $pageView  = PageView::create($filePath);
         $namespace = $pageView->getType();
+        $storageKey = $pageView->getRelativeFilePath();
 
         switch ($namespace)
         {
-            case PageView::DYNAMIC_TYPE:
-                $this->handleTrackableDynamicPageView($pageView);
-                break;
-
             case PageView::STATIC_TYPE:
                 $this->handleTrackableStaticPageView($pageView);
+                break;
+
+            case PageView::DYNAMIC_TYPE:
+                $this->handleTrackableDynamicPageView($pageView);
+                $storageKey = $pageView->getCollection();
                 break;
 
             default:
                 break;
         }
 
-        $this->addObjectToTracker($pageView, $pageView->getRelativeFilePath(), $namespace);
-        $this->saveTrackerOptions($pageView->getRelativeFilePath(), array(
-            'viewType' => $namespace
-        ));
+        $this->addObjectToTracker($pageView, $storageKey, $namespace);
     }
 
     /**
-     * @param DynamicPageView $pageView
+     * Handle special behavior and treatment for static PageViews while we're iterating through them
+     *
+     * @param PageView $pageView
+     * @since 0.1.0
      */
-    private function handleTrackableDynamicPageView ($pageView)
+    private function handleTrackableStaticPageView (&$pageView)
+    {
+        if (empty($pageView['title'])) { return; }
+
+        $this->staticPages[$pageView['title']] = &$pageView;
+    }
+
+    /**
+     * Handle special behavior and treatment for dynamic PageViews while we're iterating through them
+     *
+     * @param DynamicPageView $pageView
+     * @since 0.1.0
+     */
+    private function handleTrackableDynamicPageView (&$pageView)
     {
         $frontMatter = $pageView->getFrontMatter(false);
         $collection = $frontMatter['collection'];
@@ -204,15 +201,5 @@ class PageManager extends TrackingManager
             $item->evaluateFrontMatter($frontMatter);
             $pageView->addContentItem($item);
         }
-    }
-
-    /**
-     * @param PageView $pageView
-     */
-    private function handleTrackableStaticPageView ($pageView)
-    {
-        if (empty($pageView['title'])) { return; }
-
-        $this->flatPages[$pageView['title']] = $pageView;
     }
 }

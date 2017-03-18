@@ -77,7 +77,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testSitePagesList ()
     {
-        $pages = $this->pageManager->getJailedStaticPages();
+        $pages = $this->pageManager->getJailedStaticPageViews();
 
         $this->assertArrayHasKey('Static Page', $pages);
         $this->assertArrayHasKey('Static Child 1', $pages);

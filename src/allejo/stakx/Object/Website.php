@@ -147,7 +147,7 @@ class Website
 
         // Handle the site's menu
         $this->mm->setLogger($this->output);
-        $this->mm->buildFromPageViews($this->pm->getStaticPages());
+        $this->mm->buildFromPageViews($this->pm->getStaticPageViews());
 
         // Configure our Twig environment
         $twigEnv = new TwigManager();
@@ -157,7 +157,7 @@ class Website
                 array('name' => 'site',        'value' => $this->getConfiguration()->getConfiguration()),
                 array('name' => 'collections', 'value' => $this->cm->getJailedCollections()),
                 array('name' => 'menu',        'value' => $this->mm->getSiteMenu()),
-                array('name' => 'pages',       'value' => $this->pm->getJailedStaticPages()),
+                array('name' => 'pages',       'value' => $this->pm->getJailedStaticPageViews()),
                 array('name' => 'data',        'value' => $this->dm->getDataItems())
             )
         ));
@@ -166,7 +166,7 @@ class Website
         $this->compiler = new Compiler();
         $this->compiler->setLogger($this->output);
         $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
-        $this->compiler->setPageViews($this->pm->getPageViews());
+        $this->compiler->setPageViews($this->pm->getAllPageViews());
         $this->compiler->setTargetFolder($this->outputDirectory);
         $this->compiler->compileAll();
 
@@ -358,7 +358,7 @@ class Website
             $contentItem = $this->cm->createNewItem($filePath);
 
             $this->pm->updateTwigVariable('collections', $this->cm->getCollections());
-            $this->pm->updatePageView($contentItem);
+            $this->pm->trackNewContentItem($contentItem);
 //            $this->pm->compileContentItem($contentItem);
 //            $this->pm->compileSome(array(
 //                'namespace' => 'collections',

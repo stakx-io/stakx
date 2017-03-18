@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright 2016 Vladimir Jimenez
+ * @copyright 2017 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
@@ -48,5 +48,15 @@ class DynamicPageView extends PageView
     public function getContentItems ()
     {
         return $this->contentItems;
+    }
+
+    /**
+     * Get the collection name this dynamic PageView is charged with
+     *
+     * @return string
+     */
+    public function getCollection ()
+    {
+        return $this->getFrontMatter(false)['collection'];
     }
 }
