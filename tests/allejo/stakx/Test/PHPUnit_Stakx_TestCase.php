@@ -60,7 +60,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     // Utility Functions
     //
 
-    protected function bookCollectionProvider ()
+    protected function bookCollectionProvider ($jailed = false)
     {
         $cm = new CollectionManager();
         $cm->setLogger($this->loggerMock());
@@ -71,7 +71,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
             )
         ));
 
-        return $cm->getJailedCollections();
+        return ($jailed) ? $cm->getCollections() : $cm->getJailedCollections();
     }
 
     /**
@@ -90,6 +90,27 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
             ->at($this->rootDir);
 
         return (new $classType($this->dummyFile->url()));
+    }
+
+    protected function createMultipleVirtualFiles ($classType, $elements)
+    {
+        $results = array();
+
+        foreach ($elements as $element)
+        {
+            $filename = (isset($element['filename'])) ? $element['filename'] : hash('sha256', uniqid(mt_rand(), true), false);
+            $frontMatter = (empty($element['frontmatter'])) ? '' : Yaml::dump($element['frontmatter'], 2);
+            $body = (isset($element['body'])) ? $element['body'] : 'Body Text';
+
+            $file = vfsStream::newFile($filename);
+            $file
+                ->setContent(sprintf("---\n%s\n---\n\n%s", $frontMatter, $body))
+                ->at($this->rootDir);
+
+            $results[] = new $classType($file->url());
+        }
+
+        return $results;
     }
 
     /**

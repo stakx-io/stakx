@@ -7,82 +7,151 @@
 
 namespace allejo\stakx\Test\Manager;
 
-use allejo\stakx\Manager\CollectionManager;
+use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Manager\PageManager;
-use allejo\stakx\Object\Configuration;
+use allejo\stakx\Object\ContentItem;
+use allejo\stakx\Object\DynamicPageView;
 use allejo\stakx\Object\JailObject;
-use allejo\stakx\System\Folder;
+use allejo\stakx\Object\PageView;
+use allejo\stakx\Test\StreamInterceptor;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class PageManagerTest extends PHPUnit_Stakx_TestCase
 {
-    /** @var PageManager */
-    private $pageManager;
-
-    public function setUp ()
+    public function testDynamicPageViewCollectionFound ()
     {
-        parent::setUp();
+        $this->createVirtualFile(DynamicPageView::class, array(
+            'collection' => 'books',
+            'permalink' => '/blog/%title/'
+        ));
+        $collections = $this->bookCollectionProvider(true);
+        $pageManager = new PageManager();
+        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setCollections($collections);
+        $pageManager->parsePageViews(array($this->rootDir->url()));
 
-        $this->fs->remove(__DIR__ . '/output');
-        mkdir(__DIR__ . '/output');
+        $pageViews = $pageManager->getAllPageViews();
 
-        $this->markTestSkipped();
+        $this->assertCount(1, $pageViews);
+        $this->assertInstanceOf(DynamicPageView::class, current($pageViews));
+    }
 
-        $outputDir = new Folder(__DIR__ . '/output');
-        $config    = new Configuration();
-        $config->parseConfiguration($this->fs->appendPath(__DIR__, '..', 'assets', 'ConfigurationFiles', 'simple.yml'));
+    public function testPageViewsContentItems ()
+    {
+        $this->createVirtualFile(DynamicPageView::class, array(
+            'collection' => 'books',
+            'permalink' => '/blog/%title/'
+        ));
+        $collections = $this->bookCollectionProvider(true);
 
-        $collectionManager = new CollectionManager();
-        $collectionManager->setLogger($this->loggerMock());
-        $collectionManager->parseCollections(array(
+        $pageManager = new PageManager();
+        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setCollections($collections);
+        $pageManager->parsePageViews(array($this->rootDir->url()));
+
+        $pageViews = $pageManager->getAllPageViews();
+        $pageView = current($pageViews);
+        $contentItems = $pageView->getContentItems();
+
+        $this->assertEquals($collections['books'], $contentItems);
+    }
+
+    public function testDynamicPageViewCollectionNotFound ()
+    {
+        $this->setExpectedException(CollectionNotFoundException::class);
+
+        $this->createVirtualFile(DynamicPageView::class, array(
+            'collection' => 'non-existent',
+            'permalink' => '/blog/%title/'
+        ));
+        $collections = $this->bookCollectionProvider(true);
+        $pageManager = new PageManager();
+        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setCollections($collections);
+        $pageManager->parsePageViews(array($this->rootDir->url()));
+    }
+
+    private function staticPageViewsProvider ()
+    {
+        return $this->createMultipleVirtualFiles(PageView::class, array(
             array(
-                'name' => 'books',
-                'folder' => $this->fs->appendPath(__DIR__, '..', 'assets', 'MyBookCollection')
+                'filename' => 'pageview-1.html.twig',
+                'frontmatter' => array('title' => 'Hello World')
+            ),
+            array(
+                'filename' => 'pageview-2.html.twig',
+                'frontmatter' => array()
+            ),
+            array(
+                'filename' => 'pageview-3.html.twig',
+                'frontmatter' => array('title' => 'Lorem Ipsum')
             )
         ));
+    }
 
-        $this->pageManager = new PageManager();
-        $this->pageManager->setLogger($this->loggerMock());
-        $this->pageManager->setTargetFolder($outputDir);
-        $this->pageManager->setCollections($collectionManager->getCollections());
-        $this->pageManager->parsePageViews(array(
-            $this->fs->appendPath(__DIR__, '..', 'assets', 'PageViews')
+    public function testStaticPageViewTitles ()
+    {
+        $this->staticPageViewsProvider();
+
+        $pageManager = new PageManager();
+        $pageManager->setLogger($this->loggerMock());
+        $pageManager->parsePageViews(array($this->rootDir->url()));
+
+        $this->assertCount(3, $pageManager->getAllPageViews());
+        $this->assertCount(2, $pageManager->getStaticPageViews());
+    }
+
+    public function testJailedStaticPageViews ()
+    {
+        $this->staticPageViewsProvider();
+
+        $pageManager = new PageManager();
+        $pageManager->setLogger($this->loggerMock());
+        $pageManager->parsePageViews(array($this->rootDir->url()));
+
+        $pageViews = $pageManager->getJailedStaticPageViews();
+
+        $this->assertCount(2, $pageViews);
+        $this->assertInstanceOf(JailObject::class, current($pageViews));
+    }
+
+    public function testAddingContentItemToPageView ()
+    {
+        $this->createVirtualFile(DynamicPageView::class, array(
+            'collection' => 'books',
+            'permalink' => '/blog/%title/'
         ));
-        $this->pageManager->configureTwig($config, array(
-            'safe' => false,
-            'globals' => array()
-        ));
-        $this->pageManager->compileAll();
+        $collections = $this->bookCollectionProvider(true);
+
+        $pageManager = new PageManager();
+        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setCollections($collections);
+        $pageManager->parsePageViews(array($this->rootDir->url()));
+        $pageViews = $pageManager->getAllPageViews();
+
+        /** @var DynamicPageView $pageView */
+        $pageView = current($pageViews);
+
+        $this->assertCount(5, $pageView->getContentItems());
+
+        /** @var ContentItem $contentItem */
+        $contentItem = $this->createVirtualFile(ContentItem::class);
+        $contentItem->setCollection('books');
+
+        $pageManager->trackNewContentItem($contentItem);
+
+        $this->assertCount(6, $pageView->getContentItems());
     }
 
-    public function tearDown()
+    public function testWarningThrownWhenPageViewFolderNotFound ()
     {
-        $this->fs->remove(__DIR__ . '/output');
-    }
+        $logger = $this->getReadableLogger();
 
-    public function testRepeaterTemplateCreation ()
-    {
-        $breakfast = __DIR__ . '/output/menu/breakfast/index.html';
-        $this->assertFileExistsAndContains($breakfast, 'meals:breakfast');
-        $this->assertFileExistsAndContains($breakfast, '/menu/breakfast/');
+        $pageManager = new PageManager();
+        $pageManager->setLogger($logger);
+        $pageManager->parsePageViews(array('non-existent'));
 
-        $lunch = __DIR__ . '/output/menu/lunch/index.html';
-        $this->assertFileExistsAndContains($lunch, 'meals:lunch');
-        $this->assertFileExistsAndContains($lunch, '/menu/lunch/');
-
-        $dinner = __DIR__ . '/output/menu/dinner/index.html';
-        $this->assertFileExistsAndContains($dinner, 'meals:dinner');
-        $this->assertFileExistsAndContains($dinner, '/menu/dinner/');
-    }
-
-    public function testSitePagesList ()
-    {
-        $pages = $this->pageManager->getJailedStaticPageViews();
-
-        $this->assertArrayHasKey('Static Page', $pages);
-        $this->assertArrayHasKey('Static Child 1', $pages);
-        $this->assertArrayNotHasKey('Repeater Page', $pages);
-
-        $this->assertInstanceOf(JailObject::class, $pages['Static Page']);
+        $this->assertContains("The 'non-existent' folder could not be found", StreamInterceptor::$output);
+        $this->assertCount(0, $pageManager->getAllPageViews());
     }
 }
