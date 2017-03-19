@@ -106,8 +106,8 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
 
         return (new SplFileInfo(
             $current->getPathname(),
-            $this->getRelativePath($current->getPath()),
-            $this->getRelativePath($current->getPathname())
+            self::getRelativePath($current->getPath()),
+            self::getRelativePath($current->getPathname())
         ));
     }
 
@@ -143,13 +143,13 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public function matchesPattern ($filePath)
     {
-        if ($this->strpos_array($filePath, $this->includes)) { return true; }
+        if (self::strpos_array($filePath, $this->includes)) { return true; }
         if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir()) { return false; }
 
         if (!($this->flags & self::ALLOW_DOT_FILES) &&
             preg_match('#(^|\\\\|\/)\..+(\\\\|\/|$)#', $filePath) === 1) { return false; }
 
-        return ($this->strpos_array($filePath, $this->excludes) === false);
+        return (self::strpos_array($filePath, $this->excludes) === false);
     }
 
     /**
@@ -164,7 +164,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public static function create ($folder, $excludes = array(), $includes = array(), $flags = null)
     {
-        $folder = realpath($folder);
+        $folder = self::realpath($folder);
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
 
         return (new self($iterator, $excludes, $includes, $flags));
@@ -179,7 +179,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      *
      * @return bool True if an element from the given array was found in the string
      */
-    private function strpos_array ($haystack, $needle, $offset = 0)
+    private static function strpos_array ($haystack, $needle, $offset = 0)
     {
         if (!is_array($needle))
         {
@@ -209,8 +209,25 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      *
      * @return string
      */
-    private function getRelativePath ($path)
+    private static function getRelativePath ($path)
     {
         return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $path);
+    }
+
+    /**
+     * A vfsStream friendly way of getting the realpath() of something
+     *
+     * @param  string $path
+     *
+     * @return string
+     */
+    private static function realpath ($path)
+    {
+        if (substr($path, 0, 6) == 'vfs://')
+        {
+            return $path;
+        }
+
+        return realpath($path);
     }
 }
