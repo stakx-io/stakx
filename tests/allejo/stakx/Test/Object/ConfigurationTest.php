@@ -27,7 +27,7 @@ class ConfigurationTests extends PHPUnit_Stakx_TestCase
     {
         parent::setUp();
 
-        $output = $this->loggerMock();
+        $output = $this->getMockLogger();
         $this->sampleConfig = new Configuration();
         $this->sampleConfig->setLogger($output);
         $this->sampleConfig->parseConfiguration(__DIR__ . '/../assets/ConfigurationFiles/sample.yml');
@@ -130,7 +130,7 @@ class ConfigurationTests extends PHPUnit_Stakx_TestCase
 
     public function testDeprecatedBase ()
     {
-        $output = $this->loggerMock();
+        $output = $this->getMockLogger();
 
         $file = vfsStream::newFile('_config.yml');
         $root = vfsStream::setup();
@@ -147,7 +147,7 @@ class ConfigurationTests extends PHPUnit_Stakx_TestCase
 
     public function testDeprecatedBasePriority ()
     {
-        $output = $this->loggerMock();
+        $output = $this->getMockLogger();
 
         $file = vfsStream::newFile('_config.yml');
         $root = vfsStream::setup();
@@ -164,7 +164,7 @@ class ConfigurationTests extends PHPUnit_Stakx_TestCase
 
     public function testInvalidConfigFile ()
     {
-        $output = $this->loggerMock();
+        $output = $this->getMockLogger();
 
         $file = vfsStream::newFile('_config.yml');
         $root = vfsStream::setup();

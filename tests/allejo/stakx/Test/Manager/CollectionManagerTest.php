@@ -22,7 +22,7 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
         parent::setUp();
 
         $this->cm = new CollectionManager();
-        $this->cm->setLogger($this->loggerMock());
+        $this->cm->setLogger($this->getMockLogger());
         $this->cm->parseCollections(array(
             array(
                 'name' => 'My Books',
@@ -41,7 +41,7 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
     public function testCollectionEmpty ()
     {
         $cm = new CollectionManager();
-        $cm->setLogger($this->loggerMock());
+        $cm->setLogger($this->getMockLogger());
         $cm->parseCollections(array());
 
         $this->assertEmpty($cm->getCollections());

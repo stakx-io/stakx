@@ -63,7 +63,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     protected function bookCollectionProvider ($jailed = false)
     {
         $cm = new CollectionManager();
-        $cm->setLogger($this->loggerMock());
+        $cm->setLogger($this->getMockLogger());
         $cm->parseCollections(array(
             array(
                 'name'   => 'books',
@@ -118,7 +118,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      *
      * @return LoggerInterface
      */
-    protected function loggerMock ()
+    protected function getMockLogger ()
     {
         return $this->getMock(LoggerInterface::class);
     }

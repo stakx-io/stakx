@@ -26,7 +26,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         ));
         $collections = $this->bookCollectionProvider(true);
         $pageManager = new PageManager();
-        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setLogger($this->getMockLogger());
         $pageManager->setCollections($collections);
         $pageManager->parsePageViews(array($this->rootDir->url()));
 
@@ -45,7 +45,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $collections = $this->bookCollectionProvider(true);
 
         $pageManager = new PageManager();
-        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setLogger($this->getMockLogger());
         $pageManager->setCollections($collections);
         $pageManager->parsePageViews(array($this->rootDir->url()));
 
@@ -66,7 +66,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         ));
         $collections = $this->bookCollectionProvider(true);
         $pageManager = new PageManager();
-        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setLogger($this->getMockLogger());
         $pageManager->setCollections($collections);
         $pageManager->parsePageViews(array($this->rootDir->url()));
     }
@@ -94,7 +94,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->staticPageViewsProvider();
 
         $pageManager = new PageManager();
-        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setLogger($this->getMockLogger());
         $pageManager->parsePageViews(array($this->rootDir->url()));
 
         $this->assertCount(3, $pageManager->getAllPageViews());
@@ -106,7 +106,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->staticPageViewsProvider();
 
         $pageManager = new PageManager();
-        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setLogger($this->getMockLogger());
         $pageManager->parsePageViews(array($this->rootDir->url()));
 
         $pageViews = $pageManager->getJailedStaticPageViews();
@@ -124,7 +124,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $collections = $this->bookCollectionProvider(true);
 
         $pageManager = new PageManager();
-        $pageManager->setLogger($this->loggerMock());
+        $pageManager->setLogger($this->getMockLogger());
         $pageManager->setCollections($collections);
         $pageManager->parsePageViews(array($this->rootDir->url()));
         $pageViews = $pageManager->getAllPageViews();

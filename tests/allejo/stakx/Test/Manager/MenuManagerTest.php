@@ -22,7 +22,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         parent::setUp();
 
         $this->mm = new MenuManager();
-        $this->mm->setLogger($this->loggerMock());
+        $this->mm->setLogger($this->getMockLogger());
     }
 
     public function dataProvider_SingleLevelMenu ()
