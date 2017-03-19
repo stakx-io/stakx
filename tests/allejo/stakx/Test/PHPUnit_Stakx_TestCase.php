@@ -7,12 +7,14 @@
 
 namespace allejo\stakx\Test;
 
+use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\System\Filesystem;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Yaml\Yaml;
 
 abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
@@ -91,10 +93,26 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Get a mock logger
+     *
      * @return LoggerInterface
      */
     protected function loggerMock ()
     {
         return $this->getMock(LoggerInterface::class);
+    }
+
+    /**
+     * Get a real logger instance that will save output to the console
+     *
+     * @return StakxLogger
+     */
+    protected function getReadableLogger ()
+    {
+        stream_filter_register('intercept', StreamInterceptor::class);
+        $stakxLogger = new StakxLogger(new ConsoleOutput());
+        stream_filter_append($stakxLogger->getOutputInterface()->getStream(), 'intercept');
+
+        return $stakxLogger;
     }
 }
