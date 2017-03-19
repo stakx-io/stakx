@@ -34,9 +34,9 @@ class DynamicPageView extends PageView
      */
     public function addContentItem (&$contentItem)
     {
-        $filePath = $this->fs->getRelativePath($contentItem->getFilePath());
+        $filename = $this->fs->getBaseName($contentItem->getFilePath());
 
-        $this->contentItems[$filePath] = &$contentItem;
+        $this->contentItems[$filename] = &$contentItem;
         $contentItem->setPageView($this);
     }
 
