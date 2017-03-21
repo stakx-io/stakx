@@ -109,9 +109,8 @@ class Folder
         }
 
         file_put_contents(
-            $this->buildPath($this->getCwd(), $targetPath),
-            $fileContent,
-            LOCK_EX
+            $this->buildPath($this->getCwd(), $relativePath),
+            $content
         );
 
         return (new SplFileInfo(
