@@ -8,7 +8,7 @@ use Symfony\Component\Finder\SplFileInfo;
 /**
  * All folder paths stored inside of this class will **not** have the ending DIRECTORY_SEPARATOR
  *
- * @package allejo\stakx\System
+ * @internal
  */
 class Folder
 {
@@ -50,6 +50,12 @@ class Folder
         return rtrim($this->absolutePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     }
 
+    /**
+     * Set a base folder that will be prefixed before all file writes and copies
+     *
+     * @param string $folderName
+     * @since 0.1.0
+     */
     public function setTargetDirectory ($folderName)
     {
         if (is_null($folderName) || empty($folderName))
@@ -63,8 +69,12 @@ class Folder
     }
 
     /**
-     * @param string $absolutePath
-     * @param string $targetPath
+     * Copy a file from an absolute file to a path relative to the Folder's location
+     *
+     * @param string $absolutePath The absolute path of the file
+     * @param string $targetPath   The relative file path to the Folder's location
+     *
+     * @since 0.1.0
      */
     public function copyFile ($absolutePath, $targetPath)
     {
@@ -78,12 +88,17 @@ class Folder
     }
 
     /**
-     * @param string $targetPath
-     * @param string $fileContent
+     * Write a file with the specified content
+     *
+     * @param string $relativePath The file path relative to this Folder's location
+     * @param string $content      The content that will be written to the file
+     *
+     * @since 0.1.0
+     * @return SplFileInfo
      */
-    public function writeFile ($targetPath, $fileContent)
+    public function writeFile ($relativePath, $content)
     {
-        $outputFolder   = $this->fs->getFolderPath($targetPath);
+        $outputFolder   = $this->fs->getFolderPath($relativePath);
         $targetFileName = $this->fs->getFileName($outputFolder);
 
         $absoluteFolderPath = $this->buildPath($this->getCwd(), $outputFolder);
@@ -108,6 +123,8 @@ class Folder
 
     /**
      * @param string $pathFragments
+     *
+     * @return string
      */
     private function buildPath ($pathFragments)
     {
