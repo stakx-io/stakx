@@ -104,14 +104,17 @@ class Compiler extends BaseManager
         {
             case PageView::STATIC_TYPE:
                 $this->compileStaticPageView($pageView);
+                $this->compileStandardRedirects($pageView);
                 break;
 
             case PageView::DYNAMIC_TYPE:
                 $this->compileDynamicPageViews($pageView);
+                $this->compileStandardRedirects($pageView);
                 break;
 
             case PageView::REPEATER_TYPE:
                 $this->compileRepeaterPageViews($pageView);
+                $this->compileExpandedRedirects($pageView);
                 break;
         }
     }
@@ -173,6 +176,61 @@ class Compiler extends BaseManager
 
             $this->output->notice("Writing repeater file: {file}", array('file' => $targetFile));
             $this->folder->writeFile($targetFile, $output);
+        }
+    }
+
+    ///
+    // Redirect handling
+    ///
+
+    /**
+     * Write redirects for standard redirects
+     *
+     * @param PageView $pageView
+     * @since 0.1.1
+     */
+    private function compileStandardRedirects (&$pageView)
+    {
+        $redirects = $pageView->getRedirects();
+
+        foreach ($redirects as $redirect)
+        {
+            $redirectPageView = PageView::createRedirect(
+                $redirect,
+                $pageView->getPermalink(),
+                $this->redirectTemplate
+            );
+
+            $this->compilePageView($redirectPageView);
+        }
+    }
+
+    /**
+     * Write redirects for expanded redirects
+     *
+     * @param RepeaterPageView $pageView
+     * @since 0.1.1
+     */
+    private function compileExpandedRedirects (&$pageView)
+    {
+        $permalinks = $pageView->getRepeaterPermalinks();
+
+        /** @var ExpandedValue[] $repeaterRedirect */
+        foreach ($pageView->getRepeaterRedirects() as $repeaterRedirect)
+        {
+            /**
+             * @var int           $index
+             * @var ExpandedValue $redirect
+             */
+            foreach ($repeaterRedirect as $index => $redirect)
+            {
+                $redirectPageView = PageView::createRedirect(
+                    $redirect->getEvaluated(),
+                    $permalinks[$index]->getEvaluated(),
+                    $this->redirectTemplate
+                );
+                $this->compilePageView($redirectPageView);
+            }
         }
     }
 
