@@ -38,22 +38,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->dummyFile    = vfsStream::newFile('stakx.html.twig');
-        $this->rootDir      = vfsStream::setup();
-        $this->fs           = new Filesystem();
-    }
-
-    //
-    // Assert Functions
-    //
-
-    public function assertFileExistsAndContains ($filePath, $needle, $message = '')
-    {
-        $this->assertFileExists($filePath, $message);
-
-        $contents = file_get_contents($filePath);
-
-        $this->assertContains($needle, $contents, $message);
+        $this->dummyFile = vfsStream::newFile('stakx.html.twig');
+        $this->rootDir   = vfsStream::setup();
+        $this->fs        = new Filesystem();
     }
 
     //
@@ -83,10 +70,8 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function createVirtualFile ($classType, $frontMatter = array(), $body = "Body Text")
     {
-        $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
-
         $this->dummyFile
-            ->setContent(sprintf("---\n%s\n---\n\n%s", $fm, $body))
+            ->setContent($this->generateFM($frontMatter, $body))
             ->at($this->rootDir);
 
         return (new $classType($this->dummyFile->url()));
@@ -135,5 +120,20 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         stream_filter_append($stakxLogger->getOutputInterface()->getStream(), 'intercept');
 
         return $stakxLogger;
+    }
+
+    /**
+     * Generate a FrontMatter-ready syntax to be used as a file's content
+     *
+     * @param array  $frontMatter
+     * @param string $body
+     *
+     * @return string
+     */
+    protected function generateFM (array $frontMatter = array(), $body = 'Body text')
+    {
+        $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
+
+        return sprintf(self::FM_OBJ_TEMPLATE, $fm, $body);
     }
 }
