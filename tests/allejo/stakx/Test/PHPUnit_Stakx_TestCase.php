@@ -41,6 +41,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $this->dummyFile = vfsStream::newFile('stakx.html.twig');
         $this->rootDir   = vfsStream::setup();
         $this->fs        = new Filesystem();
+
+        // Inspect the VFS as an array
+        // vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure();
     }
 
     //

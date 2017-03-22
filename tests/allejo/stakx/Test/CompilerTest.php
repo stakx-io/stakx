@@ -27,9 +27,12 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             '_site' => array()
         ));
 
+        $config = new Configuration();
+        $config->parseConfiguration();
+
         $twigEnv = new TwigManager();
-        $twigEnv->configureTwig($this->getMock(Configuration::class), array(
-            'safe'    => true,
+        $twigEnv->configureTwig($config, array(
+            'safe'    => false,
             'globals' => array()
         ));
 
