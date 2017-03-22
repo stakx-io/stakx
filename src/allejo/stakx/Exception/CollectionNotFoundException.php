@@ -9,5 +9,4 @@ namespace allejo\stakx\Exception;
 
 class CollectionNotFoundException extends \RuntimeException
 {
-
 }

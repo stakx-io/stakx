@@ -23,11 +23,11 @@ class MenuManager extends BaseManager
     }
 
     /**
-     * An array representing the website's menu structure with children and grandchildren made from static PageViews
+     * An array representing the website's menu structure with children and grandchildren made from static PageViews.
      *
      * @return JailObject[]
      */
-    public function getSiteMenu ()
+    public function getSiteMenu()
     {
         $jailedMenu = array();
 
@@ -48,7 +48,7 @@ class MenuManager extends BaseManager
     /**
      * @param PageView[] $pageViews
      */
-    public function buildFromPageViews ($pageViews)
+    public function buildFromPageViews($pageViews)
     {
         foreach ($pageViews as &$pageView)
         {
@@ -59,7 +59,7 @@ class MenuManager extends BaseManager
     /**
      * @param PageView $pageView
      */
-    public function addToSiteMenu (&$pageView)
+    public function addToSiteMenu(&$pageView)
     {
         $frontMatter = $pageView->getFrontMatter();
 
@@ -101,7 +101,7 @@ class MenuManager extends BaseManager
                     $root[$name]['children'] = array();
                     $root = &$root[$name]['children'];
                 }
-                else if (isset($root[$name]) && is_array($root[$name]))
+                elseif (isset($root[$name]) && is_array($root[$name]))
                 {
                     $root = &$root[$name]['children'];
                 }

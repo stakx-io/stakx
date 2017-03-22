@@ -1,11 +1,16 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Test;
 
 /**
- * Class StreamIntercept
+ * Class StreamIntercept.
  *
- * @link http://stackoverflow.com/a/39785995
+ * @see http://stackoverflow.com/a/39785995
  */
 class StreamInterceptor extends \php_user_filter
 {
@@ -13,8 +18,7 @@ class StreamInterceptor extends \php_user_filter
 
     public function filter($in, $out, &$consumed, $closing)
     {
-        while ($bucket = stream_bucket_make_writeable($in))
-        {
+        while ($bucket = stream_bucket_make_writeable($in)) {
             self::$output .= $bucket->data;
             $consumed += $bucket->datalen;
         }

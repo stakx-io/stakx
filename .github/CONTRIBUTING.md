@@ -14,11 +14,13 @@ If you want to make contributions to the project, [forking the project](https://
 
 ### How is the code organized?
 
-The actual library is housed in the `src/` folder. All of the public classes are in the **allejo\DaPulse** namespace and are located in the root of `src/`. Other utilities that are mainly intended for internal usage are housed in subfolders inside of `src/` such as exceptions, converters, and utilities.
+The project is housed in the `src/` folder (following PSR-4 convention) and uses the `allejo\stakx` namespace.
 
 #### Unit Tests & PHPDoc
 
-The unit tests are located in the `tests/` directory. All contributions should have the appropriate tests written and/or modified to reflect the changes made. In addition to unit tests, we have documentation provided for our classes so any changes made should also be reflected appropriately in the documentation.
+The unit tests are located in the `tests/` directory and follow the same namespace pattern. For example, a class in the `allejo\stakx\Object` will have a unit test in the `allejo\stakx\Test\Object` namespace. The folder structure for the tests follow the same pattern as the core project.
+
+All contributions should have the appropriate tests written and/or modified to reflect the changes made. In addition to unit tests, we have documentation provided for our classes so any changes made should also be reflected appropriately in the documentation.
 
 ### What needs to be done?
 
@@ -38,11 +40,13 @@ Be sure that you thoroughly test your changes and that your new features do not 
 
 The stakx project uses `.editorconfig` to keep the coding style as uniform as possible. Please be sure your text editor or IDE properly supports the `.editorconfig` file. If it does not, please install the [respective plugin](http://editorconfig.org/#download) for your IDE or text editor. For more information, take a look at the [EditorConfig website](http://editorconfig.org/).
 
-In addition, this library is built with PhpStorm and a `.idea/codeStyleSettings.xml` is provided, so if you also use PhpStorm, please use that to format your code appropriately.
+For code formatting, we use [PHP-CS-Fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) and have a `.php_cs` configuration, however this is not the final format we use. After, we use the provided `.idea/codeStyleSettings.xml` in PhpStorm to fix up some changes that PHP-CS-Fixer doesn't do quite right at the time of writing this.
+
+However, use your best judgement and follow the existing coding style; e.g. do **not** reformat the entire project for a PR that only modifies a single file.
 
 #### Coding Practices
 
-- Curly braces (`{` `}`) should always be on their own line
+- Curly braces (`{` `}`) **must** be on their own line
 
 ```php
 if (true)
@@ -51,7 +55,7 @@ if (true)
 }
 ```
 
-- If statements, for/while loops, and switch statements, should always have braces even if only contains a single line of code. This allows for adding more code quickly in the future should the need arise.
+- If statements, for/while loops, and switch statements, **must** have braces even if only contains a single line of code.
 
 ```php
 if (true)

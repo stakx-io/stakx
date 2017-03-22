@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\System\Folder;
@@ -7,51 +12,51 @@ use allejo\stakx\System\Folder;
 class AssetManager extends TrackingManager
 {
     /**
-     * The location of where to write files to
+     * The location of where to write files to.
      *
      * @var Folder
      */
     protected $outputDirectory;
 
     /**
-     * Files or patterns to exclude from copying
+     * Files or patterns to exclude from copying.
      *
      * @var array
      */
     protected $excludes;
 
     /**
-     * Files or patterns to ensure are copied regardless of excluded patterns
+     * Files or patterns to ensure are copied regardless of excluded patterns.
      *
      * @var array
      */
     protected $includes;
 
-    public function configureFinder ($includes = array(), $excludes = array())
+    public function configureFinder($includes = array(), $excludes = array())
     {
         $this->excludes = $excludes;
         $this->includes = $includes;
     }
 
     /**
-     * Set the target directory of where files should be written to
+     * Set the target directory of where files should be written to.
      *
      * @param Folder $directory
      */
-    public function setFolder ($directory)
+    public function setFolder($directory)
     {
         $this->outputDirectory = $directory;
     }
 
     /**
-     * Copy all of the assets
+     * Copy all of the assets.
      */
     public function copyFiles()
     {
         $this->scanTrackableItems(
             getcwd(),
             array(
-                'prefix' => ''
+                'prefix' => '',
             ),
             $this->includes,
             array_merge(
@@ -75,7 +80,7 @@ class AssetManager extends TrackingManager
     public function createNewItem($filePath)
     {
         return $this->handleTrackableItem($filePath, array(
-            'prefix' => ''
+            'prefix' => '',
         ));
     }
 
@@ -90,11 +95,14 @@ class AssetManager extends TrackingManager
             $file = $this->fs->createSplFileInfo($file);
         }
 
-        if (!$this->fs->exists($file)) { return; }
+        if (!$this->fs->exists($file))
+        {
+            return;
+        }
 
         $filePath = $file->getRealPath();
         $pathToStrip = $this->fs->appendPath(getcwd(), $options['prefix']);
-        $siteTargetPath = ltrim(str_replace($pathToStrip, "", $filePath), DIRECTORY_SEPARATOR);
+        $siteTargetPath = ltrim(str_replace($pathToStrip, '', $filePath), DIRECTORY_SEPARATOR);
 
         try
         {
@@ -106,7 +114,7 @@ class AssetManager extends TrackingManager
             $this->saveTrackerOptions($file->getRelativePathname(), $options);
             $this->outputDirectory->copyFile($filePath, $siteTargetPath);
             $this->output->info('Copying file: {file}...', array(
-                'file' => $file->getRelativePathname()
+                'file' => $file->getRelativePathname(),
             ));
         }
         catch (\Exception $e)

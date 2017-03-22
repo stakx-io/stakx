@@ -15,23 +15,23 @@ class MarkdownEngineTest extends PHPUnit_Stakx_TestCase
     /** @var MarkdownEngine */
     private $mdEngine;
 
-    public function setUp ()
+    public function setUp()
     {
         parent::setUp();
 
         $this->mdEngine = MarkdownEngine::instance();
     }
 
-    public function testHeaderIdAttr ()
+    public function testHeaderIdAttr()
     {
-        $content  = '# Hello World';
+        $content = '# Hello World';
         $expected = '<h1 id="hello-world">Hello World</h1>';
         $compiled = $this->mdEngine->parse($content);
 
         $this->assertEquals($expected, $compiled);
     }
 
-    public function testCodeBlockWithLanguage ()
+    public function testCodeBlockWithLanguage()
     {
         $codeBlock = <<<CODE
 ```php
@@ -45,7 +45,7 @@ CODE;
         $this->assertContains('<code class="hljs language-php">', $compiled);
     }
 
-    public function testCodeBlockWithNoLanguage ()
+    public function testCodeBlockWithNoLanguage()
     {
         $codeBlock = <<<CODE
 ```
@@ -58,7 +58,7 @@ CODE;
         $this->assertNotContains('language-', $compiled);
     }
 
-    public function testCodeBlockWithUnsupportedLanguage ()
+    public function testCodeBlockWithUnsupportedLanguage()
     {
         $this->setExpectedException(\PHPUnit_Framework_Error_Warning::class);
 

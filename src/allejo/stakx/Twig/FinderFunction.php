@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Twig;
 
 use Symfony\Component\Finder\Finder;
@@ -7,7 +12,7 @@ use Twig_Environment;
 
 class FinderFunction extends TwigFilesystem
 {
-    public function __invoke (Twig_Environment $env, $folderLocation)
+    public function __invoke(Twig_Environment $env, $folderLocation)
     {
         parent::__invoke($env, $folderLocation);
 
@@ -17,10 +22,10 @@ class FinderFunction extends TwigFilesystem
         return $finder;
     }
 
-    public static function get ()
+    public static function get()
     {
         return new \Twig_SimpleFunction('finder', new self(), array(
-            'needs_environment' => true
+            'needs_environment' => true,
         ));
     }
 }

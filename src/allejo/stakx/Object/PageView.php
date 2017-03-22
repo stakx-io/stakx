@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Object;
 
 use allejo\stakx\System\Filesystem;
@@ -13,8 +18,8 @@ class PageView extends FrontMatterObject
     const TEMPLATE = "---\n%s\n---\n\n%s";
 
     const REPEATER_TYPE = 0;
-    const DYNAMIC_TYPE  = 1;
-    const STATIC_TYPE   = 2;
+    const DYNAMIC_TYPE = 1;
+    const STATIC_TYPE = 2;
 
     /**
      * @var vfsStreamDirectory
@@ -49,7 +54,7 @@ class PageView extends FrontMatterObject
         parent::__construct($filePath);
 
         $this->children = array();
-        $this->type = PageView::STATIC_TYPE;
+        $this->type = self::STATIC_TYPE;
     }
 
     //
@@ -59,19 +64,19 @@ class PageView extends FrontMatterObject
     /**
      * {@inheritdoc}
      */
-    public function createJail ()
+    public function createJail()
     {
         if (is_null($this->jailInstance))
         {
             $this->jailInstance = (new JailObject($this, array_merge(self::$whiteListFunctions, array(
-                'getUrl'
+                'getUrl',
             )), array('getChildren' => 'getJailedChildren')));
         }
 
         return $this->jailInstance;
     }
 
-    public function getJailedChildren ()
+    public function getJailedChildren()
     {
         $children = $this->children;
 
@@ -88,14 +93,14 @@ class PageView extends FrontMatterObject
     // =======
 
     /**
-     * Get child PageViews
+     * Get child PageViews.
      *
      * A child is defined as a static PageView whose URL has a parent. For example, a PageView with a URL of
      * `/gallery/france/` would have the PageView whose URL is `/gallery` as a parent.
      *
      * @return PageView[]
      */
-    public function &getChildren ()
+    public function &getChildren()
     {
         return $this->children;
     }
@@ -103,17 +108,17 @@ class PageView extends FrontMatterObject
     /**
      * @return string Twig body
      */
-    public function getContent ()
+    public function getContent()
     {
         return $this->bodyContent;
     }
 
     /**
-     * Returns the type of the PageView
+     * Returns the type of the PageView.
      *
      * @return string
      */
-    public function getType ()
+    public function getType()
     {
         return $this->type;
     }
@@ -122,9 +127,10 @@ class PageView extends FrontMatterObject
      * A fallback for the site menus that use the `url` field.
      *
      * @deprecated 0.1.0
-     * @todo Remove this in the next major release
+     *
+     * @todo       Remove this in the next major release
      */
-    public function getUrl ()
+    public function getUrl()
     {
         return $this->getPermalink();
     }
@@ -134,26 +140,26 @@ class PageView extends FrontMatterObject
     // =======
 
     /**
-     * Create the appropriate object type when parsing a PageView
+     * Create the appropriate object type when parsing a PageView.
      *
-     * @param  string $filePath The path to the file that will be parsed into a PageView
+     * @param string $filePath The path to the file that will be parsed into a PageView
      *
      * @return DynamicPageView|PageView|RepeaterPageView
      */
-    public static function create ($filePath)
+    public static function create($filePath)
     {
         $instance = new self($filePath);
 
         if (isset($instance->getFrontMatter(false)['collection']))
         {
-            return (new DynamicPageView($filePath));
+            return new DynamicPageView($filePath);
         }
 
         $instance->getFrontMatter();
 
         if ($instance->hasExpandedFrontMatter())
         {
-            return (new RepeaterPageView($filePath));
+            return new RepeaterPageView($filePath);
         }
 
         return $instance;
@@ -164,14 +170,14 @@ class PageView extends FrontMatterObject
     // =================
 
     /**
-     * Create a virtual PageView
+     * Create a virtual PageView.
      *
-     * @param  array  $frontMatter The Front Matter that this virtual PageView will have
-     * @param  string $body        The body of the virtual PageView
+     * @param array  $frontMatter The Front Matter that this virtual PageView will have
+     * @param string $body        The body of the virtual PageView
      *
      * @return PageView
      */
-    public static function createVirtual ($frontMatter, $body)
+    public static function createVirtual($frontMatter, $body)
     {
         if (is_null(self::$vfsRoot))
         {
@@ -183,29 +189,29 @@ class PageView extends FrontMatterObject
             ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $body))
             ->at(self::$vfsRoot);
 
-        return (new PageView($redirectFile->url()));
+        return new self($redirectFile->url());
     }
 
     /**
-     * Create a virtual PageView to create redirect files
+     * Create a virtual PageView to create redirect files.
      *
-     * @param  string      $redirectFrom     The URL that will be redirecting to the target location
-     * @param  string      $redirectTo       The URL of the destination
-     * @param  string|bool $redirectTemplate The path to the template
+     * @param string      $redirectFrom     The URL that will be redirecting to the target location
+     * @param string      $redirectTo       The URL of the destination
+     * @param string|bool $redirectTemplate The path to the template
      *
      * @return PageView A virtual PageView with the redirection template
      */
-    public static function createRedirect ($redirectFrom, $redirectTo, $redirectTemplate = false)
+    public static function createRedirect($redirectFrom, $redirectTo, $redirectTemplate = false)
     {
         if (is_null(self::$fileSys))
         {
             self::$fileSys = new Filesystem();
         }
 
-        $frontMatter  = array(
+        $frontMatter = array(
             'permalink' => $redirectFrom,
             'redirect'  => $redirectTo,
-            'menu' => false
+            'menu'      => false,
         );
 
         if (!$redirectTemplate || !self::$fileSys->exists(self::$fileSys->absolutePath($redirectTemplate)))

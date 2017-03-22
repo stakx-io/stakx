@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright 2016 Vladimir Jimenez
+ * @copyright 2017 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
@@ -18,9 +18,9 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     const INCLUDE_ONLY_FILES = 0x1;
 
     /**
-     * A bitwise flag to have FileExplorer search files starting with a period as well
+     * A bitwise flag to have FileExplorer search files starting with a period as well.
      */
-    const ALLOW_DOT_FILES    = 0x2;
+    const ALLOW_DOT_FILES = 0x2;
 
     /**
      * A list of common version control folders to ignore.
@@ -36,24 +36,24 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      *
      * @var string[]
      */
-    public static $vcsPatterns =  array('.git', '.hg', '.svn', '_svn');
+    public static $vcsPatterns = array('.git', '.hg', '.svn', '_svn');
 
     /**
-     * A list of phrases to exclude from the search
+     * A list of phrases to exclude from the search.
      *
      * @var string[]
      */
     private $excludes;
 
     /**
-     * A list of phrases to explicitly include in the search
+     * A list of phrases to explicitly include in the search.
      *
      * @var string[]
      */
     private $includes;
 
     /**
-     * The bitwise sum of the flags applied to this FileExplorer instance
+     * The bitwise sum of the flags applied to this FileExplorer instance.
      *
      * @var int|null
      */
@@ -87,7 +87,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     /**
      * {@inheritdoc}
      */
-    public function accept ()
+    public function accept()
     {
         $filePath = $this->current()->getRelativePathname();
 
@@ -95,7 +95,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     }
 
     /**
-     * Get the current SplFileInfo object
+     * Get the current SplFileInfo object.
      *
      * @return SplFileInfo
      */
@@ -104,11 +104,11 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
         /** @var \SplFileInfo $current */
         $current = parent::current();
 
-        return (new SplFileInfo(
+        return new SplFileInfo(
             $current->getPathname(),
             self::getRelativePath($current->getPath()),
             self::getRelativePath($current->getPathname())
-        ));
+        );
     }
 
     /**
@@ -116,70 +116,79 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public function getChildren()
     {
-        return (new self(
+        return new self(
             $this->getInnerIterator()->getChildren(),
             $this->excludes,
             $this->includes,
             $this->flags
-        ));
+        );
     }
 
     /**
-     * Get an Iterator with all of the files that have met the search requirements
+     * Get an Iterator with all of the files that have met the search requirements.
      *
      * @return \RecursiveIteratorIterator
      */
-    public function getExplorer ()
+    public function getExplorer()
     {
-        return (new \RecursiveIteratorIterator($this));
+        return new \RecursiveIteratorIterator($this);
     }
 
     /**
      * Check whether or not a relative file path matches the definition given to this FileExplorer instance.
      *
-     * @param  string $filePath
+     * @param string $filePath
      *
      * @return bool
      */
-    public function matchesPattern ($filePath)
+    public function matchesPattern($filePath)
     {
-        if (self::strpos_array($filePath, $this->includes)) { return true; }
-        if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir()) { return false; }
+        if (self::strpos_array($filePath, $this->includes))
+        {
+            return true;
+        }
+        if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir())
+        {
+            return false;
+        }
 
         if (!($this->flags & self::ALLOW_DOT_FILES) &&
-            preg_match('#(^|\\\\|\/)\..+(\\\\|\/|$)#', $filePath) === 1) { return false; }
+            preg_match('#(^|\\\\|\/)\..+(\\\\|\/|$)#', $filePath) === 1)
+        {
+            return false;
+        }
 
-        return (self::strpos_array($filePath, $this->excludes) === false);
+        return self::strpos_array($filePath, $this->excludes) === false;
     }
 
     /**
-     * Create an instance of FileExplorer from a directory path as a string
+     * Create an instance of FileExplorer from a directory path as a string.
      *
-     * @param  string   $folder   The path to the folder we're scanning
-     * @param  string[] $excludes
-     * @param  string[] $includes
-     * @param  int|null $flags
+     * @param string   $folder The path to the folder we're scanning
+     * @param string[] $excludes
+     * @param string[] $includes
+     * @param int|null $flags
      *
      * @return FileExplorer
      */
-    public static function create ($folder, $excludes = array(), $includes = array(), $flags = null)
+    public static function create($folder, $excludes = array(), $includes = array(), $flags = null)
     {
         $folder = self::realpath($folder);
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
 
-        return (new self($iterator, $excludes, $includes, $flags));
+        return new self($iterator, $excludes, $includes, $flags);
     }
 
     /**
-     * Search a given string for an array of possible elements
+     * Search a given string for an array of possible elements.
      *
-     * @param  string   $haystack
-     * @param  string[] $needle
-     * @param  int      $offset
+     * @param string   $haystack
+     * @param string[] $needle
+     * @param int      $offset
      *
      * @return bool True if an element from the given array was found in the string
      */
-    private static function strpos_array ($haystack, $needle, $offset = 0)
+    private static function strpos_array($haystack, $needle, $offset = 0)
     {
         if (!is_array($needle))
         {
@@ -193,8 +202,8 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
                 return true;
             }
 
-            if (strpos($haystack, $query, $offset) !== false) // stop on first true result
-            {
+            if (strpos($haystack, $query, $offset) !== false)
+            { // stop on first true result
                 return true;
             }
         }
@@ -203,25 +212,25 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     }
 
     /**
-     * Strip the current working directory from an absolute path
+     * Strip the current working directory from an absolute path.
      *
-     * @param  string $path An absolute path
+     * @param string $path An absolute path
      *
      * @return string
      */
-    private static function getRelativePath ($path)
+    private static function getRelativePath($path)
     {
         return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $path);
     }
 
     /**
-     * A vfsStream friendly way of getting the realpath() of something
+     * A vfsStream friendly way of getting the realpath() of something.
      *
-     * @param  string $path
+     * @param string $path
      *
      * @return string
      */
-    private static function realpath ($path)
+    private static function realpath($path)
     {
         if (substr($path, 0, 6) == 'vfs://')
         {

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Engines\Markdown;
 
 use allejo\stakx\Engines\ParsingEngine;
@@ -9,7 +14,7 @@ class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
 {
     protected $highlighter;
 
-    public function __construct ()
+    public function __construct()
     {
         parent::__construct();
 
@@ -31,7 +36,7 @@ class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
         return $Block;
     }
 
-    public function blockFencedCodeComplete ($block)
+    public function blockFencedCodeComplete($block)
     {
         // The class has a `language-` prefix, remove this to get the language
         if (isset($block['element']['text']['attributes']))

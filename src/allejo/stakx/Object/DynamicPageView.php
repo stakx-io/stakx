@@ -28,11 +28,11 @@ class DynamicPageView extends PageView
     }
 
     /**
-     * Add a ContentItem to this Dynamic PageView
+     * Add a ContentItem to this Dynamic PageView.
      *
      * @param ContentItem $contentItem
      */
-    public function addContentItem (&$contentItem)
+    public function addContentItem(&$contentItem)
     {
         $filename = $this->fs->getBaseName($contentItem->getFilePath());
 
@@ -41,21 +41,21 @@ class DynamicPageView extends PageView
     }
 
     /**
-     * Get all of the ContentItems that belong to this Dynamic PageView
+     * Get all of the ContentItems that belong to this Dynamic PageView.
      *
      * @return ContentItem[]
      */
-    public function getContentItems ()
+    public function getContentItems()
     {
         return $this->contentItems;
     }
 
     /**
-     * Get the collection name this dynamic PageView is charged with
+     * Get the collection name this dynamic PageView is charged with.
      *
      * @return string
      */
-    public function getCollection ()
+    public function getCollection()
     {
         return $this->getFrontMatter(false)['collection'];
     }

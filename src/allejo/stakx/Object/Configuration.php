@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Object;
 
 use allejo\stakx\System\Filesystem;
@@ -11,7 +16,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class Configuration implements LoggerAwareInterface
 {
-    const DEFAULT_NAME = "_config.yml";
+    const DEFAULT_NAME = '_config.yml';
 
     /**
      * A list of regular expressions or files directly related to stakx websites that should not be copied over to the
@@ -22,7 +27,7 @@ class Configuration implements LoggerAwareInterface
     public static $stakxSourceFiles = array('/^_(?!themes).*/', '/.twig$/');
 
     /**
-     * An array representation of the main Yaml configuration
+     * An array representation of the main Yaml configuration.
      *
      * @var array
      */
@@ -44,7 +49,7 @@ class Configuration implements LoggerAwareInterface
     public function __construct()
     {
         $this->configuration = array();
-        $this->fs            = new Filesystem();
+        $this->fs = new Filesystem();
     }
 
     /**
@@ -55,7 +60,7 @@ class Configuration implements LoggerAwareInterface
      * @param string|null $configFile The path to the configuration file. If null, the default configuration will be
      *                                used
      */
-    public function parseConfiguration ($configFile = null)
+    public function parseConfiguration($configFile = null)
     {
         if ($this->fs->exists($configFile))
         {
@@ -65,10 +70,10 @@ class Configuration implements LoggerAwareInterface
             }
             catch (ParseException $e)
             {
-                $this->output->error("Parsing the configuration failed: {message}", array(
-                    "message" => $e->getMessage()
+                $this->output->error('Parsing the configuration failed: {message}', array(
+                    'message' => $e->getMessage(),
                 ));
-                $this->output->error("Using default configuration...");
+                $this->output->error('Using default configuration...');
             }
         }
 
@@ -84,7 +89,7 @@ class Configuration implements LoggerAwareInterface
         $this->output = $logger;
     }
 
-    public function isDebug ()
+    public function isDebug()
     {
         return $this->returnConfigOption('debug', false);
     }
@@ -94,7 +99,7 @@ class Configuration implements LoggerAwareInterface
      *
      * @return mixed|null
      */
-    public function getBaseUrl ()
+    public function getBaseUrl()
     {
         $base = $this->returnConfigOption('base');
         $baseUrl = $this->returnConfigOption('baseurl');
@@ -110,7 +115,7 @@ class Configuration implements LoggerAwareInterface
     /**
      * @return string[]
      */
-    public function getDataFolders ()
+    public function getDataFolders()
     {
         return $this->returnConfigOption('data');
     }
@@ -118,94 +123,94 @@ class Configuration implements LoggerAwareInterface
     /**
      * @return string[]
      */
-    public function getDataSets ()
+    public function getDataSets()
     {
         return $this->returnConfigOption('datasets');
     }
 
-    public function getIncludes ()
+    public function getIncludes()
     {
         return $this->returnConfigOption('include', array());
     }
 
-    public function getExcludes ()
+    public function getExcludes()
     {
         return $this->returnConfigOption('exclude', array());
     }
 
-    public function getTheme ()
+    public function getTheme()
     {
         return $this->returnConfigOption('theme');
     }
 
-    public function getConfiguration ()
+    public function getConfiguration()
     {
         return $this->configuration;
     }
 
-    public function getPageViewFolders ()
+    public function getPageViewFolders()
     {
         return $this->returnConfigOption('pageviews');
     }
 
-    public function getTargetFolder ()
+    public function getTargetFolder()
     {
         return $this->returnConfigOption('target');
     }
 
-    public function getCollectionsFolders ()
+    public function getCollectionsFolders()
     {
         return $this->returnConfigOption('collections');
     }
 
-    public function getTwigAutoescape ()
+    public function getTwigAutoescape()
     {
         return $this->configuration['twig']['autoescape'];
     }
 
-    public function getRedirectTemplate ()
+    public function getRedirectTemplate()
     {
         return $this->configuration['templates']['redirect'];
     }
 
     /**
-     * Return the specified configuration option if available, otherwise return the default
+     * Return the specified configuration option if available, otherwise return the default.
      *
-     * @param  string     $name    The configuration option to lookup
-     * @param  mixed|null $default The default value returned if the configuration option isn't found
+     * @param string     $name    The configuration option to lookup
+     * @param mixed|null $default The default value returned if the configuration option isn't found
      *
      * @return mixed|null
      */
-    private function returnConfigOption ($name, $default = null)
+    private function returnConfigOption($name, $default = null)
     {
-        return (isset($this->configuration[$name]) ? $this->configuration[$name] : $default);
+        return isset($this->configuration[$name]) ? $this->configuration[$name] : $default;
     }
 
-    private function defaultConfiguration ()
+    private function defaultConfiguration()
     {
         $defaultConfig = array(
-            'baseurl' => '',
-            'target' => '_site',
-            'twig' => array(
-                'autoescape' => false
+            'baseurl'   => '',
+            'target'    => '_site',
+            'twig'      => array(
+                'autoescape' => false,
             ),
-            'include' => array(
-                '.htaccess'
+            'include'   => array(
+                '.htaccess',
             ),
-            'exclude' => array(
+            'exclude'   => array(
                 'node_modules/',
                 'stakx-theme.yml',
-                self::DEFAULT_NAME
+                self::DEFAULT_NAME,
             ),
             'templates' => array(
-                'redirect' => false
-            )
+                'redirect' => false,
+            ),
         );
 
         $this->configuration = ArrayUtilities::array_merge_defaults($defaultConfig, $this->configuration, 'name');
     }
 
-    private function handleDeprecations ()
+    private function handleDeprecations()
     {
         // @TODO 1.0.0 handle 'base' deprecation in _config.yml
         $base = $this->returnConfigOption('base');

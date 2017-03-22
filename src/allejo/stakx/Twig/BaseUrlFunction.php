@@ -1,12 +1,17 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Twig;
 
 use Twig_Environment;
 
 class BaseUrlFunction
 {
-    public function __invoke (Twig_Environment $env, $assetPath)
+    public function __invoke(Twig_Environment $env, $assetPath)
     {
         $globals = $env->getGlobals();
         $assetPath = $this->guessAssetPath($assetPath);
@@ -17,23 +22,23 @@ class BaseUrlFunction
         $baseURL = (empty($base)) ? '/' : '/' . trim($base, '/') . '/';
         $url = $this->trimSlashes($assetPath);
 
-        return ($baseURL . $url);
+        return $baseURL . $url;
     }
 
-    public static function get ()
+    public static function get()
     {
         return new \Twig_SimpleFunction('url', new self(), array(
-            'needs_environment' => true
+            'needs_environment' => true,
         ));
     }
 
-    private function guessAssetPath ($assetPath)
+    private function guessAssetPath($assetPath)
     {
         if (is_array($assetPath) || ($assetPath instanceof \ArrayAccess))
         {
             return (isset($assetPath['permalink'])) ? $assetPath['permalink'] : '/';
         }
-        else if (is_null($assetPath))
+        elseif (is_null($assetPath))
         {
             return '/';
         }
@@ -41,7 +46,7 @@ class BaseUrlFunction
         return $assetPath;
     }
 
-    private function trimSlashes ($url)
+    private function trimSlashes($url)
     {
         $url = ltrim($url, '/');
 

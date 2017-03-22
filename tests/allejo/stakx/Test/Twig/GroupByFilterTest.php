@@ -7,12 +7,12 @@
 
 namespace allejo\stakx\Test\Twig;
 
-use allejo\stakx\Twig\GroupByFilter;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Twig\GroupByFilter;
 
 class GroupByFilterTests extends PHPUnit_Stakx_TestCase
 {
-    public function testGroupByFilter ()
+    public function testGroupByFilter()
     {
         $original = array(
             'a' => array('id' => 20, 'name' => 'chimpanzee'),
@@ -21,16 +21,16 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
             'd' => array('id' => 50, 'name' => 'chocolate'),
             'e' => array('id' => 10, 'name' => 'bananas'),
             'f' => array('id' => 50, 'name' => 'fantasy'),
-            'g' => array('id' => 50, 'name' => 'football')
+            'g' => array('id' => 50, 'name' => 'football'),
         );
 
         $expected = array(
             '10' => array(
-                'e' => array('id' => 10, 'name' => 'bananas')
+                'e' => array('id' => 10, 'name' => 'bananas'),
             ),
             '20' => array(
                 'a' => array('id' => 20, 'name' => 'chimpanzee'),
-                'c' => array('id' => 20, 'name' => 'dynasty')
+                'c' => array('id' => 20, 'name' => 'dynasty'),
             ),
             '40' => array(
                 'b' => array('id' => 40, 'name' => 'meeting'),
@@ -38,8 +38,8 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
             '50' => array(
                 'd' => array('id' => 50, 'name' => 'chocolate'),
                 'f' => array('id' => 50, 'name' => 'fantasy'),
-                'g' => array('id' => 50, 'name' => 'football')
-            )
+                'g' => array('id' => 50, 'name' => 'football'),
+            ),
         );
 
         $gbFilter = new GroupByFilter();
@@ -48,7 +48,7 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($expected, $grouped);
     }
 
-    public function testGroupByFilterContentItems ()
+    public function testGroupByFilterContentItems()
     {
         $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();
@@ -62,7 +62,7 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertCount(2, $grouped['Random House Books for Young Readers']);
     }
 
-    public function testGroupByFilterBooleanFrontMatterKey ()
+    public function testGroupByFilterBooleanFrontMatterKey()
     {
         $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();
@@ -75,7 +75,7 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertCount(1, $grouped['false']);
     }
 
-    public function testGroupByFilterNullFrontMatterKey ()
+    public function testGroupByFilterNullFrontMatterKey()
     {
         $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();
@@ -84,7 +84,7 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertCount(0, $grouped);
     }
 
-    public function testGroupByFilterArrayThrowsWarning ()
+    public function testGroupByFilterArrayThrowsWarning()
     {
         $this->setExpectedException(\PHPUnit_Framework_Error_Warning::class);
 

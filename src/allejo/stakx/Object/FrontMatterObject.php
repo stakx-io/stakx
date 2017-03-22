@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Object;
 
 use allejo\stakx\Exception\FileAwareException;
@@ -21,7 +26,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     );
 
     /**
-     * An array to keep track of collection or data dependencies used inside of a Twig template
+     * An array to keep track of collection or data dependencies used inside of a Twig template.
      *
      * $dataDependencies['collections'] = array()
      * $dataDependencies['data'] = array()
@@ -32,7 +37,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
 
     /**
      * FrontMatter values that can be injected or set after the file has been parsed. Values in this array will take
-     * precedence over values in $frontMatter
+     * precedence over values in $frontMatter.
      *
      * @var array
      */
@@ -48,7 +53,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     protected $frontMatterBlacklist;
 
     /**
-     * Set to true if the front matter has already been evaluated with variable interpolation
+     * Set to true if the front matter has already been evaluated with variable interpolation.
      *
      * @var bool
      */
@@ -60,63 +65,63 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     protected $frontMatterParser;
 
     /**
-     * An array containing the Yaml of the file
+     * An array containing the Yaml of the file.
      *
      * @var array
      */
     protected $frontMatter;
 
     /**
-     * Set to true if the body has already been parsed as markdown or any other format
+     * Set to true if the body has already been parsed as markdown or any other format.
      *
      * @var bool
      */
     protected $bodyContentEvaluated;
 
     /**
-     * Only the body of the file, i.e. the content
+     * Only the body of the file, i.e. the content.
      *
      * @var string
      */
     protected $bodyContent;
 
     /**
-     * The permalink for this object
+     * The permalink for this object.
      *
      * @var string
      */
     protected $permalink;
 
     /**
-     * A filesystem object
+     * A filesystem object.
      *
      * @var Filesystem
      */
     protected $fs;
 
     /**
-     * The extension of the file
+     * The extension of the file.
      *
      * @var string
      */
     private $extension;
 
     /**
-     * The number of lines that Twig template errors should offset
+     * The number of lines that Twig template errors should offset.
      *
      * @var int
      */
     private $lineOffset;
 
     /**
-     * A list URLs that will redirect to this object
+     * A list URLs that will redirect to this object.
      *
      * @var string[]
      */
     private $redirects;
 
     /**
-     * The original file path to the ContentItem
+     * The original file path to the ContentItem.
      *
      * @var SplFileInfo
      */
@@ -131,13 +136,13 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
      * @throws IOException           The file was not a valid ContentItem. This would meam there was no front matter or
      *                               no body
      */
-    public function __construct ($filePath)
+    public function __construct($filePath)
     {
         $this->frontMatterBlacklist = array('permalink', 'redirects');
         $this->writableFrontMatter = array();
 
-        $this->filePath  = $filePath;
-        $this->fs        = new Filesystem();
+        $this->filePath = $filePath;
+        $this->fs = new Filesystem();
 
         if (!$this->fs->exists($filePath))
         {
@@ -150,58 +155,58 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     }
 
     /**
-     * Return the body of the Content Item
+     * Return the body of the Content Item.
      *
      * @return string
      */
-    abstract public function getContent ();
+    abstract public function getContent();
 
     /**
-     * Get the extension of the current file
+     * Get the extension of the current file.
      *
      * @return string
      */
-    final public function getExtension ()
+    final public function getExtension()
     {
         return $this->extension;
     }
 
     /**
-     * Get the original file path
+     * Get the original file path.
      *
      * @return string
      */
-    final public function getFilePath ()
+    final public function getFilePath()
     {
         return $this->filePath;
     }
 
     /**
-     * The number of lines that are taken up by FrontMatter and white space
+     * The number of lines that are taken up by FrontMatter and white space.
      *
      * @return int
      */
-    final public function getLineOffset ()
+    final public function getLineOffset()
     {
         return $this->lineOffset;
     }
 
     /**
-     * Get the name of the item, which is just the file name without the extension
+     * Get the name of the item, which is just the file name without the extension.
      *
      * @return string
      */
-    final public function getName ()
+    final public function getName()
     {
         return $this->fs->getBaseName($this->filePath);
     }
 
     /**
-     * Get the relative path to this file relative to the root of the Stakx website
+     * Get the relative path to this file relative to the root of the Stakx website.
      *
      * @return string
      */
-    final public function getRelativeFilePath ()
+    final public function getRelativeFilePath()
     {
         if ($this->filePath instanceof SplFileInfo)
         {
@@ -213,11 +218,11 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     }
 
     /**
-     * Get the destination of where this Content Item would be written to when the website is compiled
+     * Get the destination of where this Content Item would be written to when the website is compiled.
      *
      * @return string
      */
-    final public function getTargetFile ()
+    final public function getTargetFile()
     {
         $permalink = $this->getPermalink();
         $missingFile = (substr($permalink, -1) == '/');
@@ -232,22 +237,22 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     }
 
     /**
-     * Check whether this object has a reference to a collection or data item
+     * Check whether this object has a reference to a collection or data item.
      *
-     * @param  string $namespace 'collections' or 'data'
-     * @param  string $needle
+     * @param string $namespace 'collections' or 'data'
+     * @param string $needle
      *
      * @return bool
      */
-    final public function hasTwigDependency ($namespace, $needle)
+    final public function hasTwigDependency($namespace, $needle)
     {
-        return (in_array($needle, $this->dataDependencies[$namespace]));
+        return in_array($needle, $this->dataDependencies[$namespace]);
     }
 
     /**
-     * Read the file, and parse its contents
+     * Read the file, and parse its contents.
      */
-    final public function refreshFileContent ()
+    final public function refreshFileContent()
     {
         // This function can be called after the initial object was created and the file may have been deleted since the
         // creation of the object.
@@ -257,7 +262,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
         }
 
         $rawFileContents = file_get_contents($this->filePath);
-        $fileStructure   = array();
+        $fileStructure = array();
         preg_match('/---\R(.*?\R)?---(\s+)(.*)/s', $rawFileContents, $fileStructure);
 
         if (count($fileStructure) != 4)
@@ -270,7 +275,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
             throw new InvalidSyntaxException('FrontMatter files must have a body to render', 0, null, $this->getRelativeFilePath());
         }
 
-        $this->lineOffset  = substr_count($fileStructure[1], "\n") + substr_count($fileStructure[2], "\n");
+        $this->lineOffset = substr_count($fileStructure[1], "\n") + substr_count($fileStructure[2], "\n");
         $this->bodyContent = $fileStructure[3];
 
         if (!empty(trim($fileStructure[1])))
@@ -296,11 +301,11 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     }
 
     /**
-     * Get all of the references to either DataItems or ContentItems inside of given string
+     * Get all of the references to either DataItems or ContentItems inside of given string.
      *
      * @param string $filter 'collections' or 'data'
      */
-    private function findTwigDataDependencies ($filter)
+    private function findTwigDataDependencies($filter)
     {
         $regex = '/{[{%](?:.+)?(?:' . $filter . ')(?:\.|\[\')(\w+)(?:\'\])?.+[%}]}/';
         $results = array();
@@ -315,12 +320,13 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     //
 
     /**
-     * Get the permalink of this Content Item
+     * Get the permalink of this Content Item.
+     *
+     * @throws \Exception
      *
      * @return string
-     * @throws \Exception
      */
-    final public function getPermalink ()
+    final public function getPermalink()
     {
         if (!is_null($this->permalink))
         {
@@ -355,11 +361,11 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     }
 
     /**
-     * Get an array of URLs that will redirect to
+     * Get an array of URLs that will redirect to.
      *
      * @return string[]
      */
-    final public function getRedirects ()
+    final public function getRedirects()
     {
         if (is_null($this->redirects))
         {
@@ -375,7 +381,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
      *
      * @return string
      */
-    private function getPathPermalink ()
+    private function getPathPermalink()
     {
         // Remove the protocol of the path, if there is one and prepend a '/' to the beginning
         $cleanPath = preg_replace('/[\w|\d]+:\/\//', '', $this->getRelativeFilePath());
@@ -401,13 +407,13 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     }
 
     /**
-     * Sanitize a permalink to remove unsupported characters or multiple '/' and replace spaces with hyphens
+     * Sanitize a permalink to remove unsupported characters or multiple '/' and replace spaces with hyphens.
      *
-     * @param  string $permalink A permalink
+     * @param string $permalink A permalink
      *
      * @return string $permalink The sanitized permalink
      */
-    private function sanitizePermalink ($permalink)
+    private function sanitizePermalink($permalink)
     {
         // Remove multiple '/' together
         $permalink = preg_replace('/\/+/', '/', $permalink);
@@ -442,7 +448,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     /**
      * {@inheritdoc}
      */
-    final public function evaluateFrontMatter ($variables = null)
+    final public function evaluateFrontMatter($variables = null)
     {
         if (!is_null($variables))
         {
@@ -454,13 +460,13 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     /**
      * {@inheritdoc}
      */
-    final public function getFrontMatter ($evaluateYaml = true)
+    final public function getFrontMatter($evaluateYaml = true)
     {
         if (is_null($this->frontMatter))
         {
             $this->frontMatter = array();
         }
-        else if (!$this->frontMatterEvaluated && $evaluateYaml)
+        elseif (!$this->frontMatterEvaluated && $evaluateYaml)
         {
             $this->evaluateYaml($this->frontMatter);
         }
@@ -471,15 +477,15 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     /**
      * {@inheritdoc}
      */
-    final public function hasExpandedFrontMatter ()
+    final public function hasExpandedFrontMatter()
     {
-        return (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion());
+        return !is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion();
     }
 
     /**
-     * {@inheritdoc
+     * {@inheritdoc.
      */
-    final public function appendFrontMatter (array $frontMatter)
+    final public function appendFrontMatter(array $frontMatter)
     {
         foreach ($frontMatter as $key => $value)
         {
@@ -488,19 +494,22 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     }
 
     /**
-     * {@inheritdoc
+     * {@inheritdoc.
      */
-    final public function deleteFrontMatter ($key)
+    final public function deleteFrontMatter($key)
     {
-        if (!isset($this->writableFrontMatter[$key])) { return; }
+        if (!isset($this->writableFrontMatter[$key]))
+        {
+            return;
+        }
 
         unset($this->writableFrontMatter[$key]);
     }
 
     /**
-     * {@inheritdoc
+     * {@inheritdoc.
      */
-    final public function setFrontMatter (array $frontMatter)
+    final public function setFrontMatter(array $frontMatter)
     {
         if (!is_array($frontMatter))
         {
@@ -513,15 +522,15 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     /**
      * Evaluate an array of data for FrontMatter variables. This function will modify the array in place.
      *
-     * @param  array $yaml An array of data containing FrontMatter variables
+     * @param array $yaml An array of data containing FrontMatter variables
      *
      * @throws YamlVariableUndefinedException A FrontMatter variable used does not exist
      */
-    private function evaluateYaml (&$yaml)
+    private function evaluateYaml(&$yaml)
     {
         try
         {
-            $this->frontMatterParser    = new FrontMatterParser($yaml);
+            $this->frontMatterParser = new FrontMatterParser($yaml);
             $this->frontMatterEvaluated = true;
         }
         catch (\Exception $e)
@@ -537,7 +546,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     /**
      * {@inheritdoc}
      */
-    public function offsetSet ($offset, $value)
+    public function offsetSet($offset, $value)
     {
         if (is_null($offset))
         {
@@ -550,7 +559,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     /**
      * {@inheritdoc}
      */
-    public function offsetExists ($offset)
+    public function offsetExists($offset)
     {
         if (isset($this->writableFrontMatter[$offset]) || isset($this->frontMatter[$offset]))
         {
@@ -558,13 +567,14 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
         }
 
         $fxnCall = 'get' . ucfirst($offset);
+
         return method_exists($this, $fxnCall) && in_array($fxnCall, static::$whiteListFunctions);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset ($offset)
+    public function offsetUnset($offset)
     {
         unset($this->writableFrontMatter[$offset]);
     }
@@ -572,7 +582,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     /**
      * {@inheritdoc}
      */
-    public function offsetGet ($offset)
+    public function offsetGet($offset)
     {
         $fxnCall = 'get' . ucfirst($offset);
 

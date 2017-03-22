@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Twig;
 
 use allejo\stakx\System\Filesystem;
@@ -13,12 +18,12 @@ abstract class TwigFilesystem
     protected $dir;
     protected $path;
 
-    public function __invoke (Twig_Environment $env, $location)
+    public function __invoke(Twig_Environment $env, $location)
     {
-        $this->fs    = new Filesystem();
+        $this->fs = new Filesystem();
         $this->globs = $env->getGlobals();
-        $this->dir   = $this->fs->getFolderPath($this->globs['__currentTemplate']);
-        $this->path  = $this->fs->appendPath($this->dir, $location);
+        $this->dir = $this->fs->getFolderPath($this->globs['__currentTemplate']);
+        $this->path = $this->fs->appendPath($this->dir, $location);
 
         if (is_file($this->path))
         {

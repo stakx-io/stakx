@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\System;
 
 class StakxResource
@@ -9,7 +14,7 @@ class StakxResource
      */
     private static $fs;
 
-    public static function getResource ($fileName)
+    public static function getResource($fileName)
     {
         self::initFileSystem();
 
@@ -18,7 +23,7 @@ class StakxResource
         );
     }
 
-    private static function initFileSystem ()
+    private static function initFileSystem()
     {
         if (is_null(self::$fs))
         {

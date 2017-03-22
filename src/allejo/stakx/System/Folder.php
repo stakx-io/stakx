@@ -1,12 +1,17 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\System;
 
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * All folder paths stored inside of this class will **not** have the ending DIRECTORY_SEPARATOR
+ * All folder paths stored inside of this class will **not** have the ending DIRECTORY_SEPARATOR.
  *
  * @internal
  */
@@ -16,7 +21,7 @@ class Folder
     protected $absolutePath;
     protected $targetDirectories;
 
-    public function __construct ($folderPath)
+    public function __construct($folderPath)
     {
         $this->fs = new Filesystem();
         $this->targetDirectories = array();
@@ -45,18 +50,19 @@ class Folder
         }
     }
 
-    public function __toString ()
+    public function __toString()
     {
         return rtrim($this->absolutePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     }
 
     /**
-     * Set a base folder that will be prefixed before all file writes and copies
+     * Set a base folder that will be prefixed before all file writes and copies.
      *
      * @param string $folderName
+     *
      * @since 0.1.0
      */
-    public function setTargetDirectory ($folderName)
+    public function setTargetDirectory($folderName)
     {
         if (is_null($folderName) || empty($folderName))
         {
@@ -69,14 +75,14 @@ class Folder
     }
 
     /**
-     * Copy a file from an absolute file to a path relative to the Folder's location
+     * Copy a file from an absolute file to a path relative to the Folder's location.
      *
      * @param string $absolutePath The absolute path of the file
      * @param string $targetPath   The relative file path to the Folder's location
      *
      * @since 0.1.0
      */
-    public function copyFile ($absolutePath, $targetPath)
+    public function copyFile($absolutePath, $targetPath)
     {
         $targetPath = ltrim($targetPath, DIRECTORY_SEPARATOR);
 
@@ -88,17 +94,18 @@ class Folder
     }
 
     /**
-     * Write a file with the specified content
+     * Write a file with the specified content.
      *
      * @param string $relativePath The file path relative to this Folder's location
      * @param string $content      The content that will be written to the file
      *
      * @since 0.1.0
+     *
      * @return SplFileInfo
      */
-    public function writeFile ($relativePath, $content)
+    public function writeFile($relativePath, $content)
     {
-        $outputFolder   = $this->fs->getFolderPath($relativePath);
+        $outputFolder = $this->fs->getFolderPath($relativePath);
         $targetFileName = $this->fs->getFileName($outputFolder);
 
         $absoluteFolderPath = $this->buildPath($this->getCwd(), $outputFolder);
@@ -125,7 +132,7 @@ class Folder
      *
      * @return string
      */
-    private function buildPath ($pathFragments)
+    private function buildPath($pathFragments)
     {
         $paths = func_get_args();
 
@@ -133,11 +140,11 @@ class Folder
     }
 
     /**
-     * Returns the absolute path of where files will be placed
+     * Returns the absolute path of where files will be placed.
      *
      * @return string
      */
-    private function getCwd ()
+    private function getCwd()
     {
         $location = array_merge(array($this->absolutePath), $this->targetDirectories);
 

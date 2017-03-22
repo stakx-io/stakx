@@ -23,8 +23,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Kévin Dunglas <dunglas@gmail.com>
  *
- * @link http://www.php-fig.org/psr/psr-3/
- * @link https://github.com/symfony/console/blob/master/Logger/ConsoleLogger.php
+ * @see    http://www.php-fig.org/psr/psr-3/
+ * @see    https://github.com/symfony/console/blob/master/Logger/ConsoleLogger.php
  */
 class StakxLogger extends AbstractLogger
 {
@@ -41,13 +41,13 @@ class StakxLogger extends AbstractLogger
      */
     private $verbosityLevelMap = array(
         LogLevel::EMERGENCY => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::ALERT => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::CRITICAL => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::ERROR => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::WARNING => OutputInterface::VERBOSITY_NORMAL,
-        LogLevel::NOTICE => OutputInterface::VERBOSITY_VERBOSE,
-        LogLevel::INFO => OutputInterface::VERBOSITY_VERY_VERBOSE,
-        LogLevel::DEBUG => OutputInterface::VERBOSITY_DEBUG,
+        LogLevel::ALERT     => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::CRITICAL  => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::ERROR     => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::WARNING   => OutputInterface::VERBOSITY_NORMAL,
+        LogLevel::NOTICE    => OutputInterface::VERBOSITY_VERBOSE,
+        LogLevel::INFO      => OutputInterface::VERBOSITY_VERY_VERBOSE,
+        LogLevel::DEBUG     => OutputInterface::VERBOSITY_DEBUG,
     );
 
     /**
@@ -55,13 +55,13 @@ class StakxLogger extends AbstractLogger
      */
     private $formatLevelMap = array(
         LogLevel::EMERGENCY => self::ERROR,
-        LogLevel::ALERT => self::ERROR,
-        LogLevel::CRITICAL => self::ERROR,
-        LogLevel::ERROR => self::ERROR,
-        LogLevel::WARNING => self::INFO,
-        LogLevel::NOTICE => self::INFO,
-        LogLevel::INFO => self::INFO,
-        LogLevel::DEBUG => self::INFO,
+        LogLevel::ALERT     => self::ERROR,
+        LogLevel::CRITICAL  => self::ERROR,
+        LogLevel::ERROR     => self::ERROR,
+        LogLevel::WARNING   => self::INFO,
+        LogLevel::NOTICE    => self::INFO,
+        LogLevel::INFO      => self::INFO,
+        LogLevel::DEBUG     => self::INFO,
     );
 
     /**
@@ -69,17 +69,17 @@ class StakxLogger extends AbstractLogger
      *
      * @param OutputInterface $output
      */
-    public function __construct (OutputInterface $output)
+    public function __construct(OutputInterface $output)
     {
         $this->output = $output;
     }
 
     /**
-     * Return the OutputInterface object
+     * Return the OutputInterface object.
      *
      * @return OutputInterface
      */
-    public function getOutputInterface ()
+    public function getOutputInterface()
     {
         return $this->output;
     }
@@ -91,9 +91,10 @@ class StakxLogger extends AbstractLogger
      * @param string $message
      * @param array  $context
      */
-    public function log ($level, $message, array $context = array())
+    public function log($level, $message, array $context = array())
     {
-        if (!isset($this->verbosityLevelMap[$level])) {
+        if (!isset($this->verbosityLevelMap[$level]))
+        {
             throw new InvalidArgumentException(sprintf('The log level "%s" does not exist.', $level));
         }
 
@@ -123,9 +124,10 @@ class StakxLogger extends AbstractLogger
      * Writes a message to the output and adds a newline at the end.
      *
      * @param string|array $messages The message as an array of lines of a single string
-     * @param int          $options  A bitmask of options (one of the OUTPUT or VERBOSITY constants), 0 is considered the same as self::OUTPUT_NORMAL | self::VERBOSITY_NORMAL
+     * @param int          $options  A bitmask of options (one of the OUTPUT or VERBOSITY constants), 0 is considered
+     *                               the same as self::OUTPUT_NORMAL | self::VERBOSITY_NORMAL
      */
-    public function writeln ($messages, $options = 0)
+    public function writeln($messages, $options = 0)
     {
         $this->output->writeln($messages, $options);
     }
@@ -144,8 +146,10 @@ class StakxLogger extends AbstractLogger
     {
         // build a replacement array with braces around the context keys
         $replace = array();
-        foreach ($context as $key => $val) {
-            if (!is_array($val) && (!is_object($val) || method_exists($val, '__toString'))) {
+        foreach ($context as $key => $val)
+        {
+            if (!is_array($val) && (!is_object($val) || method_exists($val, '__toString')))
+            {
                 $replace[sprintf('{%s}', $key)] = $val;
             }
         }

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Command;
 
 use allejo\stakx\Exception\FileAwareException;
@@ -11,7 +16,7 @@ class BuildCommand extends BuildableCommand
     /**
      * {@inheritdoc}
      */
-    protected function configure ()
+    protected function configure()
     {
         parent::configure();
 
@@ -22,7 +27,7 @@ class BuildCommand extends BuildableCommand
     /**
      * {@inheritdoc}
      */
-    protected function execute (InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
 
@@ -31,7 +36,7 @@ class BuildCommand extends BuildableCommand
             $this->configureBuild($input);
             $this->website->build();
 
-            $output->writeln(sprintf("Your site built successfully! It can be found at: %s",
+            $output->writeln(sprintf('Your site built successfully! It can be found at: %s',
                 $this->website->getConfiguration()->getTargetFolder() . DIRECTORY_SEPARATOR
             ));
 
@@ -46,7 +51,7 @@ class BuildCommand extends BuildableCommand
         }
         catch (\Exception $e)
         {
-            $output->writeln(sprintf("Your website failed to build with the following error: %s",
+            $output->writeln(sprintf('Your website failed to build with the following error: %s',
                 $e->getMessage()
             ));
         }

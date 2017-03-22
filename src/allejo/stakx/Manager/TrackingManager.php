@@ -12,9 +12,7 @@ use allejo\stakx\System\FileExplorer;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * Class TrackingManager
- *
- * @package allejo\stakx\Manager
+ * Class TrackingManager.
  */
 abstract class TrackingManager extends BaseManager
 {
@@ -24,7 +22,7 @@ abstract class TrackingManager extends BaseManager
     protected $fileExplorer;
 
     /**
-     * An array corresponding with $folderDefinitions to store metadata regarding a specificc folder
+     * An array corresponding with $folderDefinitions to store metadata regarding a specificc folder.
      *
      * $folderDefinitionsOption['<folder path>'] = array()
      *
@@ -33,7 +31,7 @@ abstract class TrackingManager extends BaseManager
     protected $folderDefinitionsOptions;
 
     /**
-     * An array of folders which tracked items are stored in
+     * An array of folders which tracked items are stored in.
      *
      * $folderDefinitions[] = '<folder path>'
      *
@@ -64,7 +62,7 @@ abstract class TrackingManager extends BaseManager
     protected $trackedItemsOptions;
 
     /**
-     * The storage used for either FrontMatterObjects or DataItems in the respective static classes
+     * The storage used for either FrontMatterObjects or DataItems in the respective static classes.
      *
      * $trackedItems['<namespace>']['<file name w/o extension>'] = mixed
      * $trackedItems['<file name w/o extension>'] = mixed
@@ -74,7 +72,7 @@ abstract class TrackingManager extends BaseManager
     protected $trackedItems;
 
     /**
-     * Set to true when file tracking is enabled
+     * Set to true when file tracking is enabled.
      *
      * @var bool
      */
@@ -99,19 +97,19 @@ abstract class TrackingManager extends BaseManager
      *
      * @param bool $enabled
      */
-    public function enableTracking ($enabled)
+    public function enableTracking($enabled)
     {
         $this->tracking = $enabled;
     }
 
     /**
-     * Check to see if the file belongs inside of one the folders being tracked by this manager
+     * Check to see if the file belongs inside of one the folders being tracked by this manager.
      *
-     * @param  string $filePath
+     * @param string $filePath
      *
      * @return bool True if the file is inside a tracked folder
      */
-    public function isHandled ($filePath)
+    public function isHandled($filePath)
     {
         foreach ($this->folderDefinitions as $folder)
         {
@@ -125,13 +123,13 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Check whether a file is tracked
+     * Check whether a file is tracked.
      *
-     * @param  string $filePath The relative path of the file
+     * @param string $filePath The relative path of the file
      *
      * @return bool
      */
-    public function isTracked ($filePath)
+    public function isTracked($filePath)
     {
         return array_key_exists($filePath, $this->trackedItemsFlattened);
     }
@@ -141,19 +139,19 @@ abstract class TrackingManager extends BaseManager
      *
      * @return mixed|null
      */
-    public function createNewItem ($filePath)
+    public function createNewItem($filePath)
     {
         return $this->handleTrackableItem($filePath);
     }
 
     /**
-     * Update the contents of a specified file
+     * Update the contents of a specified file.
      *
      * @param SplFileInfo|string $filePath The relative path of the file
      *
      * @return mixed|null
      */
-    public function refreshItem ($filePath)
+    public function refreshItem($filePath)
     {
         return $this->handleTrackableItem(
             $filePath,
@@ -162,14 +160,14 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Save data to the tracker with a reference to the file it came from
+     * Save data to the tracker with a reference to the file it came from.
      *
      * @param string      $key       The name of the file
      * @param mixed       $data      The data to save the
      * @param string      $filePath  The relative file path from the root of the website
      * @param string|null $namespace The name of the collection this data belongs to, if any
      */
-    protected function addArrayToTracker ($key, $data, $filePath, $namespace = null)
+    protected function addArrayToTracker($key, $data, $filePath, $namespace = null)
     {
         if (is_null($namespace))
         {
@@ -184,13 +182,13 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Add a FrontMatterObject based object to the tracker
+     * Add a FrontMatterObject based object to the tracker.
      *
      * @param FrontMatterObject $trackedItem
      * @param string            $key
      * @param string|null       $namespace
      */
-    protected function addObjectToTracker ($trackedItem, $key, $namespace = null)
+    protected function addObjectToTracker($trackedItem, $key, $namespace = null)
     {
         if (!($trackedItem instanceof FrontMatterObject))
         {
@@ -201,13 +199,13 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Remove all data related to an array that was saved
+     * Remove all data related to an array that was saved.
      *
      * @param string      $key
      * @param string      $filePath
      * @param string|null $namespace
      */
-    protected function delArrayFromTracker ($key, $filePath, $namespace = null)
+    protected function delArrayFromTracker($key, $filePath, $namespace = null)
     {
         if (is_null($namespace))
         {
@@ -222,12 +220,12 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Remove an entry from the tracked items array
+     * Remove an entry from the tracked items array.
      *
      * @param mixed       $trackedItem
      * @param string|null $namespace
      */
-    protected function delObjectFromTracker ($trackedItem, $namespace = null)
+    protected function delObjectFromTracker($trackedItem, $namespace = null)
     {
         $this->delArrayFromTracker(
             $trackedItem->getFileName(),
@@ -237,39 +235,39 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Save a folder that is tracked by this manager and its respective options
+     * Save a folder that is tracked by this manager and its respective options.
      *
      * @param string $folderPath
      * @param array  $options
      */
-    protected function saveFolderDefinition ($folderPath, $options = array())
+    protected function saveFolderDefinition($folderPath, $options = array())
     {
         $this->folderDefinitions[] = $folderPath;
         $this->folderDefinitionsOptions[$folderPath] = $options;
     }
 
     /**
-     * Save any options related to an item needed in order to refresh the content
+     * Save any options related to an item needed in order to refresh the content.
      *
      * @param string $filePath
-     * @param array $options
+     * @param array  $options
      */
-    protected function saveTrackerOptions ($filePath, $options = array())
+    protected function saveTrackerOptions($filePath, $options = array())
     {
         $this->trackedItemsOptions[$filePath] = $options;
     }
 
     /**
-     * Parse the specified folder for items to track
+     * Parse the specified folder for items to track.
      *
      * @param string $path
      * @param mixed  $options  Special options that will be passed to the static::parseTrackableItem() implementation
      * @param array  $includes
      * @param array  $excludes
      */
-    protected function scanTrackableItems ($path, $options = array(), $includes = array(), $excludes = array())
+    protected function scanTrackableItems($path, $options = array(), $includes = array(), $excludes = array())
     {
-        $fileExplorerFlags  = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
+        $fileExplorerFlags = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
         $this->fileExplorer = FileExplorer::create($path, $excludes, $includes, $fileExplorerFlags);
         $fileExplorer = $this->fileExplorer->getExplorer();
 
@@ -280,7 +278,7 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Handle a specific file type, parse it into the appropriate object type, and add it to the tracker
+     * Handle a specific file type, parse it into the appropriate object type, and add it to the tracker.
      *
      * This function should make use of the appropriate functions:
      *
@@ -288,10 +286,10 @@ abstract class TrackingManager extends BaseManager
      *  - TrackingManager::addArrayToTracker()
      *  - TrackingManager::saveTrackerOptions()
      *
-     * @param  SplFileInfo $filePath
-     * @param  mixed       $options
+     * @param SplFileInfo $filePath
+     * @param mixed       $options
      *
      * @return mixed|null
      */
-    abstract protected function handleTrackableItem ($filePath, $options = array());
+    abstract protected function handleTrackableItem($filePath, $options = array());
 }

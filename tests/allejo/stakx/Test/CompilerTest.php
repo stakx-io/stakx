@@ -24,7 +24,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         parent::setUp();
 
         vfsStream::create(array(
-            '_site' => array()
+            '_site' => array(),
         ));
 
         $config = new Configuration();
@@ -32,21 +32,21 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
 
         $twigEnv = new TwigManager();
         $twigEnv->configureTwig($config, array(
-            'safe'    => false,
-            'globals' => array()
+            'safe' => false,
+            'globals' => array(),
         ));
 
         $this->folder = new Folder($this->rootDir->getChild('_site')->url());
     }
 
-    public static function dataProviderStaticPageViews ()
+    public static function dataProviderStaticPageViews()
     {
         return array(
             array('/toast.html', 'toast.html'),
             array('/hello-world/', 'hello-world/index.html'),
             array('/foo/bar/data.json', 'foo/bar/data.json'),
             array('/static-page', 'static-page'),
-            array('/release-0.1.0-name/', 'release-0.1.0-name/index.html')
+            array('/release-0.1.0-name/', 'release-0.1.0-name/index.html'),
         );
     }
 
@@ -56,7 +56,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
      * @param string $permalink
      * @param string $targetPath
      */
-    public function testStaticPageViewWrite ($permalink, $targetPath)
+    public function testStaticPageViewWrite($permalink, $targetPath)
     {
         $pageView = $this->createVirtualFile(PageView::class, array('permalink' => $permalink));
 

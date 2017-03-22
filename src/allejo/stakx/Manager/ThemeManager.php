@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Manager;
 
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -7,8 +12,8 @@ use Symfony\Component\Yaml\Yaml;
 
 class ThemeManager extends AssetManager
 {
-    const THEME_FOLDER = "_themes";
-    const THEME_DEFINITION_FILE = "stakx-theme.yml";
+    const THEME_FOLDER = '_themes';
+    const THEME_DEFINITION_FILE = 'stakx-theme.yml';
 
     private $themeFolderRelative;
     private $themeFolder;
@@ -16,17 +21,17 @@ class ThemeManager extends AssetManager
     private $themeData;
     private $themeName;
 
-    public function __construct ($themeName)
+    public function __construct($themeName)
     {
         parent::__construct();
 
         $this->themeFolderRelative = $this->fs->appendPath(self::THEME_FOLDER, $themeName);
         $this->themeFolder = $this->fs->absolutePath(self::THEME_FOLDER, $themeName);
-        $this->themeName   = $themeName;
-        $this->themeFile   = $this->fs->appendPath($this->themeFolder, self::THEME_DEFINITION_FILE);
-        $this->themeData   = array(
+        $this->themeName = $themeName;
+        $this->themeFile = $this->fs->appendPath($this->themeFolder, self::THEME_DEFINITION_FILE);
+        $this->themeData = array(
             'exclude' => array(),
-            'include'  => array()
+            'include' => array(),
         );
 
         if (!$this->fs->exists($this->themeFolder))
@@ -78,18 +83,18 @@ class ThemeManager extends AssetManager
         $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
 
         return $this->handleTrackableItem($relativeFilePath, array(
-            'prefix' => $this->themeFolderRelative
+            'prefix' => $this->themeFolderRelative,
         ));
     }
 
-    public function copyFiles ()
+    public function copyFiles()
     {
         $this->output->notice('Copying theme files...');
 
         $this->scanTrackableItems(
             $this->themeFolder,
             array(
-                'prefix' => $this->themeFolderRelative
+                'prefix' => $this->themeFolderRelative,
             ),
             array_merge(
                 $this->includes,

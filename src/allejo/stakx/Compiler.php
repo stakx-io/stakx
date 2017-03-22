@@ -25,6 +25,7 @@ use Twig_Template;
  * of writing the rendered Twig to the filesystem.
  *
  * @internal
+ *
  * @since 0.1.1
  */
 class Compiler extends BaseManager
@@ -51,7 +52,7 @@ class Compiler extends BaseManager
     /**
      * @param string|false $template
      */
-    public function setRedirectTemplate ($template)
+    public function setRedirectTemplate($template)
     {
         $this->redirectTemplate = $template;
     }
@@ -59,7 +60,7 @@ class Compiler extends BaseManager
     /**
      * @param Folder $folder
      */
-    public function setTargetFolder (Folder $folder)
+    public function setTargetFolder(Folder $folder)
     {
         $this->folder = $folder;
     }
@@ -67,7 +68,7 @@ class Compiler extends BaseManager
     /**
      * @param PageView[] $pageViews
      */
-    public function setPageViews (array $pageViews)
+    public function setPageViews(array $pageViews)
     {
         $this->pageViews = $pageViews;
     }
@@ -77,11 +78,11 @@ class Compiler extends BaseManager
     ///
 
     /**
-     * Compile all of the PageViews registered with the compiler
+     * Compile all of the PageViews registered with the compiler.
      *
      * @since 0.1.0
      */
-    public function compileAll ()
+    public function compileAll()
     {
         foreach ($this->pageViews as &$pageView)
         {
@@ -90,15 +91,16 @@ class Compiler extends BaseManager
     }
 
     /**
-     * Compile an individual PageView item
+     * Compile an individual PageView item.
      *
      * This function will take care of determining *how* to treat the PageView and write the compiled output to a the
      * respective target file.
      *
      * @param DynamicPageView|RepeaterPageView|PageView $pageView The PageView that needs to be compiled
+     *
      * @since 0.1.1
      */
-    private function compilePageView (&$pageView)
+    private function compilePageView(&$pageView)
     {
         switch ($pageView->getType())
         {
@@ -120,27 +122,29 @@ class Compiler extends BaseManager
     }
 
     /**
-     * Write the compiled output for a static PageView
+     * Write the compiled output for a static PageView.
      *
      * @param PageView $pageView
+     *
      * @since 0.1.1
      */
-    private function compileStaticPageView (&$pageView)
+    private function compileStaticPageView(&$pageView)
     {
         $targetFile = $pageView->getTargetFile();
         $output = $this->renderStaticPageView($pageView);
 
-        $this->output->notice("Writing file: {file}", array('file' => $targetFile));
+        $this->output->notice('Writing file: {file}', array('file' => $targetFile));
         $this->folder->writeFile($targetFile, $output);
     }
 
     /**
-     * Write the compiled output for a dynamic PageView
+     * Write the compiled output for a dynamic PageView.
      *
      * @param DynamicPageView $pageView
+     *
      * @since 0.1.1
      */
-    private function compileDynamicPageViews (&$pageView)
+    private function compileDynamicPageViews(&$pageView)
     {
         $contentItems = $pageView->getContentItems();
         $template = $this->createTwigTemplate($pageView);
@@ -150,18 +154,19 @@ class Compiler extends BaseManager
             $targetFile = $contentItem->getTargetFile();
             $output = $this->renderDynamicPageView($template, $pageView, $contentItem);
 
-            $this->output->notice("Writing file: {file}", array('file' => $targetFile));
+            $this->output->notice('Writing file: {file}', array('file' => $targetFile));
             $this->folder->writeFile($targetFile, $output);
         }
     }
 
     /**
-     * Write the compiled output for a repeater PageView
+     * Write the compiled output for a repeater PageView.
      *
      * @param RepeaterPageView $pageView
+     *
      * @since 0.1.1
      */
-    private function compileRepeaterPageViews (&$pageView)
+    private function compileRepeaterPageViews(&$pageView)
     {
         $pageView->rewindPermalink();
 
@@ -174,7 +179,7 @@ class Compiler extends BaseManager
             $targetFile = $pageView->getTargetFile();
             $output = $this->renderRepeaterPageView($template, $pageView, $permalink);
 
-            $this->output->notice("Writing repeater file: {file}", array('file' => $targetFile));
+            $this->output->notice('Writing repeater file: {file}', array('file' => $targetFile));
             $this->folder->writeFile($targetFile, $output);
         }
     }
@@ -184,12 +189,13 @@ class Compiler extends BaseManager
     ///
 
     /**
-     * Write redirects for standard redirects
+     * Write redirects for standard redirects.
      *
      * @param PageView $pageView
+     *
      * @since 0.1.1
      */
-    private function compileStandardRedirects (&$pageView)
+    private function compileStandardRedirects(&$pageView)
     {
         $redirects = $pageView->getRedirects();
 
@@ -206,12 +212,13 @@ class Compiler extends BaseManager
     }
 
     /**
-     * Write redirects for expanded redirects
+     * Write redirects for expanded redirects.
      *
      * @param RepeaterPageView $pageView
+     *
      * @since 0.1.1
      */
-    private function compileExpandedRedirects (&$pageView)
+    private function compileExpandedRedirects(&$pageView)
     {
         $permalinks = $pageView->getRepeaterPermalinks();
 
@@ -239,86 +246,90 @@ class Compiler extends BaseManager
     ///
 
     /**
-     * Get the compiled HTML for a specific iteration of a repeater PageView
+     * Get the compiled HTML for a specific iteration of a repeater PageView.
      *
      * @param Twig_Template $template
      * @param PageView      $pageView
      * @param ExpandedValue $expandedValue
      *
      * @since  0.1.1
+     *
      * @return string
      */
-    private function renderRepeaterPageView (&$template, &$pageView, &$expandedValue)
+    private function renderRepeaterPageView(&$template, &$pageView, &$expandedValue)
     {
         $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
 
         $pageView->setFrontMatter(array(
             'permalink' => $expandedValue->getEvaluated(),
-            'iterators' => $expandedValue->getIterators()
+            'iterators' => $expandedValue->getIterators(),
         ));
 
         return $template
             ->render(array(
-                'this' => $pageView->createJail()
+                'this' => $pageView->createJail(),
             ));
     }
 
     /**
-     * Get the compiled HTML for a specific ContentItem
+     * Get the compiled HTML for a specific ContentItem.
      *
-     * @param  Twig_Template $template
-     * @param  PageView      $pageView
-     * @param  ContentItem   $contentItem
+     * @param Twig_Template $template
+     * @param PageView      $pageView
+     * @param ContentItem   $contentItem
      *
      * @since  0.1.1
+     *
      * @return string
      */
-    private function renderDynamicPageView (&$template, &$pageView, &$contentItem)
+    private function renderDynamicPageView(&$template, &$pageView, &$contentItem)
     {
         $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
 
         return $template
             ->render(array(
-                'this' => $contentItem->createJail()
+                'this' => $contentItem->createJail(),
             ));
     }
 
     /**
-     * Get the compiled HTML for a static PageView
+     * Get the compiled HTML for a static PageView.
      *
-     * @param  PageView $pageView
+     * @param PageView $pageView
      *
      * @since  0.1.1
-     * @return string
      *
      * @throws \Exception
      * @throws \Throwable
      * @throws Twig_Error_Syntax
+     *
+     * @return string
      */
-    private function renderStaticPageView (&$pageView)
+    private function renderStaticPageView(&$pageView)
     {
         $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
 
         return $this
             ->createTwigTemplate($pageView)
             ->render(array(
-                'this' => $pageView->createJail()
+                'this' => $pageView->createJail(),
             ));
     }
 
     /**
-     * Create a Twig template that just needs an array to render
+     * Create a Twig template that just needs an array to render.
      *
-     * @param  PageView $pageView The PageView whose body will be used for Twig compilation
+     * @param PageView $pageView The PageView whose body will be used for Twig compilation
+     *
      * @since  0.1.1
-     *
-     * @return Twig_Template
      *
      * @throws \Exception
      * @throws \Throwable
      * @throws Twig_Error_Syntax
+     *
+     * @return Twig_Template
      */
-    private function createTwigTemplate (&$pageView)
+    private function createTwigTemplate(&$pageView)
     {
         try
         {

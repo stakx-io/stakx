@@ -25,21 +25,21 @@ use allejo\stakx\System\FileExplorer;
 class PageManager extends TrackingManager
 {
     /**
-     * A reference to the collections available to this website
+     * A reference to the collections available to this website.
      *
      * @var ContentItem[][]
      */
     private $collections;
 
     /**
-     * A place to store a reference to static PageViews with titles
+     * A place to store a reference to static PageViews with titles.
      *
      * @var PageView[]
      */
     private $staticPages;
 
     /**
-     * PageManager constructor
+     * PageManager constructor.
      */
     public function __construct()
     {
@@ -50,45 +50,49 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * Give this manager the collections we'll be using for dynamic PageViews
+     * Give this manager the collections we'll be using for dynamic PageViews.
      *
      * @param ContentItem[][] $collections
+     *
      * @since 0.1.0
      */
-    public function setCollections (&$collections)
+    public function setCollections(&$collections)
     {
         $this->collections = &$collections;
     }
 
     /**
-     * Get all of the PageViews tracked by this manager
+     * Get all of the PageViews tracked by this manager.
      *
      * @since 0.1.0
+     *
      * @return PageView[][]
      */
-    public function getAllPageViews ()
+    public function getAllPageViews()
     {
         return $this->trackedItemsFlattened;
     }
 
     /**
-     * Get the static PageViews tracked by this manager indexed by their title
+     * Get the static PageViews tracked by this manager indexed by their title.
      *
      * @since 0.1.0
+     *
      * @return PageView[]
      */
-    public function getStaticPageViews ()
+    public function getStaticPageViews()
     {
         return $this->staticPages;
     }
 
     /**
-     * Get the jailed version of the static PageViews indexed by their title
+     * Get the jailed version of the static PageViews indexed by their title.
      *
      * @since 0.1.0
+     *
      * @return JailObject[]
      */
-    public function getJailedStaticPageViews ()
+    public function getJailedStaticPageViews()
     {
         $jailedObjects = array();
 
@@ -105,11 +109,15 @@ class PageManager extends TrackingManager
      * dynamic or static PageView.
      *
      * @param string[] $pageViewFolders
+     *
      * @since 0.1.0
      */
-    public function parsePageViews ($pageViewFolders)
+    public function parsePageViews($pageViewFolders)
     {
-        if (empty($pageViewFolders)) { return; }
+        if (empty($pageViewFolders))
+        {
+            return;
+        }
 
         foreach ($pageViewFolders as $pageViewFolderName)
         {
@@ -123,18 +131,19 @@ class PageManager extends TrackingManager
             }
 
             $this->scanTrackableItems($pageViewFolderPath, array(
-                'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES
+                'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES,
             ), array('/.html$/', '/.twig$/'));
         }
     }
 
     /**
-     * Add a new ContentItem to the respective parent PageView of the ContentItem
+     * Add a new ContentItem to the respective parent PageView of the ContentItem.
      *
      * @param ContentItem $contentItem
+     *
      * @since 0.1.0
      */
-    public function trackNewContentItem (&$contentItem)
+    public function trackNewContentItem(&$contentItem)
     {
         $collection = $contentItem->getCollection();
         $this->trackedItems[PageView::DYNAMIC_TYPE][$collection]->addContentItem($contentItem);
@@ -143,9 +152,9 @@ class PageManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem ($filePath, $options = array())
+    protected function handleTrackableItem($filePath, $options = array())
     {
-        $pageView  = PageView::create($filePath);
+        $pageView = PageView::create($filePath);
         $namespace = $pageView->getType();
         $storageKey = $pageView->getRelativeFilePath();
 
@@ -168,25 +177,30 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * Handle special behavior and treatment for static PageViews while we're iterating through them
+     * Handle special behavior and treatment for static PageViews while we're iterating through them.
      *
      * @param PageView $pageView
+     *
      * @since 0.1.0
      */
-    private function handleTrackableStaticPageView (&$pageView)
+    private function handleTrackableStaticPageView(&$pageView)
     {
-        if (empty($pageView['title'])) { return; }
+        if (empty($pageView['title']))
+        {
+            return;
+        }
 
         $this->staticPages[$pageView['title']] = &$pageView;
     }
 
     /**
-     * Handle special behavior and treatment for dynamic PageViews while we're iterating through them
+     * Handle special behavior and treatment for dynamic PageViews while we're iterating through them.
      *
      * @param DynamicPageView $pageView
+     *
      * @since 0.1.0
      */
-    private function handleTrackableDynamicPageView (&$pageView)
+    private function handleTrackableDynamicPageView(&$pageView)
     {
         $frontMatter = $pageView->getFrontMatter(false);
         $collection = $frontMatter['collection'];

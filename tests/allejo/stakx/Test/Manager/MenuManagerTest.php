@@ -17,7 +17,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
     /** @var MenuManager */
     private $mm;
 
-    public function setUp ()
+    public function setUp()
     {
         parent::setUp();
 
@@ -25,7 +25,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->mm->setLogger($this->getMockLogger());
     }
 
-    public function dataProvider_SingleLevelMenu ()
+    public function dataProvider_SingleLevelMenu()
     {
         $pageViews = array();
         $pageViews[] = $this->createVirtualFile(PageView::class, array('permalink' => '/about/'));
@@ -35,7 +35,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         return $pageViews;
     }
 
-    public function dataProvider_SecondLevelMenu ()
+    public function dataProvider_SecondLevelMenu()
     {
         $pageViews = array();
         $pageViews[] = $this->createVirtualFile(PageView::class, array('permalink' => '/authors/'));
@@ -47,7 +47,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         return $pageViews;
     }
 
-    public function dataProvider_SecondLevelMenuWithOrphans ()
+    public function dataProvider_SecondLevelMenuWithOrphans()
     {
         $pageViews = array();
         $pageViews[] = $this->createVirtualFile(PageView::class, array('permalink' => '/authors/michael/'));
@@ -58,7 +58,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         return $pageViews;
     }
 
-    public function dataProvider_ThirdLevelMenu ()
+    public function dataProvider_ThirdLevelMenu()
     {
         $pageViews = array();
         $pageViews[] = $this->createVirtualFile(PageView::class, array('permalink' => '/authors/'));
@@ -72,7 +72,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         return $pageViews;
     }
 
-    public function testSiteMenuCount ()
+    public function testSiteMenuCount()
     {
         $pageViews = $this->dataProvider_SingleLevelMenu();
         $this->mm->buildFromPageViews($pageViews);
@@ -80,7 +80,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(count($pageViews), $this->mm->getSiteMenu());
     }
 
-    public function testSiteMenuIsJailed ()
+    public function testSiteMenuIsJailed()
     {
         $pageViews = $this->dataProvider_SingleLevelMenu();
         $this->mm->buildFromPageViews($pageViews);
@@ -89,7 +89,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertInstanceOf(JailObject::class, reset($menu));
     }
 
-    public function testSiteMenuWithChildren ()
+    public function testSiteMenuWithChildren()
     {
         $pageViews = $this->dataProvider_SecondLevelMenu();
         $this->mm->buildFromPageViews($pageViews);
@@ -99,7 +99,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(3, $menu['authors']->getChildren());
     }
 
-    public function testSiteMenuWithOrphans ()
+    public function testSiteMenuWithOrphans()
     {
         $pageViews = $this->dataProvider_SecondLevelMenuWithOrphans();
         $this->mm->buildFromPageViews($pageViews);
@@ -109,7 +109,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('blog', array_keys($menu)[0]);
     }
 
-    public function testSiteMenuWithGrandchildren ()
+    public function testSiteMenuWithGrandchildren()
     {
         $pageViews = $this->dataProvider_ThirdLevelMenu();
         $this->mm->buildFromPageViews($pageViews);
@@ -121,7 +121,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(3, $authors['english']->getChildren());
     }
 
-    public function testSiteMenuExclusionWithMenuFrontMatter ()
+    public function testSiteMenuExclusionWithMenuFrontMatter()
     {
         $pageViews = array();
         $pageViews[] = $this->createVirtualFile(PageView::class, array('permalink' => '/yes/'));
@@ -135,7 +135,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertNotContains('no', $menu);
     }
 
-    public function testSiteMenuWithEmptyPermalink ()
+    public function testSiteMenuWithEmptyPermalink()
     {
         $pageViews = array();
         $pageViews[] = $this->createVirtualFile(PageView::class, array('permalink' => '/'));
@@ -147,7 +147,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(0, $menu);
     }
 
-    public function testSiteMenuWithChildrenOutOfOrder ()
+    public function testSiteMenuWithChildrenOutOfOrder()
     {
         $pageViews = array();
         $pageViews[] = $this->createVirtualFile(PageView::class, array('permalink' => '/authors/michael/'));
