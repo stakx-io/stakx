@@ -207,7 +207,7 @@ class Compiler extends BaseManager
                 $this->redirectTemplate
             );
 
-            $this->compilePageView($redirectPageView);
+            $this->compileStaticPageView($redirectPageView);
         }
     }
 
