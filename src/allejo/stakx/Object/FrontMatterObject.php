@@ -220,10 +220,10 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     final public function getTargetFile ()
     {
         $permalink = $this->getPermalink();
-        $extension = $this->fs->getExtension($permalink);
+        $missingFile = (substr($permalink, -1) == '/');
         $permalink = str_replace('/', DIRECTORY_SEPARATOR, $permalink);
 
-        if (empty($extension))
+        if ($missingFile)
         {
             $permalink = rtrim($permalink, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.html';
         }

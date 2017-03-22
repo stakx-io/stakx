@@ -34,6 +34,8 @@ class BuildCommand extends BuildableCommand
             $output->writeln(sprintf("Your site built successfully! It can be found at: %s",
                 $this->website->getConfiguration()->getTargetFolder() . DIRECTORY_SEPARATOR
             ));
+
+            return 0;
         }
         catch (FileAwareException $e)
         {
@@ -48,5 +50,7 @@ class BuildCommand extends BuildableCommand
                 $e->getMessage()
             ));
         }
+
+        return 1;
     }
 }

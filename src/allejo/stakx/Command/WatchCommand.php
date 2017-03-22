@@ -33,5 +33,7 @@ class WatchCommand extends BuildableCommand
                 $e->getMessage()
             ));
         }
+
+        return 1;
     }
 }
