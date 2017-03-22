@@ -10,7 +10,7 @@ namespace allejo\stakx\Object;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\StakxResource;
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
+use org\bovigo\vfs\vfsStreamWrapper;
 use Symfony\Component\Yaml\Yaml;
 
 class PageView extends FrontMatterObject
@@ -20,11 +20,6 @@ class PageView extends FrontMatterObject
     const REPEATER_TYPE = 0;
     const DYNAMIC_TYPE = 1;
     const STATIC_TYPE = 2;
-
-    /**
-     * @var vfsStreamDirectory
-     */
-    private static $vfsRoot;
 
     /**
      * @var Filesystem
@@ -179,15 +174,15 @@ class PageView extends FrontMatterObject
      */
     public static function createVirtual($frontMatter, $body)
     {
-        if (is_null(self::$vfsRoot))
+        if (vfsStreamWrapper::getRoot() == null)
         {
-            self::$vfsRoot = vfsStream::setup();
+            vfsStream::setup();
         }
 
-        $redirectFile = vfsStream::newFile(sprintf('%s.html.twig', uniqid()));
+        $redirectFile = vfsStream::newFile(sprintf('redirect_%s.html.twig', uniqid()));
         $redirectFile
             ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $body))
-            ->at(self::$vfsRoot);
+            ->at(vfsStreamWrapper::getRoot());
 
         return new self($redirectFile->url());
     }
