@@ -46,6 +46,24 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         // vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure();
     }
 
+    ///
+    // Assertion functions
+    ///
+
+    protected function assertStringContains($needle, $haystack, $message = '')
+    {
+        $this->assertNotFalse(strpos($haystack, $needle), $message);
+    }
+
+    protected function assertFileContains($fileContent, $filePath, $message = '')
+    {
+        (substr($filePath, -1, 1) == '/') && $filePath .= 'index.html';
+
+        $contents = file_get_contents($filePath);
+
+        $this->assertStringContains($fileContent, $contents, $message);
+    }
+
     //
     // Utility Functions
     //

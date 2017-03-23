@@ -13,6 +13,7 @@ use allejo\stakx\Object\Configuration;
 use allejo\stakx\Object\PageView;
 use allejo\stakx\System\Folder;
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\visitor\vfsStreamStructureVisitor;
 
 class CompilerTest extends PHPUnit_Stakx_TestCase
 {
@@ -66,6 +67,51 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         $compiler->setPageViews(array($pageView));
         $compiler->compileAll();
 
-        $this->assertTrue($this->fs->exists(vfsStream::url('root/_site/' . $targetPath)));
+        $this->assertFileExists(vfsStream::url('root/_site/' . $targetPath));
+    }
+
+    public static function dataProviderStaticPageViewsRedirects()
+    {
+        return array(
+            array(
+                array('/bacon/', '/bacon.html', '/baconator'),
+            ),
+            array(
+                array('/hello.html', '/h', '/hello'),
+            ),
+            array(
+                array('/author/scott/', '/scott/', '/scotty.html'),
+            ),
+            array(
+                array('/category/toast/', '/cat/toast/', '/category-toast.html'),
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider dataProviderStaticPageViewsRedirects
+     *
+     * @param array  $permalinks
+     */
+    public function testStaticPageViewRedirectsWrite(array $permalinks)
+    {
+        /** @var PageView $pageView */
+        $pageView = $this->createVirtualFile(PageView::class, array('permalink' => $permalinks));
+
+        $compiler = new Compiler();
+        $compiler->setLogger($this->getMockLogger());
+        $compiler->setTargetFolder($this->folder);
+        $compiler->setPageViews(array($pageView));
+        $compiler->compileAll();
+        $permalink = array_shift($permalinks);
+
+        $this->assertFileExists(vfsStream::url('root/_site/' . $pageView->getTargetFile()));
+
+        foreach ($permalinks as $redirect)
+        {
+            $uri = vfsStream::url('root/_site' . $redirect);
+            $this->assertFileExists($uri);
+            $this->assertFileContains("0;URL='$permalink'", $uri);
+        }
     }
 }
