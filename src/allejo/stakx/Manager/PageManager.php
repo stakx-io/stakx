@@ -45,6 +45,11 @@ class PageManager extends TrackingManager
     {
         parent::__construct();
 
+        $this->trackedItems = array(
+            PageView::STATIC_TYPE => array(),
+            PageView::DYNAMIC_TYPE => array(),
+            PageView::REPEATER_TYPE => array(),
+        );
         $this->collections = array();
         $this->staticPages = array();
     }
@@ -64,11 +69,37 @@ class PageManager extends TrackingManager
     /**
      * Get all of the PageViews tracked by this manager.
      *
+     * @todo Remove this function
+     * @deprecated Been replaced by getPageViewsFlattened()
      * @since 0.1.0
      *
      * @return PageView[][]
      */
     public function getAllPageViews()
+    {
+        return $this->trackedItemsFlattened;
+    }
+
+    /**
+     * Get all of the PageViews in an associative array with PageView types as the keys
+     *
+     * @since  0.1.1
+     *
+     * @return PageView[][]
+     */
+    public function &getPageViews()
+    {
+        return $this->trackedItems;
+    }
+
+    /**
+     * Get all of the PageViews in flat array
+     *
+     * @since  0.1.1
+     *
+     * @return PageView[]
+     */
+    public function &getPageViewsFlattened()
     {
         return $this->trackedItemsFlattened;
     }

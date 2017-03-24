@@ -60,11 +60,17 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
     public function testStaticPageViewWrite($permalink, $targetPath)
     {
         $pageView = $this->createVirtualFile(PageView::class, array('permalink' => $permalink));
+        $pageViews = array(
+            PageView::STATIC_TYPE => array(&$pageView),
+            PageView::DYNAMIC_TYPE => array(),
+            PageView::REPEATER_TYPE => array(),
+        );
+        $pageViewsFlattened = array(&$pageView);
 
         $compiler = new Compiler();
         $compiler->setLogger($this->getMockLogger());
         $compiler->setTargetFolder($this->folder);
-        $compiler->setPageViews(array($pageView));
+        $compiler->setPageViews($pageViews, $pageViewsFlattened);
         $compiler->compileAll();
 
         $this->assertFileExists(vfsStream::url('root/_site/' . $targetPath));
@@ -97,11 +103,17 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
     {
         /** @var PageView $pageView */
         $pageView = $this->createVirtualFile(PageView::class, array('permalink' => $permalinks));
+        $pageViews = array(
+            PageView::STATIC_TYPE => array(&$pageView),
+            PageView::DYNAMIC_TYPE => array(),
+            PageView::REPEATER_TYPE => array(),
+        );
+        $pageViewsFlattened = array(&$pageView);
 
         $compiler = new Compiler();
         $compiler->setLogger($this->getMockLogger());
         $compiler->setTargetFolder($this->folder);
-        $compiler->setPageViews(array($pageView));
+        $compiler->setPageViews($pageViews, $pageViewsFlattened);
         $compiler->compileAll();
         $permalink = array_shift($permalinks);
 

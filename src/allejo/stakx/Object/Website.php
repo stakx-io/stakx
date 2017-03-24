@@ -171,7 +171,7 @@ class Website
         $this->compiler = new Compiler();
         $this->compiler->setLogger($this->output);
         $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
-        $this->compiler->setPageViews($this->pm->getAllPageViews());
+        $this->compiler->setPageViews($this->pm->getPageViews(), $this->pm->getPageViewsFlattened());
         $this->compiler->setTargetFolder($this->outputDirectory);
         $this->compiler->compileAll();
 

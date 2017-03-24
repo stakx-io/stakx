@@ -34,6 +34,9 @@ class Compiler extends BaseManager
     private $redirectTemplate;
 
     /** @var PageView[] */
+    private $pageViewsFlattened;
+
+    /** @var PageView[][] */
     private $pageViews;
 
     /** @var Folder */
@@ -66,11 +69,13 @@ class Compiler extends BaseManager
     }
 
     /**
-     * @param PageView[] $pageViews
+     * @param PageView[][] $pageViews
+     * @param PageView[]   $pageViewsFlattened
      */
-    public function setPageViews(array $pageViews)
+    public function setPageViews(array &$pageViews, array &$pageViewsFlattened)
     {
-        $this->pageViews = $pageViews;
+        $this->pageViews = &$pageViews;
+        $this->pageViewsFlattened = &$pageViewsFlattened;
     }
 
     ///
@@ -84,7 +89,7 @@ class Compiler extends BaseManager
      */
     public function compileAll()
     {
-        foreach ($this->pageViews as &$pageView)
+        foreach ($this->pageViewsFlattened as &$pageView)
         {
             $this->compilePageView($pageView);
         }
