@@ -95,6 +95,18 @@ class Compiler extends BaseManager
         }
     }
 
+    public function compileSome ($filter = array())
+    {
+        /** @var PageView $pageView */
+        foreach ($this->pageViewsFlattened as &$pageView)
+        {
+            if ($pageView->hasTwigDependency($filter['namespace'], $filter['dependency']))
+            {
+                $this->compilePageView($pageView);
+            }
+        }
+    }
+
     /**
      * Compile an individual PageView item.
      *
@@ -154,7 +166,7 @@ class Compiler extends BaseManager
         $contentItems = $pageView->getContentItems();
         $template = $this->createTwigTemplate($pageView);
 
-        foreach ($contentItems as $contentItem)
+        foreach ($contentItems as &$contentItem)
         {
             $targetFile = $contentItem->getTargetFile();
             $output = $this->renderDynamicPageView($template, $pageView, $contentItem);
@@ -187,6 +199,26 @@ class Compiler extends BaseManager
             $this->output->notice('Writing repeater file: {file}', array('file' => $targetFile));
             $this->folder->writeFile($targetFile, $output);
         }
+    }
+
+    /**
+     * @deprecated
+     * @todo This function needs to be rewritten or removed. Something
+     *
+     * @param ContentItem $contentItem
+     */
+    public function compileContentItem(&$contentItem)
+    {
+        $pageView = $contentItem->getPageView();
+        $template = $this->createTwigTemplate($pageView);
+
+        $contentItem->evaluateFrontMatter($pageView->getFrontMatter(false));
+
+        $targetFile = $contentItem->getTargetFile();
+        $output = $this->renderDynamicPageView($template, $pageView, $contentItem);
+
+        $this->output->notice('Writing file: {file}', array('file' => $targetFile));
+        $this->folder->writeFile($targetFile, $output);
     }
 
     ///

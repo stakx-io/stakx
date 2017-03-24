@@ -361,24 +361,24 @@ class Website
         elseif ($this->cm->isHandled($filePath))
         {
             $contentItem = $this->cm->createNewItem($filePath);
+            TwigManager::getInstance()->addGlobal('collections', $this->cm->getCollections());
 
-            $this->pm->updateTwigVariable('collections', $this->cm->getCollections());
             $this->pm->trackNewContentItem($contentItem);
-//            $this->pm->compileContentItem($contentItem);
-//            $this->pm->compileSome(array(
-//                'namespace' => 'collections',
-//                'dependency' => $contentItem->getCollection()
-//            ));
+            $this->compiler->compileContentItem($contentItem);
+            $this->compiler->compileSome(array(
+                'namespace' => 'collections',
+                'dependency' => $contentItem->getCollection()
+            ));
         }
         elseif ($this->dm->isHandled($filePath))
         {
             $change = $this->dm->createNewItem($filePath);
+            TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
 
-            $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
-//            $this->pm->compileSome(array(
-//                'namespace' => 'data',
-//                'dependency' => $change
-//            ));
+            $this->compiler->compileSome(array(
+                'namespace' => 'data',
+                'dependency' => $change
+            ));
         }
         elseif (!is_null($this->tm) && $this->tm->isHandled($filePath))
         {
@@ -403,21 +403,21 @@ class Website
             $contentItem = &$this->cm->getContentItem($filePath);
             $contentItem->refreshFileContent();
 
-//            $this->pm->compileContentItem($contentItem);
-//            $this->pm->compileSome(array(
-//                'namespace' => 'collections',
-//                'dependency' => $contentItem->getCollection()
-//            ));
+            $this->compiler->compileContentItem($contentItem);
+            $this->compiler->compileSome(array(
+                'namespace' => 'collections',
+                'dependency' => $contentItem->getCollection()
+            ));
         }
         elseif ($this->dm->isTracked($filePath))
         {
             $change = $this->dm->refreshItem($filePath);
+            TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
 
-//            $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
-//            $this->pm->compileSome(array(
-//                'namespace' => 'data',
-//                'dependency' => $change
-//            ));
+            $this->compiler->compileSome(array(
+                'namespace' => 'data',
+                'dependency' => $change
+            ));
         }
         elseif (!is_null($this->tm) && $this->tm->isTracked($filePath))
         {
