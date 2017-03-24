@@ -24,7 +24,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             'collection' => 'books',
             'permalink' => '/blog/%title/',
         ));
-        $collections = $this->bookCollectionProvider(true);
+        $collections = $this->bookCollectionProvider();
         $pageManager = new PageManager();
         $pageManager->setLogger($this->getMockLogger());
         $pageManager->setCollections($collections);
@@ -42,7 +42,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             'collection' => 'books',
             'permalink' => '/blog/%title/',
         ));
-        $collections = $this->bookCollectionProvider(true);
+        $collections = $this->bookCollectionProvider();
 
         $pageManager = new PageManager();
         $pageManager->setLogger($this->getMockLogger());
@@ -64,7 +64,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             'collection' => 'non-existent',
             'permalink' => '/blog/%title/',
         ));
-        $collections = $this->bookCollectionProvider(true);
+        $collections = $this->bookCollectionProvider();
         $pageManager = new PageManager();
         $pageManager->setLogger($this->getMockLogger());
         $pageManager->setCollections($collections);
@@ -121,7 +121,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             'collection' => 'books',
             'permalink' => '/blog/%title/',
         ));
-        $collections = $this->bookCollectionProvider(true);
+        $collections = $this->bookCollectionProvider();
 
         $pageManager = new PageManager();
         $pageManager->setLogger($this->getMockLogger());

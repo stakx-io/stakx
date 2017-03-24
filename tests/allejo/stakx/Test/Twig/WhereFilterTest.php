@@ -185,7 +185,7 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
      */
     public function testWhereFilterContentItemAssertCount($fm, $comparison, $value, $count)
     {
-        $collections = $this->bookCollectionProvider();
+        $collections = $this->bookCollectionProvider(true);
         $books = $collections['books'];
         $filter = new WhereFilter();
 

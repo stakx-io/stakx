@@ -79,7 +79,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
             ),
         ));
 
-        return ($jailed) ? $cm->getCollections() : $cm->getJailedCollections();
+        return (!$jailed) ? $cm->getCollections() : $cm->getJailedCollections();
     }
 
     /**
