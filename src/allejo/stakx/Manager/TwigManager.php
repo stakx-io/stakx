@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Configuration;
 use allejo\stakx\Engines\Markdown\TwigMarkdownEngine;
-use allejo\stakx\Object\Configuration;
 use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Twig\TextExtension;
 use allejo\stakx\Twig\TwigExtension;

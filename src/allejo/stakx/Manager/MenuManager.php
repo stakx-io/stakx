@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Object\JailObject;
-use allejo\stakx\Object\PageView;
+use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\Document\PageView;
 
 class MenuManager extends BaseManager
 {
@@ -25,7 +25,7 @@ class MenuManager extends BaseManager
     /**
      * An array representing the website's menu structure with children and grandchildren made from static PageViews.
      *
-     * @return JailObject[]
+     * @return JailedDocument[]
      */
     public function getSiteMenu()
     {

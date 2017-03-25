@@ -7,12 +7,12 @@
 
 namespace allejo\stakx\Test\Manager;
 
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\DynamicPageView;
+use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\Document\PageView;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Manager\PageManager;
-use allejo\stakx\Object\ContentItem;
-use allejo\stakx\Object\DynamicPageView;
-use allejo\stakx\Object\JailObject;
-use allejo\stakx\Object\PageView;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Test\StreamInterceptor;
 
@@ -112,7 +112,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $pageViews = $pageManager->getJailedStaticPageViews();
 
         $this->assertCount(2, $pageViews);
-        $this->assertInstanceOf(JailObject::class, current($pageViews));
+        $this->assertInstanceOf(JailedDocument::class, current($pageViews));
     }
 
     public function testAddingContentItemToPageView()

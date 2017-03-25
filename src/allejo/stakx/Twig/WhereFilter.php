@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\Twig;
 
-use allejo\stakx\Object\FrontMatterObject;
-use allejo\stakx\Object\JailObject;
+use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\FrontMatter\Document;
 use Twig_Error_Syntax;
 
 /**
@@ -127,12 +127,12 @@ class WhereFilter
             return false;
         }
 
-        if (!($array instanceof JailObject))
+        if (!($array instanceof JailedDocument))
         {
             return false;
         }
 
-        if ($array->coreInstanceOf(FrontMatterObject::class) && !isset($array[$key]))
+        if ($array->coreInstanceOf(Document::class) && !isset($array[$key]))
         {
             if ($comparison == '==' && is_null($value))
             {

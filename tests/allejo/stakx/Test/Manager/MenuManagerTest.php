@@ -7,9 +7,9 @@
 
 namespace allejo\stakx\Test\Manager;
 
+use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\Document\PageView;
 use allejo\stakx\Manager\MenuManager;
-use allejo\stakx\Object\JailObject;
-use allejo\stakx\Object\PageView;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class MenuManagerTest extends PHPUnit_Stakx_TestCase
@@ -86,7 +86,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->mm->buildFromPageViews($pageViews);
         $menu = $this->mm->getSiteMenu();
 
-        $this->assertInstanceOf(JailObject::class, reset($menu));
+        $this->assertInstanceOf(JailedDocument::class, reset($menu));
     }
 
     public function testSiteMenuWithChildren()
@@ -159,7 +159,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
 
         $this->assertCount(1, $menu);
         $this->assertArrayHasKey('authors', $menu);
-        $this->assertInstanceOf(JailObject::class, $menu['authors']);
+        $this->assertInstanceOf(JailedDocument::class, $menu['authors']);
         $this->assertCount(2, $menu['authors']->getChildren());
     }
 }

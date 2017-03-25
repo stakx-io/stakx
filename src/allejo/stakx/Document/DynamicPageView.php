@@ -5,7 +5,7 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx\Document;
 
 class DynamicPageView extends PageView
 {

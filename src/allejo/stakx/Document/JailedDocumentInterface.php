@@ -5,19 +5,19 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx\Document;
 
 /**
  * Allows an object to be stored in a JailObject.
  *
- * @see JailObject
+ * @see JailedDocument
  */
-interface Jailable
+interface JailedDocumentInterface
 {
     /**
      * Create a JailObject instance from the object implementing this interface.
      *
-     * @return JailObject
+     * @return JailedDocument
      */
     public function createJail();
 }

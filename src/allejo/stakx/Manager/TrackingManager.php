@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Object\FrontMatterObject;
+use allejo\stakx\FrontMatter\Document;
 use allejo\stakx\System\FileExplorer;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -184,13 +184,13 @@ abstract class TrackingManager extends BaseManager
     /**
      * Add a FrontMatterObject based object to the tracker.
      *
-     * @param FrontMatterObject $trackedItem
-     * @param string            $key
-     * @param string|null       $namespace
+     * @param Document    $trackedItem
+     * @param string      $key
+     * @param string|null $namespace
      */
     protected function addObjectToTracker($trackedItem, $key, $namespace = null)
     {
-        if (!($trackedItem instanceof FrontMatterObject))
+        if (!($trackedItem instanceof Document))
         {
             throw new \InvalidArgumentException('Only objects can be added to the tracker');
         }

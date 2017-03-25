@@ -7,13 +7,13 @@
 
 namespace allejo\stakx;
 
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\DynamicPageView;
+use allejo\stakx\Document\PageView;
+use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\BaseManager;
 use allejo\stakx\Manager\TwigManager;
-use allejo\stakx\Object\ContentItem;
-use allejo\stakx\Object\DynamicPageView;
-use allejo\stakx\Object\PageView;
-use allejo\stakx\Object\RepeaterPageView;
 use allejo\stakx\System\Folder;
 use Twig_Environment;
 use Twig_Error_Syntax;
@@ -95,7 +95,7 @@ class Compiler extends BaseManager
         }
     }
 
-    public function compileSome ($filter = array())
+    public function compileSome($filter = array())
     {
         /** @var PageView $pageView */
         foreach ($this->pageViewsFlattened as &$pageView)
@@ -203,6 +203,7 @@ class Compiler extends BaseManager
 
     /**
      * @deprecated
+     *
      * @todo This function needs to be rewritten or removed. Something
      *
      * @param ContentItem $contentItem

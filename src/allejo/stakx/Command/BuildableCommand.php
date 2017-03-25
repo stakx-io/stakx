@@ -7,9 +7,9 @@
 
 namespace allejo\stakx\Command;
 
-use allejo\stakx\Object\Configuration;
-use allejo\stakx\Object\Website;
+use allejo\stakx\Configuration;
 use allejo\stakx\System\Filesystem;
+use allejo\stakx\Website;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

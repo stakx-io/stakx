@@ -5,9 +5,8 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx;
 
-use allejo\stakx\Compiler;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\CollectionManager;
@@ -366,8 +365,8 @@ class Website
             $this->pm->trackNewContentItem($contentItem);
             $this->compiler->compileContentItem($contentItem);
             $this->compiler->compileSome(array(
-                'namespace' => 'collections',
-                'dependency' => $contentItem->getCollection()
+                'namespace'  => 'collections',
+                'dependency' => $contentItem->getCollection(),
             ));
         }
         elseif ($this->dm->isHandled($filePath))
@@ -376,8 +375,8 @@ class Website
             TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
 
             $this->compiler->compileSome(array(
-                'namespace' => 'data',
-                'dependency' => $change
+                'namespace'  => 'data',
+                'dependency' => $change,
             ));
         }
         elseif (!is_null($this->tm) && $this->tm->isHandled($filePath))
@@ -405,8 +404,8 @@ class Website
 
             $this->compiler->compileContentItem($contentItem);
             $this->compiler->compileSome(array(
-                'namespace' => 'collections',
-                'dependency' => $contentItem->getCollection()
+                'namespace'  => 'collections',
+                'dependency' => $contentItem->getCollection(),
             ));
         }
         elseif ($this->dm->isTracked($filePath))
@@ -415,8 +414,8 @@ class Website
             TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
 
             $this->compiler->compileSome(array(
-                'namespace' => 'data',
-                'dependency' => $change
+                'namespace'  => 'data',
+                'dependency' => $change,
             ));
         }
         elseif (!is_null($this->tm) && $this->tm->isTracked($filePath))

@@ -7,11 +7,11 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\DynamicPageView;
+use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\Document\PageView;
 use allejo\stakx\Exception\CollectionNotFoundException;
-use allejo\stakx\Object\ContentItem;
-use allejo\stakx\Object\DynamicPageView;
-use allejo\stakx\Object\JailObject;
-use allejo\stakx\Object\PageView;
 use allejo\stakx\System\FileExplorer;
 
 /**
@@ -46,8 +46,8 @@ class PageManager extends TrackingManager
         parent::__construct();
 
         $this->trackedItems = array(
-            PageView::STATIC_TYPE => array(),
-            PageView::DYNAMIC_TYPE => array(),
+            PageView::STATIC_TYPE   => array(),
+            PageView::DYNAMIC_TYPE  => array(),
             PageView::REPEATER_TYPE => array(),
         );
         $this->collections = array();
@@ -69,9 +69,10 @@ class PageManager extends TrackingManager
     /**
      * Get all of the PageViews tracked by this manager.
      *
-     * @todo Remove this function
+     * @todo       Remove this function
+     *
      * @deprecated Been replaced by getPageViewsFlattened()
-     * @since 0.1.0
+     * @since      0.1.0
      *
      * @return PageView[][]
      */
@@ -81,7 +82,7 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * Get all of the PageViews in an associative array with PageView types as the keys
+     * Get all of the PageViews in an associative array with PageView types as the keys.
      *
      * @since  0.1.1
      *
@@ -93,7 +94,7 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * Get all of the PageViews in flat array
+     * Get all of the PageViews in flat array.
      *
      * @since  0.1.1
      *
@@ -121,7 +122,7 @@ class PageManager extends TrackingManager
      *
      * @since 0.1.0
      *
-     * @return JailObject[]
+     * @return JailedDocument[]
      */
     public function getJailedStaticPageViews()
     {

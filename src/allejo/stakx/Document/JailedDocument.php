@@ -5,7 +5,7 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx\Document;
 
 /**
  * Class JailObject.
@@ -13,7 +13,7 @@ namespace allejo\stakx\Object;
  * A wrapper object to only allow certain functions on the white list to be called. This is used in order to limit which
  * functions a user can call from Twig templates to prevent unexpected behavior.
  */
-class JailObject implements \ArrayAccess
+class JailedDocument implements \ArrayAccess
 {
     /**
      * @var string[]
@@ -26,20 +26,20 @@ class JailObject implements \ArrayAccess
     private $jailedFunctions;
 
     /**
-     * @var Jailable
+     * @var JailedDocumentInterface
      */
     private $object;
 
     /**
      * JailObject constructor.
      *
-     * @param Jailable $object             The object that will be jailed
-     * @param array    $whiteListFunctions A list of function names that can be called
-     * @param array    $jailedFunctions
+     * @param JailedDocumentInterface $object             The object that will be jailed
+     * @param array                   $whiteListFunctions A list of function names that can be called
+     * @param array                   $jailedFunctions
      */
     public function __construct(&$object, array $whiteListFunctions, array $jailedFunctions = array())
     {
-        if (!($object instanceof Jailable) && !($object instanceof \ArrayAccess))
+        if (!($object instanceof JailedDocumentInterface) && !($object instanceof \ArrayAccess))
         {
             throw new \InvalidArgumentException('Must implement the ArrayAccess and Jailable interfaces');
         }

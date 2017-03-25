@@ -7,9 +7,9 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
-use allejo\stakx\Object\ContentItem;
-use allejo\stakx\Object\JailObject;
 
 /**
  * The class that reads and saves information about all of the collections.
@@ -55,7 +55,7 @@ class CollectionManager extends TrackingManager
     /**
      * A jailed representation of CollectionManager::getCollections().
      *
-     * @return JailObject[][]
+     * @return JailedDocument[][]
      */
     public function getJailedCollections()
     {

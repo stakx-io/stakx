@@ -5,14 +5,15 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx\Document;
 
 use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\PlainTextEngine;
 use allejo\stakx\Engines\RST\RstEngine;
+use allejo\stakx\FrontMatter\Document;
 use allejo\stakx\Manager\TwigManager;
 
-class ContentItem extends FrontMatterObject implements \JsonSerializable
+class ContentItem extends Document implements \JsonSerializable
 {
     /**
      * The collection this Content Item belongs to.
@@ -33,7 +34,7 @@ class ContentItem extends FrontMatterObject implements \JsonSerializable
      */
     public function createJail()
     {
-        return new JailObject($this, array_merge(self::$whiteListFunctions, array(
+        return new JailedDocument($this, array_merge(self::$whiteListFunctions, array(
             'getCollection',
         )), array('getPageView' => 'getJailedPageView'));
     }

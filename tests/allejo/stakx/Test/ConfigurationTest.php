@@ -5,10 +5,9 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Test\Object;
+namespace allejo\stakx\Test;
 
-use allejo\stakx\Object\Configuration;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Configuration;
 use org\bovigo\vfs\vfsStream;
 
 class ConfigurationTests extends PHPUnit_Stakx_TestCase

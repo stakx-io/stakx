@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\Test\FrontMatter;
 
+use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Exception\InvalidSyntaxException;
-use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class FrontMatterFormatTest extends PHPUnit_Stakx_TestCase

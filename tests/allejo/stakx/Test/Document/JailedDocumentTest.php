@@ -5,13 +5,13 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Test\Object;
+namespace allejo\stakx\Test\Document;
 
-use allejo\stakx\Object\ContentItem;
-use allejo\stakx\Object\PageView;
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\PageView;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
-class JailObjectTests extends PHPUnit_Stakx_TestCase
+class JailedDocumentTests extends PHPUnit_Stakx_TestCase
 {
     public function getJailObject()
     {

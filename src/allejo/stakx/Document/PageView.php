@@ -5,18 +5,17 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx\Document;
 
+use allejo\stakx\FrontMatter\Document;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\StakxResource;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 use Symfony\Component\Yaml\Yaml;
 
-class PageView extends FrontMatterObject
+class PageView extends Document
 {
-    const TEMPLATE = "---\n%s\n---\n\n%s";
-
     const REPEATER_TYPE = 0;
     const DYNAMIC_TYPE = 1;
     const STATIC_TYPE = 2;
@@ -37,7 +36,7 @@ class PageView extends FrontMatterObject
     private $children;
 
     /**
-     * @var JailObject
+     * @var JailedDocument
      */
     private $jailInstance;
 
@@ -63,7 +62,7 @@ class PageView extends FrontMatterObject
     {
         if (is_null($this->jailInstance))
         {
-            $this->jailInstance = (new JailObject($this, array_merge(self::$whiteListFunctions, array(
+            $this->jailInstance = (new JailedDocument($this, array_merge(self::$whiteListFunctions, array(
                 'getUrl',
             )), array('getChildren' => 'getJailedChildren')));
         }

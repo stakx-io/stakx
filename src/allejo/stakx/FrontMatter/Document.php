@@ -5,12 +5,12 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx\FrontMatter;
 
+use allejo\stakx\Document\JailedDocumentInterface;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
-use allejo\stakx\FrontMatter\FrontMatterParser;
-use allejo\stakx\FrontMatter\YamlVariableUndefinedException;
+use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\System\Filesystem;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -18,8 +18,10 @@ use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAccess
+abstract class Document implements WritableDocumentInterface, JailedDocumentInterface, \ArrayAccess
 {
+    const TEMPLATE = "---\n%s\n---\n\n%s";
+
     protected static $whiteListFunctions = array(
         'getPermalink', 'getRedirects', 'getTargetFile', 'getName', 'getFilePath', 'getRelativeFilePath', 'getContent',
         'getExtension', 'getFrontMatter'
@@ -60,7 +62,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     protected $frontMatterEvaluated;
 
     /**
-     * @var FrontMatterParser
+     * @var Parser
      */
     protected $frontMatterParser;
 
@@ -530,7 +532,7 @@ abstract class FrontMatterObject implements FrontMatterable, Jailable, \ArrayAcc
     {
         try
         {
-            $this->frontMatterParser = new FrontMatterParser($yaml);
+            $this->frontMatterParser = new Parser($yaml);
             $this->frontMatterEvaluated = true;
         }
         catch (\Exception $e)

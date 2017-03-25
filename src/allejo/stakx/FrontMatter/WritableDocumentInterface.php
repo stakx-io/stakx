@@ -5,9 +5,9 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Object;
+namespace allejo\stakx\FrontMatter;
 
-interface FrontMatterable
+interface WritableDocumentInterface
 {
     /**
      * Evaluate the FrontMatter in this object by merging a custom array of data.

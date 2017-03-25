@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Test\Twig;
 
-use allejo\stakx\Object\PageView;
+use allejo\stakx\Document\PageView;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Twig\BaseUrlFunction;

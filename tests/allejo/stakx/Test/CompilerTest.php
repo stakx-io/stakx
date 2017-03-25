@@ -8,12 +8,12 @@
 namespace allejo\stakx\Test;
 
 use allejo\stakx\Compiler;
+use allejo\stakx\Configuration;
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\DynamicPageView;
+use allejo\stakx\Document\PageView;
+use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Manager\TwigManager;
-use allejo\stakx\Object\Configuration;
-use allejo\stakx\Object\ContentItem;
-use allejo\stakx\Object\DynamicPageView;
-use allejo\stakx\Object\PageView;
-use allejo\stakx\Object\RepeaterPageView;
 use allejo\stakx\System\Folder;
 use org\bovigo\vfs\vfsStream;
 
@@ -70,7 +70,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
     /**
      * @dataProvider dataProviderStaticPageViewsRedirects
      *
-     * @param array  $permalinks
+     * @param array $permalinks
      */
     public function testStaticPageViewRedirectsWrite(array $permalinks)
     {

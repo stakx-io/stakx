@@ -7,9 +7,11 @@
 
 namespace allejo\stakx\FrontMatter;
 
+use allejo\stakx\FrontMatter\Exception\YamlUnsupportedVariableException;
+use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\Utilities\ArrayUtilities;
 
-class FrontMatterParser
+class Parser
 {
     /**
      * The RegEx used to identify Front Matter variables.
