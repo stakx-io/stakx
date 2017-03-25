@@ -1,12 +1,8 @@
 <?php
 
 /**
- * This file contains the DataManager class
- *
- * This file is part of the Stakx project.
- *
- * @copyright 2016 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
@@ -15,7 +11,7 @@ use allejo\stakx\Exception\DependencyMissingException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class DataManager
+ * Class DataManager.
  *
  * This class handles everything in regards to DataItems and DataSets. This class supports reading the following data
  * types:
@@ -24,17 +20,15 @@ use Symfony\Component\Yaml\Yaml;
  *   - JSON
  *   - XML
  *   - YAML
- *
- * @package allejo\stakx\Object
  */
 class DataManager extends TrackingManager
 {
     /**
-     * Get all of the DataItems and DataSets in this manager
+     * Get all of the DataItems and DataSets in this manager.
      *
      * @return array
      */
-    public function getDataItems ()
+    public function getDataItems()
     {
         return $this->trackedItems;
     }
@@ -44,11 +38,14 @@ class DataManager extends TrackingManager
      *
      * For each folder, supported file type is read, parsed, and made available through `$this->getDataItems()`
      *
-     * @param string[] $folders  An array of folders to be searched for to contain DataItems
+     * @param string[] $folders An array of folders to be searched for to contain DataItems
      */
-    public function parseDataItems ($folders)
+    public function parseDataItems($folders)
     {
-        if ($folders === null) { return; }
+        if ($folders === null)
+        {
+            return;
+        }
 
         foreach ($folders as $folder)
         {
@@ -63,28 +60,31 @@ class DataManager extends TrackingManager
     }
 
     /**
-     * Loop through all of the DataSets specified in `$dataSets`. Each DataSet contains a name and a folder location
+     * Loop through all of the DataSets specified in `$dataSets`. Each DataSet contains a name and a folder location.
      *
      * For each folder, supported file type is read, parsed, and made available through `$this->getDataItems()`
      *
      * @param string[] $dataSets An array of DataSets
      */
-    public function parseDataSets ($dataSets)
+    public function parseDataSets($dataSets)
     {
-        if ($dataSets === null) { return; }
+        if ($dataSets === null)
+        {
+            return;
+        }
 
         /**
-         * The information which each DataSet has from the configuration file
+         * The information which each DataSet has from the configuration file.
          *
          * $dataSet['name']   string The name of the collection
          *         ['folder'] string The folder where this collection has its ContentItems
          *
-         * @var $dataSet array
+         * @var array
          */
         foreach ($dataSets as $dataSet)
         {
             $this->saveFolderDefinition($dataSet['folder'], array(
-                'namespace' => $dataSet['name']
+                'namespace' => $dataSet['name'],
             ));
             $this->scanTrackableItems(
                 $dataSet['folder'],
@@ -98,11 +98,11 @@ class DataManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem ($filePath, $options = array())
+    protected function handleTrackableItem($filePath, $options = array())
     {
         $relFilePath = $this->fs->getRelativePath($filePath);
-        $ext     = strtolower($this->fs->getExtension($filePath));
-        $name    = $this->fs->getBaseName($filePath);
+        $ext = strtolower($this->fs->getExtension($filePath));
+        $name = $this->fs->getBaseName($filePath);
         $content = file_get_contents($filePath);
         $fxnName = 'from' . ucfirst($ext);
 
@@ -126,17 +126,17 @@ class DataManager extends TrackingManager
     }
 
     /**
-     * Convert from CSV into an associative array
+     * Convert from CSV into an associative array.
      *
-     * @param  string $content CSV formatted text
+     * @param string $content CSV formatted text
      *
      * @return array
      */
-    private function fromCsv ($content)
+    private function fromCsv($content)
     {
-        $rows    = array_map("str_getcsv", explode("\n", trim($content)));
+        $rows = array_map('str_getcsv', explode("\n", trim($content)));
         $columns = array_shift($rows);
-        $csv     = array();
+        $csv = array();
 
         foreach ($rows as $row)
         {
@@ -147,49 +147,49 @@ class DataManager extends TrackingManager
     }
 
     /**
-     * Convert from JSON into an associative array
+     * Convert from JSON into an associative array.
      *
-     * @param  string $content JSON formatted text
+     * @param string $content JSON formatted text
      *
      * @return array
      */
-    private function fromJson ($content)
+    private function fromJson($content)
     {
         return json_decode($content, true);
     }
 
     /**
-     * Convert from XML into an associative array
+     * Convert from XML into an associative array.
      *
-     * @param  string $content XML formatted text
+     * @param string $content XML formatted text
      *
      * @return array
      */
-    private function fromXml ($content)
+    private function fromXml($content)
     {
         return json_decode(json_encode(simplexml_load_string($content)), true);
     }
 
     /**
-     * Convert from YAML into an associative array
+     * Convert from YAML into an associative array.
      *
-     * @param  string $content YAML formatted text
+     * @param string $content YAML formatted text
      *
      * @return array
      */
-    private function fromYaml ($content)
+    private function fromYaml($content)
     {
         return Yaml::parse($content, Yaml::PARSE_DATETIME);
     }
 
     /**
-     * An alias for handling `*.yml` files
+     * An alias for handling `*.yml` files.
      *
-     * @param  string $content YAML formatted text
+     * @param string $content YAML formatted text
      *
      * @return array
      */
-    private function fromYml ($content)
+    private function fromYml($content)
     {
         return $this->fromYaml($content);
     }
@@ -201,7 +201,7 @@ class DataManager extends TrackingManager
      *
      * @throws DependencyMissingException
      */
-    private function handleDependencies ($extension)
+    private function handleDependencies($extension)
     {
         if ($extension === 'xml' && !function_exists('simplexml_load_string'))
         {

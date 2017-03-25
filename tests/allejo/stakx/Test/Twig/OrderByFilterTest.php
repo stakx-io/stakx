@@ -7,30 +7,30 @@
 
 namespace allejo\stakx\Test\Twig;
 
-use allejo\stakx\Twig\OrderFilter;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Twig\OrderFilter;
 
 class OrderByFilterTest extends PHPUnit_Stakx_TestCase
 {
-    public static function dataProvider ()
+    public static function dataProvider()
     {
         return array(
             array(
                 array(
                     array(
                         'name' => 'Order of Bacon',
-                        'sort' => 30
+                        'sort' => 30,
                     ),
                     array(
                         'name' => 'Whee',
-                        'sort' => 0
+                        'sort' => 0,
                     ),
                     array(
                         'name' => 'Side order of fries',
-                        'sort' => 3
-                    )
-                )
-            )
+                        'sort' => 3,
+                    ),
+                ),
+            ),
         );
     }
 
@@ -39,23 +39,23 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterAscOnArray ($dataset)
+    public function testOrderFilterAscOnArray($dataset)
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'sort');
         $expected = array(
             array(
                 'name' => 'Whee',
-                'sort' => 0
+                'sort' => 0,
             ),
             array(
                 'name' => 'Side order of fries',
-                'sort' => 3
+                'sort' => 3,
             ),
             array(
                 'name' => 'Order of Bacon',
-                'sort' => 30
-            )
+                'sort' => 30,
+            ),
         );
 
         $this->assertEquals($expected, $result);
@@ -66,23 +66,23 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterDescOnArray ($dataset)
+    public function testOrderFilterDescOnArray($dataset)
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'sort', 'DESC');
         $expected = array(
             array(
                 'name' => 'Order of Bacon',
-                'sort' => 30
+                'sort' => 30,
             ),
             array(
                 'name' => 'Side order of fries',
-                'sort' => 3
+                'sort' => 3,
             ),
             array(
                 'name' => 'Whee',
-                'sort' => 0
-            )
+                'sort' => 0,
+            ),
         );
 
         $this->assertEquals($expected, $result);
@@ -92,23 +92,23 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
     {
         return array(
             array('page_count'),
-            array('publisher')
+            array('publisher'),
         );
     }
 
     /**
      * @dataProvider keyProvider
+     *
      * @param $sortKey
      */
-    public function testOrderFilterOnFrontMatterNumericAsc ($sortKey)
+    public function testOrderFilterOnFrontMatterNumericAsc($sortKey)
     {
         $books = $this->bookCollectionProvider()['books'];
         $orderFilter = new OrderFilter();
         $results = $orderFilter($books, $sortKey);
         $lastCount = -1;
 
-        foreach ($results as $result)
-        {
+        foreach ($results as $result) {
             $this->assertGreaterThanOrEqual($lastCount, $result[$sortKey]);
             $lastCount = $result[$sortKey];
         }
@@ -116,23 +116,23 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
 
     /**
      * @dataProvider keyProvider
+     *
      * @param $sortKey
      */
-    public function testOrderFilterOnFrontMatterNumericDesc ($sortKey)
+    public function testOrderFilterOnFrontMatterNumericDesc($sortKey)
     {
         $books = $this->bookCollectionProvider()['books'];
         $orderFilter = new OrderFilter();
         $results = $orderFilter($books, $sortKey, 'DESC');
         $lastCount = 999999;
 
-        foreach ($results as $result)
-        {
+        foreach ($results as $result) {
             $this->assertLessThanOrEqual($lastCount, $result[$sortKey]);
             $lastCount = $result[$sortKey];
         }
     }
 
-    public function testOrderFilterNonArray ()
+    public function testOrderFilterNonArray()
     {
         $myString = 'Hello World';
         $orderFilter = new OrderFilter();

@@ -12,7 +12,7 @@ use allejo\stakx\Object\JailObject;
 use Twig_Error_Syntax;
 
 /**
- * Where Twig Filter
+ * Where Twig Filter.
  *
  * This Twig filter introduces the `where` filter
  *
@@ -29,20 +29,18 @@ use Twig_Error_Syntax;
  *   - ~=  Check if a string or array contains the <value>; case-sensitive
  *   - _=  Check if a string or array contains the <value>; case-insensitive
  *   - /=  Compare the <value> with a regular expression
- *
- * @package allejo\stakx\Twig
  */
 class WhereFilter
 {
     /**
-     * @param  array|\ArrayAccess[] $array      The elements to filter through
-     * @param  string               $key        The key value in an associative array or FrontMatter
-     * @param  string               $comparison The actual comparison symbols being used
-     * @param  mixed                $value      The value we're searching for
+     * @param array|\ArrayAccess[] $array      The elements to filter through
+     * @param string               $key        The key value in an associative array or FrontMatter
+     * @param string               $comparison The actual comparison symbols being used
+     * @param mixed                $value      The value we're searching for
      *
      * @return array
      */
-    public function __invoke ($array, $key, $comparison, $value)
+    public function __invoke($array, $key, $comparison, $value)
     {
         $results = array();
         $this->search_r($array, $key, $comparison, $value, $results);
@@ -53,13 +51,13 @@ class WhereFilter
     /**
      * @return \Twig_SimpleFilter
      */
-    public static function get ()
+    public static function get()
     {
         return new \Twig_SimpleFilter('where', new self());
     }
 
     /**
-     * Recursive searching calling our comparison
+     * Recursive searching calling our comparison.
      *
      * @param array|\ArrayAccess[] $array      The elements to filter through
      * @param string               $key        The key value in an associative array or FrontMatter
@@ -67,7 +65,7 @@ class WhereFilter
      * @param string               $value      The value we're searching for
      * @param array                $results    The reference to where to keep the filtered elements
      */
-    private function search_r ($array, $key, $comparison, $value, &$results)
+    private function search_r($array, $key, $comparison, $value, &$results)
     {
         if (!is_array($array) && !($array instanceof \ArrayAccess))
         {
@@ -86,18 +84,18 @@ class WhereFilter
     }
 
     /**
-     * The logic for determining if an element matches the filter
+     * The logic for determining if an element matches the filter.
      *
-     * @param  array|\ArrayAccess[] $array      The elements to filter through
-     * @param  string               $key        The key value in an associative array or FrontMatter
-     * @param  string               $comparison The actual comparison symbols being used
-     * @param  mixed                $value      The value we're searching for
-     *
-     * @return bool
+     * @param array|\ArrayAccess[] $array      The elements to filter through
+     * @param string               $key        The key value in an associative array or FrontMatter
+     * @param string               $comparison The actual comparison symbols being used
+     * @param mixed                $value      The value we're searching for
      *
      * @throws Twig_Error_Syntax
+     *
+     * @return bool
      */
-    private function compare ($array, $key, $comparison, $value)
+    private function compare($array, $key, $comparison, $value)
     {
         if ($this->compareNullValues($array, $key, $comparison, $value))
         {
@@ -113,16 +111,16 @@ class WhereFilter
     }
 
     /**
-     * If the comparison is == or !=, then special behavior is defined for null values
+     * If the comparison is == or !=, then special behavior is defined for null values.
      *
-     * @param  array|\ArrayAccess[] $array      The elements to filter through
-     * @param  string               $key        The key value in an associative array or FrontMatter
-     * @param  string               $comparison The actual comparison symbols being used
-     * @param  mixed                $value      The value we're searching for
+     * @param array|\ArrayAccess[] $array      The elements to filter through
+     * @param string               $key        The key value in an associative array or FrontMatter
+     * @param string               $comparison The actual comparison symbols being used
+     * @param mixed                $value      The value we're searching for
      *
      * @return bool
      */
-    private function compareNullValues ($array, $key, $comparison, $value)
+    private function compareNullValues($array, $key, $comparison, $value)
     {
         if ($comparison != '==' && $comparison != '!=')
         {
@@ -136,14 +134,20 @@ class WhereFilter
 
         if ($array->coreInstanceOf(FrontMatterObject::class) && !isset($array[$key]))
         {
-            if ($comparison == '==' && is_null($value))  { return true; }
-            if ($comparison == '!=' && !is_null($value)) { return true; }
+            if ($comparison == '==' && is_null($value))
+            {
+                return true;
+            }
+            if ($comparison == '!=' && !is_null($value))
+            {
+                return true;
+            }
         }
 
         return false;
     }
 
-    private function comparisonSymbol ($lhs, $comparison, $rhs)
+    private function comparisonSymbol($lhs, $comparison, $rhs)
     {
         switch ($comparison)
         {
@@ -179,28 +183,27 @@ class WhereFilter
         }
     }
 
-    private function contains ($haystack, $needle)
+    private function contains($haystack, $needle)
     {
-        return (
+        return
             (is_array($haystack) && in_array($needle, $haystack)) ||
-            (is_string($haystack) && strpos($haystack, $needle) !== false)
-        );
+            (is_string($haystack) && strpos($haystack, $needle) !== false);
     }
 
-    private function containsCaseInsensitive ($haystack, $needle)
+    private function containsCaseInsensitive($haystack, $needle)
     {
         if (is_array($haystack))
         {
             $downCase = array_combine(array_map('strtolower', $haystack), $haystack);
 
-            return (isset($downCase[strtolower($needle)]));
+            return isset($downCase[strtolower($needle)]);
         }
 
-        return (is_string($haystack) && strpos(strtolower($haystack), strtolower($needle)) !== false);
+        return is_string($haystack) && strpos(strtolower($haystack), strtolower($needle)) !== false;
     }
 
-    private function regexMatches ($haystack, $regex)
+    private function regexMatches($haystack, $regex)
     {
-        return (preg_match($regex, $haystack) === 1);
+        return preg_match($regex, $haystack) === 1;
     }
 }

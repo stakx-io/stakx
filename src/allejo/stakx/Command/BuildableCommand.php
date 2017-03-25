@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Command;
 
 use allejo\stakx\Object\Configuration;
@@ -11,11 +16,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class BuildableCommand
+ * Class BuildableCommand.
  *
  * This abstract class handles configuring the website object
- *
- * @package allejo\stakx\Command
  */
 abstract class BuildableCommand extends Command
 {
@@ -37,7 +40,7 @@ abstract class BuildableCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure ()
+    protected function configure()
     {
         $this->fs = new Filesystem();
 
@@ -50,7 +53,7 @@ abstract class BuildableCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute (InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->website = new Website($output);
         $this->website->setConfLess($input->getOption('no-conf'));
@@ -58,11 +61,11 @@ abstract class BuildableCommand extends Command
     }
 
     /**
-     * Configure the website builder
+     * Configure the website builder.
      *
      * @param InputInterface $input
      */
-    protected function configureBuild (InputInterface $input)
+    protected function configureBuild(InputInterface $input)
     {
         $this->website->setConfiguration($input->getOption('conf'));
         $this->website->setSafeMode($input->getOption('safe'));

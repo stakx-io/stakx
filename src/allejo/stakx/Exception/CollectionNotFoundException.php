@@ -7,6 +7,6 @@
 
 namespace allejo\stakx\Exception;
 
-class TrackedItemNotFoundException extends \Exception
+class CollectionNotFoundException extends \RuntimeException
 {
 }

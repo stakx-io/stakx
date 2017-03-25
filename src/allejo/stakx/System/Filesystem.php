@@ -1,37 +1,31 @@
 <?php
 
 /**
- * This file contains an extended Filesystem class.
- *
- * This file is part of the Stakx project.
- *
- * @copyright 2016 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\System;
 
-use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * Class Filesystem
+ * Class Filesystem.
  *
  * This class extends Symfony's Filesystem to provide convenience functions
- *
- * @package allejo\stakx\Environment
  */
 class Filesystem extends \Symfony\Component\Filesystem\Filesystem
 {
     /**
-     * Build an absolute file or directory path separated by the OS specific directory separator
+     * Build an absolute file or directory path separated by the OS specific directory separator.
      *
      * @param string ...$pathFragments
      *
      * @return string
      */
-    public function absolutePath ($pathFragments)
+    public function absolutePath($pathFragments)
     {
         if ($this->isAbsolutePath($pathFragments))
         {
@@ -45,19 +39,19 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
-     * Build a file or directory path separated by the OS specific directory separator
+     * Build a file or directory path separated by the OS specific directory separator.
      *
      * @param string ...$pathFragments
      *
      * @return string
      */
-    public function appendPath ($pathFragments)
+    public function appendPath($pathFragments)
     {
         return implode(DIRECTORY_SEPARATOR, func_get_args());
     }
 
     /**
-     * Copy a file or folder recursively
+     * Copy a file or folder recursively.
      *
      * @param string $originFile          The original filename
      * @param string $targetFile          The target filename
@@ -80,7 +74,10 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
             while (false !== $entry = $dir->read())
             {
                 // Skip pointers
-                if ($entry == '.' || $entry == '..') { continue; }
+                if ($entry == '.' || $entry == '..')
+                {
+                    continue;
+                }
 
                 $this->copy("$originFile/$entry", "$targetFile/$entry", true);
             }
@@ -94,110 +91,110 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
-     * Create an instance of Symfony's SplFileInfo with relative path information
+     * Create an instance of Symfony's SplFileInfo with relative path information.
      *
-     * @param  string $filePath
+     * @param string $filePath
      *
      * @return SplFileInfo
      */
-    public function createSplFileInfo ($filePath)
+    public function createSplFileInfo($filePath)
     {
-        return (new SplFileInfo(
+        return new SplFileInfo(
             $this->absolutePath($filePath),
             $this->getRelativePath($this->getFolderPath($filePath)),
             $this->getRelativePath($filePath)
-        ));
+        );
     }
 
     /**
-     * Strip the current working directory from an absolute path
+     * Strip the current working directory from an absolute path.
      *
-     * @param  string $path An absolute path
+     * @param string $path An absolute path
      *
      * @return string
      */
-    public function getRelativePath ($path)
+    public function getRelativePath($path)
     {
         return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $path);
     }
 
     /**
-     * Get the name of a given file without the extension
+     * Get the name of a given file without the extension.
      *
-     * @param  string $filePath A file path
+     * @param string $filePath A file path
      *
      * @return string
      */
-    public function getBaseName ($filePath)
+    public function getBaseName($filePath)
     {
         return pathinfo($filePath, PATHINFO_FILENAME);
     }
 
     /**
-     * Get the name of a given file
+     * Get the name of a given file.
      *
-     * @param  string $filePath A file path
+     * @param string $filePath A file path
      *
      * @return string
      */
-    public function getFileName ($filePath)
+    public function getFileName($filePath)
     {
         return pathinfo($filePath, PATHINFO_BASENAME);
     }
 
     /**
-     * Get the parent directory of a given file
+     * Get the parent directory of a given file.
      *
-     * @param  string $filePath A file path
+     * @param string $filePath A file path
      *
      * @return string
      */
-    public function getFolderPath ($filePath)
+    public function getFolderPath($filePath)
     {
         return pathinfo($filePath, PATHINFO_DIRNAME);
     }
 
     /**
-     * Get the extension of a given file
+     * Get the extension of a given file.
      *
-     * @param  string $filename A file path
+     * @param string $filename A file path
      *
      * @return string The extension of the file
      */
-    public function getExtension ($filename)
+    public function getExtension($filename)
     {
         return pathinfo($filename, PATHINFO_EXTENSION);
     }
 
     /**
-     * Check whether or not if a given path is a directory
+     * Check whether or not if a given path is a directory.
      *
-     * @param  string $folderPath
+     * @param string $folderPath
      *
      * @return bool
      */
-    public function isDir ($folderPath)
+    public function isDir($folderPath)
     {
         return is_dir($folderPath);
     }
 
     /**
-     * Get the full path to the file without the extension
+     * Get the full path to the file without the extension.
      *
-     * @param  string $filename A file path
+     * @param string $filename A file path
      *
      * @return string
      */
-    public function removeExtension ($filename)
+    public function removeExtension($filename)
     {
         return $this->appendPath(
-                   $this->getFolderPath($filename),
-                   $this->getBaseName($filename)
-               );
+            $this->getFolderPath($filename),
+            $this->getBaseName($filename)
+        );
     }
 
     /**
-     * Write a file
+     * Write a file.
      *
      * @param string $targetDir The directory of where the file will be created; the file name is a separate variable
      * @param string $fileName  The name of the file
@@ -205,10 +202,10 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      *
      * @return SplFileInfo A reference to the newly created file
      */
-    public function writeFile ($targetDir, $fileName, $content)
+    public function writeFile($targetDir, $fileName, $content)
     {
         $outputFolder = $this->getFolderPath($this->absolutePath($targetDir, $fileName));
-        $targetFile   = $this->getFileName($fileName);
+        $targetFile = $this->getFileName($fileName);
 
         if (!file_exists($outputFolder))
         {
@@ -220,7 +217,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
         return (new SplFileInfo(
             $fileName,
             $this->absolutePath($targetDir),
-            $this->absolutePath($targetDir, $fileName))
-        );
+            $this->absolutePath($targetDir, $fileName)
+        ));
     }
 }

@@ -18,7 +18,7 @@ class BaseUrlFilterTest extends PHPUnit_Stakx_TestCase
     /** @var \Twig_Environment */
     private $twig_env;
 
-    public function setUp ()
+    public function setUp()
     {
         parent::setUp();
 
@@ -27,7 +27,7 @@ class BaseUrlFilterTest extends PHPUnit_Stakx_TestCase
         $this->twig_env->addExtension(new TwigExtension());
     }
 
-    public static function dataProvider ()
+    public static function dataProvider()
     {
         $fs = new Filesystem();
 
@@ -42,17 +42,17 @@ class BaseUrlFilterTest extends PHPUnit_Stakx_TestCase
             array('/toast/butter/', '//toast/', '//butter///'),
             array('/toast/', 'toast', null),
             array('/toast/bacon/', 'toast', array(
-                'permalink' => 'bacon/'
+                'permalink' => 'bacon/',
             )),
             array('/toast/bacon', 'toast', array(
-                'permalink' => 'bacon'
+                'permalink' => 'bacon',
             )),
             array('/toast/', 'toast', array(
-                'some-key' => 'bacon/'
+                'some-key' => 'bacon/',
             )),
             array('/toast/static/', 'toast', (
                 new PageView($fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'static.html.twig'))
-            ))
+            )),
         );
     }
 
@@ -63,10 +63,10 @@ class BaseUrlFilterTest extends PHPUnit_Stakx_TestCase
      * @param $base
      * @param $assetPath
      */
-    public function testBaseUrlFilter ($expected, $base, $assetPath)
+    public function testBaseUrlFilter($expected, $base, $assetPath)
     {
         $this->twig_env->addGlobal('site', array(
-            'baseurl' => $base
+            'baseurl' => $base,
         ));
 
         $filter = new BaseUrlFunction();

@@ -1,15 +1,23 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Object;
 
+use allejo\stakx\Compiler;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\AssetManager;
-use allejo\stakx\Manager\PageManager;
-use allejo\stakx\Manager\ThemeManager;
-use allejo\stakx\System\FileExplorer;
-use allejo\stakx\System\Filesystem;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
+use allejo\stakx\Manager\MenuManager;
+use allejo\stakx\Manager\PageManager;
+use allejo\stakx\Manager\ThemeManager;
+use allejo\stakx\Manager\TwigManager;
+use allejo\stakx\System\FileExplorer;
+use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\Folder;
 use JasonLewis\ResourceWatcher\Event;
 use JasonLewis\ResourceWatcher\Resource\FileResource;
@@ -20,21 +28,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Website
 {
     /**
-     * The location of where the compiled website will be written to
+     * The location of where the compiled website will be written to.
      *
      * @var Folder
      */
     private $outputDirectory;
 
     /**
-     * The main configuration to be used to build the specified website
+     * The main configuration to be used to build the specified website.
      *
      * @var Configuration
      */
     private $configuration;
 
     /**
-     * When set to true, the Stakx website will be built without a configuration file
+     * When set to true, the Stakx website will be built without a configuration file.
      *
      * @var bool
      */
@@ -42,14 +50,14 @@ class Website
 
     /**
      * When set to true, Twig templates will not have access to filters or functions which provide access to the
-     * filesystem
+     * filesystem.
      *
      * @var bool
      */
     private $safeMode;
 
     /**
-     * When set to true, Stakx will not clean the _site folder after a rebuild
+     * When set to true, Stakx will not clean the _site folder after a rebuild.
      *
      * @var bool
      */
@@ -80,6 +88,9 @@ class Website
      */
     private $fs;
 
+    /** @var MenuManager */
+    private $mm;
+
     /**
      * @var PageManager
      */
@@ -90,16 +101,20 @@ class Website
      */
     private $tm;
 
+    /** @var Compiler */
+    private $compiler;
+
     /**
      * Website constructor.
      *
      * @param OutputInterface $output
      */
-    public function __construct (OutputInterface $output)
+    public function __construct(OutputInterface $output)
     {
         $this->output = new StakxLogger($output);
         $this->cm = new CollectionManager();
         $this->dm = new DataManager();
+        $this->mm = new MenuManager();
         $this->pm = new PageManager();
         $this->fs = new Filesystem();
     }
@@ -109,7 +124,7 @@ class Website
      *
      * @param bool $tracking Whether or not to keep track of files as they're compiled to save time in 'watch'
      */
-    public function build ($tracking = false)
+    public function build($tracking = false)
     {
         // Configure the environment
         $this->createFolderStructure(!$this->noClean);
@@ -131,22 +146,34 @@ class Website
 
         // Handle PageViews
         $this->pm->setLogger($this->output);
-        $this->pm->setTargetFolder($this->outputDirectory);
-        $this->pm->setCollections($this->cm->getCollections());
-        $this->pm->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
         $this->pm->enableTracking($tracking);
+        $this->pm->setCollections($this->cm->getCollections());
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
-        $this->pm->configureTwig($this->getConfiguration(), array(
+
+        // Handle the site's menu
+        $this->mm->setLogger($this->output);
+        $this->mm->buildFromPageViews($this->pm->getStaticPageViews());
+
+        // Configure our Twig environment
+        $twigEnv = new TwigManager();
+        $twigEnv->configureTwig($this->getConfiguration(), array(
             'safe'    => $this->safeMode,
             'globals' => array(
-                array('name' => 'site',        'value' => $this->getConfiguration()->getConfiguration()),
+                array('name' => 'site', 'value' => $this->getConfiguration()->getConfiguration()),
                 array('name' => 'collections', 'value' => $this->cm->getJailedCollections()),
-                array('name' => 'menu',        'value' => $this->pm->getSiteMenu()),
-                array('name' => 'pages',       'value' => $this->pm->getFlatPages()),
-                array('name' => 'data',        'value' => $this->dm->getDataItems())
-            )
+                array('name' => 'menu', 'value' => $this->mm->getSiteMenu()),
+                array('name' => 'pages', 'value' => $this->pm->getJailedStaticPageViews()),
+                array('name' => 'data', 'value' => $this->dm->getDataItems()),
+            ),
         ));
-        $this->pm->compileAll();
+
+        // Compile everything
+        $this->compiler = new Compiler();
+        $this->compiler->setLogger($this->output);
+        $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
+        $this->compiler->setPageViews($this->pm->getPageViews(), $this->pm->getPageViewsFlattened());
+        $this->compiler->setTargetFolder($this->outputDirectory);
+        $this->compiler->compileAll();
 
         // At this point, we are looking at static files to copy over meaning we need to ignore all of the files that
         // make up the source of a stakx website
@@ -183,7 +210,7 @@ class Website
         $this->am->copyFiles();
     }
 
-    public function watch ()
+    public function watch()
     {
         $this->output->writeln('Building website...');
         $this->build(true);
@@ -192,13 +219,13 @@ class Website
         $fileExplorer = FileExplorer::create(
             getcwd(),
             array_merge($this->getConfiguration()->getExcludes(), array(
-                $this->getConfiguration()->getTargetFolder()
+                $this->getConfiguration()->getTargetFolder(),
             )),
             $this->getConfiguration()->getIncludes()
         );
-        $tracker    = new Tracker();
-        $watcher    = new Watcher($tracker, $this->fs);
-        $listener   = $watcher->watch(getcwd(), $fileExplorer->getExplorer());
+        $tracker = new Tracker();
+        $watcher = new Watcher($tracker, $this->fs);
+        $listener = $watcher->watch(getcwd(), $fileExplorer->getExplorer());
         $targetPath = $this->getConfiguration()->getTargetFolder();
 
         $this->output->writeln('Watch started successfully');
@@ -222,7 +249,7 @@ class Website
             }
             catch (\Exception $e)
             {
-                $this->output->error(sprintf("Your website failed to build with the following error: %s",
+                $this->output->error(sprintf('Your website failed to build with the following error: %s',
                     $e->getMessage()
                 ));
             }
@@ -234,7 +261,7 @@ class Website
     /**
      * @return Configuration
      */
-    public function getConfiguration ()
+    public function getConfiguration()
     {
         return $this->configuration;
     }
@@ -244,19 +271,19 @@ class Website
      *
      * @throws \LogicException
      */
-    public function setConfiguration ($configFile)
+    public function setConfiguration($configFile)
     {
         if (!$this->fs->exists($configFile) && !$this->isConfLess())
         {
-            $this->output->error("You are trying to build a website in a directory without a configuration file. Is this what you meant to do?");
+            $this->output->error('You are trying to build a website in a directory without a configuration file. Is this what you meant to do?');
             $this->output->error("To build a website without a configuration, use the '--no-conf' option");
 
-            throw new \LogicException("Cannot build a website without a configuration when not in Configuration-less mode");
+            throw new \LogicException('Cannot build a website without a configuration when not in Configuration-less mode');
         }
 
         if ($this->isConfLess())
         {
-            $configFile = "";
+            $configFile = '';
         }
 
         $this->configuration = new Configuration();
@@ -265,21 +292,21 @@ class Website
     }
 
     /**
-     * Get whether or not the website is being built in Configuration-less mode
+     * Get whether or not the website is being built in Configuration-less mode.
      *
      * @return bool True when being built with no configuration file
      */
-    public function isConfLess ()
+    public function isConfLess()
     {
         return $this->confLess;
     }
 
     /**
-     * Set whether or not the website should be built with a configuration
+     * Set whether or not the website should be built with a configuration.
      *
      * @param bool $status True when a website should be built without a configuration
      */
-    public function setConfLess ($status)
+    public function setConfLess($status)
     {
         $this->confLess = $status;
     }
@@ -291,23 +318,23 @@ class Website
      *
      * @return bool True when the website is being built in safe mode
      */
-    public function isSafeMode ()
+    public function isSafeMode()
     {
         return $this->safeMode;
     }
 
     /**
-     * Set whether a website should be built in safe mode
+     * Set whether a website should be built in safe mode.
      *
      * @param bool $bool True if a website should be built in safe mode
      */
-    public function setSafeMode ($bool)
+    public function setSafeMode($bool)
     {
         $this->safeMode = $bool;
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isNoClean()
     {
@@ -315,99 +342,99 @@ class Website
     }
 
     /**
-     * @param boolean $noClean
+     * @param bool $noClean
      */
     public function setNoClean($noClean)
     {
         $this->noClean = $noClean;
     }
 
-    private function creationWatcher ($filePath)
+    private function creationWatcher($filePath)
     {
-        $this->output->writeln(sprintf("File creation detected: %s", $filePath));
+        $this->output->writeln(sprintf('File creation detected: %s', $filePath));
 
         if ($this->pm->isHandled($filePath))
         {
             $this->pm->createNewItem($filePath);
             $this->pm->refreshItem($filePath);
         }
-        else if ($this->cm->isHandled($filePath))
+        elseif ($this->cm->isHandled($filePath))
         {
             $contentItem = $this->cm->createNewItem($filePath);
+            TwigManager::getInstance()->addGlobal('collections', $this->cm->getCollections());
 
-            $this->pm->updateTwigVariable('collections', $this->cm->getCollections());
-            $this->pm->updatePageView($contentItem);
-            $this->pm->compileContentItem($contentItem);
-            $this->pm->compileSome(array(
+            $this->pm->trackNewContentItem($contentItem);
+            $this->compiler->compileContentItem($contentItem);
+            $this->compiler->compileSome(array(
                 'namespace' => 'collections',
                 'dependency' => $contentItem->getCollection()
             ));
         }
-        else if ($this->dm->isHandled($filePath))
+        elseif ($this->dm->isHandled($filePath))
         {
             $change = $this->dm->createNewItem($filePath);
+            TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
 
-            $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
-            $this->pm->compileSome(array(
+            $this->compiler->compileSome(array(
                 'namespace' => 'data',
                 'dependency' => $change
             ));
         }
-        else if (!is_null($this->tm) && $this->tm->isHandled($filePath))
+        elseif (!is_null($this->tm) && $this->tm->isHandled($filePath))
         {
             $this->tm->createNewItem($filePath);
         }
-        else if ($this->am->isHandled($filePath))
+        elseif ($this->am->isHandled($filePath))
         {
             $this->am->createNewItem($filePath);
         }
     }
 
-    private function modificationWatcher ($filePath)
+    private function modificationWatcher($filePath)
     {
-        $this->output->writeln(sprintf("File change detected: %s", $filePath));
+        $this->output->writeln(sprintf('File change detected: %s', $filePath));
 
         if ($this->pm->isTracked($filePath))
         {
             $this->pm->refreshItem($filePath);
         }
-        else if ($this->cm->isTracked($filePath))
+        elseif ($this->cm->isTracked($filePath))
         {
             $contentItem = &$this->cm->getContentItem($filePath);
             $contentItem->refreshFileContent();
 
-            $this->pm->compileContentItem($contentItem);
-            $this->pm->compileSome(array(
+            $this->compiler->compileContentItem($contentItem);
+            $this->compiler->compileSome(array(
                 'namespace' => 'collections',
                 'dependency' => $contentItem->getCollection()
             ));
         }
-        else if ($this->dm->isTracked($filePath))
+        elseif ($this->dm->isTracked($filePath))
         {
             $change = $this->dm->refreshItem($filePath);
+            TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
 
-            $this->pm->updateTwigVariable('data', $this->dm->getDataItems());
-            $this->pm->compileSome(array(
+            $this->compiler->compileSome(array(
                 'namespace' => 'data',
                 'dependency' => $change
             ));
         }
-        else if (!is_null($this->tm) && $this->tm->isTracked($filePath))
+        elseif (!is_null($this->tm) && $this->tm->isTracked($filePath))
         {
             $this->tm->refreshItem($filePath);
         }
-        else if ($this->am->isTracked($filePath))
+        elseif ($this->am->isTracked($filePath))
         {
             $this->am->refreshItem($filePath);
         }
     }
 
     /**
-     * Prepare the Stakx environment by creating necessary cache folders
+     * Prepare the Stakx environment by creating necessary cache folders.
      *
      * @param bool $cleanDirectory Clean the target directory
      */
-    private function createFolderStructure ($cleanDirectory)
+    private function createFolderStructure($cleanDirectory)
     {
         $tarDir = $this->fs->absolutePath($this->configuration->getTargetFolder());
 

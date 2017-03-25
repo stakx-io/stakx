@@ -1,8 +1,12 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\System\Filesystem;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -19,7 +23,7 @@ abstract class BaseManager implements LoggerAwareInterface
      */
     protected $fs;
 
-    public function __construct ()
+    public function __construct()
     {
         $this->fs = new Filesystem();
     }

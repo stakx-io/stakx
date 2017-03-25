@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright 2016 Vladimir Jimenez
+ * @copyright 2017 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
@@ -28,25 +28,35 @@ class DynamicPageView extends PageView
     }
 
     /**
-     * Add a ContentItem to this Dynamic PageView
+     * Add a ContentItem to this Dynamic PageView.
      *
      * @param ContentItem $contentItem
      */
-    public function addContentItem (&$contentItem)
+    public function addContentItem(&$contentItem)
     {
-        $filePath = $this->fs->getRelativePath($contentItem->getFilePath());
+        $filename = $this->fs->getBaseName($contentItem->getFilePath());
 
-        $this->contentItems[$filePath] = &$contentItem;
+        $this->contentItems[$filename] = &$contentItem;
         $contentItem->setPageView($this);
     }
 
     /**
-     * Get all of the ContentItems that belong to this Dynamic PageView
+     * Get all of the ContentItems that belong to this Dynamic PageView.
      *
      * @return ContentItem[]
      */
-    public function getContentItems ()
+    public function getContentItems()
     {
         return $this->contentItems;
+    }
+
+    /**
+     * Get the collection name this dynamic PageView is charged with.
+     *
+     * @return string
+     */
+    public function getCollection()
+    {
+        return $this->getFrontMatter(false)['collection'];
     }
 }

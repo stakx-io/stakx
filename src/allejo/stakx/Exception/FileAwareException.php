@@ -8,16 +8,14 @@
 namespace allejo\stakx\Exception;
 
 /**
- * Exception thrown when an error is found in a file
- *
- * @package allejo\stakx\Exception
+ * Exception thrown when an error is found in a file.
  */
 class FileAwareException extends \RuntimeException
 {
     private $lineNumber;
     private $filePath;
 
-    public function __construct($message = "", $code = 0, \Exception $previous = null, $path = "", $line = -1)
+    public function __construct($message = '', $code = 0, \Exception $previous = null, $path = '', $line = -1)
     {
         parent::__construct($message, $code, $previous);
 
@@ -25,17 +23,17 @@ class FileAwareException extends \RuntimeException
         $this->lineNumber = $line;
     }
 
-    public function getLineNumber ()
+    public function getLineNumber()
     {
         return $this->lineNumber;
     }
 
-    public function getPath ()
+    public function getPath()
     {
         return $this->filePath;
     }
 
-    public static function castException (\Exception $e, $filePath)
+    public static function castException(\Exception $e, $filePath)
     {
         $lineNumber = ($e instanceof \Twig_Error_Syntax) ? $e->getTemplateLine() : -1;
 

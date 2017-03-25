@@ -13,7 +13,7 @@ use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class JailObjectTests extends PHPUnit_Stakx_TestCase
 {
-    public function getJailObject ()
+    public function getJailObject()
     {
         $pageView = new PageView($this->fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'jail.html.twig'));
         $pageView->getFrontMatter();
@@ -21,7 +21,7 @@ class JailObjectTests extends PHPUnit_Stakx_TestCase
         return $pageView->createJail();
     }
 
-    public function testJailObjectGetPermalink ()
+    public function testJailObjectGetPermalink()
     {
         $permalink = '/authors/scott-pilgrim/';
         $jail = $this->getJailObject();
@@ -30,7 +30,7 @@ class JailObjectTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($jail->getPermalink(), $jail['permalink']);
     }
 
-    public function testJailObjectGenericFrontMatter ()
+    public function testJailObjectGenericFrontMatter()
     {
         $jail = $this->getJailObject();
 
@@ -40,7 +40,7 @@ class JailObjectTests extends PHPUnit_Stakx_TestCase
         $this->assertNull($jail['my-fake-key']);
     }
 
-    public function testJailObjectGetRedirects ()
+    public function testJailObjectGetRedirects()
     {
         $jail = $this->getJailObject();
 
@@ -49,7 +49,7 @@ class JailObjectTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($jail->getRedirects(), $jail['redirects']);
     }
 
-    public function testJailGetDateTimeTimezone ()
+    public function testJailGetDateTimeTimezone()
     {
         $defaultTimezone = date_default_timezone_get();
         date_default_timezone_set('America/New_York');
@@ -61,7 +61,7 @@ class JailObjectTests extends PHPUnit_Stakx_TestCase
         date_default_timezone_set($defaultTimezone);
     }
 
-    public function testJailWhiteListFunction ()
+    public function testJailWhiteListFunction()
     {
         $contentItem = $this->createVirtualFile(ContentItem::class);
         $jailable = $contentItem->createJail();
@@ -70,9 +70,9 @@ class JailObjectTests extends PHPUnit_Stakx_TestCase
         $this->assertNotEmpty($content);
     }
 
-    public function testJailFrontMatter ()
+    public function testJailFrontMatter()
     {
-        $value = "super bacon!";
+        $value = 'super bacon!';
 
         $contentItem = $this->createVirtualFile(ContentItem::class, array('value' => $value));
         $jailable = $contentItem->createJail();
@@ -80,7 +80,7 @@ class JailObjectTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($value, $jailable['value']);
     }
 
-    public function testJailInvalidFunction ()
+    public function testJailInvalidFunction()
     {
         $this->setExpectedException(\BadMethodCallException::class);
 

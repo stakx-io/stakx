@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright 2016 Vladimir Jimenez
+ * @copyright 2017 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
@@ -12,21 +12,21 @@ use allejo\stakx\FrontMatter\ExpandedValue;
 class RepeaterPageView extends PageView
 {
     /**
-     * An iterator for the permalinks used in order for this entity to be treated as a static PageView
+     * An iterator for the permalinks used in order for this entity to be treated as a static PageView.
      *
      * @var \ArrayIterator
      */
     private $permalinksIterator;
 
     /**
-     * All of the expanded permalinks
+     * All of the expanded permalinks.
      *
      * @var ExpandedValue[]
      */
     private $permalinks;
 
     /**
-     * All of expanded redirects that should point to the respective permalink; this is estimated by index
+     * All of expanded redirects that should point to the respective permalink; this is estimated by index.
      *
      * @var ExpandedValue[][]
      */
@@ -45,21 +45,21 @@ class RepeaterPageView extends PageView
     }
 
     /**
-     * Get the expanded values for the permalinks to this PageView
+     * Get the expanded values for the permalinks to this PageView.
      *
      * @return ExpandedValue[]
      */
-    public function getRepeaterPermalinks ()
+    public function getRepeaterPermalinks()
     {
         return $this->permalinks;
     }
 
     /**
-     * Get the expanded values for the redirects pointing to this PageView
+     * Get the expanded values for the redirects pointing to this PageView.
      *
      * @return ExpandedValue[][]
      */
-    public function getRepeaterRedirects ()
+    public function getRepeaterRedirects()
     {
         return $this->redirectLinks;
     }
@@ -68,24 +68,24 @@ class RepeaterPageView extends PageView
      * When looping through permalinks in a RepeaterPageView, the permalink needs to be updated each time so that it may
      * behave as a static PageView.
      */
-    public function bumpPermalink ()
+    public function bumpPermalink()
     {
         $this->permalink = $this->permalinksIterator->current()->getEvaluated();
         $this->permalinksIterator->next();
     }
 
     /**
-     * Rewind the permalink iterator to the beginning
+     * Rewind the permalink iterator to the beginning.
      */
-    public function rewindPermalink ()
+    public function rewindPermalink()
     {
         $this->permalinksIterator->rewind();
     }
 
     /**
-     * Setup this object
+     * Setup this object.
      */
-    private function configureValues ()
+    private function configureValues()
     {
         // Cause the Front Matter to be evaluated
         $this->getFrontMatter();

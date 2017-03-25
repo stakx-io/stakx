@@ -1,10 +1,15 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Twig;
 
 class OrderFilter
 {
-    public function __invoke ($array, $key, $order = "ASC")
+    public function __invoke($array, $key, $order = 'ASC')
     {
         if (!is_array($array))
         {
@@ -18,7 +23,7 @@ class OrderFilter
                 return 0;
             }
 
-            if (strtolower($order) === "desc")
+            if (strtolower($order) === 'desc')
             {
                 return ($a[$key] < $b[$key]) ? 1 : -1;
             }
@@ -29,7 +34,7 @@ class OrderFilter
         return $array;
     }
 
-    public static function get ()
+    public static function get()
     {
         return new \Twig_SimpleFilter('order', new self());
     }

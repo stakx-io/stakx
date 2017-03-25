@@ -12,39 +12,37 @@ use allejo\stakx\Object\ContentItem;
 use allejo\stakx\Object\JailObject;
 
 /**
- * The class that reads and saves information about all of the collections
- *
- * @package allejo\stakx\Manager
+ * The class that reads and saves information about all of the collections.
  */
 class CollectionManager extends TrackingManager
 {
     /**
-     * A copy of the collection definitions to be available for later usage
+     * A copy of the collection definitions to be available for later usage.
      *
      * @var string[][]
      */
     private $collectionDefinitions;
 
     /**
-     * Get all of the ContentItems grouped by Collection name
+     * Get all of the ContentItems grouped by Collection name.
      *
      * @return ContentItem[][]
      */
-    public function &getCollections ()
+    public function &getCollections()
     {
         return $this->trackedItems;
     }
 
     /**
-     * Get a ContentItem from a Collection pased on it's path
+     * Get a ContentItem from a Collection pased on it's path.
      *
-     * @param  string $filePath
+     * @param string $filePath
      *
      * @throws TrackedItemNotFoundException
      *
      * @return ContentItem
      */
-    public function &getContentItem ($filePath)
+    public function &getContentItem($filePath)
     {
         if (!isset($this->trackedItemsFlattened[$filePath]))
         {
@@ -55,11 +53,11 @@ class CollectionManager extends TrackingManager
     }
 
     /**
-     * A jailed representation of CollectionManager::getCollections()
+     * A jailed representation of CollectionManager::getCollections().
      *
      * @return JailObject[][]
      */
-    public function getJailedCollections ()
+    public function getJailedCollections()
     {
         $jailItems = array();
 
@@ -75,27 +73,28 @@ class CollectionManager extends TrackingManager
     }
 
     /**
-     * Parse every collection and store them in the manager
+     * Parse every collection and store them in the manager.
      *
      * @param string[][] $collections An array of definitions for collections
      */
-    public function parseCollections ($collections)
+    public function parseCollections($collections)
     {
         if ($collections === null)
         {
-            $this->output->debug("No collections found, nothing to parse.");
+            $this->output->debug('No collections found, nothing to parse.');
+
             return;
         }
 
         $this->collectionDefinitions = $collections;
 
         /**
-         * The information which each collection has taken from the configuration file
+         * The information which each collection has taken from the configuration file.
          *
          * $collection['name']      string The name of the collection
          *            ['folder']    string The folder where this collection has its ContentItems
          *
-         * @var $collection array
+         * @var array
          */
         foreach ($collections as $collection)
         {
@@ -111,7 +110,7 @@ class CollectionManager extends TrackingManager
 
             $this->saveFolderDefinition($collection['folder'], $collection);
             $this->scanTrackableItems($collectionFolder, array(
-                'namespace' => $collection['name']
+                'namespace' => $collection['name'],
             ));
         }
     }
@@ -124,7 +123,7 @@ class CollectionManager extends TrackingManager
         $collection = $this->getTentativeCollectionName($filePath);
 
         return $this->handleTrackableItem($filePath, array(
-            'namespace' => $collection
+            'namespace' => $collection,
         ));
     }
 
@@ -133,7 +132,6 @@ class CollectionManager extends TrackingManager
      */
     public function refreshItem($filePath)
     {
-        return;
     }
 
     /**
@@ -158,13 +156,13 @@ class CollectionManager extends TrackingManager
     }
 
     /**
-     * Get the name of the Collection this Content Item belongs to
+     * Get the name of the Collection this Content Item belongs to.
      *
-     * @param  string $filePath
+     * @param string $filePath
      *
      * @return string
      */
-    private function getTentativeCollectionName ($filePath)
+    private function getTentativeCollectionName($filePath)
     {
         foreach ($this->collectionDefinitions as $collection)
         {
@@ -176,5 +174,4 @@ class CollectionManager extends TrackingManager
 
         return '';
     }
-
 }

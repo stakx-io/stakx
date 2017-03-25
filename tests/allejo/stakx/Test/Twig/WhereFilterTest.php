@@ -8,14 +8,14 @@
 namespace allejo\stakx\Test\Twig;
 
 use allejo\stakx\Object\ContentItem;
-use allejo\stakx\Twig\WhereFilter;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Twig\WhereFilter;
 
 class WhereFilterTests extends PHPUnit_Stakx_TestCase
 {
     private $dataset;
 
-    public function setUp ()
+    public function setUp()
     {
         parent::setUp();
 
@@ -24,42 +24,42 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
                 'name' => 'One Five',
                 'slug' => 'chimpanzee',
                 'cost' => 20,
-                'tags' => array('fun', 'monkey', 'banana')
+                'tags' => array('fun', 'monkey', 'banana'),
             ),
             array(
                 'name' => 'Two One',
                 'slug' => 'meeting',
                 'cost' => 40,
-                'tags' => array('fun', 'purple', 'red', 'Bacon')
+                'tags' => array('fun', 'purple', 'red', 'Bacon'),
             ),
             array(
                 'name' => 'Three Two',
                 'slug' => 'dynasty',
                 'cost' => 20,
-                'tags' => array('monkey', 'animal', 'zoo')
+                'tags' => array('monkey', 'animal', 'zoo'),
             ),
             array(
                 'name' => 'Four One',
                 'slug' => 'chocolate',
                 'cost' => 50,
-                'tags' => array('fruit', 'port', 'computer')
+                'tags' => array('fruit', 'port', 'computer'),
             ),
             array(
                 'name' => 'Five Five',
                 'slug' => 'bananas',
                 'cost' => 10,
-                'tags' => array('vegetable', 'purple', 'red', 'Bacon')
+                'tags' => array('vegetable', 'purple', 'red', 'Bacon'),
             ),
             array(
                 'name' => 'Six Three',
                 'slug' => 'fantasy',
                 'cost' => 50,
-                'tags' => array('fruit', 'orange', 'purple')
-            )
+                'tags' => array('fruit', 'orange', 'purple'),
+            ),
         );
     }
 
-    public static function dataProvider ()
+    public static function dataProvider()
     {
         return array(
             array('assertEquals', 'cost', '==', 50),
@@ -81,7 +81,7 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
             array('assertLessThanOrEqual', 'cost', '<=', 50),
             array('assertLessThanOrEqual', 'cost', '<=', 30),
             array('assertContains', 'tags', '~=', 'purple'),
-            array('assertContains', 'name', '~=', 'One')
+            array('assertContains', 'name', '~=', 'One'),
         );
     }
 
@@ -93,18 +93,17 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
      * @param string $comparison The comparison we'll be using
      * @param mixed  $value      The value we are looking for
      */
-    public function testWhereFilter ($fxn, $key, $comparison, $value)
+    public function testWhereFilter($fxn, $key, $comparison, $value)
     {
         $whereFilter = new WhereFilter();
         $filtered = $whereFilter($this->dataset, $key, $comparison, $value);
 
-        foreach ($filtered as $item)
-        {
+        foreach ($filtered as $item) {
             $this->$fxn($value, $item[$key]);
         }
     }
 
-    public function testInvalidFilterEmptyResult ()
+    public function testInvalidFilterEmptyResult()
     {
         $this->setExpectedException(\Twig_Error_Syntax::class);
 
@@ -112,7 +111,7 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
         $whereFilter($this->dataset, 'name', 'non-existent-comparison', 'the_map');
     }
 
-    public function testInvalidKeyEmptyResult ()
+    public function testInvalidKeyEmptyResult()
     {
         $whereFilter = new WhereFilter();
         $filtered = $whereFilter($this->dataset, 'non-existent-key', '==', 'the_map');
@@ -120,39 +119,39 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertEmpty($filtered);
     }
 
-    public function testGetTwigSimpleFilter ()
+    public function testGetTwigSimpleFilter()
     {
         $twigSimpleFilter = WhereFilter::get();
 
         $this->assertInstanceOf(\Twig_SimpleFilter::class, $twigSimpleFilter);
     }
 
-    public function testWhereFilterAgainstContentItem ()
+    public function testWhereFilterAgainstContentItem()
     {
         $elements = array(
             $this->createVirtualFile(ContentItem::class, array(
                 'aggregate' => 'toast',
-                'category'  => 'warm'
+                'category' => 'warm',
             )),
             $this->createVirtualFile(ContentItem::class, array(
                 'aggregate' => 'bacon',
-                'category'  => 'warm'
+                'category' => 'warm',
             )),
             $this->createVirtualFile(ContentItem::class, array(
                 'aggregate' => 'pancake',
-                'category'  => 'cold'
-            ))
+                'category' => 'cold',
+            )),
         );
 
         $whereFilter = new WhereFilter();
         $filteredAggregate = $whereFilter($elements, 'aggregate', '==', 'toast');
-        $filteredCategory  = $whereFilter($elements, 'category',  '==', 'warm');
+        $filteredCategory = $whereFilter($elements, 'category', '==', 'warm');
 
         $this->assertCount(1, $filteredAggregate);
         $this->assertCount(2, $filteredCategory);
     }
 
-    public static function fmDataProvider ()
+    public static function fmDataProvider()
     {
         return array(
             array('completed', '==', true, 3),
@@ -184,9 +183,9 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
      * @param mixed  $value      The value we're looking for the front matter to match
      * @param int    $count      The amount of entries we're expecting to match this rule
      */
-    public function testWhereFilterContentItemAssertCount ($fm, $comparison, $value, $count)
+    public function testWhereFilterContentItemAssertCount($fm, $comparison, $value, $count)
     {
-        $collections = $this->bookCollectionProvider();
+        $collections = $this->bookCollectionProvider(true);
         $books = $collections['books'];
         $filter = new WhereFilter();
 

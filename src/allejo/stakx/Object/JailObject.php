@@ -1,19 +1,17 @@
 <?php
 
 /**
- * @copyright 2016 Vladimir Jimenez
+ * @copyright 2017 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Object;
 
 /**
- * Class JailObject
+ * Class JailObject.
  *
  * A wrapper object to only allow certain functions on the white list to be called. This is used in order to limit which
  * functions a user can call from Twig templates to prevent unexpected behavior.
- *
- * @package allejo\stakx\Object
  */
 class JailObject implements \ArrayAccess
 {
@@ -39,7 +37,7 @@ class JailObject implements \ArrayAccess
      * @param array    $whiteListFunctions A list of function names that can be called
      * @param array    $jailedFunctions
      */
-    public function __construct (&$object, array $whiteListFunctions, array $jailedFunctions = array())
+    public function __construct(&$object, array $whiteListFunctions, array $jailedFunctions = array())
     {
         if (!($object instanceof Jailable) && !($object instanceof \ArrayAccess))
         {
@@ -51,7 +49,7 @@ class JailObject implements \ArrayAccess
         $this->jailedFunctions = $jailedFunctions;
     }
 
-    public function __call ($name, $arguments)
+    public function __call($name, $arguments)
     {
         // White listed functions will always be getter functions, so somehow get the name of a possible getter function
         // name.
@@ -74,7 +72,7 @@ class JailObject implements \ArrayAccess
         throw new \BadMethodCallException();
     }
 
-    public function coreInstanceOf ($class)
+    public function coreInstanceOf($class)
     {
         return is_subclass_of($this->object, $class);
     }

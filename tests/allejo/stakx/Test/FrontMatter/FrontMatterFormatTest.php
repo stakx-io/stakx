@@ -13,7 +13,7 @@ use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class FrontMatterFormatTest extends PHPUnit_Stakx_TestCase
 {
-    public function testBlankLineAfterFrontMatter ()
+    public function testBlankLineAfterFrontMatter()
     {
         $expectedFormat = <<<LINE
 ---
@@ -26,7 +26,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoBlankLineAfterFrontMatter ()
+    public function testNoBlankLineAfterFrontMatter()
     {
         $expectedFormat = <<<LINE
 ---
@@ -38,7 +38,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testEmptyFrontMatter ()
+    public function testEmptyFrontMatter()
     {
         $expectedFormat = <<<LINE
 ---
@@ -50,7 +50,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testEmptyWithLineFrontMatter ()
+    public function testEmptyWithLineFrontMatter()
     {
         $expectedFormat = <<<LINE
 ---
@@ -64,7 +64,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testMultipleBlankLinesAfterFrontMatter ()
+    public function testMultipleBlankLinesAfterFrontMatter()
     {
         $expectedFormat = <<<LINE
 ---
@@ -78,7 +78,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoNewLineAfterFrontMatterThrowsException ()
+    public function testNoNewLineAfterFrontMatterThrowsException()
     {
         $this->setExpectedException(InvalidSyntaxException::class);
         $expectedFormat = <<<LINE
@@ -90,7 +90,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoNewLineAtBeginningOfFrontMatterThrowsException ()
+    public function testNoNewLineAtBeginningOfFrontMatterThrowsException()
     {
         $this->setExpectedException(InvalidSyntaxException::class);
         $expectedFormat = <<<LINE
@@ -103,7 +103,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testFrontMatterInOneLineThrowsException ()
+    public function testFrontMatterInOneLineThrowsException()
     {
         $this->setExpectedException(InvalidSyntaxException::class);
         $expectedFormat = <<<LINE
@@ -115,7 +115,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoNewLineBeforeFrontMatterClosesThrowsException ()
+    public function testNoNewLineBeforeFrontMatterClosesThrowsException()
     {
         $this->setExpectedException(InvalidSyntaxException::class);
         $expectedFormat = <<<LINE
@@ -128,7 +128,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoBodyThrowsException ()
+    public function testNoBodyThrowsException()
     {
         $this->setExpectedException(InvalidSyntaxException::class);
         $expectedFormat = <<<LINE
@@ -139,7 +139,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testWhiteSpaceBodyThrowsException ()
+    public function testWhiteSpaceBodyThrowsException()
     {
         $this->setExpectedException(InvalidSyntaxException::class);
         $expectedFormat = <<<LINE
@@ -152,7 +152,7 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testEmptyFrontMatterOneLineThrowsException ()
+    public function testEmptyFrontMatterOneLineThrowsException()
     {
         $this->setExpectedException(InvalidSyntaxException::class);
         $expectedFormat = <<<LINE
@@ -164,12 +164,12 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    private function createFile ($classType, $content)
+    private function createFile($classType, $content)
     {
         $this->dummyFile
             ->setContent($content)
             ->at($this->rootDir);
 
-        return (new $classType($this->dummyFile->url()));
+        return new $classType($this->dummyFile->url());
     }
 }

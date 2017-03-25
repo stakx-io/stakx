@@ -23,10 +23,10 @@ class TextExtension extends Twig_Extension
      *
      * @return array
      */
-    public function getFilters ()
+    public function getFilters()
     {
         return array(
-            new Twig_SimpleFilter('summary',  'twig_summary_filter'),
+            new Twig_SimpleFilter('summary', 'twig_summary_filter'),
             new Twig_SimpleFilter('truncate', 'twig_truncate_filter', array('needs_environment' => true)),
             new Twig_SimpleFilter('wordwrap', 'twig_wordwrap_filter', array('needs_environment' => true)),
         );
@@ -37,13 +37,13 @@ class TextExtension extends Twig_Extension
      *
      * @return string
      */
-    public function getName ()
+    public function getName()
     {
         return 'Text';
     }
 }
 
-function twig_summary_filter ($value, $paragraphCount = 1)
+function twig_summary_filter($value, $paragraphCount = 1)
 {
     if (function_exists('simplexml_load_string'))
     {
@@ -51,9 +51,9 @@ function twig_summary_filter ($value, $paragraphCount = 1)
         $count = min($paragraphCount, $content->count());
         $children = $content->children();
 
-        $summary = "";
+        $summary = '';
 
-        for ($i = 0; $i < $count; $i++)
+        for ($i = 0; $i < $count; ++$i)
         {
             $summary .= $children[$i]->asXml();
         }
@@ -64,7 +64,7 @@ function twig_summary_filter ($value, $paragraphCount = 1)
     return $value;
 }
 
-function twig_truncate_filter (Twig_Environment $env, $value, $length = 30, $preserve = false, $separator = '...')
+function twig_truncate_filter(Twig_Environment $env, $value, $length = 30, $preserve = false, $separator = '...')
 {
     if (mb_strlen($value, $env->getCharset()) > $length)
     {
@@ -79,13 +79,13 @@ function twig_truncate_filter (Twig_Environment $env, $value, $length = 30, $pre
             $length = $breakpoint;
         }
 
-        return rtrim(mb_substr($value, 0, $length, $env->getCharset())).$separator;
+        return rtrim(mb_substr($value, 0, $length, $env->getCharset())) . $separator;
     }
 
     return $value;
 }
 
-function twig_wordwrap_filter (Twig_Environment $env, $value, $length = 80, $separator = "\n", $preserve = false)
+function twig_wordwrap_filter(Twig_Environment $env, $value, $length = 80, $separator = "\n", $preserve = false)
 {
     $sentences = array();
 

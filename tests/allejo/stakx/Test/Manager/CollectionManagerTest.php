@@ -17,37 +17,37 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
      */
     private $cm;
 
-    public function setUp ()
+    public function setUp()
     {
         parent::setUp();
 
         $this->cm = new CollectionManager();
-        $this->cm->setLogger($this->loggerMock());
+        $this->cm->setLogger($this->getMockLogger());
         $this->cm->parseCollections(array(
             array(
                 'name' => 'My Books',
-                'folder' => $this->fs->appendPath(__DIR__, '..', 'assets', 'MyBookCollection')
-            )
+                'folder' => $this->fs->appendPath(__DIR__, '..', 'assets', 'MyBookCollection'),
+            ),
         ));
     }
 
-    public function testCollectionCount ()
+    public function testCollectionCount()
     {
         $collections = $this->cm->getCollections();
 
         $this->assertCount(1, $collections);
     }
 
-    public function testCollectionEmpty ()
+    public function testCollectionEmpty()
     {
         $cm = new CollectionManager();
-        $cm->setLogger($this->loggerMock());
+        $cm->setLogger($this->getMockLogger());
         $cm->parseCollections(array());
 
         $this->assertEmpty($cm->getCollections());
     }
 
-    public function testCollectionManagerContainsContentItem ()
+    public function testCollectionManagerContainsContentItem()
     {
         $this->assertTrue($this->cm->isTracked(
             $this->fs->appendPath('tests', 'allejo', 'stakx', 'Test', 'assets', 'MyBookCollection', 'Tale-of-Despereaux.md')
@@ -57,7 +57,7 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
         ));
     }
 
-    public function testCollectionManagerGetContentItem ()
+    public function testCollectionManagerGetContentItem()
     {
         $contentItem = $this->cm->getContentItem(
             $this->fs->appendPath('tests', 'allejo', 'stakx', 'Test', 'assets', 'MyBookCollection', 'Tiger-Rising.md')

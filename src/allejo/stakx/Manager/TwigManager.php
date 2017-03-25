@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2017 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Engines\Markdown\TwigMarkdownEngine;
@@ -18,7 +23,7 @@ class TwigManager extends BaseManager
      */
     private static $twig;
 
-    public static function &getInstance ()
+    public static function &getInstance()
     {
         return self::$twig;
     }
@@ -27,12 +32,12 @@ class TwigManager extends BaseManager
      * @param Configuration $configuration
      * @param mixed         $options
      */
-    public function configureTwig ($configuration, $options = array())
+    public function configureTwig($configuration, $options = array())
     {
-        $loader   = new Twig_Loader_Filesystem(array(
-            getcwd()
+        $loader = new Twig_Loader_Filesystem(array(
+            getcwd(),
         ));
-        $theme    = $configuration->getTheme();
+        $theme = $configuration->getTheme();
         $mdEngine = new TwigMarkdownEngine();
 
         // Only load a theme if one is specified and actually exists
@@ -44,8 +49,8 @@ class TwigManager extends BaseManager
             }
             catch (\Twig_Error_Loader $e)
             {
-                $this->output->error("The following theme could not be loaded: {theme}", array(
-                    "theme" => $theme
+                $this->output->error('The following theme could not be loaded: {theme}', array(
+                    'theme' => $theme,
                 ));
                 $this->output->error($e->getMessage());
             }
@@ -54,7 +59,7 @@ class TwigManager extends BaseManager
         self::$twig = new Twig_Environment($loader, array(
             'autoescape'  => $configuration->getTwigAutoescape(),
             'auto_reload' => true,
-            'cache'       => $this->fs->absolutePath('.stakx-cache/twig')
+            'cache'       => $this->fs->absolutePath('.stakx-cache/twig'),
         ));
 
         foreach ($options['globals'] as $global)
