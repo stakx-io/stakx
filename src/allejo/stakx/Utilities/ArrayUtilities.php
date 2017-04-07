@@ -68,4 +68,22 @@ abstract class ArrayUtilities
 
         return $merged;
     }
+
+    /**
+     * @param  string $key
+     * @param  array  $array
+     * @param  bool   $considerOffset
+     *
+     * @return array
+     */
+    public static function associative_array_split($key, array &$array, $considerOffset = true)
+    {
+        $offset = array_search($key, array_keys($array)) + (int)$considerOffset;
+        $result = array();
+
+        $result[0] = array_slice($array, 0 , $offset, true);
+        $result[1] = array_slice($array, $offset, null, true);
+
+        return $result;
+    }
 }
