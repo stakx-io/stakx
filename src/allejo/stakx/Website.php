@@ -287,7 +287,7 @@ class Website
 
         $this->configuration = new Configuration();
         $this->configuration->setLogger($this->output);
-        $this->configuration->parseConfiguration($configFile);
+        $this->configuration->parse($configFile);
     }
 
     /**

@@ -34,7 +34,8 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         ));
 
         $config = new Configuration();
-        $config->parseConfiguration();
+        $config->setLogger($this->getMockLogger());
+        $config->parse();
 
         $twigEnv = new TwigManager();
         $twigEnv->configureTwig($config, array(

@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\System;
 
+use allejo\stakx\Exception\FileAccessDeniedException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Finder\SplFileInfo;
@@ -179,6 +180,48 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
+     * Check whether a given file path is a symlink
+     *
+     * @param  string $filePath
+     *
+     * @return bool
+     */
+    public function isSymlink($filePath)
+    {
+        return is_link($filePath);
+    }
+
+    /**
+     * Only read a file's contents if it's within the current working directory
+     *
+     * @param  string $filePath
+     *
+     * @return bool|string
+     */
+    public function safeReadFile($filePath)
+    {
+        $absPath = realpath($this->absolutePath($filePath));
+
+        if (!$this->exists($absPath))
+        {
+            throw new FileNotFoundException(sprintf(
+                "The '%s' file could not be found or is outside the website working directory",
+                $filePath
+            ));
+        }
+
+        if (strpos($absPath, getcwd()) !== 0)
+        {
+            throw new FileAccessDeniedException(sprintf(
+                "The '%s' file is outside the website working directory",
+                $filePath
+            ));
+        }
+
+        return file_get_contents($absPath);
+    }
+
+    /**
      * Get the full path to the file without the extension.
      *
      * @param string $filename A file path
@@ -191,33 +234,5 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
             $this->getFolderPath($filename),
             $this->getBaseName($filename)
         );
-    }
-
-    /**
-     * Write a file.
-     *
-     * @param string $targetDir The directory of where the file will be created; the file name is a separate variable
-     * @param string $fileName  The name of the file
-     * @param string $content   The content that belongs in the file
-     *
-     * @return SplFileInfo A reference to the newly created file
-     */
-    public function writeFile($targetDir, $fileName, $content)
-    {
-        $outputFolder = $this->getFolderPath($this->absolutePath($targetDir, $fileName));
-        $targetFile = $this->getFileName($fileName);
-
-        if (!file_exists($outputFolder))
-        {
-            mkdir($outputFolder, 0755, true);
-        }
-
-        file_put_contents($this->appendPath($outputFolder, $targetFile), $content, LOCK_EX);
-
-        return (new SplFileInfo(
-            $fileName,
-            $this->absolutePath($targetDir),
-            $this->absolutePath($targetDir, $fileName)
-        ));
     }
 }
