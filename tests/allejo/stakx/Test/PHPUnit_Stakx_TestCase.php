@@ -10,6 +10,7 @@ namespace allejo\stakx\Test;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\System\Filesystem;
+use allejo\stakx\System\Folder;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
@@ -20,6 +21,9 @@ use Symfony\Component\Yaml\Yaml;
 abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 {
     const FM_OBJ_TEMPLATE = "---\n%s\n---\n\n%s";
+
+    /** @var string */
+    protected $assetFolder;
 
     /**
      * @var vfsStreamFile
@@ -64,9 +68,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $this->assertStringContains($fileContent, $contents, $message);
     }
 
-    //
+    ///
     // Utility Functions
-    //
+    ///
 
     protected function bookCollectionProvider($jailed = false)
     {
@@ -155,5 +159,35 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
 
         return sprintf(self::FM_OBJ_TEMPLATE, $fm, $body);
+    }
+
+    /**
+     * Create a temporary folder where temporary file writes will be made to
+     *
+     * Remember to remove the folder in during the ::tearDown()
+     *
+     * @param string $folderName
+     */
+    protected function createAssetFolder($folderName)
+    {
+        $this->assetFolder = $this->fs->getRelativePath($this->fs->appendPath(__DIR__, $folderName));
+
+        $this->fs->mkdir($this->assetFolder);
+    }
+
+    /**
+     * Write a temporary file to the asset folder
+     *
+     * @param $fileName
+     * @param $content
+     *
+     * @return string Path to the temporary file; relative to the project's root
+     */
+    protected function writeTempFile($fileName, $content)
+    {
+        $folder = new Folder($this->assetFolder);
+        $folder->writeFile($fileName, $content);
+
+        return $this->fs->appendPath($this->assetFolder, $fileName);
     }
 }
