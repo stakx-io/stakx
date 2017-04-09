@@ -125,3 +125,4 @@ _site
 *.phar*
 .travis/phar-deploy.pem
 .php_cs.cache
+.php-version
