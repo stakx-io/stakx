@@ -7,6 +7,7 @@
 
 namespace allejo\stakx;
 
+use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PageView;
@@ -119,6 +120,11 @@ class Compiler extends BaseManager
      */
     private function compilePageView(&$pageView)
     {
+        $this->output->debug('Compiling {type} PageView: {pageview}', array(
+            'pageview' => $pageView->getRelativeFilePath(),
+            'type' => $pageView->getType()
+        ));
+
         switch ($pageView->getType())
         {
             case PageView::STATIC_TYPE:
@@ -168,6 +174,15 @@ class Compiler extends BaseManager
 
         foreach ($contentItems as &$contentItem)
         {
+            if ($contentItem->isDraft() && !Service::getParameter(BuildableCommand::USE_DRAFTS))
+            {
+                $this->output->debug('{file}: marked as a draft', array(
+                    'file' => $contentItem->getRelativeFilePath()
+                ));
+
+                continue;
+            }
+
             $targetFile = $contentItem->getTargetFile();
             $output = $this->renderDynamicPageView($template, $pageView, $contentItem);
 

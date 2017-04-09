@@ -7,9 +7,11 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
+use allejo\stakx\Service;
 
 /**
  * The class that reads and saves information about all of the collections.
@@ -61,12 +63,15 @@ class CollectionManager extends TrackingManager
     {
         $jailItems = array();
 
-        foreach ($this->trackedItems as $key => $items)
+        /**
+         * @var string      $key
+         * @var ContentItem $item
+         */
+        foreach ($this->trackedItemsFlattened as &$item)
         {
-            foreach ($items as $name => $contentItem)
-            {
-                $jailItems[$key][$name] = $contentItem->createJail();
-            }
+            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item['draft']) { continue; }
+
+            $jailItems[$item->getCollection()][$item->getName()] = $item->createJail();
         }
 
         return $jailItems;
