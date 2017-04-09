@@ -153,10 +153,7 @@ abstract class TrackingManager extends BaseManager
      */
     public function refreshItem($filePath)
     {
-        return $this->handleTrackableItem(
-            $filePath,
-            $this->trackedItemsOptions[$filePath]
-        );
+        return $this->handleTrackableItem($filePath);
     }
 
     /**
