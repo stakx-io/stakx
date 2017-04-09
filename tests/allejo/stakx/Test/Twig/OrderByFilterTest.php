@@ -108,7 +108,8 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
         $results = $orderFilter($books, $sortKey);
         $lastCount = -1;
 
-        foreach ($results as $result) {
+        foreach ($results as $result)
+        {
             $this->assertGreaterThanOrEqual($lastCount, $result[$sortKey]);
             $lastCount = $result[$sortKey];
         }
@@ -126,7 +127,8 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
         $results = $orderFilter($books, $sortKey, 'DESC');
         $lastCount = 999999;
 
-        foreach ($results as $result) {
+        foreach ($results as $result)
+        {
             $this->assertLessThanOrEqual($lastCount, $result[$sortKey]);
             $lastCount = $result[$sortKey];
         }

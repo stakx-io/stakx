@@ -54,12 +54,16 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $filter = new GroupByFilter();
         $grouped = $filter($books, 'publisher');
 
-        $this->assertCount(2, $grouped);
         $this->assertArrayHasKey('Candlewick', $grouped);
         $this->assertArrayHasKey('Random House Books for Young Readers', $grouped);
 
-        $this->assertCount(3, $grouped['Candlewick']);
-        $this->assertCount(2, $grouped['Random House Books for Young Readers']);
+        foreach ($grouped as $publisher => $books)
+        {
+            foreach ($books as $book)
+            {
+                $this->assertEquals($publisher, $book['publisher']);
+            }
+        }
     }
 
     public function testGroupByFilterBooleanFrontMatterKey()
@@ -68,11 +72,18 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $filter = new GroupByFilter();
         $grouped = $filter($books, 'completed');
 
-        $this->assertCount(2, $grouped);
         $this->assertArrayHasKey('true', $grouped);
         $this->assertArrayHasKey('false', $grouped);
-        $this->assertCount(3, $grouped['true']);
-        $this->assertCount(1, $grouped['false']);
+
+        foreach ($grouped['true'] as $item)
+        {
+            $this->assertTrue($item['completed']);
+        }
+
+        foreach ($grouped['false'] as $item)
+        {
+            $this->assertFalse($item['completed']);
+        }
     }
 
     public function testGroupByFilterNullFrontMatterKey()

@@ -132,7 +132,8 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         /** @var DynamicPageView $pageView */
         $pageView = current($pageViews);
 
-        $this->assertCount(5, $pageView->getContentItems());
+        $originalCount = count($pageView->getContentItems());
+        $this->assertGreaterThan(0, $originalCount);
 
         /** @var ContentItem $contentItem */
         $contentItem = $this->createVirtualFile(ContentItem::class);
@@ -140,7 +141,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageManager->trackNewContentItem($contentItem);
 
-        $this->assertCount(6, $pageView->getContentItems());
+        $this->assertCount($originalCount + 1, $pageView->getContentItems());
     }
 
     public function testWarningThrownWhenPageViewFolderNotFound()
