@@ -30,6 +30,15 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($this->dummyFile->url(), $contentItem->getFilePath());
     }
 
+    public function testContentItemAppearsAsDraft()
+    {
+        $item = $this->createContentItem(array(
+            'draft' => true
+        ));
+
+        $this->assertTrue($item->isDraft());
+    }
+
     public function testContentItemWithEmptyFrontMatter()
     {
         $item = $this->createContentItemWithEmptyFrontMatter();
@@ -37,7 +46,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEmpty($item->getFrontMatter());
     }
 
-    public function testContentItemWitValidFrontMatter()
+    public function testContentItemWithValidFrontMatter()
     {
         $frontMatter = array(
             'string' => 'foo',
