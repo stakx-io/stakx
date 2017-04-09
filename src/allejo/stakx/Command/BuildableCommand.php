@@ -8,6 +8,7 @@
 namespace allejo\stakx\Command;
 
 use allejo\stakx\Configuration;
+use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Website;
 use Symfony\Component\Console\Command\Command;
@@ -22,19 +23,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 abstract class BuildableCommand extends Command
 {
-    /**
-     * @var Configuration
-     */
+    const NO_CONF = 'no-conf';
+    const NO_CLEAN = 'no-clean';
+    const USE_DRAFTS = 'use-drafts';
+
+    /** @var Configuration */
     protected $configuration;
 
-    /**
-     * @var Website
-     */
+    /** @var Website */
     protected $website;
 
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     protected $fs;
 
     /**
@@ -46,8 +45,9 @@ abstract class BuildableCommand extends Command
 
         $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', $this->fs->absolutePath(Configuration::DEFAULT_NAME));
         $this->addOption('safe', 's', InputOption::VALUE_NONE, 'Disable file system access from Twig');
-        $this->addOption('no-conf', 'l', InputOption::VALUE_NONE, 'Build a Stakx website without a configuration file');
-        $this->addOption('no-clean', 'x', InputOption::VALUE_NONE, "Don't clean the _site before recompiling the website");
+        $this->addOption(self::NO_CONF, 'l', InputOption::VALUE_NONE, 'Build a Stakx website without a configuration file');
+        $this->addOption(self::NO_CLEAN, 'x', InputOption::VALUE_NONE, "Don't clean the _site before recompiling the website");
+        $this->addOption(self::USE_DRAFTS, 'd', InputOption::VALUE_NONE, 'Publish all ContentItems marked as drafts');
     }
 
     /**
@@ -56,8 +56,12 @@ abstract class BuildableCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->website = new Website($output);
-        $this->website->setConfLess($input->getOption('no-conf'));
-        $this->website->setNoClean($input->getOption('no-clean'));
+        $this->website->setConfLess($input->getOption(self::NO_CONF));
+        $this->website->setNoClean($input->getOption(self::NO_CLEAN));
+
+        $this->setServiceParameter($input, self::NO_CONF);
+        $this->setServiceParameter($input, self::NO_CLEAN);
+        $this->setServiceParameter($input, self::USE_DRAFTS);
     }
 
     /**
@@ -69,5 +73,16 @@ abstract class BuildableCommand extends Command
     {
         $this->website->setConfiguration($input->getOption('conf'));
         $this->website->setSafeMode($input->getOption('safe'));
+    }
+
+    /**
+     * Set a parameter to the Service singleton
+     *
+     * @param InputInterface $input
+     * @param string         $param
+     */
+    private function setServiceParameter(InputInterface $input, $param)
+    {
+        Service::setParameter($param, $input->getOption($param));
     }
 }

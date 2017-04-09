@@ -35,7 +35,7 @@ class ContentItem extends Document implements \JsonSerializable
     public function createJail()
     {
         return new JailedDocument($this, array_merge(self::$whiteListFunctions, array(
-            'getCollection',
+            'getCollection', 'isDraft'
         )), array('getPageView' => 'getJailedPageView'));
     }
 
@@ -104,6 +104,16 @@ class ContentItem extends Document implements \JsonSerializable
         }
 
         $this->bodyContent = $pd->parse($this->bodyContent);
+    }
+
+    /**
+     * Check whether a ContentItem should be treated as a draft
+     *
+     * @return bool
+     */
+    public function isDraft()
+    {
+        return ($this['draft'] === true);
     }
 
     /**

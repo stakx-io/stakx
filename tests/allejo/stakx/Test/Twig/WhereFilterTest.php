@@ -155,7 +155,7 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
     {
         return array(
             array('completed', '==', true, 3),
-            array('completed', '==', false, 1),
+            array('completed', '==', false, 2),
             array('completed', '==', null, 1),
             array('completed', '!=', false, 4),
             array('completed', '~=', false, 0),

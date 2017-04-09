@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Test;
 
+use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Compiler;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\ContentItem;
@@ -14,6 +15,7 @@ use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Manager\TwigManager;
+use allejo\stakx\Service;
 use allejo\stakx\System\Folder;
 use org\bovigo\vfs\vfsStream;
 
@@ -48,6 +50,13 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         $this->compiler = new Compiler();
         $this->compiler->setLogger($this->getMockLogger());
         $this->compiler->setTargetFolder($this->folder);
+    }
+
+    public function tearDown()
+    {
+        parent::tearDown();
+
+        Service::setParameter(BuildableCommand::USE_DRAFTS, false);
     }
 
     public static function dataProviderStaticPageViewsRedirects()
@@ -207,7 +216,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         }
     }
 
-    public function testDynamicPageViewFileWritesExists()
+    private function prepareCompilerForDynamicPageViews()
     {
         /** @var ContentItem[][] $books */
         $books = $this->bookCollectionProvider();
@@ -232,6 +241,11 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         }
 
         $this->compiler->setPageViews($pageViews, $pageViewsFlattened);
+    }
+
+    public function testDynamicPageViewWriteNonDrafts()
+    {
+        $this->prepareCompilerForDynamicPageViews();
         $this->compiler->compileAll();
 
         $expected = array(
@@ -247,5 +261,20 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             $uri = vfsStream::url('root/_site' . $file);
             $this->assertFileExists($uri);
         }
+
+        // Our draft post shouldn't be written
+        $uri = vfsStream::url('root/_site/my-books/unpublished-title/index.html');
+        $this->assertFileNotExists($uri);
+    }
+
+    public function testDynamicPageViewWriteDrafts()
+    {
+        Service::setParameter(BuildableCommand::USE_DRAFTS, true);
+
+        $this->prepareCompilerForDynamicPageViews();
+        $this->compiler->compileAll();
+
+        $uri = vfsStream::url('root/_site/my-books/unpublished-title/index.html');
+        $this->assertFileExists($uri);
     }
 }

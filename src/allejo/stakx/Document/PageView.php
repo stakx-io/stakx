@@ -16,9 +16,9 @@ use Symfony\Component\Yaml\Yaml;
 
 class PageView extends Document
 {
-    const REPEATER_TYPE = 0;
-    const DYNAMIC_TYPE = 1;
-    const STATIC_TYPE = 2;
+    const REPEATER_TYPE = 'repeater';
+    const DYNAMIC_TYPE = 'dynamic';
+    const STATIC_TYPE = 'static';
 
     /**
      * @var Filesystem
