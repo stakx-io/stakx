@@ -1,5 +1,5 @@
 {
-  "name": "stakx-io/stakx",
+  "name": "stakx/stakx",
   "description": "Yet another static website generator powered by Symfony and Twig",
   "license": "LGPL",
   "type": "project",
