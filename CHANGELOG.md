@@ -1,3 +1,21 @@
+This change log only reflects changes that affect users and their websites. To view everything that has changed internally as well, view all of the [project's commits on GitHub](https://github.com/stakx-io/stakx/commits/master).
+
+## HEAD
+
+**New**
+
+- Introduced new `import` keyword, which allows you to import other configuration files for different dev environments (#42)
+- Introduce new `--use-drafts` option to the build command, which looks for `draft: true` in the FrontMatter of ContentItems. Any "draft" will not have a file written to the build folder and will not appear in the `collections` array in Twig (#45)
+
+**Changes**
+
+- The name on Packagist has been changed to `stakx/stakx`. Since there wasn't any usage, the previous `stakx-io/stakx` package has been deleted.
+- `JailObject` have been renamed to `JailedDocument`
+
+**Fixes**
+
+- stakx now sets exit values greater than 0 when a website fails to build
+
 ## 0.1.0 "Immortal Wombat"
 
 **New**
