@@ -1,5 +1,3 @@
-This change log only reflects changes that affect users and their websites. To view everything that has changed internally as well, view all of the [project's commits on GitHub](https://github.com/stakx-io/stakx/commits/master).
-
 ## HEAD
 
 **New**
@@ -14,7 +12,19 @@ This change log only reflects changes that affect users and their websites. To v
 
 **Fixes**
 
+- Permalinks with several periods or FrontMatter variables containing periods would fail to build
 - stakx now sets exit values greater than 0 when a website fails to build
+
+**Development**
+
+- Restructured the project to be PSR-4 complaint
+- Change visibility of tracking class functions
+- Always use `realpath()` in FileExplorer
+- The `menu` Twig variable is now handled by its own class
+- All file writing has been moved to a dedicated Compiler class
+- PageManager class has been refactored to solely handle PageViews and nothing else
+- Explicit file locks aren't used for writing files anymore
+- A lot of namespaces for internal classes have been changed
 
 ## 0.1.0 "Immortal Wombat"
 
