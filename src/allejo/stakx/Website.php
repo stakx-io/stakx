@@ -414,7 +414,7 @@ class Website
             $this->fs->remove($targetDir);
         }
 
-        if (Service::getParameter(BuildableCommand::CLEAN_CACHE))
+        if (!Service::getParameter(BuildableCommand::WATCHING) || Service::getParameter(BuildableCommand::CLEAN_CACHE))
         {
             $this->fs->remove($this->fs->absolutePath(Configuration::CACHE_FOLDER));
             $this->fs->mkdir($this->fs->absolutePath($this->fs->appendPath(Configuration::CACHE_FOLDER, 'twig')));
