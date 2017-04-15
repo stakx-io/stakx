@@ -312,6 +312,7 @@ class Configuration implements LoggerAwareInterface
             'exclude'   => array(
                 'node_modules/',
                 'stakx-theme.yml',
+                '/tmp___$/',
                 self::DEFAULT_NAME,
             ),
             'templates' => array(
