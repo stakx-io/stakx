@@ -118,7 +118,7 @@ class Compiler extends BaseManager
      *
      * @since 0.1.1
      */
-    private function compilePageView(&$pageView)
+    public function compilePageView(&$pageView)
     {
         $this->output->debug('Compiling {type} PageView: {pageview}', array(
             'pageview' => $pageView->getRelativeFilePath(),

@@ -184,7 +184,7 @@ class PageManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem($filePath, $options = array())
+    protected function &handleTrackableItem($filePath, $options = array())
     {
         $pageView = PageView::create($filePath);
         $namespace = $pageView->getType();
@@ -206,6 +206,8 @@ class PageManager extends TrackingManager
         }
 
         $this->addObjectToTracker($pageView, $storageKey, $namespace);
+
+        return $pageView;
     }
 
     /**
