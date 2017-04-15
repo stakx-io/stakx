@@ -7,7 +7,9 @@
 
 namespace allejo\stakx;
 
+use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Core\StakxLogger;
+use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
@@ -18,10 +20,10 @@ use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\System\FileExplorer;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\Folder;
-use JasonLewis\ResourceWatcher\Event;
-use JasonLewis\ResourceWatcher\Resource\FileResource;
-use JasonLewis\ResourceWatcher\Tracker;
-use JasonLewis\ResourceWatcher\Watcher;
+use Kwf\FileWatcher\Event\AbstractEvent;
+use Kwf\FileWatcher\Event\Create;
+use Kwf\FileWatcher\Event\Modify;
+use Kwf\FileWatcher\Watcher;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Website
@@ -46,21 +48,6 @@ class Website
      * @var bool
      */
     private $confLess;
-
-    /**
-     * When set to true, Twig templates will not have access to filters or functions which provide access to the
-     * filesystem.
-     *
-     * @var bool
-     */
-    private $safeMode;
-
-    /**
-     * When set to true, Stakx will not clean the _site folder after a rebuild.
-     *
-     * @var bool
-     */
-    private $noClean;
 
     /**
      * @var StakxLogger
@@ -125,8 +112,10 @@ class Website
      */
     public function build($tracking = false)
     {
+        Service::setParameter(BuildableCommand::WATCHING, $tracking);
+
         // Configure the environment
-        $this->createFolderStructure(!$this->noClean);
+        $this->createFolderStructure();
 
         // Our output directory
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
@@ -154,9 +143,10 @@ class Website
         $this->mm->buildFromPageViews($this->pm->getStaticPageViews());
 
         // Configure our Twig environment
+        $theme = $this->configuration->getTheme();
         $twigEnv = new TwigManager();
         $twigEnv->configureTwig($this->getConfiguration(), array(
-            'safe'    => $this->safeMode,
+            'safe'    => Service::getParameter(BuildableCommand::SAFE_MODE),
             'globals' => array(
                 array('name' => 'site', 'value' => $this->getConfiguration()->getConfiguration()),
                 array('name' => 'collections', 'value' => $this->cm->getJailedCollections()),
@@ -172,6 +162,7 @@ class Website
         $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
         $this->compiler->setPageViews($this->pm->getPageViews(), $this->pm->getPageViewsFlattened());
         $this->compiler->setTargetFolder($this->outputDirectory);
+        $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
 
         // At this point, we are looking at static files to copy over meaning we need to ignore all of the files that
@@ -184,8 +175,6 @@ class Website
         //
         // Theme Management
         //
-        $theme = $this->configuration->getTheme();
-
         if (!is_null($theme))
         {
             $this->output->notice("Looking for '${theme}' theme...");
@@ -215,46 +204,59 @@ class Website
         $this->build(true);
         $this->output->writeln(sprintf('Watching %s', getcwd()));
 
+        $exclusions = array_merge($this->getConfiguration()->getExcludes(), array(
+            $this->getConfiguration()->getTargetFolder()
+        ));
         $fileExplorer = FileExplorer::create(
-            getcwd(),
-            array_merge($this->getConfiguration()->getExcludes(), array(
-                $this->getConfiguration()->getTargetFolder(),
-            )),
-            $this->getConfiguration()->getIncludes()
+            getcwd(), $exclusions, $this->getConfiguration()->getIncludes()
         );
-        $tracker = new Tracker();
-        $watcher = new Watcher($tracker, $this->fs);
-        $listener = $watcher->watch(getcwd(), $fileExplorer->getExplorer());
-        $targetPath = $this->getConfiguration()->getTargetFolder();
+
+        $newWatcher = Watcher::create(getcwd());
+        $newWatcher
+            ->setLogger($this->output)
+            ->setExcludePatterns(array_merge(
+                $exclusions, FileExplorer::$vcsPatterns, array(Configuration::CACHE_FOLDER)
+            ))
+            ->setIterator($fileExplorer->getExplorer())
+            ->addListener(Create::NAME, function ($e) { $this->watchListenerFunction($e); })
+            ->addListener(Modify::NAME, function ($e) { $this->watchListenerFunction($e); })
+        ;
 
         $this->output->writeln('Watch started successfully');
 
-        $listener->onAnything(function (Event $event, FileResource $resouce, $path) use ($targetPath)
+        $newWatcher->start();
+    }
+
+    private function watchListenerFunction(AbstractEvent $event)
+    {
+        $filePath = $this->fs->getRelativePath($event->filename);
+
+        try
         {
-            $filePath = $this->fs->getRelativePath($path);
-
-            try
+            switch ($event::getEventName())
             {
-                switch ($event->getCode())
-                {
-                    case Event::RESOURCE_CREATED:
-                        $this->creationWatcher($filePath);
-                        break;
+                case Create::NAME:
+                    $this->creationWatcher($filePath);
+                    break;
 
-                    case Event::RESOURCE_MODIFIED:
-                        $this->modificationWatcher($filePath);
-                        break;
-                }
+                case Modify::NAME:
+                    $this->modificationWatcher($filePath);
+                    break;
             }
-            catch (\Exception $e)
-            {
-                $this->output->error(sprintf('Your website failed to build with the following error: %s',
-                    $e->getMessage()
-                ));
-            }
-        });
-
-        $watcher->start();
+        }
+        catch (FileAwareException $e)
+        {
+            $this->output->writeln(sprintf("Your website failed to build with the following error in file '%s': %s",
+                $e->getPath(),
+                $e->getMessage()
+            ));
+        }
+        catch (\Exception $e)
+        {
+            $this->output->writeln(sprintf('Your website failed to build with the following error: %s',
+                $e->getMessage()
+            ));
+        }
     }
 
     /**
@@ -310,44 +312,6 @@ class Website
         $this->confLess = $status;
     }
 
-    /**
-     * Get whether or not the website is being built in safe mode.
-     *
-     * Safe mode is defined as disabling file system access from Twig and disabling user Twig extensions
-     *
-     * @return bool True when the website is being built in safe mode
-     */
-    public function isSafeMode()
-    {
-        return $this->safeMode;
-    }
-
-    /**
-     * Set whether a website should be built in safe mode.
-     *
-     * @param bool $bool True if a website should be built in safe mode
-     */
-    public function setSafeMode($bool)
-    {
-        $this->safeMode = $bool;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isNoClean()
-    {
-        return $this->noClean;
-    }
-
-    /**
-     * @param bool $noClean
-     */
-    public function setNoClean($noClean)
-    {
-        $this->noClean = $noClean;
-    }
-
     private function creationWatcher($filePath)
     {
         $this->output->writeln(sprintf('File creation detected: %s', $filePath));
@@ -393,9 +357,17 @@ class Website
     {
         $this->output->writeln(sprintf('File change detected: %s', $filePath));
 
-        if ($this->pm->isTracked($filePath))
+        if ($this->compiler->isParentTemplate($filePath))
         {
-            $this->pm->refreshItem($filePath);
+            TwigManager::getInstance()->clearTemplateCache();
+            $this->compiler->refreshParent($filePath);
+        }
+        elseif ($this->pm->isTracked($filePath))
+        {
+            $change = $this->pm->refreshItem($filePath);
+
+            TwigManager::getInstance()->clearTemplateCache();
+            $this->compiler->compilePageView($change);
         }
         elseif ($this->cm->isTracked($filePath))
         {
@@ -433,17 +405,21 @@ class Website
      *
      * @param bool $cleanDirectory Clean the target directory
      */
-    private function createFolderStructure($cleanDirectory)
+    private function createFolderStructure()
     {
-        $tarDir = $this->fs->absolutePath($this->configuration->getTargetFolder());
+        $targetDir = $this->fs->absolutePath($this->configuration->getTargetFolder());
 
-        if ($cleanDirectory)
+        if (!Service::getParameter(BuildableCommand::NO_CLEAN))
         {
-            $this->fs->remove($tarDir);
+            $this->fs->remove($targetDir);
         }
 
-        $this->fs->remove($this->fs->absolutePath('.stakx-cache'));
-        $this->fs->mkdir($this->fs->absolutePath('.stakx-cache/twig'));
-        $this->fs->mkdir($tarDir);
+        if (!Service::getParameter(BuildableCommand::WATCHING) || Service::getParameter(BuildableCommand::CLEAN_CACHE))
+        {
+            $this->fs->remove($this->fs->absolutePath(Configuration::CACHE_FOLDER));
+            $this->fs->mkdir($this->fs->absolutePath($this->fs->appendPath(Configuration::CACHE_FOLDER, 'twig')));
+        }
+
+        $this->fs->mkdir($targetDir);
     }
 }

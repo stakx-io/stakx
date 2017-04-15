@@ -14,6 +14,7 @@ use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\BaseManager;
+use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\System\Folder;
 use Twig_Environment;
@@ -34,6 +35,9 @@ class Compiler extends BaseManager
     /** @var string|false */
     private $redirectTemplate;
 
+    /** @var Twig_Template[] */
+    private $templateDependencies;
+
     /** @var PageView[] */
     private $pageViewsFlattened;
 
@@ -43,6 +47,9 @@ class Compiler extends BaseManager
     /** @var Folder */
     private $folder;
 
+    /** @var string */
+    private $theme;
+
     /** @var Twig_Environment */
     private $twig;
 
@@ -51,6 +58,7 @@ class Compiler extends BaseManager
         parent::__construct();
 
         $this->twig = TwigManager::getInstance();
+        $this->theme = '';
     }
 
     /**
@@ -77,6 +85,40 @@ class Compiler extends BaseManager
     {
         $this->pageViews = &$pageViews;
         $this->pageViewsFlattened = &$pageViewsFlattened;
+    }
+
+    public function setThemeName($themeName)
+    {
+        $this->theme = $themeName;
+    }
+
+    ///
+    // Twig parent templates
+    ///
+
+    /**
+     * Check whether a given file path is used as a parent template by a PageView
+     *
+     * @param  string $filePath
+     *
+     * @return bool
+     */
+    public function isParentTemplate($filePath)
+    {
+        return isset($this->templateDependencies[$filePath]);
+    }
+
+    /**
+     * Rebuild all of the PageViews that used a given template as a parent
+     *
+     * @param string $filePath The file path to the parent Twig template
+     */
+    public function refreshParent($filePath)
+    {
+        foreach ($this->templateDependencies[$filePath] as &$parentTemplate)
+        {
+            $this->compilePageView($parentTemplate);
+        }
     }
 
     ///
@@ -118,7 +160,7 @@ class Compiler extends BaseManager
      *
      * @since 0.1.1
      */
-    private function compilePageView(&$pageView)
+    public function compilePageView(&$pageView)
     {
         $this->output->debug('Compiling {type} PageView: {pageview}', array(
             'pageview' => $pageView->getRelativeFilePath(),
@@ -386,7 +428,22 @@ class Compiler extends BaseManager
     {
         try
         {
-            return $this->twig->createTemplate($pageView->getContent());
+            $template = $this->twig->createTemplate($pageView->getContent());
+
+            if (Service::getParameter(BuildableCommand::WATCHING))
+            {
+                $parent = $template->getParent(array());
+
+                while (false !== $parent)
+                {
+                    $path = str_replace('@theme', $this->fs->appendPath(ThemeManager::THEME_FOLDER, $this->theme), $parent->getTemplateName());
+                    $this->templateDependencies[$path][$pageView->getName()] = &$pageView;
+
+                    $parent = $parent->getParent(array());
+                }
+            }
+
+            return $template;
         }
         catch (Twig_Error_Syntax $e)
         {

@@ -26,6 +26,9 @@ abstract class BuildableCommand extends Command
     const NO_CONF = 'no-conf';
     const NO_CLEAN = 'no-clean';
     const USE_DRAFTS = 'use-drafts';
+    const WATCHING = 'watching';
+    const CLEAN_CACHE = 'clean-cache';
+    const SAFE_MODE = 'safe';
 
     /** @var Configuration */
     protected $configuration;
@@ -44,10 +47,11 @@ abstract class BuildableCommand extends Command
         $this->fs = new Filesystem();
 
         $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', $this->fs->absolutePath(Configuration::DEFAULT_NAME));
-        $this->addOption('safe', 's', InputOption::VALUE_NONE, 'Disable file system access from Twig');
-        $this->addOption(self::NO_CONF, 'l', InputOption::VALUE_NONE, 'Build a Stakx website without a configuration file');
+        $this->addOption(self::SAFE_MODE, 's', InputOption::VALUE_NONE, 'Disable file system access from Twig');
+        $this->addOption(self::NO_CONF, 'l', InputOption::VALUE_NONE, 'Build a stakx website without a configuration file');
         $this->addOption(self::NO_CLEAN, 'x', InputOption::VALUE_NONE, "Don't clean the _site before recompiling the website");
         $this->addOption(self::USE_DRAFTS, 'd', InputOption::VALUE_NONE, 'Publish all ContentItems marked as drafts');
+        $this->addOption(self::CLEAN_CACHE, null, InputOption::VALUE_NONE, 'Clean the stakx cache folder');
     }
 
     /**
@@ -57,11 +61,16 @@ abstract class BuildableCommand extends Command
     {
         $this->website = new Website($output);
         $this->website->setConfLess($input->getOption(self::NO_CONF));
-        $this->website->setNoClean($input->getOption(self::NO_CLEAN));
 
-        $this->setServiceParameter($input, self::NO_CONF);
-        $this->setServiceParameter($input, self::NO_CLEAN);
-        $this->setServiceParameter($input, self::USE_DRAFTS);
+        $flags = array(
+            self::SAFE_MODE, self::NO_CONF, self::NO_CLEAN,
+            self::USE_DRAFTS, self::CLEAN_CACHE,
+        );
+
+        foreach ($flags as $flag)
+        {
+            $this->setServiceParameter($input, $flag);
+        }
     }
 
     /**
@@ -72,7 +81,6 @@ abstract class BuildableCommand extends Command
     protected function configureBuild(InputInterface $input)
     {
         $this->website->setConfiguration($input->getOption('conf'));
-        $this->website->setSafeMode($input->getOption('safe'));
     }
 
     /**
@@ -81,7 +89,7 @@ abstract class BuildableCommand extends Command
      * @param InputInterface $input
      * @param string         $param
      */
-    private function setServiceParameter(InputInterface $input, $param)
+    private function setServiceParameter(InputInterface &$input, $param)
     {
         Service::setParameter($param, $input->getOption($param));
     }

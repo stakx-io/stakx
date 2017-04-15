@@ -10,6 +10,7 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Configuration;
 use allejo\stakx\Engines\Markdown\TwigMarkdownEngine;
 use allejo\stakx\Twig\FilesystemExtension;
+use allejo\stakx\Twig\StakxTwigFileLoader;
 use allejo\stakx\Twig\TextExtension;
 use allejo\stakx\Twig\TwigExtension;
 use Aptoma\Twig\Extension\MarkdownExtension;
@@ -34,7 +35,7 @@ class TwigManager extends BaseManager
      */
     public function configureTwig($configuration, $options = array())
     {
-        $loader = new Twig_Loader_Filesystem(array(
+        $loader = new StakxTwigFileLoader(array(
             getcwd(),
         ));
         $theme = $configuration->getTheme();
