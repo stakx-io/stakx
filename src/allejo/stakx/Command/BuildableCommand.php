@@ -29,6 +29,7 @@ abstract class BuildableCommand extends Command
     const WATCHING = 'watching';
     const CLEAN_CACHE = 'clean-cache';
     const SAFE_MODE = 'safe';
+    const BUILD_PROFILE = 'profile';
 
     /** @var Configuration */
     protected $configuration;
@@ -52,6 +53,7 @@ abstract class BuildableCommand extends Command
         $this->addOption(self::NO_CLEAN, 'x', InputOption::VALUE_NONE, "Don't clean the _site before recompiling the website");
         $this->addOption(self::USE_DRAFTS, 'd', InputOption::VALUE_NONE, 'Publish all ContentItems marked as drafts');
         $this->addOption(self::CLEAN_CACHE, null, InputOption::VALUE_NONE, 'Clean the stakx cache folder');
+        $this->addOption(self::BUILD_PROFILE, null, InputOption::VALUE_NONE, 'Display a profile of Twig templates');
     }
 
     /**
@@ -64,7 +66,7 @@ abstract class BuildableCommand extends Command
 
         $flags = array(
             self::SAFE_MODE, self::NO_CONF, self::NO_CLEAN,
-            self::USE_DRAFTS, self::CLEAN_CACHE,
+            self::USE_DRAFTS, self::CLEAN_CACHE, self::BUILD_PROFILE,
         );
 
         foreach ($flags as $flag)

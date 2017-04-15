@@ -20,6 +20,7 @@ use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\System\FileExplorer;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\Folder;
+use allejo\stakx\Twig\StakxTwigTextProfiler;
 use Kwf\FileWatcher\Event\AbstractEvent;
 use Kwf\FileWatcher\Event\Create;
 use Kwf\FileWatcher\Event\Modify;
@@ -156,6 +157,14 @@ class Website
             ),
         ));
 
+        $profiler = null;
+
+        if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
+        {
+            $profiler = new \Twig_Profiler_Profile();
+            TwigManager::getInstance()->addExtension(new \Twig_Extension_Profiler($profiler));
+        }
+
         // Compile everything
         $this->compiler = new Compiler();
         $this->compiler->setLogger($this->output);
@@ -164,6 +173,14 @@ class Website
         $this->compiler->setTargetFolder($this->outputDirectory);
         $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
+
+        if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
+        {
+            $dumper = new StakxTwigTextProfiler();
+            $dumper->setTemplateMappings($this->compiler->getTemplateMappings());
+            $text = $dumper->dump($profiler);
+            $this->output->writeln($text);
+        }
 
         // At this point, we are looking at static files to copy over meaning we need to ignore all of the files that
         // make up the source of a stakx website

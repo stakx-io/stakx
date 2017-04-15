@@ -41,6 +41,9 @@ class Compiler extends BaseManager
     /** @var PageView[] */
     private $pageViewsFlattened;
 
+    /** @var string[] */
+    private $templateMapping;
+
     /** @var PageView[][] */
     private $pageViews;
 
@@ -119,6 +122,11 @@ class Compiler extends BaseManager
         {
             $this->compilePageView($parentTemplate);
         }
+    }
+
+    public function getTemplateMappings()
+    {
+        return $this->templateMapping;
     }
 
     ///
@@ -429,6 +437,8 @@ class Compiler extends BaseManager
         try
         {
             $template = $this->twig->createTemplate($pageView->getContent());
+
+            $this->templateMapping[$template->getTemplateName()] = $pageView->getRelativeFilePath();
 
             if (Service::getParameter(BuildableCommand::WATCHING))
             {
