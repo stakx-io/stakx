@@ -7,8 +7,10 @@
 
 namespace allejo\stakx\Test;
 
+use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\CollectionManager;
+use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\Folder;
 use org\bovigo\vfs\vfsStream;
@@ -45,6 +47,8 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $this->dummyFile = vfsStream::newFile('stakx.html.twig');
         $this->rootDir = vfsStream::setup();
         $this->fs = new Filesystem();
+
+        Service::setParameter(BuildableCommand::WATCHING, false);
 
         // Inspect the VFS as an array
         // vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure();
