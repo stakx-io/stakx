@@ -21,6 +21,7 @@ class Configuration implements LoggerAwareInterface
 {
     const DEFAULT_NAME = '_config.yml';
     const IMPORT_KEYWORD = 'import';
+    const CACHE_FOLDER = '.stakx-cache';
 
     private static $configImports = array();
 

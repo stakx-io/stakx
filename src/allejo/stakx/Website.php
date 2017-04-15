@@ -48,21 +48,6 @@ class Website
     private $confLess;
 
     /**
-     * When set to true, Twig templates will not have access to filters or functions which provide access to the
-     * filesystem.
-     *
-     * @var bool
-     */
-    private $safeMode;
-
-    /**
-     * When set to true, Stakx will not clean the _site folder after a rebuild.
-     *
-     * @var bool
-     */
-    private $noClean;
-
-    /**
      * @var StakxLogger
      */
     private $output;
@@ -125,8 +110,10 @@ class Website
      */
     public function build($tracking = false)
     {
+        Service::setParameter(BuildableCommand::WATCHING, $tracking);
+
         // Configure the environment
-        $this->createFolderStructure(!$this->noClean);
+        $this->createFolderStructure();
 
         // Our output directory
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
@@ -154,9 +141,10 @@ class Website
         $this->mm->buildFromPageViews($this->pm->getStaticPageViews());
 
         // Configure our Twig environment
+        $theme = $this->configuration->getTheme();
         $twigEnv = new TwigManager();
         $twigEnv->configureTwig($this->getConfiguration(), array(
-            'safe'    => $this->safeMode,
+            'safe'    => Service::getParameter(BuildableCommand::SAFE_MODE),
             'globals' => array(
                 array('name' => 'site', 'value' => $this->getConfiguration()->getConfiguration()),
                 array('name' => 'collections', 'value' => $this->cm->getJailedCollections()),
@@ -172,6 +160,7 @@ class Website
         $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
         $this->compiler->setPageViews($this->pm->getPageViews(), $this->pm->getPageViewsFlattened());
         $this->compiler->setTargetFolder($this->outputDirectory);
+        $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
 
         // At this point, we are looking at static files to copy over meaning we need to ignore all of the files that
@@ -184,8 +173,6 @@ class Website
         //
         // Theme Management
         //
-        $theme = $this->configuration->getTheme();
-
         if (!is_null($theme))
         {
             $this->output->notice("Looking for '${theme}' theme...");
@@ -310,44 +297,6 @@ class Website
         $this->confLess = $status;
     }
 
-    /**
-     * Get whether or not the website is being built in safe mode.
-     *
-     * Safe mode is defined as disabling file system access from Twig and disabling user Twig extensions
-     *
-     * @return bool True when the website is being built in safe mode
-     */
-    public function isSafeMode()
-    {
-        return $this->safeMode;
-    }
-
-    /**
-     * Set whether a website should be built in safe mode.
-     *
-     * @param bool $bool True if a website should be built in safe mode
-     */
-    public function setSafeMode($bool)
-    {
-        $this->safeMode = $bool;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isNoClean()
-    {
-        return $this->noClean;
-    }
-
-    /**
-     * @param bool $noClean
-     */
-    public function setNoClean($noClean)
-    {
-        $this->noClean = $noClean;
-    }
-
     private function creationWatcher($filePath)
     {
         $this->output->writeln(sprintf('File creation detected: %s', $filePath));
@@ -433,17 +382,21 @@ class Website
      *
      * @param bool $cleanDirectory Clean the target directory
      */
-    private function createFolderStructure($cleanDirectory)
+    private function createFolderStructure()
     {
-        $tarDir = $this->fs->absolutePath($this->configuration->getTargetFolder());
+        $targetDir = $this->fs->absolutePath($this->configuration->getTargetFolder());
 
-        if ($cleanDirectory)
+        if (!Service::getParameter(BuildableCommand::NO_CLEAN))
         {
-            $this->fs->remove($tarDir);
+            $this->fs->remove($targetDir);
         }
 
-        $this->fs->remove($this->fs->absolutePath('.stakx-cache'));
-        $this->fs->mkdir($this->fs->absolutePath('.stakx-cache/twig'));
-        $this->fs->mkdir($tarDir);
+        if (Service::getParameter(BuildableCommand::CLEAN_CACHE))
+        {
+            $this->fs->remove($this->fs->absolutePath(Configuration::CACHE_FOLDER));
+            $this->fs->mkdir($this->fs->absolutePath($this->fs->appendPath(Configuration::CACHE_FOLDER, 'twig')));
+        }
+
+        $this->fs->mkdir($targetDir);
     }
 }
