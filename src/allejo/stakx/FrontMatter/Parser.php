@@ -42,6 +42,13 @@ class Parser
     private $nestingLevel;
 
     /**
+     * Special FrontMatter keys that are defined manually.
+     *
+     * @var array
+     */
+    private $specialKeys;
+
+    /**
      * The current hierarchy of the keys that are being evaluated.
      *
      * Since arrays can be nested, we'll keep track of the keys up until the current depth. This information is used for
@@ -58,15 +65,11 @@ class Parser
      */
     private $frontMatter;
 
-    /**
-     * FrontMatterParser constructor.
-     *
-     * @param array $rawFrontMatter
-     */
-    public function __construct(&$rawFrontMatter)
+    public function __construct(array &$rawFrontMatter, array $specialKeys = array())
     {
         $this->expansionUsed = false;
         $this->nestingLevel = 0;
+        $this->specialKeys = $specialKeys;
         $this->yamlKeys = array();
 
         $this->frontMatter = &$rawFrontMatter;
@@ -76,7 +79,7 @@ class Parser
     }
 
     /**
-     * True if any fields were expanded in the Front Matter block.
+     * True if any fields were expanded in the FrontMatter block.
      *
      * @return bool
      */
@@ -94,7 +97,16 @@ class Parser
      */
     private function handleSpecialFrontMatter()
     {
+        $this->handleSpecialKeys();
         $this->handleDateField();
+    }
+
+    /**
+     * Merge in the special keys with the existing FrontMatter.
+     */
+    private function handleSpecialKeys()
+    {
+        $this->frontMatter = array_merge($this->frontMatter, $this->specialKeys);
     }
 
     /**

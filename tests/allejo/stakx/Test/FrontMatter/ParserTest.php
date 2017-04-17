@@ -300,4 +300,43 @@ class ParserTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals(2, $frontMatter['month']);
         $this->assertEquals(28, $frontMatter['day']);
     }
+
+    public function testSpecialKeyBaseNameDefinedByParser()
+    {
+        $frontMatter = array(
+            'myVar' => '/blog/%basename/'
+        );
+
+        new Parser($frontMatter, array(
+            'basename' => 'hello-world',
+        ));
+
+        $this->assertEquals('/blog/hello-world/', $frontMatter['myVar']);
+    }
+
+    public function testSpecialKeyFileNameDefinedByParser()
+    {
+        $frontMatter = array(
+            'myVar' => '/blog/%filename/'
+        );
+
+        new Parser($frontMatter, array(
+            'filename' => 'hello-world.md',
+        ));
+
+        $this->assertEquals('/blog/hello-world.md/', $frontMatter['myVar']);
+    }
+
+    public function testSpecialKeyTakesPrecedenceOverFrontMatter()
+    {
+        $frontMatter = array(
+            'value' => 'foo'
+        );
+
+        new Parser($frontMatter, array(
+            'value' => 'bar'
+        ));
+
+        $this->assertEquals('bar', $frontMatter['value']);
+    }
 }

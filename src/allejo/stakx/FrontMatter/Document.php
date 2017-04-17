@@ -22,6 +22,15 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
 {
     const TEMPLATE = "---\n%s\n---\n\n%s";
 
+    /**
+     * The names of FrontMatter keys that are specially defined for all Documents
+     *
+     * @var array
+     */
+    public static $specialFrontMatterKeys = array(
+        'filename', 'basename'
+    );
+
     protected static $whiteListFunctions = array(
         'getPermalink', 'getRedirects', 'getTargetFile', 'getName', 'getFilePath', 'getRelativeFilePath', 'getContent',
         'getExtension', 'getFrontMatter'
@@ -194,13 +203,23 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
     }
 
     /**
-     * Get the name of the item, which is just the file name without the extension.
+     * Get the name of the item, which is just the filename without the extension.
      *
      * @return string
      */
     final public function getName()
     {
         return $this->fs->getBaseName($this->filePath);
+    }
+
+    /**
+     * Get the filename of this document.
+     *
+     * @return string
+     */
+    final public function getFileName()
+    {
+        return $this->fs->getFileName($this->filePath);
     }
 
     /**
@@ -537,7 +556,10 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
     {
         try
         {
-            $this->frontMatterParser = new Parser($yaml);
+            $this->frontMatterParser = new Parser($yaml, array(
+                'filename' => $this->getFileName(),
+                'basename' => $this->getName(),
+            ));
             $this->frontMatterEvaluated = true;
         }
         catch (\Exception $e)

@@ -12,6 +12,7 @@ use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\RST\RstEngine;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
+use allejo\stakx\FrontMatter\Document;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use org\bovigo\vfs\vfsStream;
@@ -43,7 +44,8 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
     {
         $item = $this->createContentItemWithEmptyFrontMatter();
 
-        $this->assertEmpty($item->getFrontMatter());
+        // The only defined keys should be the ones specially defined
+        $this->assertCount(count(Document::$specialFrontMatterKeys), $item->getFrontMatter());
     }
 
     public function testContentItemWithValidFrontMatter()
@@ -56,7 +58,10 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
         $contentItem = $this->createContentItem($frontMatter);
 
-        $this->assertEquals($frontMatter, $contentItem->getFrontMatter());
+        foreach ($frontMatter as $key => $value)
+        {
+            $this->assertArrayHasKey($key, $contentItem->getFrontMatter());
+        }
     }
 
     public function testContentItemFrontMatterMagicIsset()
