@@ -204,7 +204,7 @@ class Compiler extends BaseManager
                 $e->getCode(),
                 $e,
                 $pageView->getRelativeFilePath(),
-                $e->getTemplateLine()
+                $e->getTemplateLine() + $pageView->getLineOffset()
             );
         }
     }

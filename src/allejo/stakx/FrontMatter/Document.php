@@ -263,8 +263,12 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
             throw new FileNotFoundException(null, 0, null, $this->filePath);
         }
 
-        $rawFileContents = file_get_contents($this->filePath);
+        // $fileStructure[1] is the YAML
+        // $fileStructure[2] is the amount of new lines after the closing `---` and the beginning of content
+        // $fileStructure[3] is the body of the document
         $fileStructure = array();
+
+        $rawFileContents = file_get_contents($this->filePath);
         preg_match('/---\R(.*?\R)?---(\s+)(.*)/s', $rawFileContents, $fileStructure);
 
         if (count($fileStructure) != 4)
@@ -277,7 +281,8 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
             throw new InvalidSyntaxException('FrontMatter files must have a body to render', 0, null, $this->getRelativeFilePath());
         }
 
-        $this->lineOffset = substr_count($fileStructure[1], "\n") + substr_count($fileStructure[2], "\n");
+        // The hard coded 1 is the offset used to count the new line used after the first `---` that is not caught in the regex
+        $this->lineOffset = substr_count($fileStructure[1], "\n") + substr_count($fileStructure[2], "\n") + 1;
         $this->bodyContent = $fileStructure[3];
 
         if (!empty(trim($fileStructure[1])))
