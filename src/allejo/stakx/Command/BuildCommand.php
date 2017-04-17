@@ -8,6 +8,7 @@
 namespace allejo\stakx\Command;
 
 use allejo\stakx\Exception\FileAwareException;
+use allejo\stakx\Utilities\StrUtils;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -44,9 +45,12 @@ class BuildCommand extends BuildableCommand
         }
         catch (FileAwareException $e)
         {
-            $output->writeln(sprintf("Your website failed to build with the following error in file '%s': %s",
-                $e->getPath(),
-                $e->getMessage()
+            $output->writeln(StrUtils::interpolate(
+                "Your website failed to build with the following error in file '{file}'{line}: {message}", array(
+                    'file' => $e->getPath(),
+                    'line' => (($l = $e->getLineNumber()) >= 0) ? ' on line ' . $l : '',
+                    'message' => $e->getMessage()
+                )
             ));
         }
         catch (\Exception $e)

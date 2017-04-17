@@ -12,12 +12,14 @@ use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\RepeaterPageView;
+use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\BaseManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\System\Folder;
 use Twig_Environment;
+use Twig_Error_Runtime;
 use Twig_Error_Syntax;
 use Twig_Source;
 use Twig_Template;
@@ -175,22 +177,35 @@ class Compiler extends BaseManager
             'type' => $pageView->getType()
         ));
 
-        switch ($pageView->getType())
+        try
         {
-            case PageView::STATIC_TYPE:
-                $this->compileStaticPageView($pageView);
-                $this->compileStandardRedirects($pageView);
-                break;
+            switch ($pageView->getType())
+            {
+                case PageView::STATIC_TYPE:
+                    $this->compileStaticPageView($pageView);
+                    $this->compileStandardRedirects($pageView);
+                    break;
 
-            case PageView::DYNAMIC_TYPE:
-                $this->compileDynamicPageViews($pageView);
-                $this->compileStandardRedirects($pageView);
-                break;
+                case PageView::DYNAMIC_TYPE:
+                    $this->compileDynamicPageViews($pageView);
+                    $this->compileStandardRedirects($pageView);
+                    break;
 
-            case PageView::REPEATER_TYPE:
-                $this->compileRepeaterPageViews($pageView);
-                $this->compileExpandedRedirects($pageView);
-                break;
+                case PageView::REPEATER_TYPE:
+                    $this->compileRepeaterPageViews($pageView);
+                    $this->compileExpandedRedirects($pageView);
+                    break;
+            }
+        }
+        catch (Twig_Error_Runtime $e)
+        {
+            throw new FileAwareException(
+                $e->getRawMessage(),
+                $e->getCode(),
+                $e,
+                $pageView->getRelativeFilePath(),
+                $e->getTemplateLine()
+            );
         }
     }
 
