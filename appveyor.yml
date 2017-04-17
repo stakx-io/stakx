@@ -43,6 +43,7 @@ install:
   - refreshenv
   - cd C:\projects\stakx
   - php -r "readfile('http://getcomposer.org/installer');" | php
+  - php composer.phar config github-oauth.github.com %GH_TOKEN%
   - IF %dependencies%==current php composer.phar install --no-progress --prefer-dist
   - IF %dependencies%==highest php composer.phar update --no-progress --prefer-dist -n
   - php composer.phar show

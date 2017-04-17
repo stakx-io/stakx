@@ -23,8 +23,8 @@
   },
   "repositories": [
     {
-      "type": "vcs",
-      "url": "https://github.com/stakx-io/file-watcher"
+      "type": "git",
+      "url": "https://github.com/stakx-io/file-watcher.git"
     }
   ],
   "require": {
