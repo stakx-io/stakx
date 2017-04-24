@@ -9,13 +9,13 @@ namespace allejo\stakx\Exception;
 
 use Throwable;
 
-class DependencyMissingException extends \RuntimeException
+class UnsupportedDataTypeException extends \RuntimeException
 {
-    private $dependency;
+    private $dataType;
 
-    public function __construct($dependency, $message = "", $code = 0, Throwable $previous = null)
+    public function __construct($dataType, $message = "", $code = 0, Throwable $previous = null)
     {
-        $this->dependency = $dependency;
+        $this->dataType = $dataType;
 
         parent::__construct($message, $code, $previous);
     }
@@ -23,8 +23,8 @@ class DependencyMissingException extends \RuntimeException
     /**
      * @return string
      */
-    public function getDependency()
+    public function getDataType()
     {
-        return $this->dependency;
+        return $this->dataType;
     }
 }

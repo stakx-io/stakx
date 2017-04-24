@@ -8,10 +8,12 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\DataItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\PageView;
 use allejo\stakx\Exception\CollectionNotFoundException;
+use allejo\stakx\Exception\DataSetNotFoundException;
 use allejo\stakx\System\FileExplorer;
 
 /**
@@ -39,6 +41,11 @@ class PageManager extends TrackingManager
     private $staticPages;
 
     /**
+     * @var DataItem[]|array
+     */
+    private $datasets;
+
+    /**
      * PageManager constructor.
      */
     public function __construct()
@@ -64,6 +71,11 @@ class PageManager extends TrackingManager
     public function setCollections(&$collections)
     {
         $this->collections = &$collections;
+    }
+
+    public function setDatasets(&$datasets)
+    {
+        $this->datasets = &$datasets;
     }
 
     /**
@@ -237,14 +249,17 @@ class PageManager extends TrackingManager
     private function handleTrackableDynamicPageView(&$pageView)
     {
         $frontMatter = $pageView->getFrontMatter(false);
-        $collection = $frontMatter['collection'];
+        $namespace = (isset($frontMatter['collection'])) ? 'collection' : 'dataset';
 
-        if (!isset($this->collections[$collection]))
+        $collection = $frontMatter[$namespace];
+        $array = $namespace . 's';
+
+        if (!isset($this->{$array}[$collection]))
         {
-            throw new CollectionNotFoundException("The '$collection' collection is not defined");
+            throw new CollectionNotFoundException("The '$collection' $namespace is not defined");
         }
 
-        foreach ($this->collections[$collection] as &$item)
+        foreach ($this->{$array}[$collection] as &$item)
         {
             $item->evaluateFrontMatter($frontMatter);
             $pageView->addRepeatableItem($item);

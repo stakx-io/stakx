@@ -144,8 +144,9 @@ class PageView extends FrontMatterDocument
     {
         $instance = new self($filePath);
 
-        if (isset($instance->getFrontMatter(false)['collection']))
-        {
+        if (isset($instance->getFrontMatter(false)['collection']) ||
+            isset($instance->getFrontMatter(false)['dataset'])
+        ) {
             return new DynamicPageView($filePath);
         }
 

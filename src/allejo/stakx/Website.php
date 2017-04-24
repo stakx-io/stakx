@@ -137,6 +137,7 @@ class Website
         $this->pm->setLogger($this->output);
         $this->pm->enableTracking($tracking);
         $this->pm->setCollections($this->cm->getCollections());
+        $this->pm->setDatasets($this->dm->getDataItems());
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
 
         // Handle the site's menu
