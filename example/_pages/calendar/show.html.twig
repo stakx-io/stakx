@@ -1,0 +1,15 @@
+---
+permalink: /calendar/%basename/
+dataset: calendar
+---
+
+{% extends "_layouts/base.html.twig" %}
+
+{% block content %}
+    {% for date in this %}
+        <article>
+            <p><strong>{{ date.localName }}</strong></p>
+            <p>{{ date.date | date('F d, Y') }}</p>
+        </article>
+    {% endfor %}
+{% endblock %}
