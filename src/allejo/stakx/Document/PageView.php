@@ -7,14 +7,14 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\FrontMatter\Document;
+use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\StakxResource;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 use Symfony\Component\Yaml\Yaml;
 
-class PageView extends Document
+class PageView extends FrontMatterDocument
 {
     const REPEATER_TYPE = 'repeater';
     const DYNAMIC_TYPE = 'dynamic';

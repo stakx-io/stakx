@@ -8,7 +8,7 @@
 namespace allejo\stakx\Twig;
 
 use allejo\stakx\Document\JailedDocument;
-use allejo\stakx\FrontMatter\Document;
+use allejo\stakx\FrontMatter\FrontMatterDocument;
 use Twig_Error_Syntax;
 
 /**
@@ -132,7 +132,7 @@ class WhereFilter
             return false;
         }
 
-        if ($array->coreInstanceOf(Document::class) && !isset($array[$key]))
+        if ($array->coreInstanceOf(FrontMatterDocument::class) && !isset($array[$key]))
         {
             if ($comparison == '==' && is_null($value))
             {

@@ -13,7 +13,7 @@ namespace allejo\stakx\Document;
  * A wrapper object to only allow certain functions on the white list to be called. This is used in order to limit which
  * functions a user can call from Twig templates to prevent unexpected behavior.
  */
-class JailedDocument implements \ArrayAccess
+class JailedDocument implements \ArrayAccess, \IteratorAggregate
 {
     /**
      * @var string[]
@@ -39,7 +39,9 @@ class JailedDocument implements \ArrayAccess
      */
     public function __construct(&$object, array $whiteListFunctions, array $jailedFunctions = array())
     {
-        if (!($object instanceof JailedDocumentInterface) && !($object instanceof \ArrayAccess))
+        if (!($object instanceof JailedDocumentInterface) &&
+            !($object instanceof \ArrayAccess) &&
+            !($object instanceof \IteratorAggregate))
         {
             throw new \InvalidArgumentException('Must implement the ArrayAccess and Jailable interfaces');
         }
@@ -111,5 +113,17 @@ class JailedDocument implements \ArrayAccess
     public function offsetUnset($offset)
     {
         return $this->object->offsetUnset($offset);
+    }
+
+    //
+    // IteratorAggregate implementation
+    //
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        return $this->object->getIterator();
     }
 }

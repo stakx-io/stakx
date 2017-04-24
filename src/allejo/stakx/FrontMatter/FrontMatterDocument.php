@@ -8,17 +8,19 @@
 namespace allejo\stakx\FrontMatter;
 
 use allejo\stakx\Document\JailedDocumentInterface;
+use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
-use allejo\stakx\System\Filesystem;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
-use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class Document implements WritableDocumentInterface, JailedDocumentInterface, \ArrayAccess
+abstract class FrontMatterDocument extends PermalinkDocument implements
+    \ArrayAccess,
+    JailedDocumentInterface,
+    WritableDocumentInterface
 {
     const TEMPLATE = "---\n%s\n---\n\n%s";
 
@@ -97,46 +99,11 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
     protected $bodyContent;
 
     /**
-     * The permalink for this object.
-     *
-     * @var string
-     */
-    protected $permalink;
-
-    /**
-     * A filesystem object.
-     *
-     * @var Filesystem
-     */
-    protected $fs;
-
-    /**
-     * The extension of the file.
-     *
-     * @var string
-     */
-    private $extension;
-
-    /**
      * The number of lines that Twig template errors should offset.
      *
      * @var int
      */
     private $lineOffset;
-
-    /**
-     * A list URLs that will redirect to this object.
-     *
-     * @var string[]
-     */
-    private $redirects;
-
-    /**
-     * The original file path to the ContentItem.
-     *
-     * @var SplFileInfo
-     */
-    private $filePath;
 
     /**
      * ContentItem constructor.
@@ -152,17 +119,7 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
         $this->frontMatterBlacklist = array('permalink', 'redirects');
         $this->writableFrontMatter = array();
 
-        $this->filePath = $filePath;
-        $this->fs = new Filesystem();
-
-        if (!$this->fs->exists($filePath))
-        {
-            throw new FileNotFoundException("The following file could not be found: ${filePath}");
-        }
-
-        $this->extension = strtolower($this->fs->getExtension($filePath));
-
-        $this->refreshFileContent();
+        parent::__construct($filePath);
     }
 
     /**
@@ -171,26 +128,6 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
      * @return string
      */
     abstract public function getContent();
-
-    /**
-     * Get the extension of the current file.
-     *
-     * @return string
-     */
-    final public function getExtension()
-    {
-        return $this->extension;
-    }
-
-    /**
-     * Get the original file path.
-     *
-     * @return string
-     */
-    final public function getFilePath()
-    {
-        return $this->filePath;
-    }
 
     /**
      * The number of lines that are taken up by FrontMatter and white space.
@@ -209,52 +146,7 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
      */
     final public function getName()
     {
-        return $this->fs->getBaseName($this->filePath);
-    }
-
-    /**
-     * Get the filename of this document.
-     *
-     * @return string
-     */
-    final public function getFileName()
-    {
-        return $this->fs->getFileName($this->filePath);
-    }
-
-    /**
-     * Get the relative path to this file relative to the root of the Stakx website.
-     *
-     * @return string
-     */
-    final public function getRelativeFilePath()
-    {
-        if ($this->filePath instanceof SplFileInfo)
-        {
-            return $this->filePath->getRelativePathname();
-        }
-
-        // TODO ensure that we always get SplFileInfo objects, even when handling VFS documents
-        return $this->fs->getRelativePath($this->filePath);
-    }
-
-    /**
-     * Get the destination of where this Content Item would be written to when the website is compiled.
-     *
-     * @return string
-     */
-    final public function getTargetFile()
-    {
-        $permalink = $this->getPermalink();
-        $missingFile = (substr($permalink, -1) == '/');
-        $permalink = str_replace('/', DIRECTORY_SEPARATOR, $permalink);
-
-        if ($missingFile)
-        {
-            $permalink = rtrim($permalink, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.html';
-        }
-
-        return ltrim($permalink, DIRECTORY_SEPARATOR);
+        return $this->getBaseName();
     }
 
     /**
@@ -345,18 +237,11 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
     // Permalink and redirect functionality
     //
 
-    /**
-     * Get the permalink of this Content Item.
-     *
-     * @throws \Exception
-     *
-     * @return string
-     */
-    final public function getPermalink()
+    final protected function buildPermalink()
     {
         if (!is_null($this->permalink))
         {
-            return $this->permalink;
+            return;
         }
 
         if (!is_null($this->frontMatterParser) && $this->frontMatterParser->hasExpansion())
@@ -378,93 +263,6 @@ abstract class Document implements WritableDocumentInterface, JailedDocumentInte
             $this->permalink = $permalink;
             $this->redirects = array();
         }
-
-        $this->permalink = $this->sanitizePermalink($this->permalink);
-        $this->permalink = str_replace(DIRECTORY_SEPARATOR, '/', $this->permalink);
-        $this->permalink = '/' . ltrim($this->permalink, '/'); // Permalinks should always use '/' and not be OS specific
-
-        return $this->permalink;
-    }
-
-    /**
-     * Get an array of URLs that will redirect to.
-     *
-     * @return string[]
-     */
-    final public function getRedirects()
-    {
-        if (is_null($this->redirects))
-        {
-            $this->getPermalink();
-        }
-
-        return $this->redirects;
-    }
-
-    /**
-     * Get the permalink based off the location of where the file is relative to the website. This permalink is to be
-     * used as a fallback in the case that a permalink is not explicitly specified in the Front Matter.
-     *
-     * @return string
-     */
-    private function getPathPermalink()
-    {
-        // Remove the protocol of the path, if there is one and prepend a '/' to the beginning
-        $cleanPath = preg_replace('/[\w|\d]+:\/\//', '', $this->getRelativeFilePath());
-        $cleanPath = ltrim($cleanPath, DIRECTORY_SEPARATOR);
-
-        // Handle vfs:// paths by replacing their forward slashes with the OS appropriate directory separator
-        if (DIRECTORY_SEPARATOR !== '/')
-        {
-            $cleanPath = str_replace('/', DIRECTORY_SEPARATOR, $cleanPath);
-        }
-
-        // Check the first folder and see if it's a data folder (starts with an underscore) intended for stakx
-        $folders = explode(DIRECTORY_SEPARATOR, $cleanPath);
-
-        if (substr($folders[0], 0, 1) === '_')
-        {
-            array_shift($folders);
-        }
-
-        $cleanPath = implode(DIRECTORY_SEPARATOR, $folders);
-
-        return $cleanPath;
-    }
-
-    /**
-     * Sanitize a permalink to remove unsupported characters or multiple '/' and replace spaces with hyphens.
-     *
-     * @param string $permalink A permalink
-     *
-     * @return string $permalink The sanitized permalink
-     */
-    private function sanitizePermalink($permalink)
-    {
-        // Remove multiple '/' together
-        $permalink = preg_replace('/\/+/', '/', $permalink);
-
-        // Replace all spaces with hyphens
-        $permalink = str_replace(' ', '-', $permalink);
-
-        // Remove all disallowed characters
-        $permalink = preg_replace('/[^0-9a-zA-Z-_\/\\\.]/', '', $permalink);
-
-        // Handle unnecessary extensions
-        $extensionsToStrip = array('twig');
-
-        if (in_array($this->fs->getExtension($permalink), $extensionsToStrip))
-        {
-            $permalink = $this->fs->removeExtension($permalink);
-        }
-
-        // Remove any special characters before a sane value
-        $permalink = preg_replace('/^[^0-9a-zA-Z-_]*/', '', $permalink);
-
-        // Convert permalinks to lower case
-        $permalink = mb_strtolower($permalink, 'UTF-8');
-
-        return $permalink;
     }
 
     //
