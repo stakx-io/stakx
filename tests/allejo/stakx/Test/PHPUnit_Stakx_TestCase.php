@@ -106,6 +106,16 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $this->fs->appendPath($this->assetFolder, $fileName);
     }
 
+    protected function createBlankFile($filename, $classType, $content)
+    {
+        $file = vfsStream::newFile($filename);
+        $file
+            ->setContent($content)
+            ->at($this->rootDir);
+
+        return new $classType($file->url());
+    }
+
     /**
      * @param string $classType
      * @param array  $frontMatter
