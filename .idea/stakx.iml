@@ -19,7 +19,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="PHP">
+      <library name="PHP" type="php">
         <CLASSES>
           <root url="file://$MODULE_DIR$/vendor/aptoma/twig-markdown" />
           <root url="file://$MODULE_DIR$/vendor/composer" />
