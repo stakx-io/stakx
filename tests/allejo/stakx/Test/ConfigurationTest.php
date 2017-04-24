@@ -140,7 +140,7 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
     public function testInvalidConfigurationFails()
     {
         $output = $this->getReadableLogger();
-        $configPath = $this->writeTempFile('_config.yml', "foo: bar\nfoo baz");
+        $configPath = $this->createTempFile('_config.yml', "foo: bar\nfoo baz");
 
         $config = new Configuration();
         $config->setLogger($output);
@@ -272,7 +272,7 @@ value_one: 1
 
         foreach ($rules['files'] as $fileName => $fileContent)
         {
-            $files[] = $this->writeTempFile($fileName, $fileContent);
+            $files[] = $this->createTempFile($fileName, $fileContent);
         }
 
         $masterConfig = $files[0];
@@ -292,8 +292,8 @@ value_one: 1
 
     public function testConfigurationImportDirectoryFails()
     {
-        $masterConfig = $this->writeTempFile('_config.yml', "import:\n  - hello/");
-        $this->writeTempFile('hello/world.yml', 'dummy file');
+        $masterConfig = $this->createTempFile('_config.yml', "import:\n  - hello/");
+        $this->createTempFile('hello/world.yml', 'dummy file');
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -304,7 +304,7 @@ value_one: 1
 
     public function testConfigurationImportSelfFails()
     {
-        $masterConfig = $this->writeTempFile('_config.yml', "import:\n  - _config.yml");
+        $masterConfig = $this->createTempFile('_config.yml', "import:\n  - _config.yml");
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -315,8 +315,8 @@ value_one: 1
 
     public function testConfigurationImportNonYamlFails()
     {
-        $masterConfig = $this->writeTempFile('_config.yml', "import:\n  - my_xml.xml");
-        $this->writeTempFile('my_xml.xml', '<root></root>');
+        $masterConfig = $this->createTempFile('_config.yml', "import:\n  - my_xml.xml");
+        $this->createTempFile('my_xml.xml', '<root></root>');
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -327,8 +327,8 @@ value_one: 1
 
     public function testConfigurationImportSymlinkFails()
     {
-        $masterConfig = $this->writeTempFile('_config.yml', "import:\n  - my_sym.yml");
-        $this->writeTempFile('original_file.yml', 'value: one');
+        $masterConfig = $this->createTempFile('_config.yml', "import:\n  - my_sym.yml");
+        $this->createTempFile('original_file.yml', 'value: one');
         $this->fs->symlink(
             $this->fs->appendPath($this->assetFolder, 'original_file.yml'),
             $this->fs->appendPath($this->assetFolder, 'my_sym.yml')
@@ -343,7 +343,7 @@ value_one: 1
 
     public function testConfigurationImportFileNotFound()
     {
-        $masterConfig = $this->writeTempFile('_config.yml', "import:\n  - fake_file.yml");
+        $masterConfig = $this->createTempFile('_config.yml', "import:\n  - fake_file.yml");
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -354,9 +354,9 @@ value_one: 1
 
     public function testConfigurationImportGrandchild()
     {
-        $masterConfig = $this->writeTempFile('grandparent.yml', "import:\n  - parent.yml\ngrandparent_value: 1");
-        $this->writeTempFile('parent.yml', "import:\n  - child.yml\nparent_value: 2");
-        $this->writeTempFile('child.yml', 'child_value: 3');
+        $masterConfig = $this->createTempFile('grandparent.yml', "import:\n  - parent.yml\ngrandparent_value: 1");
+        $this->createTempFile('parent.yml', "import:\n  - child.yml\nparent_value: 2");
+        $this->createTempFile('child.yml', 'child_value: 3');
 
         $config = new Configuration();
         $config->setLogger($this->getMockLogger());
@@ -370,8 +370,8 @@ value_one: 1
 
     public function testConfigurationImportRecursivelyFails()
     {
-        $masterConfig = $this->writeTempFile('_config.yml', "import:\n  - _second.yml");
-        $this->writeTempFile('_second.yml', "import:\n  - _config.yml");
+        $masterConfig = $this->createTempFile('_config.yml', "import:\n  - _second.yml");
+        $this->createTempFile('_second.yml', "import:\n  - _config.yml");
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -396,7 +396,7 @@ value_one: 1
      */
     public function testConfigurationInvalidImportArrayFails($invalidImportArray)
     {
-        $configPath = $this->writeTempFile('config.yml', $invalidImportArray);
+        $configPath = $this->createTempFile('config.yml', $invalidImportArray);
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -422,7 +422,7 @@ value_one: 1
      */
     public function testConfigurationImportNotAnArray($invalidImport)
     {
-        $configPath = $this->writeTempFile('config.yml', $invalidImport);
+        $configPath = $this->createTempFile('config.yml', $invalidImport);
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -433,7 +433,7 @@ value_one: 1
 
     public function testDeprecatedBase()
     {
-        $configPath = $this->writeTempFile('_config.yml', 'base: /my-deprecated');
+        $configPath = $this->createTempFile('_config.yml', 'base: /my-deprecated');
 
         $config = new Configuration();
         $config->setLogger($this->getMockLogger());
@@ -444,7 +444,7 @@ value_one: 1
 
     public function testDeprecatedBasePriority()
     {
-        $configPath = $this->writeTempFile('_config.yml', "base: /my-deprecated\nbaseurl: /my-new");
+        $configPath = $this->createTempFile('_config.yml', "base: /my-deprecated\nbaseurl: /my-new");
 
         $config = new Configuration();
         $config->setLogger($this->getMockLogger());

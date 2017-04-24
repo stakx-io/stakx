@@ -91,6 +91,22 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Write a temporary file to the asset folder
+     *
+     * @param $fileName
+     * @param $content
+     *
+     * @return string Path to the temporary file; relative to the project's root
+     */
+    protected function createTempFile($fileName, $content)
+    {
+        $folder = new Folder($this->assetFolder);
+        $folder->writeFile($fileName, $content);
+
+        return $this->fs->appendPath($this->assetFolder, $fileName);
+    }
+
+    /**
      * @param string $classType
      * @param array  $frontMatter
      * @param string $body
@@ -177,21 +193,5 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $this->assetFolder = $this->fs->getRelativePath($this->fs->appendPath(__DIR__, $folderName));
 
         $this->fs->mkdir($this->assetFolder);
-    }
-
-    /**
-     * Write a temporary file to the asset folder
-     *
-     * @param $fileName
-     * @param $content
-     *
-     * @return string Path to the temporary file; relative to the project's root
-     */
-    protected function writeTempFile($fileName, $content)
-    {
-        $folder = new Folder($this->assetFolder);
-        $folder->writeFile($fileName, $content);
-
-        return $this->fs->appendPath($this->assetFolder, $fileName);
     }
 }
