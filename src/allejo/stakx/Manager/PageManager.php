@@ -177,8 +177,8 @@ class PageManager extends TrackingManager
      */
     public function trackNewContentItem(&$contentItem)
     {
-        $collection = $contentItem->getCollection();
-        $this->trackedItems[PageView::DYNAMIC_TYPE][$collection]->addContentItem($contentItem);
+        $collection = $contentItem->getNamespace();
+        $this->trackedItems[PageView::DYNAMIC_TYPE][$collection]->addRepeatableItem($contentItem);
     }
 
     /**
@@ -198,7 +198,7 @@ class PageManager extends TrackingManager
 
             case PageView::DYNAMIC_TYPE:
                 $this->handleTrackableDynamicPageView($pageView);
-                $storageKey = $pageView->getCollection();
+                $storageKey = $pageView->getRepeatableName();
                 break;
 
             default:
@@ -247,7 +247,7 @@ class PageManager extends TrackingManager
         foreach ($this->collections[$collection] as &$item)
         {
             $item->evaluateFrontMatter($frontMatter);
-            $pageView->addContentItem($item);
+            $pageView->addRepeatableItem($item);
         }
     }
 }

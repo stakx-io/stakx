@@ -39,12 +39,12 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, \Ite
         )), array('getPageView' => 'getJailedPageView'));
     }
 
-    public function getCollection()
+    public function getNamespace()
     {
         return $this->parentCollection;
     }
 
-    public function setCollection($collection)
+    public function setNamespace($collection)
     {
         $this->parentCollection = $collection;
     }

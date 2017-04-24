@@ -71,7 +71,7 @@ class CollectionManager extends TrackingManager
         {
             if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item['draft']) { continue; }
 
-            $jailItems[$item->getCollection()][$item->getName()] = $item->createJail();
+            $jailItems[$item->getNamespace()][$item->getName()] = $item->createJail();
         }
 
         return $jailItems;
@@ -147,7 +147,7 @@ class CollectionManager extends TrackingManager
         $collectionName = $options['namespace'];
 
         $contentItem = new ContentItem($filePath);
-        $contentItem->setCollection($collectionName);
+        $contentItem->setNamespace($collectionName);
 
         $this->addObjectToTracker($contentItem, $contentItem->getName(), $collectionName);
 

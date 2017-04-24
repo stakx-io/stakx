@@ -347,7 +347,7 @@ class Website
             $this->compiler->compileContentItem($contentItem);
             $this->compiler->compileSome(array(
                 'namespace'  => 'collections',
-                'dependency' => $contentItem->getCollection(),
+                'dependency' => $contentItem->getNamespace(),
             ));
         }
         elseif ($this->dm->isHandled($filePath))
@@ -394,7 +394,7 @@ class Website
             $this->compiler->compileContentItem($contentItem);
             $this->compiler->compileSome(array(
                 'namespace'  => 'collections',
-                'dependency' => $contentItem->getCollection(),
+                'dependency' => $contentItem->getNamespace(),
             ));
         }
         elseif ($this->dm->isTracked($filePath))

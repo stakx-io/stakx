@@ -14,7 +14,7 @@ class DynamicPageView extends PageView
      *
      * @var ContentItem[]
      */
-    private $contentItems;
+    private $repeatableItems;
 
     /**
      * {@inheritdoc}
@@ -23,21 +23,21 @@ class DynamicPageView extends PageView
     {
         parent::__construct($filePath);
 
-        $this->contentItems = array();
+        $this->repeatableItems = array();
         $this->type = PageView::DYNAMIC_TYPE;
     }
 
     /**
      * Add a ContentItem to this Dynamic PageView.
      *
-     * @param ContentItem $contentItem
+     * @param TwigDocumentInterface $repeatableItem
      */
-    public function addContentItem(&$contentItem)
+    public function addRepeatableItem(&$repeatableItem)
     {
-        $filename = $this->fs->getBaseName($contentItem->getFilePath());
+        $filename = $this->fs->getBaseName($repeatableItem->getFilePath());
 
-        $this->contentItems[$filename] = &$contentItem;
-        $contentItem->setPageView($this);
+        $this->repeatableItems[$filename] = &$repeatableItem;
+        $repeatableItem->setPageView($this);
     }
 
     /**
@@ -45,9 +45,9 @@ class DynamicPageView extends PageView
      *
      * @return ContentItem[]
      */
-    public function getContentItems()
+    public function getRepeatableItems()
     {
-        return $this->contentItems;
+        return $this->repeatableItems;
     }
 
     /**
@@ -58,5 +58,27 @@ class DynamicPageView extends PageView
     public function getCollection()
     {
         return $this->getFrontMatter(false)['collection'];
+    }
+
+    /**
+     * Get the dataset name this dynamic PageView is charged with.
+     *
+     * @return string
+     */
+    public function getDataset()
+    {
+        return $this->getFrontMatter(false)['dataset'];
+    }
+
+    public function getRepeatableName()
+    {
+        $fm = $this->getFrontMatter(false);
+
+        if (isset($fm['collection']))
+        {
+            return $fm['collection'];
+        }
+
+        return $fm['dataset'];
     }
 }

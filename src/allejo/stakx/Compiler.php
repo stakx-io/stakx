@@ -172,6 +172,7 @@ class Compiler extends BaseManager
      */
     public function compilePageView(&$pageView)
     {
+        $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
         $this->output->debug('Compiling {type} PageView: {pageview}', array(
             'pageview' => $pageView->getRelativeFilePath(),
             'type' => $pageView->getType()
@@ -234,7 +235,7 @@ class Compiler extends BaseManager
      */
     private function compileDynamicPageViews(&$pageView)
     {
-        $contentItems = $pageView->getContentItems();
+        $contentItems = $pageView->getRepeatableItems();
         $template = $this->createTwigTemplate($pageView);
 
         foreach ($contentItems as &$contentItem)
@@ -249,7 +250,7 @@ class Compiler extends BaseManager
             }
 
             $targetFile = $contentItem->getTargetFile();
-            $output = $this->renderDynamicPageView($template, $pageView, $contentItem);
+            $output = $this->renderDynamicPageView($template, $contentItem);
 
             $this->output->notice('Writing file: {file}', array('file' => $targetFile));
             $this->folder->writeFile($targetFile, $output);
@@ -290,13 +291,14 @@ class Compiler extends BaseManager
      */
     public function compileContentItem(&$contentItem)
     {
-        $pageView = $contentItem->getPageView();
+        $pageView = &$contentItem->getPageView();
         $template = $this->createTwigTemplate($pageView);
 
+        $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
         $contentItem->evaluateFrontMatter($pageView->getFrontMatter(false));
 
         $targetFile = $contentItem->getTargetFile();
-        $output = $this->renderDynamicPageView($template, $pageView, $contentItem);
+        $output = $this->renderDynamicPageView($template, $contentItem);
 
         $this->output->notice('Writing file: {file}', array('file' => $targetFile));
         $this->folder->writeFile($targetFile, $output);
@@ -376,8 +378,6 @@ class Compiler extends BaseManager
      */
     private function renderRepeaterPageView(&$template, &$pageView, &$expandedValue)
     {
-        $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
-
         $pageView->setFrontMatter(array(
             'permalink' => $expandedValue->getEvaluated(),
             'iterators' => $expandedValue->getIterators(),
@@ -393,17 +393,14 @@ class Compiler extends BaseManager
      * Get the compiled HTML for a specific ContentItem.
      *
      * @param Twig_Template $template
-     * @param PageView      $pageView
      * @param ContentItem   $contentItem
      *
      * @since  0.1.1
      *
      * @return string
      */
-    private function renderDynamicPageView(&$template, &$pageView, &$contentItem)
+    private function renderDynamicPageView(&$template, &$contentItem)
     {
-        $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
-
         return $template
             ->render(array(
                 'this' => $contentItem->createJail(),
@@ -425,8 +422,6 @@ class Compiler extends BaseManager
      */
     private function renderStaticPageView(&$pageView)
     {
-        $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
-
         return $this
             ->createTwigTemplate($pageView)
             ->render(array(
