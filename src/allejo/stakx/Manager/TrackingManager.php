@@ -295,7 +295,14 @@ abstract class TrackingManager extends BaseManager
         {
             if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft()) { continue; }
 
-            $jailItems[$item->getNamespace()][$item->getName()] = $item->createJail();
+            if (empty($item->getNamespace()))
+            {
+                $jailItems[$item->getName()] = $item->createJail();
+            }
+            else
+            {
+                $jailItems[$item->getNamespace()][$item->getName()] = $item->createJail();
+            }
         }
 
         return $jailItems;
