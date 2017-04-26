@@ -7,7 +7,9 @@
 
 namespace allejo\stakx\Test\Twig;
 
+use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Service;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Twig\WhereFilter;
 
@@ -18,6 +20,8 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
     public function setUp()
     {
         parent::setUp();
+
+        Service::setParameter(BuildableCommand::USE_DRAFTS, true);
 
         $this->dataset = array(
             array(

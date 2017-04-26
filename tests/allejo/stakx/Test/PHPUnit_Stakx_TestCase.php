@@ -48,6 +48,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $this->rootDir = vfsStream::setup();
         $this->fs = new Filesystem();
 
+        Service::setParameter(BuildableCommand::USE_DRAFTS, false);
         Service::setParameter(BuildableCommand::WATCHING, false);
 
         // Inspect the VFS as an array

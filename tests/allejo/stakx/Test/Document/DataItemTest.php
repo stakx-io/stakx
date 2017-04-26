@@ -37,6 +37,7 @@ class DataItemTest extends PHPUnit_Stakx_TestCase
 LINE;
         /** @var DataItem $dataItem */
         $dataItem = $this->createBlankFile('my-sample-JSON.json', DataItem::class, $jsonFile);
+        $jailItem = $dataItem->createJail();
 
         $this->assertEquals('my-sample-JSON', $dataItem->getName());
         $this->assertEquals(array(1, 2, 3), $dataItem['array']);
@@ -44,6 +45,11 @@ LINE;
         $this->assertNull($dataItem['null']);
         $this->assertEquals(123, $dataItem['number']);
         $this->assertEquals('Hello World', $dataItem['string']);
+
+        foreach (array('array', 'boolean', 'null', 'number', 'string') as $key)
+        {
+            $this->assertEquals($dataItem[$key], $jailItem[$key]);
+        }
 
         $this->assertEquals(array(
             'array' => array(1, 2, 3),
@@ -73,7 +79,9 @@ LINE;
         $this->assertEquals($dataItem[0], $jailItem[0]);
         $this->assertEquals($dataItem->getIterator(), $jailItem->getIterator());
         $this->assertEquals('my-file', $jailItem->getName());
+        $this->assertEquals($dataItem->getName(), $jailItem->getName());
         $this->assertEquals('csv', $jailItem->getExtension());
+        $this->assertEquals($dataItem->getExtension(), $jailItem->getExtension());
 
         $this->assertEquals(array(
             array(
