@@ -15,6 +15,7 @@ class TwigExtension extends \Twig_Extension
             GroupByFilter::get(),
             OrderFilter::get(),
             WhereFilter::get(),
+            SelectFilter::get(),
         );
     }
 
