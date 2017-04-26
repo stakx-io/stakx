@@ -7,8 +7,11 @@
 
 namespace allejo\stakx\Test\Document;
 
+use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DataItem;
+use allejo\stakx\Exception\UnsupportedDataTypeException;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class DataItemTest extends PHPUnit_Stakx_TestCase
 {
@@ -84,5 +87,72 @@ LINE;
                 'gender' => 'F',
             ),
         ), $dataItem->getData());
+    }
+
+    public function testYamlAsDataItem()
+    {
+        $yamlFile = <<<LINE
+month: January
+events:
+  - 2017-01-01
+  - 2017-01-18
+  - 2017-01-19
+  - 2017-01-30
+LINE;
+        /** @var DataItem $dataItem */
+        $dataItem = $this->createBlankFile('my-yaml.yml', DataItem::class, $yamlFile);
+        $yamlExtension = $this->createBlankFile('my-file.yaml', DataItem::class, $yamlFile);
+
+        $this->assertEquals($dataItem->getData(), $yamlExtension->getData());
+
+        $tz = new \DateTimeZone('UTC');
+
+        $this->assertEquals(array(
+            'month' => 'January',
+            'events' => array(
+                new \DateTime('2017-01-01', $tz),
+                new \DateTime('2017-01-18', $tz),
+                new \DateTime('2017-01-19', $tz),
+                new \DateTime('2017-01-30', $tz),
+            ),
+        ), $dataItem->getData());
+    }
+
+    public function testXmlAsDataItem()
+    {
+        $xmlFile = <<<LINE
+<note>
+    <to attribute="attr value">Tove</to>
+    <from>Jani</from>
+    <heading>Reminder</heading>
+    <body>Don't forget me this weekend!</body>
+</note>
+LINE;
+        /** @var DataItem $dataItem */
+        $dataItem = $this->createBlankFile('my-data.xml', DataItem::class, $xmlFile);
+
+        $this->assertEquals(array(
+            'to' => 'Tove',
+            'from' => 'Jani',
+            'heading' => 'Reminder',
+            'body' => "Don't forget me this weekend!"
+        ), $dataItem->getData());
+    }
+
+    public function testDataItemDoesNotExist()
+    {
+        $this->setExpectedException(FileNotFoundException::class);
+
+        new DataItem('/path/to/my-data.yml');
+    }
+
+    public function testUnsupportedDataItemExtension()
+    {
+        $this->setExpectedException(UnsupportedDataTypeException::class);
+
+        $this->createVirtualFile(ContentItem::class);
+
+        // The dummyFile defaults to a `.twig` extension
+        new DataItem($this->dummyFile->url());
     }
 }
