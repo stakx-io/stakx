@@ -13,6 +13,7 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 abstract class ReadableDocument
 {
     protected $filePath;
+    protected $extension;
     protected $fs;
 
     public function __construct($filePath)
@@ -20,13 +21,7 @@ abstract class ReadableDocument
         $this->fs = new Filesystem();
         $p = $this->filePath = $this->fs->absolutePath((string)$filePath);
 
-        if (!$this->fs->exists($p))
-        {
-            throw new FileNotFoundException("The following file could not be found: ${p}");
-        }
-
         $this->extension = strtolower($this->fs->getExtension($p));
-
         $this->refreshFileContent();
     }
 
