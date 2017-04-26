@@ -237,7 +237,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         foreach ($books['books'] as &$item)
         {
             $item->evaluateFrontMatter($pageView->getFrontMatter(false));
-            $pageView->addContentItem($item);
+            $pageView->addRepeatableItem($item);
         }
 
         $this->compiler->setPageViews($pageViews, $pageViewsFlattened);

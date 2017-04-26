@@ -7,7 +7,11 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\FrontMatter\Document;
+use allejo\stakx\Command\BuildableCommand;
+use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\Document\TwigDocumentInterface;
+use allejo\stakx\FrontMatter\FrontMatterDocument;
+use allejo\stakx\Service;
 use allejo\stakx\System\FileExplorer;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -181,15 +185,15 @@ abstract class TrackingManager extends BaseManager
     /**
      * Add a FrontMatterObject based object to the tracker.
      *
-     * @param Document    $trackedItem
-     * @param string      $key
+     * @param TwigDocumentInterface $trackedItem
+     * @param string $key
      * @param string|null $namespace
      */
     protected function addObjectToTracker($trackedItem, $key, $namespace = null)
     {
-        if (!($trackedItem instanceof Document))
+        if (!($trackedItem instanceof FrontMatterDocument) && !($trackedItem instanceof TwigDocumentInterface))
         {
-            throw new \InvalidArgumentException('Only objects can be added to the tracker');
+            throw new \InvalidArgumentException('Only TwigDocumentInterface objects can be added to the tracker');
         }
 
         $this->addArrayToTracker($key, $trackedItem, $trackedItem->getRelativeFilePath(), $namespace);
@@ -272,6 +276,29 @@ abstract class TrackingManager extends BaseManager
         {
             $this->handleTrackableItem($file, $options);
         }
+    }
+
+    /**
+     * Return an array of JailedDocuments created from the tracked items
+     *
+     * @return JailedDocument[]
+     */
+    protected function getJailedTrackedItems()
+    {
+        $jailItems = array();
+
+        /**
+         * @var string $key
+         * @var TwigDocumentInterface $item
+         */
+        foreach ($this->trackedItemsFlattened as &$item)
+        {
+            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft()) { continue; }
+
+            $jailItems[$item->getNamespace()][$item->getName()] = $item->createJail();
+        }
+
+        return $jailItems;
     }
 
     /**

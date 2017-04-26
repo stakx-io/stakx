@@ -8,7 +8,9 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Exception\DependencyMissingException;
-use Symfony\Component\Yaml\Yaml;
+use allejo\stakx\Document\DataItem;
+use allejo\stakx\Exception\UnsupportedDataTypeException;
+use allejo\stakx\Utilities\StrUtils;
 
 /**
  * Class DataManager.
@@ -28,9 +30,14 @@ class DataManager extends TrackingManager
      *
      * @return array
      */
-    public function getDataItems()
+    public function &getDataItems()
     {
         return $this->trackedItems;
+    }
+
+    public function getJailedDataItems()
+    {
+        return $this->getJailedTrackedItems();
     }
 
     /**
@@ -100,115 +107,33 @@ class DataManager extends TrackingManager
      */
     protected function handleTrackableItem($filePath, $options = array())
     {
-        $relFilePath = $this->fs->getRelativePath($filePath);
-        $ext = strtolower($this->fs->getExtension($filePath));
-        $name = $this->fs->getBaseName($filePath);
-        $content = file_get_contents($filePath);
-        $fxnName = 'from' . ucfirst($ext);
-
-        if (method_exists(get_called_class(), $fxnName))
+        try
         {
-            $this->handleDependencies($ext);
-            $this->saveTrackerOptions($relFilePath, $options);
-            $this->addArrayToTracker(
-                $name,
-                $this->$fxnName($content),
-                $relFilePath,
-                (array_key_exists('namespace', $options)) ? $options['namespace'] : null
-            );
+            $namespace = (isset($options['namespace'])) ? $options['namespace'] : null;
+
+            $dataItem = new DataItem($filePath);
+            $dataItem->setNamespace($namespace);
+
+            $this->saveTrackerOptions($dataItem->getRelativeFilePath(), $options);
+            $this->addObjectToTracker($dataItem, $dataItem->getName(), $namespace);
+
+            return $dataItem->getName();
         }
-        else
+        catch (DependencyMissingException $e)
         {
-            $this->output->warning("There is no function to handle '$ext' file format.");
+            if ($e->getDependency() === 'XML')
+            {
+                $this->output->critical('XML support is not available in your PHP installation. For XML support, please install the appropriate package for your system:');
+                $this->output->critical('  e.g. php7.0-xml');
+            }
         }
-
-        return $name;
-    }
-
-    /**
-     * Convert from CSV into an associative array.
-     *
-     * @param string $content CSV formatted text
-     *
-     * @return array
-     */
-    private function fromCsv($content)
-    {
-        $rows = array_map('str_getcsv', explode("\n", trim($content)));
-        $columns = array_shift($rows);
-        $csv = array();
-
-        foreach ($rows as $row)
+        catch (UnsupportedDataTypeException $e)
         {
-            $csv[] = array_combine($columns, $row);
+            $this->output->warning(StrUtils::interpolate('There is no function to handle {ext} file format.', array(
+                'ext' => $e->getDataType()
+            )));
         }
 
-        return $csv;
-    }
-
-    /**
-     * Convert from JSON into an associative array.
-     *
-     * @param string $content JSON formatted text
-     *
-     * @return array
-     */
-    private function fromJson($content)
-    {
-        return json_decode($content, true);
-    }
-
-    /**
-     * Convert from XML into an associative array.
-     *
-     * @param string $content XML formatted text
-     *
-     * @return array
-     */
-    private function fromXml($content)
-    {
-        return json_decode(json_encode(simplexml_load_string($content)), true);
-    }
-
-    /**
-     * Convert from YAML into an associative array.
-     *
-     * @param string $content YAML formatted text
-     *
-     * @return array
-     */
-    private function fromYaml($content)
-    {
-        return Yaml::parse($content, Yaml::PARSE_DATETIME);
-    }
-
-    /**
-     * An alias for handling `*.yml` files.
-     *
-     * @param string $content YAML formatted text
-     *
-     * @return array
-     */
-    private function fromYml($content)
-    {
-        return $this->fromYaml($content);
-    }
-
-    /**
-     * @param string $extension
-     *
-     * @todo 0.1.0 Create a help page on the main stakx website for this topic and link to it
-     *
-     * @throws DependencyMissingException
-     */
-    private function handleDependencies($extension)
-    {
-        if ($extension === 'xml' && !function_exists('simplexml_load_string'))
-        {
-            $this->output->critical('XML support is not available in your PHP installation. For XML support, please install the appropriate package for your system:');
-            $this->output->critical('  e.g. php7.0-xml');
-
-            throw new DependencyMissingException('XML support is not available with the current PHP installation.');
-        }
+        return $this->fs->getBaseName($filePath);
     }
 }

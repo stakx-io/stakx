@@ -61,20 +61,7 @@ class CollectionManager extends TrackingManager
      */
     public function getJailedCollections()
     {
-        $jailItems = array();
-
-        /**
-         * @var string      $key
-         * @var ContentItem $item
-         */
-        foreach ($this->trackedItemsFlattened as &$item)
-        {
-            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item['draft']) { continue; }
-
-            $jailItems[$item->getCollection()][$item->getName()] = $item->createJail();
-        }
-
-        return $jailItems;
+        return $this->getJailedTrackedItems();
     }
 
     /**
@@ -147,7 +134,7 @@ class CollectionManager extends TrackingManager
         $collectionName = $options['namespace'];
 
         $contentItem = new ContentItem($filePath);
-        $contentItem->setCollection($collectionName);
+        $contentItem->setNamespace($collectionName);
 
         $this->addObjectToTracker($contentItem, $contentItem->getName(), $collectionName);
 

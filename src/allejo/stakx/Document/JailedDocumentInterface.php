@@ -15,7 +15,7 @@ namespace allejo\stakx\Document;
 interface JailedDocumentInterface
 {
     /**
-     * Create a JailObject instance from the object implementing this interface.
+     * Create a JailDocument instance from the object implementing this interface.
      *
      * @return JailedDocument
      */

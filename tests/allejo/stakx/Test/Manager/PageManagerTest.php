@@ -51,7 +51,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageViews = $pageManager->getAllPageViews();
         $pageView = current($pageViews);
-        $contentItems = $pageView->getContentItems();
+        $contentItems = $pageView->getRepeatableItems();
 
         $this->assertEquals($collections['books'], $contentItems);
     }
@@ -132,16 +132,16 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         /** @var DynamicPageView $pageView */
         $pageView = current($pageViews);
 
-        $originalCount = count($pageView->getContentItems());
+        $originalCount = count($pageView->getRepeatableItems());
         $this->assertGreaterThan(0, $originalCount);
 
         /** @var ContentItem $contentItem */
         $contentItem = $this->createVirtualFile(ContentItem::class);
-        $contentItem->setCollection('books');
+        $contentItem->setNamespace('books');
 
         $pageManager->trackNewContentItem($contentItem);
 
-        $this->assertCount($originalCount + 1, $pageView->getContentItems());
+        $this->assertCount($originalCount + 1, $pageView->getRepeatableItems());
     }
 
     public function testWarningThrownWhenPageViewFolderNotFound()

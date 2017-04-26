@@ -48,6 +48,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $this->rootDir = vfsStream::setup();
         $this->fs = new Filesystem();
 
+        Service::setParameter(BuildableCommand::USE_DRAFTS, false);
         Service::setParameter(BuildableCommand::WATCHING, false);
 
         // Inspect the VFS as an array
@@ -88,6 +89,32 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         ));
 
         return (!$jailed) ? $cm->getCollections() : $cm->getJailedCollections();
+    }
+
+    /**
+     * Write a temporary file to the asset folder
+     *
+     * @param $fileName
+     * @param $content
+     *
+     * @return string Path to the temporary file; relative to the project's root
+     */
+    protected function createTempFile($fileName, $content)
+    {
+        $folder = new Folder($this->assetFolder);
+        $folder->writeFile($fileName, $content);
+
+        return $this->fs->appendPath($this->assetFolder, $fileName);
+    }
+
+    protected function createBlankFile($filename, $classType, $content)
+    {
+        $file = vfsStream::newFile($filename);
+        $file
+            ->setContent($content)
+            ->at($this->rootDir);
+
+        return new $classType($file->url());
     }
 
     /**
@@ -177,21 +204,5 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $this->assetFolder = $this->fs->getRelativePath($this->fs->appendPath(__DIR__, $folderName));
 
         $this->fs->mkdir($this->assetFolder);
-    }
-
-    /**
-     * Write a temporary file to the asset folder
-     *
-     * @param $fileName
-     * @param $content
-     *
-     * @return string Path to the temporary file; relative to the project's root
-     */
-    protected function writeTempFile($fileName, $content)
-    {
-        $folder = new Folder($this->assetFolder);
-        $folder->writeFile($fileName, $content);
-
-        return $this->fs->appendPath($this->assetFolder, $fileName);
     }
 }

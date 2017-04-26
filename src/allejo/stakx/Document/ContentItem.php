@@ -10,10 +10,10 @@ namespace allejo\stakx\Document;
 use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\PlainTextEngine;
 use allejo\stakx\Engines\RST\RstEngine;
-use allejo\stakx\FrontMatter\Document;
+use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\Manager\TwigManager;
 
-class ContentItem extends Document implements \JsonSerializable
+class ContentItem extends FrontMatterDocument implements \JsonSerializable, \IteratorAggregate, TwigDocumentInterface
 {
     /**
      * The collection this Content Item belongs to.
@@ -39,12 +39,12 @@ class ContentItem extends Document implements \JsonSerializable
         )), array('getPageView' => 'getJailedPageView'));
     }
 
-    public function getCollection()
+    public function getNamespace()
     {
         return $this->parentCollection;
     }
 
-    public function setCollection($collection)
+    public function setNamespace($collection)
     {
         $this->parentCollection = $collection;
     }
@@ -149,5 +149,10 @@ class ContentItem extends Document implements \JsonSerializable
             'permalink' => $this->getPermalink(),
             'redirects' => $this->getRedirects(),
         ));
+    }
+
+    public function getIterator()
+    {
+        return (new \ArrayIterator($this->frontMatter));
     }
 }

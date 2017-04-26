@@ -137,6 +137,7 @@ class Website
         $this->pm->setLogger($this->output);
         $this->pm->enableTracking($tracking);
         $this->pm->setCollections($this->cm->getCollections());
+        $this->pm->setDatasets($this->dm->getDataItems());
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
 
         // Handle the site's menu
@@ -153,7 +154,7 @@ class Website
                 array('name' => 'collections', 'value' => $this->cm->getJailedCollections()),
                 array('name' => 'menu', 'value' => $this->mm->getSiteMenu()),
                 array('name' => 'pages', 'value' => $this->pm->getJailedStaticPageViews()),
-                array('name' => 'data', 'value' => $this->dm->getDataItems()),
+                array('name' => 'data', 'value' => $this->dm->getJailedDataItems()),
             ),
         ));
 
@@ -347,7 +348,7 @@ class Website
             $this->compiler->compileContentItem($contentItem);
             $this->compiler->compileSome(array(
                 'namespace'  => 'collections',
-                'dependency' => $contentItem->getCollection(),
+                'dependency' => $contentItem->getNamespace(),
             ));
         }
         elseif ($this->dm->isHandled($filePath))
@@ -394,7 +395,7 @@ class Website
             $this->compiler->compileContentItem($contentItem);
             $this->compiler->compileSome(array(
                 'namespace'  => 'collections',
-                'dependency' => $contentItem->getCollection(),
+                'dependency' => $contentItem->getNamespace(),
             ));
         }
         elseif ($this->dm->isTracked($filePath))
