@@ -2,18 +2,33 @@
 
 **New**
 
-- Introduced new `import` keyword, which allows you to import other configuration files for different dev environments (#42)
-- Introduce new `--use-drafts` option to the build command, which looks for `draft: true` in the FrontMatter of ContentItems. Any "draft" will not have a file written to the build folder and will not appear in the `collections` array in Twig (#45)
+- Introduced new `import` keyword, which allows you to import other configuration files for different dev environments ([#42](https://github.com/stakx-io/stakx/pull/42))
+- Introduce new `--use-drafts` option to the build command, which looks for `draft: true` in the FrontMatter of ContentItems. Any "draft" will not have a file written to the build folder and will not appear in the `collections` array in Twig ([#45](https://github.com/stakx-io/stakx/pull/45))
+- The `watch` function now supports more external tools in addition to polling the file system
+    - [watchmedo](https://pythonhosted.org/watchdog/) (Cross platform pything shell utility)
+    - [fswatch](http://emcrisostomo.github.io/fswatch/) (Cross-platform file change monitor with multiple backends)
+    - [inotifywait](http://linux.die.net/man/1/inotifywait) (Linux shell utility)
+    - [inotify](http://php.net/manual/en/book.inotify.php) (Php PECL extension)
+- Add new `--profile` option to show stats on time spent on each Twig template
+- Two new default FrontMatter keys have been added to all FrontMatter documents
+    - `filename` - the full name of the file
+    - `basename` - the name of the file without the extension
+- All data is now housed in DataItem objects that can be used for more information about the data file ([#48](https://github.com/stakx-io/stakx/pull/48))
+- Dynamic PageViews now support a new `dataset` FrontMatter key that will allow you to use DataItems in a DataSet the same way as ContentItems in a Collection ([#48](https://github.com/stakx-io/stakx/pull/48))
+- Introduce new `select()` Twig filter that will extract the values from the respective keys of an array of elements and flatten the items in addition to removing duplicate values
 
 **Changes**
 
 - The name on Packagist has been changed to `stakx/stakx`. Since there wasn't any usage, the previous `stakx-io/stakx` package has been deleted.
 - `JailObject` have been renamed to `JailedDocument`
+- Generic Twig runtime errors have been improved to provide more user-friendly information
 
 **Fixes**
 
 - Permalinks with several periods or FrontMatter variables containing periods would fail to build
 - stakx now sets exit values greater than 0 when a website fails to build
+- Using `watch` will now compile changes to parent templates now
+- Line numbers shown in Twig errors have been corrected to be more accurate
 
 **Development**
 
@@ -25,6 +40,7 @@
 - PageManager class has been refactored to solely handle PageViews and nothing else
 - Explicit file locks aren't used for writing files anymore
 - A lot of namespaces for internal classes have been changed
+- Build settings have begun to be moved to `Service` singleton for global access to settings
 
 ## 0.1.0 "Immortal Wombat"
 
