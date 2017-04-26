@@ -40,6 +40,11 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
                 $this->assertEquals($dataSetName, $item->getNamespace());
             }
         }
+
+        $prison = $dm->getJailedDataItems();
+
+        $this->assertCount(1, $prison);
+        $this->assertArrayHasKey('calendar', $prison);
     }
 
     public function testDataItemParsing()
@@ -57,5 +62,11 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
         {
             $this->assertNull($item->getNamespace());
         }
+
+        // Test jail items
+        $prison = $dm->getJailedDataItems();
+
+        $this->assertArrayHasKey('january', $prison);
+        $this->assertArrayHasKey('december', $prison);
     }
 }
