@@ -59,6 +59,11 @@ interface TwigDocumentInterface
     public function isDraft();
 
     /**
+     * Read the contents of a file.
+     *
+     * This function is responsible for reading the file and doing whatever is needed to parse & save the contents into
+     * the given object.
+     *
      * @return void
      */
     public function refreshFileContent();

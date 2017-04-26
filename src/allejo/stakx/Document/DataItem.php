@@ -31,11 +31,6 @@ class DataItem extends PermalinkDocument implements
         parent::__construct($filePath);
     }
 
-    public function getIterator()
-    {
-        return new \ArrayIterator($this->data);
-    }
-
     public function getData()
     {
         return $this->data;
@@ -46,6 +41,9 @@ class DataItem extends PermalinkDocument implements
         return $this->getBaseName();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function evaluateFrontMatter($variables = array())
     {
         $workspace = array_merge($this->data, $variables);
@@ -74,65 +72,21 @@ class DataItem extends PermalinkDocument implements
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function buildPermalink()
     {
         return;
     }
 
     ///
-    // Jailed Document implementation
-    ///
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createJail()
-    {
-        return new JailedDocument($this, array(
-            'getExtension', 'getFilePath', 'getName', 'getRelativeFilePath'
-        ));
-    }
-
-    ///
-    // ArrayAccess implementation
-    ///
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->data[$offset]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetGet($offset)
-    {
-        return $this->data[$offset];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetSet($offset, $value)
-    {
-        $this->data[$offset] = $value;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->data[$offset]);
-    }
-
-    ///
     // Twig Document implementation
     ///
 
+    /**
+     * {@inheritdoc}
+     */
     public function getNamespace()
     {
         return $this->namespace;
@@ -154,11 +108,17 @@ class DataItem extends PermalinkDocument implements
         $this->pageView = &$pageView;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isDraft()
     {
         return false;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function refreshFileContent()
     {
         // This function can be called after the initial object was created and the file may have been deleted since the
@@ -173,6 +133,7 @@ class DataItem extends PermalinkDocument implements
 
         if (method_exists(get_called_class(), $fxnName))
         {
+            $this->handleDependencies($this->getExtension());
             $this->data = (null !== ($c = $this->$fxnName($content))) ? $c : array();
 
             return;
@@ -255,6 +216,8 @@ class DataItem extends PermalinkDocument implements
     }
 
     /**
+     * Check for any dependencies needed to parse for a specific file extension
+     *
      * @param string $extension
      *
      * @todo 0.1.0 Create a help page on the main stakx website for this topic and link to it
@@ -267,5 +230,64 @@ class DataItem extends PermalinkDocument implements
         {
             throw new DependencyMissingException('XML', 'XML support is not available with the current PHP installation.');
         }
+    }
+
+    ///
+    // Jailed Document implementation
+    ///
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createJail()
+    {
+        return new JailedDocument($this, array(
+            'getExtension', 'getFilePath', 'getName', 'getRelativeFilePath'
+        ));
+    }
+
+    ///
+    // IteratorAggregate implementation
+    ///
+
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->data);
+    }
+
+    ///
+    // ArrayAccess implementation
+    ///
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists($offset)
+    {
+        return isset($this->data[$offset]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset)
+    {
+        return $this->data[$offset];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->data[$offset] = $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        unset($this->data[$offset]);
     }
 }

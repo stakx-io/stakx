@@ -9,7 +9,10 @@ namespace allejo\stakx\Document;
 
 abstract class PermalinkDocument extends ReadableDocument
 {
+    /** @var array */
     protected $permalink;
+
+    /** @var array */
     protected $redirects;
 
     /**
@@ -129,6 +132,18 @@ abstract class PermalinkDocument extends ReadableDocument
 
         return $permalink;
     }
+
+    /**
+     * Evaluate the FrontMatter for the document.
+     *
+     * This FrontMatter can be the user-defined FrontMatter in a FrontMatterDocument but it can also be used as internal
+     * settings used for objects that do not have user-defined FrontMatter such as DataItems.
+     *
+     * @param array $variables
+     *
+     * @return void
+     */
+    abstract public function evaluateFrontMatter($variables = array());
 
     /**
      * @return void
