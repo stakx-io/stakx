@@ -55,4 +55,18 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
 
         $this->assertCount(7, $results);
     }
+
+    public function testSelectFilterWithMultidimensionalArray()
+    {
+        $mdArray = array(
+            array('tags' => array('red', array('nested', 'color', 'blue'))),
+            array('tags' => array('green', 'orange')),
+            array('tags' => array('blue', 'purple')),
+        );
+        $filter = new SelectFilter();
+        $results = $filter($mdArray, 'tags');
+
+        $this->assertCount(7, $results);
+        $this->assertContains('nested', $results);
+    }
 }
