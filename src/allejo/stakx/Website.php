@@ -419,8 +419,6 @@ class Website
 
     /**
      * Prepare the Stakx environment by creating necessary cache folders.
-     *
-     * @param bool $cleanDirectory Clean the target directory
      */
     private function createFolderStructure()
     {
@@ -431,7 +429,7 @@ class Website
             $this->fs->remove($targetDir);
         }
 
-        if (!Service::getParameter(BuildableCommand::WATCHING) || Service::getParameter(BuildableCommand::CLEAN_CACHE))
+        if (!Service::getParameter(BuildableCommand::USE_CACHE))
         {
             $this->fs->remove($this->fs->absolutePath(Configuration::CACHE_FOLDER));
             $this->fs->mkdir($this->fs->absolutePath($this->fs->appendPath(Configuration::CACHE_FOLDER, 'twig')));
