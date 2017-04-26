@@ -7,8 +7,11 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Command\BuildableCommand;
+use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\TwigDocumentInterface;
 use allejo\stakx\FrontMatter\FrontMatterDocument;
+use allejo\stakx\Service;
 use allejo\stakx\System\FileExplorer;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -273,6 +276,29 @@ abstract class TrackingManager extends BaseManager
         {
             $this->handleTrackableItem($file, $options);
         }
+    }
+
+    /**
+     * Return an array of JailedDocuments created from the tracked items
+     *
+     * @return JailedDocument[]
+     */
+    protected function getJailedTrackedItems()
+    {
+        $jailItems = array();
+
+        /**
+         * @var string $key
+         * @var TwigDocumentInterface $item
+         */
+        foreach ($this->trackedItemsFlattened as &$item)
+        {
+            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft()) { continue; }
+
+            $jailItems[$item->getNamespace()][$item->getName()] = $item->createJail();
+        }
+
+        return $jailItems;
     }
 
     /**

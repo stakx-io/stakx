@@ -154,7 +154,7 @@ class Website
                 array('name' => 'collections', 'value' => $this->cm->getJailedCollections()),
                 array('name' => 'menu', 'value' => $this->mm->getSiteMenu()),
                 array('name' => 'pages', 'value' => $this->pm->getJailedStaticPageViews()),
-                array('name' => 'data', 'value' => $this->dm->getDataItems()),
+                array('name' => 'data', 'value' => $this->dm->getJailedDataItems()),
             ),
         ));
 

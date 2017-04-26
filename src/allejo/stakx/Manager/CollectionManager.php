@@ -61,20 +61,7 @@ class CollectionManager extends TrackingManager
      */
     public function getJailedCollections()
     {
-        $jailItems = array();
-
-        /**
-         * @var string      $key
-         * @var ContentItem $item
-         */
-        foreach ($this->trackedItemsFlattened as &$item)
-        {
-            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item['draft']) { continue; }
-
-            $jailItems[$item->getNamespace()][$item->getName()] = $item->createJail();
-        }
-
-        return $jailItems;
+        return $this->getJailedTrackedItems();
     }
 
     /**

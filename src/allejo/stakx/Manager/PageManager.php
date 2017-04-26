@@ -73,9 +73,9 @@ class PageManager extends TrackingManager
         $this->collections = &$collections;
     }
 
-    public function setDatasets(&$datasets)
+    public function setDatasets($datasets)
     {
-        $this->datasets = &$datasets;
+        $this->datasets = $datasets;
     }
 
     /**

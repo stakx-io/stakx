@@ -35,6 +35,11 @@ class DataManager extends TrackingManager
         return $this->trackedItems;
     }
 
+    public function getJailedDataItems()
+    {
+        return $this->getJailedTrackedItems();
+    }
+
     /**
      * Loop through all of the DataItems specified in `$folders`. Each folder will have contain just DataItems.
      *
