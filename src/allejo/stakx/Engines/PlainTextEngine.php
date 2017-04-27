@@ -9,6 +9,9 @@ namespace allejo\stakx\Engines;
 
 class PlainTextEngine implements ParsingEngine
 {
+    /**
+     * @param string $context
+     */
     public function parse($context)
     {
         return $context;

@@ -21,7 +21,7 @@ class TextExtension extends Twig_Extension
     /**
      * Returns a list of filters.
      *
-     * @return array
+     * @return Twig_SimpleFilter[]
      */
     public function getFilters()
     {

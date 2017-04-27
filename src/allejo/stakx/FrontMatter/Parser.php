@@ -209,9 +209,9 @@ class Parser
     /**
      * Convert a string or an array into an array of ExpandedValue objects created through "value expansion".
      *
-     * @param string $frontMatterKey     The current hierarchy of the Front Matter keys being used
-     * @param string $expandableValue    The Front Matter value that will be expanded
-     * @param array  $arrayVariableNames The Front Matter variable names that reference arrays
+     * @param string $frontMatterKey The current hierarchy of the Front Matter keys being used
+     * @param string $expandableValue The Front Matter value that will be expanded
+     * @param string[] $arrayVariableNames The Front Matter variable names that reference arrays
      *
      * @throws YamlUnsupportedVariableException If a multidimensional array is given for value expansion
      *

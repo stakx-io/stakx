@@ -16,6 +16,9 @@ abstract class ReadableDocument
     protected $extension;
     protected $fs;
 
+    /**
+     * @param string $filePath
+     */
     public function __construct($filePath)
     {
         $this->fs = new Filesystem();

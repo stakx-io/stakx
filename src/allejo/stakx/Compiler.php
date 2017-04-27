@@ -92,6 +92,9 @@ class Compiler extends BaseManager
         $this->pageViewsFlattened = &$pageViewsFlattened;
     }
 
+    /**
+     * @param string $themeName
+     */
     public function setThemeName($themeName)
     {
         $this->theme = $themeName;

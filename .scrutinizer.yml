@@ -25,17 +25,6 @@ checks:
             maximum: '20'
         no_goto: true
         newline_at_end_of_file: true
-        naming_conventions:
-            local_variable: '^[a-z][a-zA-Z0-9]*$'
-            utility_class_name: 'Utils?$'
-            constant_name: '^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$'
-            property_name: '^[a-z][a-zA-Z0-9]*$'
-            method_name: '^(?:[a-z]|__)[a-zA-Z0-9]*$'
-            parameter_name: '^[a-z][a-zA-Z0-9]*$'
-            interface_name: '^[A-Z][a-zA-Z0-9]*Interface$'
-            type_name: '^[A-Z][a-zA-Z0-9]*$'
-            exception_name: '^[A-Z][a-zA-Z0-9]*Exception$'
-            isser_method_name: '^(?:is|has|should|may|supports)'
         function_in_camel_caps: true
         encourage_single_quotes: true
         classes_in_camel_caps: true
@@ -120,7 +109,7 @@ coding_style:
                 after_comma: true
                 before_semicolon: false
                 after_semicolon: true
-                after_type_cast: true
+                after_type_cast: false
         braces:
             classes_functions:
                 class: new-line

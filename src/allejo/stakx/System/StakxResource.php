@@ -14,6 +14,9 @@ class StakxResource
      */
     private static $fs;
 
+    /**
+     * @param string $fileName
+     */
     public static function getResource($fileName)
     {
         self::initFileSystem();

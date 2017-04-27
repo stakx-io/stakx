@@ -13,7 +13,7 @@ class UnsupportedDataTypeException extends \RuntimeException
 {
     private $dataType;
 
-    public function __construct($dataType, $message = "", $code = 0, Throwable $previous = null)
+    public function __construct($dataType, $message = '', $code = 0, Throwable $previous = null)
     {
         $this->dataType = $dataType;
 

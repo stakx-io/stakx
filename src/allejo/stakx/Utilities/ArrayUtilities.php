@@ -22,6 +22,9 @@ abstract class ArrayUtilities
         return false;
     }
 
+    /**
+     * @param string $keyField
+     */
     public static function array_merge_defaults(array &$array1, array &$array2, $keyField)
     {
         $merged = $array1;
@@ -81,7 +84,7 @@ abstract class ArrayUtilities
         $offset = array_search($key, array_keys($array)) + (int)$considerOffset;
         $result = array();
 
-        $result[0] = array_slice($array, 0 , $offset, true);
+        $result[0] = array_slice($array, 0, $offset, true);
         $result[1] = array_slice($array, $offset, null, true);
 
         return $result;

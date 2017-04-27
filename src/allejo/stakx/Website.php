@@ -330,6 +330,9 @@ class Website
         $this->confLess = $status;
     }
 
+    /**
+     * @param string $filePath
+     */
     private function creationWatcher($filePath)
     {
         $this->output->writeln(sprintf('File creation detected: %s', $filePath));
@@ -371,6 +374,9 @@ class Website
         }
     }
 
+    /**
+     * @param string $filePath
+     */
     private function modificationWatcher($filePath)
     {
         $this->output->writeln(sprintf('File change detected: %s', $filePath));

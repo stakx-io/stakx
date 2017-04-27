@@ -13,7 +13,6 @@ return PhpCsFixer\Config::create()
         '@Symfony' => true,
         'array_syntax' => array('syntax' => 'long'),
         'concat_space' => array('spacing' => 'one'),
-        'elseif' => false,
         'header_comment' => array(
             'header' => "@copyright 2017 Vladimir Jimenez\n@license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT",
             'commentType' => 'PHPDoc',

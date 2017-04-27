@@ -9,6 +9,7 @@ namespace allejo\stakx\Manager;
 
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\TwigDocumentInterface;
 use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\Service;
@@ -153,7 +154,7 @@ abstract class TrackingManager extends BaseManager
      *
      * @param SplFileInfo|string $filePath The relative path of the file
      *
-     * @return mixed|null
+     * @return PageView
      */
     public function refreshItem($filePath)
     {

@@ -21,6 +21,9 @@ class Folder
     protected $absolutePath;
     protected $targetDirectories;
 
+    /**
+     * @param string $folderPath
+     */
     public function __construct($folderPath)
     {
         $this->fs = new Filesystem();

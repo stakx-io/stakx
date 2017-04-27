@@ -14,6 +14,9 @@ class StakxTwigTextProfiler extends Twig_Profiler_Dumper_Text
 {
     private $templateMappings;
 
+    /**
+     * @param string[] $templateMappings
+     */
     public function setTemplateMappings($templateMappings)
     {
         $this->templateMappings = $templateMappings;

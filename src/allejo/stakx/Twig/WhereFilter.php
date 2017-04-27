@@ -89,7 +89,7 @@ class WhereFilter
      * @param array|\ArrayAccess[] $array      The elements to filter through
      * @param string               $key        The key value in an associative array or FrontMatter
      * @param string               $comparison The actual comparison symbols being used
-     * @param mixed                $value      The value we're searching for
+     * @param string               $value      The value we're searching for
      *
      * @throws Twig_Error_Syntax
      *
@@ -147,6 +147,15 @@ class WhereFilter
         return false;
     }
 
+    /**
+     * @param mixed  $lhs
+     * @param string $comparison
+     * @param mixed  $rhs
+     *
+     * @throws Twig_Error_Syntax
+     *
+     * @return bool
+     */
     private function comparisonSymbol($lhs, $comparison, $rhs)
     {
         switch ($comparison)

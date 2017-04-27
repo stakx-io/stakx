@@ -13,7 +13,10 @@ class RecursiveConfigurationException extends \RuntimeException
 {
     private $import;
 
-    public function __construct($import, $message = "", $code = 0, Exception $previous = null)
+    /**
+     * @param string $import
+     */
+    public function __construct($import, $message = '', $code = 0, Exception $previous = null)
     {
         $this->import = $import;
 

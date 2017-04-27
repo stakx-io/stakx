@@ -13,7 +13,7 @@ class DependencyMissingException extends \RuntimeException
 {
     private $dependency;
 
-    public function __construct($dependency, $message = "", $code = 0, Throwable $previous = null)
+    public function __construct($dependency, $message = '', $code = 0, Throwable $previous = null)
     {
         $this->dependency = $dependency;
 

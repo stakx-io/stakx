@@ -63,9 +63,9 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      * FileExplorer constructor.
      *
      * @param \RecursiveIterator $iterator
-     * @param array              $excludes
-     * @param array              $includes
-     * @param int|null           $flags
+     * @param string[] $excludes
+     * @param string[] $includes
+     * @param int|null $flags
      */
     public function __construct(\RecursiveIterator $iterator, array $excludes = array(), array $includes = array(), $flags = null)
     {

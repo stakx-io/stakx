@@ -59,6 +59,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     // Assertion functions
     ///
 
+    /**
+     * @param string $haystack
+     */
     protected function assertStringContains($needle, $haystack, $message = '')
     {
         $this->assertNotFalse(strpos($haystack, $needle), $message);
@@ -137,7 +140,8 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     {
         $results = array();
 
-        foreach ($elements as $element) {
+        foreach ($elements as $element)
+        {
             $filename = (isset($element['filename'])) ? $element['filename'] : hash('sha256', uniqid(mt_rand(), true), false);
             $frontMatter = (empty($element['frontmatter'])) ? '' : Yaml::dump($element['frontmatter'], 2);
             $body = (isset($element['body'])) ? $element['body'] : 'Body Text';

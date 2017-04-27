@@ -13,6 +13,7 @@ interface WritableDocumentInterface
      * Evaluate the FrontMatter in this object by merging a custom array of data.
      *
      * @param array|null $variables An array of YAML variables to use in evaluating the `$permalink` value
+     * @return void
      */
     public function evaluateFrontMatter($variables = null);
 
@@ -36,6 +37,7 @@ interface WritableDocumentInterface
      * Append a custom FrontMatter value.
      *
      * @param array $frontMatter
+     * @return void
      */
     public function appendFrontMatter(array $frontMatter);
 
@@ -45,6 +47,7 @@ interface WritableDocumentInterface
      * This will not delete a FrontMatter value parsed from the file
      *
      * @param string $key
+     * @return void
      */
     public function deleteFrontMatter($key);
 
@@ -55,6 +58,7 @@ interface WritableDocumentInterface
      * available to Twig templates
      *
      * @param array $frontMatter
+     * @return void
      */
     public function setFrontMatter(array $frontMatter);
 }

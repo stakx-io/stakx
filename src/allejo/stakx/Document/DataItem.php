@@ -139,7 +139,7 @@ class DataItem extends PermalinkDocument implements
             return;
         }
 
-        throw new UnsupportedDataTypeException($this->getExtension(), "There is no support to handle this file extension.");
+        throw new UnsupportedDataTypeException($this->getExtension(), 'There is no support to handle this file extension.');
     }
 
     ///
