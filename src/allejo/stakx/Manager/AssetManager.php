@@ -66,6 +66,13 @@ class AssetManager extends TrackingManager
         );
     }
 
+    public function refreshItem($filePath)
+    {
+        return $this->handleTrackableItem($filePath, array(
+            'prefix' => ''
+        ));
+    }
+
     /**
      * {@inheritdoc}
      */
