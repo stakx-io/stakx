@@ -13,6 +13,8 @@ use Psr\Log\LoggerInterface;
 
 abstract class BaseManager implements LoggerAwareInterface
 {
+    protected static $documentIgnoreList = array('/\.example$/');
+
     /**
      * @var LoggerInterface
      */

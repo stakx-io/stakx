@@ -16,6 +16,7 @@
 - All data is now housed in DataItem objects that can be used for more information about the data file ([#48](https://github.com/stakx-io/stakx/pull/48))
 - Dynamic PageViews now support a new `dataset` FrontMatter key that will allow you to use DataItems in a DataSet the same way as ContentItems in a Collection ([#48](https://github.com/stakx-io/stakx/pull/48))
 - Introduce new `select()` Twig filter that will extract the values from the respective keys of an array of elements and flatten the items in addition to removing duplicate values
+- In addition to DataItem folders, ContentItem and PageView folders can now use the `.example` extension ([#33](https://github.com/stakx-io/stakx/issues/33))
 
 **Changes**
 
@@ -28,7 +29,8 @@
 - Permalinks with several periods or FrontMatter variables containing periods would fail to build
 - stakx now sets exit values greater than 0 when a website fails to build
 - Using `watch` will now compile changes to parent templates now
-- Line numbers shown in Twig errors have been corrected to be more accurate
+- Line numbers shown in Twig errors have been corrected to be accurate
+- Assets are now copied correctly during the `watch` process; a notice of an undefined index of 'prefix' has been silenced
 
 **Development**
 
