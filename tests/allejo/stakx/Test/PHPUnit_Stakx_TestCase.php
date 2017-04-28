@@ -120,6 +120,15 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return new $classType($file->url());
     }
 
+    protected function createVirtualFilePath($frontMatter = array(), $body = 'Body Text')
+    {
+        $this->dummyFile
+            ->setContent($this->generateFM($frontMatter, $body))
+            ->at($this->rootDir);
+
+        return $this->dummyFile->url();
+    }
+
     /**
      * @param string $classType
      * @param array  $frontMatter
@@ -129,11 +138,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function createVirtualFile($classType, $frontMatter = array(), $body = 'Body Text')
     {
-        $this->dummyFile
-            ->setContent($this->generateFM($frontMatter, $body))
-            ->at($this->rootDir);
-
-        return new $classType($this->dummyFile->url());
+        return new $classType($this->createVirtualFilePath($frontMatter, $body));
     }
 
     protected function createMultipleVirtualFiles($classType, $elements)

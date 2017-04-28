@@ -156,8 +156,11 @@ class Compiler extends BaseManager
         /** @var PageView $pageView */
         foreach ($this->pageViewsFlattened as &$pageView)
         {
-            if ($pageView->hasTwigDependency($filter['namespace'], $filter['dependency']))
-            {
+            $ns = $filter['namespace'];
+
+            if ($pageView->hasTwigDependency($ns, $filter['dependency']) ||
+                $pageView->hasTwigDependency($ns, null)
+            ) {
                 $this->compilePageView($pageView);
             }
         }

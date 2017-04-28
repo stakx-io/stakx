@@ -159,7 +159,9 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
      */
     final public function hasTwigDependency($namespace, $needle)
     {
-        return in_array($needle, $this->dataDependencies[$namespace]);
+        return
+            in_array($needle, $this->dataDependencies[$namespace]) ||
+            (is_null($needle) && !empty($this->dataDependencies[$namespace]));
     }
 
     /**
@@ -225,7 +227,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
      */
     private function findTwigDataDependencies($filter)
     {
-        $regex = '/{[{%](?:.+)?(?:' . $filter . ')(?:\.|\[\')(\w+)(?:\'\])?.+[%}]}/';
+        $regex = '/{[{%](?:.+)?(?:' . $filter . ')(?:\.|\[\')?([^_\W]+)?(?:\'\])?\s+[%}]}/';
         $results = array();
 
         preg_match_all($regex, $this->bodyContent, $results);
