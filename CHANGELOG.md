@@ -1,4 +1,4 @@
-## HEAD
+## 0.1.1 "Eccentric Wallaby"
 
 **New**
 
@@ -31,6 +31,7 @@
 - Using `watch` will now compile changes to parent templates now
 - Line numbers shown in Twig errors have been corrected to be accurate
 - Assets are now copied correctly during the `watch` process; a notice of an undefined index of 'prefix' has been silenced
+- PageViews accessing either `data` or `collections` directly are now recompiled when the respective content is updated ([#16](https://github.com/stakx-io/stakx/issues/16))
 
 **Development**
 
