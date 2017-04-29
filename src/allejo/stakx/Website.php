@@ -24,6 +24,7 @@ use allejo\stakx\Twig\StakxTwigTextProfiler;
 use Kwf\FileWatcher\Event\AbstractEvent;
 use Kwf\FileWatcher\Event\Create;
 use Kwf\FileWatcher\Event\Modify;
+use Kwf\FileWatcher\Event\Move;
 use Kwf\FileWatcher\Watcher;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -238,6 +239,7 @@ class Website
             ->setIterator($fileExplorer->getExplorer())
             ->addListener(Create::NAME, function ($e) { $this->watchListenerFunction($e); })
             ->addListener(Modify::NAME, function ($e) { $this->watchListenerFunction($e); })
+            ->addListener(Move::NAME,   function ($e) { $this->watchListenerFunction($e); })
         ;
 
         $this->output->writeln('Watch started successfully');
@@ -259,6 +261,13 @@ class Website
 
                 case Modify::NAME:
                     $this->modificationWatcher($filePath);
+                    break;
+
+                case Move::NAME:
+                    $newFile = $this->fs->getRelativePath($event->destFilename);
+
+                    $this->deletionWatcher($filePath);
+                    $this->creationWatcher($newFile);
                     break;
             }
         }
@@ -422,6 +431,13 @@ class Website
         {
             $this->am->refreshItem($filePath);
         }
+    }
+
+    /**
+     * @param string $filePath
+     */
+    private function deletionWatcher($filePath)
+    {
     }
 
     /**
