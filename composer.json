@@ -25,6 +25,10 @@
     {
       "type": "git",
       "url": "https://github.com/stakx-io/file-watcher.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/stakx-io/highlight.php.git"
     }
   ],
   "require": {
@@ -35,12 +39,12 @@
     "symfony/console": "^3.2.3",
     "symfony/finder": "^3.2.3",
     "psr/log": "^1.0.2",
-    "scrivo/highlight.php": "^9.0.0",
     "aptoma/twig-markdown": "^2.0.0",
     "gregwar/rst": "^1.0.3",
     "mikey179/vfsStream": "^1.6.4",
     "erusev/parsedown-extra": "^0.7.1",
-    "stakx/file-watcher": "@dev"
+    "stakx/file-watcher": "@dev",
+    "stakx/highlight.php": "@dev"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.8.35",
