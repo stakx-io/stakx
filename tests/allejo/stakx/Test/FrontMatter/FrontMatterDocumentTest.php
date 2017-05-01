@@ -24,7 +24,27 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
                 'collections', 'name', true
             ),
             array(
+                "{% for d in collections.name | order('date', 'DESC') %}",
+                'collections', 'name', true
+            ),
+            array(
+                "{% for d in collections.name|order('date', 'DESC') %}",
+                'collections', 'name', true
+            ),
+            array(
+                "{% for d in collections.name[1] %}",
+                'collections', 'name', true
+            ),
+            array(
+                "{% for d in data.toc.title %}",
+                'data', 'toc', true
+            ),
+            array(
                 "{% for d in data %}",
+                'data', null, true
+            ),
+            array(
+                "{%for d in data%}",
                 'data', null, true
             ),
             array(
@@ -61,7 +81,7 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
             ),
             array(
                 "{% set rar = data[her] %}",
-                'data', null, false
+                'data', null, true
             ),
         );
     }

@@ -227,7 +227,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
      */
     private function findTwigDataDependencies($filter)
     {
-        $regex = '/{[{%](?:.+)?(?:' . $filter . ')(?:\.|\[\')?([^_\W]+)?(?:\'\])?\s+[%}]}/';
+        $regex = "/{[{%].*?(?:$filter)(?:\.|\[')?([^_\W]+)?(?:\.|'\])?[^_=]*?[%}]}/";
         $results = array();
 
         preg_match_all($regex, $this->bodyContent, $results);
