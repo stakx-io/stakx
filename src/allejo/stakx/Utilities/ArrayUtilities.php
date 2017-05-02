@@ -11,7 +11,7 @@ abstract class ArrayUtilities
 {
     public static function is_multidimensional(array &$array)
     {
-        foreach ($array as $element)
+        foreach ($array as &$element)
         {
             if (is_array($element))
             {
@@ -22,51 +22,54 @@ abstract class ArrayUtilities
         return false;
     }
 
-    /**
-     * @param string $keyField
-     */
-    public static function array_merge_defaults(array &$array1, array &$array2, $keyField)
+    public static function array_can_be_indexed(array &$arr, $indexKey)
     {
-        $merged = $array1;
-
-        foreach ($array2 as $key => &$value)
+        if (count($arr) >= 1)
         {
-            $valueMerged = false;
+            return isset($arr[0][$indexKey]);
+        }
 
-            foreach ($merged as $mergedKey => &$item)
+        return false;
+    }
+
+    public static function array_index_by_key(array &$arr, $indexKey)
+    {
+        $result = array();
+
+        foreach ($arr as &$value)
+        {
+            if (isset($value[$indexKey]))
             {
-                if (is_array($item) && array_key_exists($keyField, $item) && $item[$keyField] == $value[$keyField])
+                $result[$value[$indexKey]] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    public static function array_merge_defaults(array &$arr1, array &$arr2, $indexKey)
+    {
+        $merged = $arr1;
+
+        foreach ($arr2 as $key => &$value)
+        {
+            if (is_array($value) && isset($arr1[$key]))
+            {
+                if (self::array_can_be_indexed($value, $indexKey))
                 {
-                    $item = array_merge($item, $value);
-                    $valueMerged = true;
-
-                    break;
+                    $indexedArr1 = self::array_index_by_key($arr1[$key], $indexKey);
+                    $indexedArr2 = self::array_index_by_key($value, $indexKey);
+                    $merged[$key] = array_merge($indexedArr1, $indexedArr2);
                 }
-                elseif ($mergedKey == $key)
+                else
                 {
-                    if (is_numeric($mergedKey))
-                    {
-                        $merged[] = $value;
-                    }
-                    elseif (is_array($item))
-                    {
-                        $item = array_unique(array_merge($item, $value));
-                    }
-                    else
-                    {
-                        $item = $value;
-                    }
-
-                    $valueMerged = true;
-
-                    break;
+                    $merged[$key] = array_merge($arr1[$key], $value);
                 }
+
+                continue;
             }
 
-            if (!$valueMerged)
-            {
-                $merged[$key] = $value;
-            }
+            $merged[$key] = $value;
         }
 
         return $merged;
