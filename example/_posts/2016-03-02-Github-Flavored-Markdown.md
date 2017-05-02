@@ -55,3 +55,52 @@ I just want to write
   some plain preformatted
      text without a language
 ```
+
+### Custom Language Definitions
+
+Have you created your own language or working with a custom language for your project? You can define your own language definition files and have stakx load them up. As an example, I'd like to load a custom language for [BZFlag](https://www.bzflag.org/)'s map syntax so I would do the following:
+
+```yaml
+highlighter:
+  languages:
+    bzw: _languages/bzw.json
+```
+
+And then I'd be able to use that definition by using `bzw` in my fenced code block.
+
+```bzw
+options
+  -j
+  +r
+  -mp 0,10,10,10,10,50
+  -set _gravity -15
+  +f GM{1}
+end
+
+# comment here
+box
+  name Box box copy copy
+  position 0 0 0 # another box comment
+  size 5 5 10
+  rotation 45
+  matref toast
+end
+
+pyramid
+  pos 0 0 0
+  size 10 10 15
+end
+
+base
+  position 0 10 0
+  color 1
+end
+
+zone
+  position 20 10 0
+  size
+  team 1
+  flag G
+  zoneflag R*
+end
+```

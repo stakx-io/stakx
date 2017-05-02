@@ -20,3 +20,7 @@ theme: bootstrap
 debug: true
 
 title: My First Stakx Website
+
+highlighter:
+  languages:
+    bzw: _languages/bzw.json
