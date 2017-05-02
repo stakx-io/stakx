@@ -8,6 +8,7 @@
 namespace allejo\stakx\Test;
 
 use allejo\stakx\Command\BuildableCommand;
+use allejo\stakx\Configuration;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Service;
@@ -50,6 +51,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
         Service::setParameter(BuildableCommand::USE_DRAFTS, false);
         Service::setParameter(BuildableCommand::WATCHING, false);
+        Service::setParameter(Configuration::HIGHLIGHTER_ENABLED, true);
 
         // Inspect the VFS as an array
         // vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure();

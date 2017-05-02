@@ -7,7 +7,10 @@
 
 namespace allejo\stakx\Engines\Markdown;
 
+use allejo\stakx\Configuration;
 use allejo\stakx\Engines\ParsingEngine;
+use allejo\stakx\Manager\HighlighterManager;
+use allejo\stakx\Service;
 use Highlight\Highlighter;
 
 class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
@@ -39,7 +42,7 @@ class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
     public function blockFencedCodeComplete($block)
     {
         // The class has a `language-` prefix, remove this to get the language
-        if (isset($block['element']['text']['attributes']))
+        if (isset($block['element']['text']['attributes']) && Service::getParameter(Configuration::HIGHLIGHTER_ENABLED))
         {
             $cssClass = &$block['element']['text']['attributes']['class'];
             $language = substr($cssClass, 9);

@@ -19,6 +19,8 @@ use Symfony\Component\Yaml\Yaml;
 
 class Configuration implements LoggerAwareInterface
 {
+    const HIGHLIGHTER_ENABLED = 'highlighter-enabled';
+
     const DEFAULT_NAME = '_config.yml';
     const IMPORT_KEYWORD = 'import';
     const CACHE_FOLDER = '.stakx-cache';
@@ -135,6 +137,22 @@ class Configuration implements LoggerAwareInterface
     public function getExcludes()
     {
         return $this->returnConfigOption('exclude', array());
+    }
+
+    /**
+     * @return array
+     */
+    public function getHighlighterCustomLanguages()
+    {
+        return $this->configuration['highlighter']['languages'];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHighlighterEnabled()
+    {
+        return $this->configuration['highlighter']['enabled'];
     }
 
     /**
@@ -317,6 +335,10 @@ class Configuration implements LoggerAwareInterface
             ),
             'templates' => array(
                 'redirect' => false,
+            ),
+            'highlighter' => array(
+                'enabled' => true,
+                'languages' => array(),
             ),
         );
 

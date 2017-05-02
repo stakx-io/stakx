@@ -21,6 +21,7 @@ use allejo\stakx\System\FileExplorer;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\Folder;
 use allejo\stakx\Twig\StakxTwigTextProfiler;
+use Highlight\Highlighter;
 use Kwf\FileWatcher\Event\AbstractEvent;
 use Kwf\FileWatcher\Event\Create;
 use Kwf\FileWatcher\Event\Modify;
@@ -118,6 +119,7 @@ class Website
 
         // Configure the environment
         $this->createFolderStructure();
+        $this->configureHighlighter();
 
         // Our output directory
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
@@ -459,5 +461,33 @@ class Website
         }
 
         $this->fs->mkdir($targetDir);
+    }
+
+    private function configureHighlighter()
+    {
+        // Configure our highlighter
+        Service::setParameter(Configuration::HIGHLIGHTER_ENABLED, $this->getConfiguration()->isHighlighterEnabled());
+
+        if (Service::getParameter(Configuration::HIGHLIGHTER_ENABLED))
+        {
+            foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
+            {
+                $fullPath = $this->fs->absolutePath($path);
+
+                if (!$this->fs->exists($fullPath))
+                {
+                    $this->output->warning('The following language definition could not be found: {lang}', array(
+                        'lang' => $path
+                    ));
+                    continue;
+                }
+
+                Highlighter::registerLanguage($lang, $fullPath);
+                $this->output->debug('Loading custom language {lang} from {path}...', array(
+                    'lang' => $lang,
+                    'path' => $path
+                ));
+            }
+        }
     }
 }

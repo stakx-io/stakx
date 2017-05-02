@@ -334,7 +334,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/stakx-io/highlight.php.git",
-                "reference": "f7869dbffe46df60fdfcd92f2e80cb43dab60684"
+                "reference": "5229e950b3c131225c1461a91e74ab28e95b2c5a"
             },
             "type": "library",
             "autoload": {
@@ -357,7 +357,7 @@
                 "issues": "https://github.com/stakx-io/highlight.php/issues",
                 "source": "https://github.com/stakx-io/highlight.php"
             },
-            "time": "2017-05-01 23:04:32"
+            "time": "2017-05-02 15:06:25"
         },
         {
             "name": "symfony/console",
