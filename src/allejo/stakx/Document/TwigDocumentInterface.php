@@ -11,7 +11,6 @@ interface TwigDocumentInterface
 {
     /**
      * @param string $filePath
-     * @return void
      */
     public function __construct($filePath);
 
