@@ -12,6 +12,7 @@ use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\RepeaterPageView;
+use allejo\stakx\Document\TwigDocumentInterface;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\BaseManager;
@@ -151,7 +152,7 @@ class Compiler extends BaseManager
         }
     }
 
-    public function compileSome($filter = array())
+    public function compileSome(array $filter = array())
     {
         /** @var PageView $pageView */
         foreach ($this->pageViewsFlattened as &$pageView)
@@ -176,7 +177,7 @@ class Compiler extends BaseManager
      *
      * @since 0.1.1
      */
-    public function compilePageView(&$pageView)
+    public function compilePageView(PageView &$pageView)
     {
         $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
         $this->output->debug('Compiling {type} PageView: {pageview}', array(
@@ -223,7 +224,7 @@ class Compiler extends BaseManager
      *
      * @since 0.1.1
      */
-    private function compileStaticPageView(&$pageView)
+    private function compileStaticPageView(PageView &$pageView)
     {
         $targetFile = $pageView->getTargetFile();
         $output = $this->renderStaticPageView($pageView);
@@ -239,7 +240,7 @@ class Compiler extends BaseManager
      *
      * @since 0.1.1
      */
-    private function compileDynamicPageViews(&$pageView)
+    private function compileDynamicPageViews(DynamicPageView &$pageView)
     {
         $contentItems = $pageView->getRepeatableItems();
         $template = $this->createTwigTemplate($pageView);
@@ -270,7 +271,7 @@ class Compiler extends BaseManager
      *
      * @since 0.1.1
      */
-    private function compileRepeaterPageViews(&$pageView)
+    private function compileRepeaterPageViews(RepeaterPageView &$pageView)
     {
         $pageView->rewindPermalink();
 
@@ -295,7 +296,7 @@ class Compiler extends BaseManager
      *
      * @param ContentItem $contentItem
      */
-    public function compileContentItem(&$contentItem)
+    public function compileContentItem(ContentItem &$contentItem)
     {
         $pageView = &$contentItem->getPageView();
         $template = $this->createTwigTemplate($pageView);
@@ -321,7 +322,7 @@ class Compiler extends BaseManager
      *
      * @since 0.1.1
      */
-    private function compileStandardRedirects(&$pageView)
+    private function compileStandardRedirects(PageView &$pageView)
     {
         $redirects = $pageView->getRedirects();
 
@@ -344,7 +345,7 @@ class Compiler extends BaseManager
      *
      * @since 0.1.1
      */
-    private function compileExpandedRedirects(&$pageView)
+    private function compileExpandedRedirects(RepeaterPageView &$pageView)
     {
         $permalinks = $pageView->getRepeaterPermalinks();
 
@@ -382,7 +383,7 @@ class Compiler extends BaseManager
      *
      * @return string
      */
-    private function renderRepeaterPageView(&$template, &$pageView, &$expandedValue)
+    private function renderRepeaterPageView(Twig_Template &$template, RepeaterPageView &$pageView, ExpandedValue &$expandedValue)
     {
         $pageView->setFrontMatter(array(
             'permalink' => $expandedValue->getEvaluated(),
@@ -398,18 +399,18 @@ class Compiler extends BaseManager
     /**
      * Get the compiled HTML for a specific ContentItem.
      *
-     * @param Twig_Template $template
-     * @param ContentItem   $contentItem
-     *
-     * @since  0.1.1
+     * @param Twig_Template         $template
+     * @param TwigDocumentInterface $twigItem
      *
      * @return string
+     * @since  0.1.1
+     *
      */
-    private function renderDynamicPageView(&$template, &$contentItem)
+    private function renderDynamicPageView(Twig_Template &$template, TwigDocumentInterface &$twigItem)
     {
         return $template
             ->render(array(
-                'this' => $contentItem->createJail(),
+                'this' => $twigItem->createJail(),
             ));
     }
 
@@ -426,7 +427,7 @@ class Compiler extends BaseManager
      *
      * @return string
      */
-    private function renderStaticPageView(&$pageView)
+    private function renderStaticPageView(PageView &$pageView)
     {
         return $this
             ->createTwigTemplate($pageView)
@@ -448,7 +449,7 @@ class Compiler extends BaseManager
      *
      * @return Twig_Template
      */
-    private function createTwigTemplate(&$pageView)
+    private function createTwigTemplate(PageView &$pageView)
     {
         try
         {
