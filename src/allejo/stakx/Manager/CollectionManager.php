@@ -136,7 +136,7 @@ class CollectionManager extends TrackingManager
         $contentItem = new ContentItem($filePath);
         $contentItem->setNamespace($collectionName);
 
-        $this->addObjectToTracker($contentItem, $contentItem->getName(), $collectionName);
+        $this->addObjectToTracker($contentItem, $collectionName);
 
         $this->output->info(sprintf(
             "Loading ContentItem into '%s' collection: %s",

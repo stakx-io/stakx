@@ -10,8 +10,8 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\PageView;
+use allejo\stakx\Document\TrackableDocument;
 use allejo\stakx\Document\TwigDocument;
-use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\Service;
 use allejo\stakx\System\FileExplorer;
 use Symfony\Component\Finder\SplFileInfo;
@@ -50,7 +50,7 @@ abstract class TrackingManager extends BaseManager
      *
      * $trackedItemsOptions['<relative file path>'] = mixed
      *
-     * @var array
+     * @var TrackableDocument[]
      */
     protected $trackedItemsFlattened;
 
@@ -67,12 +67,12 @@ abstract class TrackingManager extends BaseManager
     protected $trackedItemsOptions;
 
     /**
-     * The storage used for either FrontMatterObjects or DataItems in the respective static classes.
+     * The storage used for TrackableDocuments in the respective static classes.
      *
      * $trackedItems['<namespace>']['<file name w/o extension>'] = mixed
      * $trackedItems['<file name w/o extension>'] = mixed
      *
-     * @var array
+     * @var TrackableDocument[]
      */
     protected $trackedItems;
 
@@ -142,42 +142,59 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
+     * Return an array of JailedDocuments created from the tracked items
+     *
+     * @return JailedDocument[]
+     */
+    protected function getJailedTrackedItems()
+    {
+        $jailItems = array();
+
+        /**
+         * @var string       $key
+         * @var TwigDocument $item
+         */
+        foreach ($this->trackedItemsFlattened as &$item)
+        {
+            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft()) { continue; }
+
+            if (empty($item->getNamespace()))
+            {
+                $jailItems[$item->getObjectName()] = $item->createJail();
+            }
+            else
+            {
+                $jailItems[$item->getNamespace()][$item->getObjectName()] = $item->createJail();
+            }
+        }
+
+        return $jailItems;
+    }
+
+    ///
+    // Array Tracking
+    ///
+
+    /**
      * Save data to the tracker with a reference to the file it came from.
      *
-     * @param string      $key       The name of the file
-     * @param mixed       $data      The data to save the
-     * @param string      $filePath  The relative file path from the root of the website
-     * @param string|null $namespace The name of the collection this data belongs to, if any
+     * @param string      $key         The name of the file
+     * @param mixed       $data        The data to save the
+     * @param string      $relFilePath The relative file path from the root of the website
+     * @param string|null $namespace   The name of the collection this data belongs to, if any
      */
-    protected function addArrayToTracker($key, $data, $filePath, $namespace = null)
+    protected function addArrayToTracker($key, $data, $relFilePath, $namespace = null)
     {
         if (is_null($namespace))
         {
             $this->trackedItems[$key] = $data;
-            $this->trackedItemsFlattened[$filePath] = &$this->trackedItems[$key];
+            $this->trackedItemsFlattened[$relFilePath] = &$this->trackedItems[$key];
         }
         else
         {
             $this->trackedItems[$namespace][$key] = $data;
-            $this->trackedItemsFlattened[$filePath] = &$this->trackedItems[$namespace][$key];
+            $this->trackedItemsFlattened[$relFilePath] = &$this->trackedItems[$namespace][$key];
         }
-    }
-
-    /**
-     * Add a FrontMatterObject based object to the tracker.
-     *
-     * @param TwigDocument $trackedItem
-     * @param string       $key
-     * @param string|null  $namespace
-     */
-    protected function addObjectToTracker($trackedItem, $key, $namespace = null)
-    {
-        if (!($trackedItem instanceof FrontMatterDocument) && !($trackedItem instanceof TwigDocument))
-        {
-            throw new \InvalidArgumentException('Only TwigDocumentInterface objects can be added to the tracker');
-        }
-
-        $this->addArrayToTracker($key, $trackedItem, $trackedItem->getRelativeFilePath(), $namespace);
     }
 
     /**
@@ -201,19 +218,48 @@ abstract class TrackingManager extends BaseManager
         unset($this->trackedItemsFlattened[$filePath]);
     }
 
+    ///
+    // Object Tracking
+    ///
+
+    /**
+     * Add a FrontMatterObject based object to the tracker.
+     *
+     * @param TrackableDocument $trackedItem
+     * @param string|null       $namespace
+     */
+    protected function addObjectToTracker(TrackableDocument &$trackedItem, $namespace = null)
+    {
+        if ($namespace == null)
+        {
+            $this->trackedItems[$trackedItem->getObjectName()] = &$trackedItem;
+        }
+        else
+        {
+            $this->trackedItems[$namespace][$trackedItem->getObjectName()] = &$trackedItem;
+        }
+
+        $this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()] = &$trackedItem;
+    }
+
     /**
      * Remove an entry from the tracked items array.
      *
-     * @param mixed       $trackedItem
-     * @param string|null $namespace
+     * @param TrackableDocument $trackedItem
+     * @param string|null       $namespace
      */
-    protected function delObjectFromTracker($trackedItem, $namespace = null)
+    protected function delObjectFromTracker(TrackableDocument &$trackedItem, $namespace = null)
     {
-        $this->delArrayFromTracker(
-            $trackedItem->getFileName(),
-            $trackedItem->getRelativeFilePath(),
-            $namespace
-        );
+        if ($namespace == null)
+        {
+            unset($this->trackedItems[$trackedItem->getObjectName()]);
+        }
+        else
+        {
+            unset($this->trackedItems[$namespace][$trackedItem->getObjectName()]);
+        }
+
+        unset($this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()]);
     }
 
     /**
@@ -240,6 +286,16 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
+     * Delete any options that were saved corresponding to an item.
+     *
+     * @param string $filePath
+     */
+    protected function forgetTrackerOptions($filePath)
+    {
+        unset($this->trackedItemsOptions[$filePath]);
+    }
+
+    /**
      * Parse the specified folder for items to track.
      *
      * @param string $path
@@ -259,36 +315,6 @@ abstract class TrackingManager extends BaseManager
         {
             $this->handleTrackableItem($file, $options);
         }
-    }
-
-    /**
-     * Return an array of JailedDocuments created from the tracked items
-     *
-     * @return JailedDocument[]
-     */
-    protected function getJailedTrackedItems()
-    {
-        $jailItems = array();
-
-        /**
-         * @var string       $key
-         * @var TwigDocument $item
-         */
-        foreach ($this->trackedItemsFlattened as &$item)
-        {
-            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft()) { continue; }
-
-            if (empty($item->getNamespace()))
-            {
-                $jailItems[$item->getName()] = $item->createJail();
-            }
-            else
-            {
-                $jailItems[$item->getNamespace()][$item->getName()] = $item->createJail();
-            }
-        }
-
-        return $jailItems;
     }
 
     /**

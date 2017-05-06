@@ -108,9 +108,9 @@ class DataManager extends TrackingManager
             $dataItem->setNamespace($namespace);
 
             $this->saveTrackerOptions($dataItem->getRelativeFilePath(), $options);
-            $this->addObjectToTracker($dataItem, $dataItem->getName(), $namespace);
+            $this->addObjectToTracker($dataItem, $namespace);
 
-            return $dataItem->getName();
+            return $dataItem->getObjectName();
         }
         catch (DependencyMissingException $e)
         {

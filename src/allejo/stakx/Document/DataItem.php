@@ -16,6 +16,7 @@ use Symfony\Component\Yaml\Yaml;
 class DataItem extends PermalinkDocument implements
     \ArrayAccess,
     \IteratorAggregate,
+    TrackableDocument,
     TwigDocument
 {
     protected $data;
@@ -35,7 +36,7 @@ class DataItem extends PermalinkDocument implements
         return $this->data;
     }
 
-    public function getName()
+    public function getObjectName()
     {
         return $this->getBaseName();
     }
@@ -241,7 +242,9 @@ class DataItem extends PermalinkDocument implements
     public function createJail()
     {
         return new JailedDocument($this, array(
-            'getExtension', 'getFilePath', 'getName', 'getRelativeFilePath'
+            'getExtension', 'getFilePath', 'getRelativeFilePath'
+        ), array(
+            'getName' => 'getObjectName'
         ));
     }
 

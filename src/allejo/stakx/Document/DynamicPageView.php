@@ -81,4 +81,9 @@ class DynamicPageView extends PageView
 
         return $fm['dataset'];
     }
+
+    public function getObjectName()
+    {
+        return $this->getRepeatableName();
+    }
 }

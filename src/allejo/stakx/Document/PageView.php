@@ -51,6 +51,14 @@ class PageView extends FrontMatterDocument
         $this->type = self::STATIC_TYPE;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function getObjectName()
+    {
+        return $this->getRelativeFilePath();
+    }
+
     //
     // Twig Jail
     // =========

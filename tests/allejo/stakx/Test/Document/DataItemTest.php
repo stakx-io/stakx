@@ -39,7 +39,7 @@ LINE;
         $dataItem = $this->createBlankFile('my-sample-JSON.json', DataItem::class, $jsonFile);
         $jailItem = $dataItem->createJail();
 
-        $this->assertEquals('my-sample-JSON', $dataItem->getName());
+        $this->assertEquals('my-sample-JSON', $dataItem->getObjectName());
         $this->assertEquals(array(1, 2, 3), $dataItem['array']);
         $this->assertTrue($dataItem['boolean']);
         $this->assertNull($dataItem['null']);
@@ -79,7 +79,7 @@ LINE;
         $this->assertEquals($dataItem[0], $jailItem[0]);
         $this->assertEquals($dataItem->getIterator(), $jailItem->getIterator());
         $this->assertEquals('my-file', $jailItem->getName());
-        $this->assertEquals($dataItem->getName(), $jailItem->getName());
+        $this->assertEquals($dataItem->getObjectName(), $jailItem->getName());
         $this->assertEquals('csv', $jailItem->getExtension());
         $this->assertEquals($dataItem->getExtension(), $jailItem->getExtension());
 

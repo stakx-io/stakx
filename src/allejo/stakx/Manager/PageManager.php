@@ -200,7 +200,6 @@ class PageManager extends TrackingManager
     {
         $pageView = PageView::create($filePath);
         $namespace = $pageView->getType();
-        $storageKey = $pageView->getRelativeFilePath();
 
         switch ($namespace)
         {
@@ -210,14 +209,13 @@ class PageManager extends TrackingManager
 
             case PageView::DYNAMIC_TYPE:
                 $this->handleTrackableDynamicPageView($pageView);
-                $storageKey = $pageView->getRepeatableName();
                 break;
 
             default:
                 break;
         }
 
-        $this->addObjectToTracker($pageView, $storageKey, $namespace);
+        $this->addObjectToTracker($pageView, $namespace);
 
         return $pageView;
     }

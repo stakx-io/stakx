@@ -51,7 +51,7 @@ interface TwigDocument extends JailableDocument
     /**
      * @return string
      */
-    public function getName();
+    public function getObjectName();
 
     /**
      * @return bool

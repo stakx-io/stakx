@@ -9,6 +9,7 @@ namespace allejo\stakx\FrontMatter;
 
 use allejo\stakx\Document\JailableDocument;
 use allejo\stakx\Document\PermalinkDocument;
+use allejo\stakx\Document\TrackableDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
@@ -20,6 +21,7 @@ use Symfony\Component\Yaml\Yaml;
 abstract class FrontMatterDocument extends PermalinkDocument implements
     \ArrayAccess,
     JailableDocument,
+    TrackableDocument,
     WritableDocumentInterface
 {
     const TEMPLATE = "---\n%s\n---\n\n%s";
@@ -142,9 +144,18 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
     /**
      * Get the name of the item, which is just the filename without the extension.
      *
+     * @deprecated use getObjectName() instead
      * @return string
      */
     final public function getName()
+    {
+        return $this->getObjectName();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getObjectName()
     {
         return $this->getBaseName();
     }
