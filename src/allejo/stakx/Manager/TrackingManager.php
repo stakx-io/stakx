@@ -10,7 +10,7 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\PageView;
-use allejo\stakx\Document\TwigDocumentInterface;
+use allejo\stakx\Document\TwigDocument;
 use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\Service;
 use allejo\stakx\System\FileExplorer;
@@ -186,13 +186,13 @@ abstract class TrackingManager extends BaseManager
     /**
      * Add a FrontMatterObject based object to the tracker.
      *
-     * @param TwigDocumentInterface $trackedItem
-     * @param string $key
-     * @param string|null $namespace
+     * @param TwigDocument $trackedItem
+     * @param string       $key
+     * @param string|null  $namespace
      */
     protected function addObjectToTracker($trackedItem, $key, $namespace = null)
     {
-        if (!($trackedItem instanceof FrontMatterDocument) && !($trackedItem instanceof TwigDocumentInterface))
+        if (!($trackedItem instanceof FrontMatterDocument) && !($trackedItem instanceof TwigDocument))
         {
             throw new \InvalidArgumentException('Only TwigDocumentInterface objects can be added to the tracker');
         }
@@ -291,8 +291,8 @@ abstract class TrackingManager extends BaseManager
         $jailItems = array();
 
         /**
-         * @var string $key
-         * @var TwigDocumentInterface $item
+         * @var string       $key
+         * @var TwigDocument $item
          */
         foreach ($this->trackedItemsFlattened as &$item)
         {

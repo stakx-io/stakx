@@ -12,7 +12,7 @@ use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\RepeaterPageView;
-use allejo\stakx\Document\TwigDocumentInterface;
+use allejo\stakx\Document\TwigDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\BaseManager;
@@ -399,14 +399,14 @@ class Compiler extends BaseManager
     /**
      * Get the compiled HTML for a specific ContentItem.
      *
-     * @param Twig_Template         $template
-     * @param TwigDocumentInterface $twigItem
+     * @param Twig_Template $template
+     * @param TwigDocument  $twigItem
      *
      * @return string
      * @since  0.1.1
      *
      */
-    private function renderDynamicPageView(Twig_Template &$template, TwigDocumentInterface &$twigItem)
+    private function renderDynamicPageView(Twig_Template &$template, TwigDocument &$twigItem)
     {
         return $template
             ->render(array(

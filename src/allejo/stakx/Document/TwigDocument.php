@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Document;
 
-interface TwigDocumentInterface
+interface TwigDocument extends JailableDocument
 {
     /**
      * @param string $filePath

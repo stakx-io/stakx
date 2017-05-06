@@ -13,7 +13,7 @@ use allejo\stakx\Engines\RST\RstEngine;
 use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\Manager\TwigManager;
 
-class ContentItem extends FrontMatterDocument implements \JsonSerializable, \IteratorAggregate, TwigDocumentInterface
+class ContentItem extends FrontMatterDocument implements \JsonSerializable, \IteratorAggregate, TwigDocument
 {
     /**
      * The collection this Content Item belongs to.

@@ -26,20 +26,20 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate
     private $jailedFunctions;
 
     /**
-     * @var JailedDocumentInterface
+     * @var JailableDocument
      */
     private $object;
 
     /**
      * JailObject constructor.
      *
-     * @param JailedDocumentInterface $object             The object that will be jailed
-     * @param array                   $whiteListFunctions A list of function names that can be called
-     * @param array                   $jailedFunctions
+     * @param JailableDocument $object             The object that will be jailed
+     * @param array            $whiteListFunctions A list of function names that can be called
+     * @param array            $jailedFunctions
      */
     public function __construct(&$object, array $whiteListFunctions, array $jailedFunctions = array())
     {
-        if (!($object instanceof JailedDocumentInterface) &&
+        if (!($object instanceof JailableDocument) &&
             !($object instanceof \ArrayAccess) &&
             !($object instanceof \IteratorAggregate))
         {

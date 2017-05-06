@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\FrontMatter;
 
-use allejo\stakx\Document\JailedDocumentInterface;
+use allejo\stakx\Document\JailableDocument;
 use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
@@ -19,7 +19,7 @@ use Symfony\Component\Yaml\Yaml;
 
 abstract class FrontMatterDocument extends PermalinkDocument implements
     \ArrayAccess,
-    JailedDocumentInterface,
+    JailableDocument,
     WritableDocumentInterface
 {
     const TEMPLATE = "---\n%s\n---\n\n%s";

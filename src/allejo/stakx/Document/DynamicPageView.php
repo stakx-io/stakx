@@ -30,7 +30,7 @@ class DynamicPageView extends PageView
     /**
      * Add a ContentItem to this Dynamic PageView.
      *
-     * @param TwigDocumentInterface $repeatableItem
+     * @param TwigDocument $repeatableItem
      */
     public function addRepeatableItem(&$repeatableItem)
     {

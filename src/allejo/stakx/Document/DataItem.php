@@ -16,8 +16,7 @@ use Symfony\Component\Yaml\Yaml;
 class DataItem extends PermalinkDocument implements
     \ArrayAccess,
     \IteratorAggregate,
-    TwigDocumentInterface,
-    JailedDocumentInterface
+    TwigDocument
 {
     protected $data;
 
@@ -250,6 +249,9 @@ class DataItem extends PermalinkDocument implements
     // IteratorAggregate implementation
     ///
 
+    /**
+     * {@inheritdoc}
+     */
     public function getIterator()
     {
         return new \ArrayIterator($this->data);
