@@ -127,18 +127,15 @@ class Website
 
         // Parse DataItems
         $this->dm->setLogger($this->output);
-        $this->dm->enableTracking($tracking);
         $this->dm->parseDataItems($this->getConfiguration()->getDataFolders());
         $this->dm->parseDataSets($this->getConfiguration()->getDataSets());
 
         // Prepare Collections
         $this->cm->setLogger($this->output);
-        $this->cm->enableTracking($tracking);
         $this->cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
 
         // Handle PageViews
         $this->pm->setLogger($this->output);
-        $this->pm->enableTracking($tracking);
         $this->pm->setCollections($this->cm->getCollections());
         $this->pm->setDatasets($this->dm->getDataItems());
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
@@ -203,7 +200,6 @@ class Website
             $this->tm = new ThemeManager($theme);
             $this->tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
             $this->tm->setLogger($this->output);
-            $this->tm->enableTracking($tracking);
             $this->tm->setFolder($this->outputDirectory);
             $this->tm->copyFiles();
         }
@@ -215,7 +211,6 @@ class Website
         $this->am->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
         $this->am->setLogger($this->output);
         $this->am->setFolder($this->outputDirectory);
-        $this->am->enableTracking($tracking);
         $this->am->copyFiles();
     }
 

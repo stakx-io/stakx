@@ -76,13 +76,6 @@ abstract class TrackingManager extends BaseManager
      */
     protected $trackedItems;
 
-    /**
-     * Set to true when file tracking is enabled.
-     *
-     * @var bool
-     */
-    protected $tracking;
-
     public function __construct()
     {
         parent::__construct();
@@ -92,19 +85,6 @@ abstract class TrackingManager extends BaseManager
         $this->trackedItemsFlattened = array();
         $this->trackedItemsOptions = array();
         $this->trackedItems = array();
-        $this->tracking = false;
-    }
-
-    /**
-     * Whether or not to enable tracking of files.
-     *
-     * Setting this to false will disable a lot of the overhead and caching done when a project is being watched
-     *
-     * @param bool $enabled
-     */
-    public function enableTracking($enabled)
-    {
-        $this->tracking = $enabled;
     }
 
     /**
