@@ -88,27 +88,17 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Check to see if the file belongs inside of one the folders being tracked by this manager.
+     * @param SplFileInfo|string $filePath
      *
-     * @param string $filePath
-     *
-     * @return bool True if the file is inside a tracked folder
+     * @return mixed|null
      */
-    public function isHandled($filePath)
+    public function createNewItem($filePath)
     {
-        foreach ($this->folderDefinitions as $folder)
-        {
-            if (substr($filePath, 0, strlen($folder)) === $folder)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->handleTrackableItem($filePath);
     }
 
     /**
-     * Check whether a file is tracked.
+     * Check whether a file is already being tracked.
      *
      * @param string $filePath The relative path of the file
      *
@@ -120,13 +110,26 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * @param SplFileInfo|string $filePath
+     * Check to see if a given file path matches this tracker's definition and would be tracked.
      *
-     * @return mixed|null
+     * This function should be used to check whether or not to add a file to this tracker after the initial scan has
+     * already happened.
+     *
+     * @param string $filePath
+     *
+     * @return bool True if the file is inside a tracked folder
      */
-    public function createNewItem($filePath)
+    public function shouldBeTracked($filePath)
     {
-        return $this->handleTrackableItem($filePath);
+        foreach ($this->folderDefinitions as $folder)
+        {
+            if (substr($filePath, 0, strlen($folder)) === $folder)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -141,89 +144,22 @@ abstract class TrackingManager extends BaseManager
         return $this->handleTrackableItem($filePath);
     }
 
-    /**
-     * Return an array of JailedDocuments created from the tracked items
-     *
-     * @return JailedDocument[]
-     */
-    protected function getJailedTrackedItems()
+    ///
+    // Internal object handling
+    ///
+
+    protected function addFileToTracker(SplFileInfo &$file)
     {
-        $jailItems = array();
-
-        /**
-         * @var string       $key
-         * @var TwigDocument $item
-         */
-        foreach ($this->trackedItemsFlattened as &$item)
-        {
-            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft()) { continue; }
-
-            if (empty($item->getNamespace()))
-            {
-                $jailItems[$item->getObjectName()] = $item->createJail();
-            }
-            else
-            {
-                $jailItems[$item->getNamespace()][$item->getObjectName()] = $item->createJail();
-            }
-        }
-
-        return $jailItems;
+        $this->trackedItemsFlattened[$file->getRelativePathname()] = &$file;
     }
 
-    ///
-    // Array Tracking
-    ///
-
-    /**
-     * Save data to the tracker with a reference to the file it came from.
-     *
-     * @param string      $key         The name of the file
-     * @param mixed       $data        The data to save the
-     * @param string      $relFilePath The relative file path from the root of the website
-     * @param string|null $namespace   The name of the collection this data belongs to, if any
-     */
-    protected function addArrayToTracker($key, $data, $relFilePath, $namespace = null)
+    protected function delFileFromTracker(SplFileInfo &$file)
     {
-        if (is_null($namespace))
-        {
-            $this->trackedItems[$key] = $data;
-            $this->trackedItemsFlattened[$relFilePath] = &$this->trackedItems[$key];
-        }
-        else
-        {
-            $this->trackedItems[$namespace][$key] = $data;
-            $this->trackedItemsFlattened[$relFilePath] = &$this->trackedItems[$namespace][$key];
-        }
+        unset($this->trackedItemsFlattened[$file->getRelativePathname()]);
     }
 
     /**
-     * Remove all data related to an array that was saved.
-     *
-     * @param string      $key
-     * @param string      $filePath
-     * @param string|null $namespace
-     */
-    protected function delArrayFromTracker($key, $filePath, $namespace = null)
-    {
-        if (is_null($namespace))
-        {
-            unset($this->trackedItems[$key]);
-        }
-        else
-        {
-            unset($this->trackedItems[$namespace][$key]);
-        }
-
-        unset($this->trackedItemsFlattened[$filePath]);
-    }
-
-    ///
-    // Object Tracking
-    ///
-
-    /**
-     * Add a FrontMatterObject based object to the tracker.
+     * Add a TrackableDocument to the tracker.
      *
      * @param TrackableDocument $trackedItem
      * @param string|null       $namespace
@@ -262,13 +198,17 @@ abstract class TrackingManager extends BaseManager
         unset($this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()]);
     }
 
+    ///
+    // Extra options stored for future use
+    ///
+
     /**
      * Save a folder that is tracked by this manager and its respective options.
      *
      * @param string $folderPath
      * @param array  $options
      */
-    protected function saveFolderDefinition($folderPath, $options = array())
+    protected function saveFolderDefinition($folderPath, array $options = array())
     {
         $this->folderDefinitions[] = $folderPath;
         $this->folderDefinitionsOptions[$folderPath] = $options;
@@ -280,7 +220,7 @@ abstract class TrackingManager extends BaseManager
      * @param string $filePath
      * @param array  $options
      */
-    protected function saveTrackerOptions($filePath, $options = array())
+    protected function saveTrackerOptions($filePath, array $options = array())
     {
         $this->trackedItemsOptions[$filePath] = $options;
     }
@@ -295,15 +235,19 @@ abstract class TrackingManager extends BaseManager
         unset($this->trackedItemsOptions[$filePath]);
     }
 
+    ///
+    // Handling of trackable items
+    ///
+
     /**
      * Parse the specified folder for items to track.
      *
      * @param string $path
-     * @param mixed  $options  Special options that will be passed to the static::parseTrackableItem() implementation
+     * @param array  $options  Special options that will be passed to the static::parseTrackableItem() implementation
      * @param array  $includes
      * @param array  $excludes
      */
-    protected function scanTrackableItems($path, $options = array(), $includes = array(), $excludes = array())
+    protected function scanTrackableItems($path, array $options = array(), array $includes = array(), array $excludes = array())
     {
         $excludes = empty($excludes) ? self::$documentIgnoreList : $excludes;
 
@@ -323,7 +267,7 @@ abstract class TrackingManager extends BaseManager
      * This function should make use of the appropriate functions:
      *
      *  - TrackingManager::addObjectToTracker()
-     *  - TrackingManager::addArrayToTracker()
+     *  - TrackingManager::addFileToTracker()
      *  - TrackingManager::saveTrackerOptions()
      *
      * @param SplFileInfo $filePath
@@ -331,5 +275,41 @@ abstract class TrackingManager extends BaseManager
      *
      * @return mixed|null
      */
-    abstract protected function handleTrackableItem($filePath, $options = array());
+    abstract protected function handleTrackableItem($filePath, array $options = array());
+
+    ///
+    // Utility functions
+    ///
+
+    /**
+     * Return an array of JailedDocuments created from the tracked items
+     *
+     * @param array $elements
+     *
+     * @return JailedDocument[]|JailedDocument[][]
+     */
+    protected static function getJailedTrackedItems(array &$elements)
+    {
+        $jailItems = array();
+
+        /**
+         * @var string       $key
+         * @var TwigDocument $item
+         */
+        foreach ($elements as &$item)
+        {
+            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft()) { continue; }
+
+            if (empty($item->getNamespace()))
+            {
+                $jailItems[$item->getObjectName()] = $item->createJail();
+            }
+            else
+            {
+                $jailItems[$item->getNamespace()][$item->getObjectName()] = $item->createJail();
+            }
+        }
+
+        return $jailItems;
+    }
 }

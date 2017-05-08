@@ -61,7 +61,7 @@ class CollectionManager extends TrackingManager
      */
     public function getJailedCollections()
     {
-        return $this->getJailedTrackedItems();
+        return self::getJailedTrackedItems($this->trackedItemsFlattened);
     }
 
     /**
@@ -129,7 +129,7 @@ class CollectionManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem($filePath, $options = array())
+    protected function handleTrackableItem($filePath, array $options = array())
     {
         $collectionName = $options['namespace'];
 

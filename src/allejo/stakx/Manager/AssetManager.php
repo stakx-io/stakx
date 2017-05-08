@@ -66,6 +66,9 @@ class AssetManager extends TrackingManager
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function refreshItem($filePath)
     {
         return $this->handleTrackableItem($filePath, array(
@@ -76,7 +79,7 @@ class AssetManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    public function isHandled($filePath)
+    public function shouldBeTracked($filePath)
     {
         return $this->fileExplorer->matchesPattern($filePath);
     }
@@ -94,7 +97,7 @@ class AssetManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem($file, $options = array())
+    protected function handleTrackableItem($file, array $options = array())
     {
         if (is_string($file))
         {
@@ -113,12 +116,9 @@ class AssetManager extends TrackingManager
 
         try
         {
-            $this->addArrayToTracker(
-                $file->getRelativePathname(),
-                array(),
-                $file->getRelativePathname()
-            );
+            $this->addFileToTracker($file);
             $this->saveTrackerOptions($file->getRelativePathname(), $options);
+
             $this->outputDirectory->copyFile($filePath, $siteTargetPath);
             $this->output->info('Copying file: {file}...', array(
                 'file' => $file->getRelativePathname(),

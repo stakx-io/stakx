@@ -37,7 +37,7 @@ class DataManager extends TrackingManager
 
     public function getJailedDataItems()
     {
-        return $this->getJailedTrackedItems();
+        return self::getJailedTrackedItems($this->trackedItemsFlattened);
     }
 
     /**
@@ -98,7 +98,7 @@ class DataManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem($filePath, $options = array())
+    protected function handleTrackableItem($filePath, array $options = array())
     {
         try
         {
@@ -107,8 +107,8 @@ class DataManager extends TrackingManager
             $dataItem = new DataItem($filePath);
             $dataItem->setNamespace($namespace);
 
-            $this->saveTrackerOptions($dataItem->getRelativeFilePath(), $options);
             $this->addObjectToTracker($dataItem, $namespace);
+            $this->saveTrackerOptions($dataItem->getRelativeFilePath(), $options);
 
             return $dataItem->getObjectName();
         }

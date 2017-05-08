@@ -343,12 +343,12 @@ class Website
     {
         $this->output->writeln(sprintf('File creation detected: %s', $filePath));
 
-        if ($this->pm->isHandled($filePath))
+        if ($this->pm->shouldBeTracked($filePath))
         {
             $this->pm->createNewItem($filePath);
             $this->pm->refreshItem($filePath);
         }
-        elseif ($this->cm->isHandled($filePath))
+        elseif ($this->cm->shouldBeTracked($filePath))
         {
             $contentItem = $this->cm->createNewItem($filePath);
             TwigManager::getInstance()->addGlobal('collections', $this->cm->getCollections());
@@ -360,7 +360,7 @@ class Website
                 'dependency' => $contentItem->getNamespace(),
             ));
         }
-        elseif ($this->dm->isHandled($filePath))
+        elseif ($this->dm->shouldBeTracked($filePath))
         {
             $change = $this->dm->createNewItem($filePath);
             TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
@@ -370,11 +370,11 @@ class Website
                 'dependency' => $change,
             ));
         }
-        elseif (!is_null($this->tm) && $this->tm->isHandled($filePath))
+        elseif (!is_null($this->tm) && $this->tm->shouldBeTracked($filePath))
         {
             $this->tm->createNewItem($filePath);
         }
-        elseif ($this->am->isHandled($filePath))
+        elseif ($this->am->shouldBeTracked($filePath))
         {
             $this->am->createNewItem($filePath);
         }

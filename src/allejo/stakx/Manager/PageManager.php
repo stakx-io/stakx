@@ -196,7 +196,7 @@ class PageManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function &handleTrackableItem($filePath, $options = array())
+    protected function &handleTrackableItem($filePath, array $options = array())
     {
         $pageView = PageView::create($filePath);
         $namespace = $pageView->getType();

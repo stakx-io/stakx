@@ -68,11 +68,11 @@ class ThemeManager extends AssetManager
     /**
      * {@inheritdoc}
      */
-    public function isHandled($filePath)
+    public function shouldBeTracked($filePath)
     {
         $isThemeAsset = (substr($filePath, 0, strlen($this->themeFolderRelative)) === $this->themeFolderRelative);
 
-        return $isThemeAsset && parent::isHandled($filePath);
+        return $isThemeAsset && parent::shouldBeTracked($filePath);
     }
 
     /**
