@@ -14,8 +14,7 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Yaml;
 
 class DataItem extends PermalinkDocument implements
-    \ArrayAccess,
-    \IteratorAggregate,
+    RepeatableItem,
     TrackableDocument,
     TwigDocument
 {

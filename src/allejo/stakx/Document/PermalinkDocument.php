@@ -7,7 +7,12 @@
 
 namespace allejo\stakx\Document;
 
-abstract class PermalinkDocument extends ReadableDocument
+use allejo\stakx\System\ReadableFile;
+
+/**
+ * A document that will have a permalink
+ */
+abstract class PermalinkDocument extends ReadableFile
 {
     /** @var array */
     protected $permalink;

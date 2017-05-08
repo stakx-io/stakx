@@ -5,12 +5,9 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Document;
+namespace allejo\stakx\System;
 
-use allejo\stakx\System\Filesystem;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-
-abstract class ReadableDocument
+abstract class ReadableFile
 {
     protected $filePath;
     protected $extension;

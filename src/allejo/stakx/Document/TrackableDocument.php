@@ -7,7 +7,10 @@
 
 namespace allejo\stakx\Document;
 
-interface TrackableDocument
+/**
+ * This interface defines the requirements for an object to be handled by a TrackingManager based class.
+ */
+interface TrackableDocument extends \ArrayAccess
 {
     /**
      * The relative file path from the root of the website project to this object's corresponding file

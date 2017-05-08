@@ -13,7 +13,7 @@ use allejo\stakx\Engines\RST\RstEngine;
 use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\Manager\TwigManager;
 
-class ContentItem extends FrontMatterDocument implements \JsonSerializable, \IteratorAggregate, TwigDocument
+class ContentItem extends FrontMatterDocument implements \JsonSerializable, RepeatableItem
 {
     /**
      * The collection this Content Item belongs to.
@@ -107,16 +107,6 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, \Ite
     }
 
     /**
-     * Check whether a ContentItem should be treated as a draft
-     *
-     * @return bool
-     */
-    public function isDraft()
-    {
-        return ($this['draft'] === true);
-    }
-
-    /**
      * @return PageView
      */
     public function &getPageView()
@@ -149,10 +139,5 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, \Ite
             'permalink' => $this->getPermalink(),
             'redirects' => $this->getRedirects(),
         ));
-    }
-
-    public function getIterator()
-    {
-        return (new \ArrayIterator($this->frontMatter));
     }
 }

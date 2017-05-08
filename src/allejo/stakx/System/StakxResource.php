@@ -16,6 +16,8 @@ class StakxResource
 
     /**
      * @param string $fileName
+     *
+     * @return bool|string
      */
     public static function getResource($fileName)
     {

@@ -7,9 +7,9 @@
 
 namespace allejo\stakx\FrontMatter;
 
-use allejo\stakx\Document\JailableDocument;
 use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Document\TrackableDocument;
+use allejo\stakx\Document\TwigDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
@@ -19,9 +19,8 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 abstract class FrontMatterDocument extends PermalinkDocument implements
-    \ArrayAccess,
-    JailableDocument,
     TrackableDocument,
+    TwigDocument,
     WritableDocumentInterface
 {
     const TEMPLATE = "---\n%s\n---\n\n%s";
@@ -244,6 +243,16 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
         preg_match_all($regex, $this->bodyContent, $results);
 
         $this->dataDependencies[$filter] = array_unique($results[1]);
+    }
+
+    public function isDraft()
+    {
+        return ($this['draft'] === true);
+    }
+
+    public function getIterator()
+    {
+        return (new \ArrayIterator($this->frontMatter));
     }
 
     //
