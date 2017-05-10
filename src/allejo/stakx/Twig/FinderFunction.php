@@ -10,7 +10,7 @@ namespace allejo\stakx\Twig;
 use Symfony\Component\Finder\Finder;
 use Twig_Environment;
 
-class FinderFunction extends TwigFilesystem
+class FinderFunction extends TwigFilesystem implements StakxTwigFunction
 {
     public function __invoke(Twig_Environment $env, $folderLocation)
     {

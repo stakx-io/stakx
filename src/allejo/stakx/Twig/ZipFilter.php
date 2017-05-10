@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Twig;
 
-class ZipFilter
+class ZipFilter implements StakxTwigFilter
 {
     public function __invoke(array $array1, array $array2, $glue = '', $strict = false)
     {

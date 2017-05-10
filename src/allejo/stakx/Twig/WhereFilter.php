@@ -30,7 +30,7 @@ use Twig_Error_Syntax;
  *   - _=  Check if a string or array contains the <value>; case-insensitive
  *   - /=  Compare the <value> with a regular expression
  */
-class WhereFilter
+class WhereFilter implements StakxTwigFilter
 {
     /**
      * @param array|\ArrayAccess[] $array      The elements to filter through

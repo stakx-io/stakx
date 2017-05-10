@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Twig;
 
-class OrderFilter
+class OrderFilter implements StakxTwigFilter
 {
     public function __invoke($array, $key, $order = 'ASC')
     {

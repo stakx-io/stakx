@@ -9,7 +9,7 @@ namespace allejo\stakx\Twig;
 
 use Twig_Environment;
 
-class FileFunction extends TwigFilesystem
+class FileFunction extends TwigFilesystem implements StakxTwigFunction
 {
     public function __invoke(Twig_Environment $env, $filePath)
     {

@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Twig;
 
-class SelectFilter
+class SelectFilter implements StakxTwigFilter
 {
     public function __invoke($array, $key, $flatten = true, $distinct = true)
     {

@@ -9,7 +9,7 @@ namespace allejo\stakx\Twig;
 
 use Twig_Environment;
 
-class BaseUrlFunction
+class BaseUrlFunction implements StakxTwigFilter
 {
     public function __invoke(Twig_Environment $env, $assetPath)
     {

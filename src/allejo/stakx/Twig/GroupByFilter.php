@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Twig;
 
-class GroupByFilter
+class GroupByFilter implements StakxTwigFilter
 {
     public function __invoke($array, $sortKey)
     {
