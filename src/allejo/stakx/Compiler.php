@@ -19,6 +19,7 @@ use allejo\stakx\Manager\BaseManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\System\Folder;
+use allejo\stakx\System\FilePath;
 use Twig_Environment;
 use Twig_Error_Runtime;
 use Twig_Error_Syntax;
@@ -463,8 +464,11 @@ class Compiler extends BaseManager
 
                 while (false !== $parent)
                 {
+                    // Replace the '@theme' namespace in Twig with the path to the theme folder and create a UnixFilePath object from the given path
                     $path = str_replace('@theme', $this->fs->appendPath(ThemeManager::THEME_FOLDER, $this->theme), $parent->getTemplateName());
-                    $this->templateDependencies[$path][$pageView->getName()] = &$pageView;
+                    $path = new FilePath($path);
+
+                    $this->templateDependencies[(string)$path][$pageView->getName()] = &$pageView;
 
                     $parent = $parent->getParent(array());
                 }
