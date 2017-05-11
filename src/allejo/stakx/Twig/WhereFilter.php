@@ -127,12 +127,12 @@ class WhereFilter implements StakxTwigFilter
             return false;
         }
 
-        if (!($array instanceof JailedDocument))
+        if (!($array instanceof \ArrayAccess))
         {
             return false;
         }
 
-        if ($array->coreInstanceOf(FrontMatterDocument::class) && !isset($array[$key]))
+        if (!isset($array[$key]))
         {
             if ($comparison == '==' && is_null($value))
             {
