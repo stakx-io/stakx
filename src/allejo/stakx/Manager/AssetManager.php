@@ -101,7 +101,7 @@ class AssetManager extends TrackingManager
     {
         if (is_string($file))
         {
-            $file = ltrim($this->fs->appendPath($options['prefix'], $file), '/');
+            $file = ltrim($this->fs->appendPath($options['prefix'], $file), DIRECTORY_SEPARATOR);
             $file = $this->fs->createSplFileInfo($file);
         }
 
