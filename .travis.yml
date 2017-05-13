@@ -43,6 +43,6 @@ after_script:
 notifications:
   email: false
   webhooks:
-    - http://helit.tech:8093/+sujevo-dev/showSuccessfulBuildMessages=always
+    - http://helit.org:8093/+sujevo-dev/showSuccessfulBuildMessages=always
   slack:
     secure: TSRs08WvcTALxgjXIePyq6Z2JE9bk2Gvgr1u6+RoXCe7V4KWLQJekGK2nFJYXOp7s4Cfz1RMgxXONLeLiRja0gMz+u9CvziBvgEc/OIaLARSj9RzaEbSp9EMDLunkVyAa9sX6wuY0N4BMrEbiuUDc/pS11EKF7wXAUv93W9/goYrL4j3K70BZrffYfBSYYDLhWaEKCn5V4ZEXSajFKa+URQbq90sN8d6YGMf4gV73uXbcjeezUcS1XppmGoIL3qykPTqJTWfjbjSULdaqFru422gZJE548PoH17SBTPp/ghIfL2my4W7bYYBVRez5+EF+AVvtTel1xnt8Q8u5lgHeZeSBWp7bgcVglEYF62FyLYLD87kc4QOrvG1JlOMr3vd2kXYbPufq5tTIxStSqeg4ZPWYBbalwoX0GKfzm65fGF3UHMhVbVtpej6YPVvvvuK6oFd7O32kgpuz3XajsgnvHUz+Vl5S9DV2uThA1jJowhHTIiogXZIS5/6Rn4dQ4/WiV2eyqll4MikXTiQ9DHUUk/9l9Osqr/dx8lnmbo1UPGuCRbUdx3b7awE3xbDeHbytBIkd9iRL3zskYgMdK4hqq0QTwH2xXXXWdvGo8inEWI/PUWieZTjKQN1joDP7K8bGeOAZrEOtUhczXpo2PcU/fGCN59QEi4NoBGws3f2ZoU=
