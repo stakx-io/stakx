@@ -110,4 +110,18 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
 
         $this->assertEquals(array('hello', 'beautiful', null, null, 'world'), $results);
     }
+
+    public function testSelectFilterKeepsDistinctNull()
+    {
+        $nullArray = array(
+            array('tags' => array('hello', 'beautiful')),
+            array('tags' => null),
+            array('tags' => null),
+            array('tags' => 'world'),
+        );
+        $filter = new SelectFilter();
+        $results = $filter($nullArray, 'tags', true, true, false);
+
+        $this->assertEquals(array('hello', 'beautiful', null, 'world'), $results);
+    }
 }
