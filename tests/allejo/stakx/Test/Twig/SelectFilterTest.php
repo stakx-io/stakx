@@ -69,4 +69,45 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(7, $results);
         $this->assertContains('nested', $results);
     }
+
+    public function testSelectFilterWithNullValuesKeepsNull()
+    {
+        $nullArray = array(
+            array('tags' => array('hello', 'beautiful')),
+            array('tags' => null),
+            array('cats' => '123'),
+            array('tags' => 'world'),
+        );
+        $filter = new SelectFilter();
+        $results = $filter($nullArray, 'tags', true, true, false);
+
+        $this->assertEquals(array('hello', 'beautiful', null, 'world'), $results);
+    }
+
+    public function testSelectFilterDropsNullValues()
+    {
+        $nullArray = array(
+            array('tags' => array('hello', 'beautiful')),
+            array('tags' => null),
+            array('tags' => 'world'),
+        );
+        $filter = new SelectFilter();
+        $results = $filter($nullArray, 'tags');
+
+        $this->assertEquals(array('hello', 'beautiful', 'world'), $results);
+    }
+
+    public function testSelectFilterKeepsDuplicateNull()
+    {
+        $nullArray = array(
+            array('tags' => array('hello', 'beautiful')),
+            array('tags' => null),
+            array('tags' => null),
+            array('tags' => 'world'),
+        );
+        $filter = new SelectFilter();
+        $results = $filter($nullArray, 'tags', true, false, false);
+
+        $this->assertEquals(array('hello', 'beautiful', null, null, 'world'), $results);
+    }
 }

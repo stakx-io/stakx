@@ -9,7 +9,7 @@ namespace allejo\stakx\Twig;
 
 class SelectFilter implements StakxTwigFilter
 {
-    public function __invoke($array, $key, $flatten = true, $distinct = true)
+    public function __invoke($array, $key, $flatten = true, $distinct = true, $ignore_null = true)
     {
         $results = array();
 
@@ -20,9 +20,19 @@ class SelectFilter implements StakxTwigFilter
                 continue;
             }
 
-            if (isset($item[$key]))
+            if ($ignore_null)
             {
-                $results[] = $item[$key];
+                if (isset($item[$key]))
+                {
+                    $results[] = $item[$key];
+                }
+            }
+            else
+            {
+                if (array_key_exists($key, $item) || ($item instanceof \ArrayAccess && $item->offsetExists($key)))
+                {
+                    $results[] = $item[$key];
+                }
             }
         }
 
