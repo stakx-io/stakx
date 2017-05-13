@@ -22,6 +22,20 @@ class ZipFilter implements StakxTwigFilter
                 break;
             }
 
+            $rhs = self::safe_get($array1, $i);
+            $lhs = self::safe_get($array2, $i);
+
+            if (empty($rhs))
+            {
+                $result[] = $lhs;
+                continue;
+            }
+            elseif (empty($lhs))
+            {
+                $result[] = $rhs;
+                continue;
+            }
+
             $result[] = self::safe_get($array1, $i) . $glue . self::safe_get($array2, $i);
         }
 

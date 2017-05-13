@@ -71,6 +71,20 @@ class ZipFilterTest extends PHPUnit_Stakx_TestCase
                 false,
                 array('hello 4', '5', '6'),
             ),
+            array(
+                array('one', 'five', 'six'),
+                array(null, '5', '6'),
+                ' ',
+                false,
+                array('one', 'five 5', 'six 6'),
+            ),
+            array(
+                array('one', 'five', 'six'),
+                array('1', null, '6'),
+                '=',
+                false,
+                array('one=1', 'five', 'six=6'),
+            ),
         );
     }
 
