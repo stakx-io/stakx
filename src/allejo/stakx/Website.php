@@ -392,6 +392,11 @@ class Website
             TwigManager::getInstance()->clearTemplateCache();
             $this->compiler->refreshParent($filePath);
         }
+        elseif ($this->compiler->isImportDependency($filePath))
+        {
+            TwigManager::getInstance()->clearTemplateCache();
+            $this->compiler->compileImportDependencies($filePath);
+        }
         elseif ($this->pm->isTracked($filePath))
         {
             $change = $this->pm->refreshItem($filePath);

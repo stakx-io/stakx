@@ -40,6 +40,11 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
     );
 
     /**
+     * @var array
+     */
+    protected $importDependencies;
+
+    /**
      * An array to keep track of collection or data dependencies used inside of a Twig template.
      *
      * $dataDependencies['collections'] = array()
@@ -119,6 +124,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
     {
         $this->frontMatterBlacklist = array('permalink', 'redirects');
         $this->writableFrontMatter = array();
+        $this->importDependencies = array();
 
         parent::__construct($filePath);
     }
@@ -129,6 +135,11 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
      * @return string
      */
     abstract public function getContent();
+
+    final public function getImportDependencies()
+    {
+        return $this->importDependencies;
+    }
 
     /**
      * The number of lines that are taken up by FrontMatter and white space.
@@ -172,6 +183,18 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
         return
             in_array($needle, $this->dataDependencies[$namespace]) ||
             (is_null($needle) && !empty($this->dataDependencies[$namespace]));
+    }
+
+    /**
+     * Check whether this object has an "import" or "from" reference to a given path.
+     *
+     * @param  string $filePath
+     *
+     * @return bool
+     */
+    final public function hasImportDependency($filePath)
+    {
+        return (in_array($filePath, $this->importDependencies));
     }
 
     /**
@@ -228,6 +251,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
 
         $this->findTwigDataDependencies('collections');
         $this->findTwigDataDependencies('data');
+        $this->findTwigImportDependencies();
     }
 
     /**
@@ -243,6 +267,24 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
         preg_match_all($regex, $this->bodyContent, $results);
 
         $this->dataDependencies[$filter] = array_unique($results[1]);
+    }
+
+    /**
+     * Get all of the "import" and "from" dependencies from a Twig body.
+     */
+    private function findTwigImportDependencies()
+    {
+        $regex = "/{%\s?(?:import|from)\s?['\"](.+)['\"].+/";
+        $results = array();
+
+        preg_match_all($regex, $this->bodyContent, $results);
+
+        if (empty($results[1]))
+        {
+            return;
+        }
+
+        $this->importDependencies = array_unique($results[1]);
     }
 
     public function isDraft()

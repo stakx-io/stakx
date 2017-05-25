@@ -39,6 +39,9 @@ class Compiler extends BaseManager
     /** @var string|false */
     private $redirectTemplate;
 
+    /** @var PageView[][] */
+    private $importDependencies;
+
     /** @var Twig_Template[] */
     private $templateDependencies;
 
@@ -106,6 +109,11 @@ class Compiler extends BaseManager
     // Twig parent templates
     ///
 
+    public function isImportDependency($filePath)
+    {
+        return isset($this->importDependencies[$filePath]);
+    }
+
     /**
      * Check whether a given file path is used as a parent template by a PageView
      *
@@ -150,6 +158,14 @@ class Compiler extends BaseManager
         foreach ($this->pageViewsFlattened as &$pageView)
         {
             $this->compilePageView($pageView);
+        }
+    }
+
+    public function compileImportDependencies($filePath)
+    {
+        foreach ($this->importDependencies[$filePath] as &$dependent)
+        {
+            $this->compilePageView($dependent);
         }
     }
 
@@ -460,9 +476,16 @@ class Compiler extends BaseManager
 
             if (Service::getParameter(BuildableCommand::WATCHING))
             {
+                // Keep track of import dependencies
+                foreach ($pageView->getImportDependencies() as $dependency)
+                {
+                    $this->importDependencies[$dependency][$pageView->getName()] = &$pageView;
+                }
+
+                // Keep track of Twig extends'
                 $parent = $template->getParent(array());
 
-                while (false !== $parent)
+                while ($parent !== false)
                 {
                     // Replace the '@theme' namespace in Twig with the path to the theme folder and create a UnixFilePath object from the given path
                     $path = str_replace('@theme', $this->fs->appendPath(ThemeManager::THEME_FOLDER, $this->theme), $parent->getTemplateName());
