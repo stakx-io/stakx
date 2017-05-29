@@ -93,6 +93,9 @@ class Website
     /** @var Compiler */
     private $compiler;
 
+    /** @var array */
+    private $creationQueue;
+
     /**
      * Website constructor.
      *
@@ -100,6 +103,7 @@ class Website
      */
     public function __construct(OutputInterface $output)
     {
+        $this->creationQueue = array();
         $this->output = new StakxLogger($output);
         $this->cm = new CollectionManager();
         $this->dm = new DataManager();
@@ -339,26 +343,49 @@ class Website
     /**
      * @param string $filePath
      */
-    private function creationWatcher($filePath)
+    private function creationWatcher($filePath, $newlyCreate = true)
     {
-        $this->output->writeln(sprintf('File creation detected: %s', $filePath));
+        if ($newlyCreate)
+        {
+            $this->output->writeln(sprintf('File creation detected: %s', $filePath));
+        }
 
         if ($this->pm->shouldBeTracked($filePath))
         {
-            $this->pm->createNewItem($filePath);
-            $this->pm->refreshItem($filePath);
+            try
+            {
+                $this->pm->createNewItem($filePath);
+                $pageView = $this->pm->refreshItem($filePath);
+
+                $this->compiler->compilePageView($pageView);
+
+                unset($this->creationQueue[$filePath]);
+            }
+            catch (\Exception $e)
+            {
+                $this->creationQueue[$filePath] = true;
+            }
         }
         elseif ($this->cm->shouldBeTracked($filePath))
         {
-            $contentItem = $this->cm->createNewItem($filePath);
-            TwigManager::getInstance()->addGlobal('collections', $this->cm->getCollections());
+            try
+            {
+                $contentItem = $this->cm->createNewItem($filePath);
+                TwigManager::getInstance()->addGlobal('collections', $this->cm->getCollections());
 
-            $this->pm->trackNewContentItem($contentItem);
-            $this->compiler->compileContentItem($contentItem);
-            $this->compiler->compileSome(array(
-                'namespace'  => 'collections',
-                'dependency' => $contentItem->getNamespace(),
-            ));
+                $this->pm->trackNewContentItem($contentItem);
+                $this->compiler->compileContentItem($contentItem);
+                $this->compiler->compileSome(array(
+                    'namespace'  => 'collections',
+                    'dependency' => $contentItem->getNamespace(),
+                ));
+
+                unset($this->creationQueue[$filePath]);
+            }
+            catch (\Exception $e)
+            {
+                $this->creationQueue[$filePath] = true;
+            }
         }
         elseif ($this->dm->shouldBeTracked($filePath))
         {
@@ -387,7 +414,11 @@ class Website
     {
         $this->output->writeln(sprintf('File change detected: %s', $filePath));
 
-        if ($this->compiler->isParentTemplate($filePath))
+        if (isset($this->creationQueue[$filePath]))
+        {
+            $this->creationWatcher($filePath, false);
+        }
+        elseif ($this->compiler->isParentTemplate($filePath))
         {
             TwigManager::getInstance()->clearTemplateCache();
             $this->compiler->refreshParent($filePath);

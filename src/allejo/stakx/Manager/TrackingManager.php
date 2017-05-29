@@ -249,6 +249,8 @@ abstract class TrackingManager extends BaseManager
      */
     protected function scanTrackableItems($path, array $options = array(), array $includes = array(), array $excludes = array())
     {
+        $this->folderDefinitions[] = $this->fs->getRelativePath($path);
+
         $excludes = empty($excludes) ? self::$documentIgnoreList : $excludes;
 
         $fileExplorerFlags = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
