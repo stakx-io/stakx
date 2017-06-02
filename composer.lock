@@ -292,13 +292,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/stakx-io/file-watcher.git",
-                "reference": "38390cbbe75ddd5739dcaeb30b0c90d14c915e69"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/stakx-io/file-watcher/zipball/38390cbbe75ddd5739dcaeb30b0c90d14c915e69",
-                "reference": "38390cbbe75ddd5739dcaeb30b0c90d14c915e69",
-                "shasum": ""
+                "reference": "9c0edd0d7273f02735111d9af41b165f8e51b971"
             },
             "require": {
                 "psr/log": "~1.0",
@@ -322,11 +316,7 @@
             ],
             "description": "Library for watching for file system changes",
             "homepage": "http://www.koala-framework.org/",
-            "support": {
-                "source": "https://github.com/stakx-io/file-watcher/tree/master",
-                "issues": "https://github.com/stakx-io/file-watcher/issues"
-            },
-            "time": "2017-04-13 02:35:23"
+            "time": "2017-06-02 08:19:10"
         },
         {
             "name": "stakx/highlight.php",
