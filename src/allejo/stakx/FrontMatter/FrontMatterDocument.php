@@ -261,7 +261,10 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
      */
     private function findTwigDataDependencies($filter)
     {
-        $regex = "/{[{%].*?(?:$filter)(?:\.|\[')?([^_\W]+)?(?:\.|'\])?[^_=]*?[%}]}/";
+        // To see what this regex should match and what shouldn't be see:
+        //     tests/allejo/stakx/Test/FrontMatter/FrontMatterDocumentTest.php
+
+        $regex = "/{[{%].*?(?:$filter)(?:\.|\[['\"])?([^_][^\W]+)?(?:\.|['\"]\])?[^_=]*?[%}]}/";
         $results = array();
 
         preg_match_all($regex, $this->bodyContent, $results);

@@ -28,12 +28,28 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
                 'collections', 'name', true
             ),
             array(
+                '{% for d in collections["underscore_name"] %}',
+                'collections', 'underscore_name', true
+            ),
+            array(
+                "{% for d in collections.underscore_name | order('date', 'DESC') %}",
+                'collections', 'underscore_name', true
+            ),
+            array(
+                "{% for d in collections['underscore_name'] | order('date', 'DESC') %}",
+                'collections', 'underscore_name', true
+            ),
+            array(
                 "{% for d in collections.name|order('date', 'DESC') %}",
                 'collections', 'name', true
             ),
             array(
                 "{% for d in collections.name[1] %}",
                 'collections', 'name', true
+            ),
+            array(
+                "{% for d in collections.h3ll0 %}",
+                'collections', 'h3ll0', true
             ),
             array(
                 "{% for d in data.toc.title %}",
