@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Command;
 
+use allejo\stakx\Exception\FileAwareException;
+use allejo\stakx\Utilities\StrUtils;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -31,6 +33,16 @@ class WatchCommand extends BuildableCommand
             $output->writeln('<fg=black;bg=yellow>Heads up! You are using an experimental feature.</>');
 
             $this->website->watch();
+        }
+        catch (FileAwareException $e)
+        {
+            $output->writeln(StrUtils::interpolate(
+                "Your website failed to build with the following error in file '{file}'{line}: {message}", array(
+                    'file' => $e->getPath(),
+                    'line' => (($l = $e->getLineNumber()) >= 0) ? ' on line ' . $l : '',
+                    'message' => $e->getMessage()
+                )
+            ));
         }
         catch (\Exception $e)
         {
