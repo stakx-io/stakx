@@ -292,7 +292,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/stakx-io/file-watcher.git",
-                "reference": "ec1fa24bed60260a66323d5ba6d29456d6bbf79f"
+                "reference": "161f03a098ac7ecd23bf8f9a4ff522710a7f7f44"
             },
             "require": {
                 "psr/log": "~1.0",
@@ -316,7 +316,7 @@
             ],
             "description": "Library for watching for file system changes",
             "homepage": "http://www.koala-framework.org/",
-            "time": "2017-06-02 18:37:15"
+            "time": "2017-06-04 06:26:22"
         },
         {
             "name": "stakx/highlight.php",
