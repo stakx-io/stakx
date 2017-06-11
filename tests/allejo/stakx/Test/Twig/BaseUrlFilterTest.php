@@ -74,4 +74,64 @@ class BaseUrlFilterTest extends PHPUnit_Stakx_TestCase
 
         $this->assertEquals($expected, $url);
     }
+
+    public function testUrlFilterAsAbsolute()
+    {
+        $this->twig_env->addGlobal('site', array(
+            'url' => 'http://domain.com/',
+        ));
+
+        $filter = new BaseUrlFunction();
+        $url = $filter($this->twig_env, '/path/', true);
+
+        $this->assertEquals('http://domain.com/path/', $url);
+    }
+
+    public function testUrlFilterAsAbsoluteWithBaseUrl()
+    {
+        $this->twig_env->addGlobal('site', array(
+            'url' => 'http://domain.com/',
+            'baseurl' => '/blog',
+        ));
+
+        $filter = new BaseUrlFunction();
+        $url = $filter($this->twig_env, '/path/', true);
+
+        $this->assertEquals('http://domain.com/blog/path/', $url);
+    }
+
+    public function testUrlFilterAsRelativeWithBaseUrl()
+    {
+        $this->twig_env->addGlobal('site', array(
+            'url' => 'http://domain.com/',
+            'baseurl' => '/blog',
+        ));
+
+        $filter = new BaseUrlFunction();
+        $url = $filter($this->twig_env, '/path/');
+
+        $this->assertEquals('/blog/path/', $url);
+    }
+
+    public function testUrlFilterAsRelativeWithNoBaseUrl()
+    {
+        $this->twig_env->addGlobal('site', array(
+            'url' => 'http://domain.com/'
+        ));
+
+        $filter = new BaseUrlFunction();
+        $url = $filter($this->twig_env, '/path/');
+
+        $this->assertEquals('/path/', $url);
+    }
+
+    public function testUrlFilterAsAbsoluteWithoutUrl()
+    {
+        $this->twig_env->addGlobal('site', array());
+
+        $filter = new BaseUrlFunction();
+        $url = $filter($this->twig_env, '/hello/');
+
+        $this->assertEquals('/hello/', $url);
+    }
 }

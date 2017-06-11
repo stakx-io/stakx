@@ -11,18 +11,18 @@ use Twig_Environment;
 
 class BaseUrlFunction implements StakxTwigFilter
 {
-    public function __invoke(Twig_Environment $env, $assetPath)
+    private $site;
+
+    public function __invoke(Twig_Environment $env, $assetPath, $absolute = false)
     {
         $globals = $env->getGlobals();
-        $assetPath = $this->guessAssetPath($assetPath);
+        $this->site = $globals['site'];
 
-        // @TODO 1.0.0 Remove support for 'base' as it's been deprecated
-        $base = (array_key_exists('base', $globals['site'])) ? $globals['site']['base'] : $globals['site']['baseurl'];
+        $url = $this->getUrl($absolute);
+        $baseURL = $this->getBaseUrl();
+        $permalink = $this->guessAssetPath($assetPath);
 
-        $baseURL = (empty($base)) ? '/' : '/' . trim($base, '/') . '/';
-        $url = $this->trimSlashes($assetPath);
-
-        return $baseURL . $url;
+        return $this->buildPermalink($url, $baseURL, $permalink);
     }
 
     public static function get()
@@ -30,6 +30,39 @@ class BaseUrlFunction implements StakxTwigFilter
         return new \Twig_SimpleFunction('url', new self(), array(
             'needs_environment' => true,
         ));
+    }
+
+    private function getUrl($absolute)
+    {
+        $url = '/';
+
+        if (!$absolute)
+        {
+            return $url;
+        }
+
+        if (isset($this->site['url']))
+        {
+            $url = $this->site['url'];
+        }
+
+        return ltrim($url, '/');
+    }
+
+    private function getBaseUrl()
+    {
+        $base = '';
+
+        if (isset($this->site['baseurl']))
+        {
+            $base = $this->site['baseurl'];
+        }
+        elseif (isset($this->site['base']))
+        {
+            $base = $this->site['base'];
+        }
+
+        return $base;
     }
 
     private function guessAssetPath($assetPath)
@@ -46,15 +79,22 @@ class BaseUrlFunction implements StakxTwigFilter
         return $assetPath;
     }
 
-    private function trimSlashes($url)
+    /**
+     * @link   https://stackoverflow.com/a/15575293
+     * @return string
+     */
+    private function buildPermalink()
     {
-        $url = ltrim($url, '/');
+        $paths = array();
 
-        if (!empty($url) && $url[strlen($url) - 1] == '/')
+        foreach (func_get_args() as $arg)
         {
-            return rtrim($url, '/') . '/';
+            if ($arg !== '')
+            {
+                $paths[] = $arg;
+            }
         }
 
-        return $url;
+        return preg_replace('#(?<!:)/+#','/', join('/', $paths));
     }
 }
