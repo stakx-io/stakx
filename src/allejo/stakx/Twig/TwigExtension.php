@@ -17,6 +17,8 @@ class TwigExtension extends \Twig_Extension
             WhereFilter::get(),
             SelectFilter::get(),
             ZipFilter::get(),
+            Md5Filter::get(),
+            Sha1Filter::get(),
         );
     }
 
