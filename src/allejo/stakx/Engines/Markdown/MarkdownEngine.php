@@ -24,22 +24,45 @@ class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
         $this->highlighter = new Highlighter();
     }
 
-    protected function blockHeader($line)
+    protected function blockHeader($Line)
     {
-        $Block = parent::blockHeader($line);
+        $Block = parent::blockHeader($Line);
 
-        // Create our unique ids by sanitizing the header content
-        $id = strtolower($Block['element']['text']);
-        $id = str_replace(' ', '-', $id);
-        $id = preg_replace('/[^0-9a-zA-Z-_]/', '', $id);
-        $id = preg_replace('/-+/', '-', $id);
-
-        $Block['element']['attributes']['id'] = $id;
+        if (isset($Block['element']['text']))
+        {
+            $Block['element']['attributes']['id'] = $this->slugifyHeader($Block);
+        }
 
         return $Block;
     }
 
-    public function blockFencedCodeComplete($block)
+    protected function blockSetextHeader($Line, array $Block = null)
+    {
+        $Block = parent::blockSetextHeader($Line, $Block);
+
+        if (isset($Block['element']['name']))
+        {
+            $element = $Block['element']['name'];
+
+            if ($element == 'h1' || $element == 'h2')
+            {
+                $Block['element']['attributes']['id'] = $this->slugifyHeader($Block);
+            }
+        }
+
+        return $Block;
+    }
+
+    private function slugifyHeader($Block)
+    {
+        $id = strtolower($Block['element']['text']);
+        $id = str_replace(' ', '-', $id);
+        $id = preg_replace('/[^0-9a-zA-Z-_]/', '', $id);
+
+        return preg_replace('/-+/', '-', $id);
+    }
+
+    protected function blockFencedCodeComplete($block)
     {
         // The class has a `language-` prefix, remove this to get the language
         if (isset($block['element']['text']['attributes']) && Service::getParameter(Configuration::HIGHLIGHTER_ENABLED))
