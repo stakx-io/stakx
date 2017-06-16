@@ -9,7 +9,6 @@ namespace allejo\stakx\Engines\Markdown;
 
 use allejo\stakx\Configuration;
 use allejo\stakx\Engines\ParsingEngine;
-use allejo\stakx\Manager\HighlighterManager;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
 
