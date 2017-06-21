@@ -1,3 +1,36 @@
+## HEAD
+
+**New**
+
+- You can define custom syntax highlighting definitions for your own languages
+- Added new `zip` Twig filter
+- Added new `ignore_null` option to the `select` Twig filter
+- Added new `sha1` and `md5` Twig filters
+
+**Changes**
+
+- Improve Twig dependency detection in PageViews
+    - Collections and datasets with an underscore in the name are now handled correctly
+- Add more languages to our syntax highlighter
+- More helpful error messages are now outputted during the watch command
+- The `url` Twig filter has received a new `absolute` boolean
+    - When set to true, the generated URL takes `url` from your `_config.yml` and prepends it to the URL
+
+**Fixes**
+
+- The `where` Twig filter correctly checks against ArrayAccess objects
+- Correctly handle file paths in Twig's `{% extends %}` during watch while on Windows
+- Fix asset tracking on Windows during the watch command
+- Files that were `{% import %}`'d in Twig templates now rebuild during watch
+- Empty files created during watch no longer through an error. Errors are only thrown now after you're editing the file
+- Markdown headings created with `===` or `---` now have IDs rendered in the HTML
+
+**Development**
+
+- Internal interfaces have been renamed
+    - `JailedDocumentInterface` -> `JailableDocument`
+    - `TwigDocumentInterface` -> `TwigDocument`
+
 ## 0.1.1 "Eccentric Wallaby"
 
 **New**
