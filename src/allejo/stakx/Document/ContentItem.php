@@ -124,7 +124,7 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, Repe
      *
      * @param PageView $pageView
      */
-    public function setPageView(&$pageView)
+    public function setParentPageView(PageView &$pageView)
     {
         $this->parentPageView = &$pageView;
     }

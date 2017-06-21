@@ -7,12 +7,20 @@
 
 namespace allejo\stakx\Document;
 
+/**
+ * A dynamic PageView is created when the following keywords are found in the FrontMatter of a PageView:
+ *
+ *   - collection
+ *   - dataset
+ *
+ * This PageView type will contain references to all of the RepeatableItems
+ */
 class DynamicPageView extends PageView
 {
     /**
-     * The Content Items that belong to this Page View. This array will only have elements if it is a dynamic Page View.
+     * The RepeatableItems that belong to this PageView.
      *
-     * @var ContentItem[]
+     * @var RepeatableItem[]
      */
     private $repeatableItems;
 
@@ -28,47 +36,37 @@ class DynamicPageView extends PageView
     }
 
     /**
-     * Add a ContentItem to this Dynamic PageView.
+     * Add a RepeatableItem to this dynamic PageView.
      *
      * @param RepeatableItem $repeatableItem
      */
     public function addRepeatableItem(RepeatableItem &$repeatableItem)
     {
         $this->repeatableItems[$repeatableItem->getObjectName()] = &$repeatableItem;
-        $repeatableItem->setPageView($this);
+        $repeatableItem->setParentPageView($this);
     }
 
     /**
-     * Get all of the ContentItems that belong to this Dynamic PageView.
+     * Remove a RepeatableItem from the list of items that this dynamic PageView is responsible for.
      *
-     * @return ContentItem[]
+     * @param RepeatableItem $repeatableItem
+     */
+    public function delRepeatableItem(RepeatableItem &$repeatableItem)
+    {
+        unset($this->repeatableItems[$repeatableItem->getObjectName()]);
+    }
+
+    /**
+     * Get all of the RepeatableItem that belong to this dynamic PageView.
+     *
+     * @return RepeatableItem[]
      */
     public function getRepeatableItems()
     {
         return $this->repeatableItems;
     }
 
-    /**
-     * Get the collection name this dynamic PageView is charged with.
-     *
-     * @return string
-     */
-    public function getCollection()
-    {
-        return $this->getFrontMatter(false)['collection'];
-    }
-
-    /**
-     * Get the dataset name this dynamic PageView is charged with.
-     *
-     * @return string
-     */
-    public function getDataset()
-    {
-        return $this->getFrontMatter(false)['dataset'];
-    }
-
-    public function getRepeatableName()
+    public function getRepeatableNamespace()
     {
         $fm = $this->getFrontMatter(false);
 
@@ -82,6 +80,6 @@ class DynamicPageView extends PageView
 
     public function getObjectName()
     {
-        return $this->getRepeatableName();
+        return $this->getRepeatableNamespace();
     }
 }

@@ -14,11 +14,20 @@ namespace allejo\stakx\Document;
 interface RepeatableItem
 {
     /**
+     * A unique identifier for the object.
+     *
+     * The unique identifier is *typically* the file name.
+     *
      * @return string
      */
     public function getObjectName();
 
     /**
+     * Get the namespace this item belongs.
+     *
+     * - In a Collection, the name of the Collection is the namespace.
+     * - In a DataSet, the name of the DataSet is the namespace.
+     *
      * @return string
      */
     public function getNamespace();
@@ -31,9 +40,11 @@ interface RepeatableItem
     public function setNamespace($namespace);
 
     /**
+     * Set the PageView that is tasked with generating the page for this item.
+     *
      * @param PageView $pageView
      *
      * @return void
      */
-    public function setPageView(&$pageView);
+    public function setParentPageView(PageView &$pageView);
 }

@@ -102,7 +102,7 @@ class DataItem extends PermalinkDocument implements
     /**
      * {@inheritdoc}
      */
-    public function setPageView(&$pageView)
+    public function setParentPageView(PageView &$pageView)
     {
         $this->pageView = &$pageView;
     }
