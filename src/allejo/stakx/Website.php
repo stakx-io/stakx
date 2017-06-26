@@ -318,6 +318,8 @@ class Website
         $this->configuration = new Configuration();
         $this->configuration->setLogger($this->output);
         $this->configuration->parse($configFile);
+
+        Service::setParameter('build.preserveCase', $this->configuration->getConfiguration()['build']['preserveCase']);
     }
 
     /**

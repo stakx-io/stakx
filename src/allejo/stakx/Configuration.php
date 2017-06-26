@@ -340,6 +340,9 @@ class Configuration implements LoggerAwareInterface
                 'enabled' => true,
                 'languages' => array(),
             ),
+            'build' => array(
+                'preserveCase' => false
+            ),
         );
 
         $this->configuration = ArrayUtilities::array_merge_defaults($defaultConfig, $this->configuration, 'name');

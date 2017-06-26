@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Document;
 
+use allejo\stakx\Service;
 use allejo\stakx\System\ReadableFile;
 
 /**
@@ -133,7 +134,10 @@ abstract class PermalinkDocument extends ReadableFile
         $permalink = preg_replace('/^[^0-9a-zA-Z-_]*/', '', $permalink);
 
         // Convert permalinks to lower case
-        $permalink = mb_strtolower($permalink, 'UTF-8');
+        if (!Service::getParameter('build.preserveCase'))
+        {
+            $permalink = mb_strtolower($permalink, 'UTF-8');
+        }
 
         return $permalink;
     }
