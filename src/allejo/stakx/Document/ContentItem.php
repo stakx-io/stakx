@@ -49,6 +49,23 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, Repe
         $this->parentCollection = $collection;
     }
 
+    public function handleSpecialRedirects()
+    {
+        $fm = $this->getFrontMatter();
+
+        if (isset($fm['redirect_from']))
+        {
+            $redirects = $fm['redirect_from'];
+
+            if (!is_array($redirects))
+            {
+                $redirects = array($redirects);
+            }
+
+            $this->redirects = array_merge($this->redirects, $redirects);
+        }
+    }
+
     /**
      * Return the body of the Content Item parsed as markdown.
      *

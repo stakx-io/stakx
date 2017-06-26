@@ -70,6 +70,8 @@ abstract class PermalinkDocument extends ReadableFile
             $this->getPermalink();
         }
 
+        $this->handleSpecialRedirects();
+
         return $this->redirects;
     }
 
@@ -158,4 +160,11 @@ abstract class PermalinkDocument extends ReadableFile
      * @return void
      */
     abstract protected function buildPermalink();
+
+    /**
+     * If a document has extra redirects defined in a special manner, overload this function.
+     */
+    public function handleSpecialRedirects()
+    {
+    }
 }

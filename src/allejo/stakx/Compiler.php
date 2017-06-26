@@ -11,6 +11,7 @@ use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PageView;
+use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\TwigDocument;
 use allejo\stakx\Exception\FileAwareException;
@@ -278,6 +279,8 @@ class Compiler extends BaseManager
 
             $this->output->notice('Writing file: {file}', array('file' => $targetFile));
             $this->folder->writeFile($targetFile, $output);
+
+            $this->compileStandardRedirects($contentItem);
         }
     }
 
@@ -335,11 +338,11 @@ class Compiler extends BaseManager
     /**
      * Write redirects for standard redirects.
      *
-     * @param PageView $pageView
+     * @param PermalinkDocument $pageView
      *
      * @since 0.1.1
      */
-    private function compileStandardRedirects(PageView &$pageView)
+    private function compileStandardRedirects(PermalinkDocument &$pageView)
     {
         $redirects = $pageView->getRedirects();
 
