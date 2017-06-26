@@ -52,6 +52,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         Service::setParameter(BuildableCommand::USE_DRAFTS, false);
         Service::setParameter(BuildableCommand::WATCHING, false);
         Service::setParameter(Configuration::HIGHLIGHTER_ENABLED, true);
+        Service::setParameter('build.preserveCase', false);
 
         // Inspect the VFS as an array
         // vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure();
