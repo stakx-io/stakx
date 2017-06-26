@@ -258,6 +258,7 @@ class Configuration implements LoggerAwareInterface
 
         $this->configuration = $this->parseConfig($configFile);
         $this->mergeDefaultConfiguration();
+        $this->handleDefaultOperations();
         $this->handleDeprecations();
 
         self::$configImports = array();
@@ -520,5 +521,13 @@ class Configuration implements LoggerAwareInterface
         $result = ArrayUtilities::array_merge_defaults($beforeImport, $arraySplit[1], 'name');
 
         return $result;
+    }
+
+    private function handleDefaultOperations()
+    {
+        if (substr($this->getTargetFolder(), 0, 1) != '_')
+        {
+            $this->configuration['exclude'][] = $this->getTargetFolder();
+        }
     }
 }
