@@ -159,7 +159,7 @@ abstract class PermalinkDocument extends ReadableFile
     /**
      * @return void
      */
-    abstract protected function buildPermalink();
+    abstract public function buildPermalink($force = false);
 
     /**
      * If a document has extra redirects defined in a special manner, overload this function.

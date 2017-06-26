@@ -356,8 +356,7 @@ class Website
         {
             try
             {
-                $this->pm->createNewItem($filePath);
-                $pageView = $this->pm->refreshItem($filePath);
+                $pageView = $this->pm->createNewItem($filePath);
 
                 $this->compiler->compilePageView($pageView);
 

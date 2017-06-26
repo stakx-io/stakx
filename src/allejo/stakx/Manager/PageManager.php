@@ -260,6 +260,8 @@ class PageManager extends TrackingManager
         foreach ($this->{$array}[$collection] as &$item)
         {
             $item->evaluateFrontMatter($frontMatter);
+            $item->setParentPageView($pageView);
+            $item->buildPermalink(true);
             $pageView->addRepeatableItem($item);
         }
     }

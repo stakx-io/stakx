@@ -74,7 +74,7 @@ class DataItem extends PermalinkDocument implements
     /**
      * {@inheritdoc}
      */
-    protected function buildPermalink()
+    public function buildPermalink($force = false)
     {
         return;
     }

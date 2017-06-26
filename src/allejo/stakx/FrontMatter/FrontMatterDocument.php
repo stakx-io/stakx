@@ -304,9 +304,9 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
     // Permalink and redirect functionality
     //
 
-    final protected function buildPermalink()
+    final public function buildPermalink($force = false)
     {
-        if (!is_null($this->permalink))
+        if (!is_null($this->permalink) && !$force)
         {
             return;
         }
