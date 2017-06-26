@@ -36,7 +36,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
 
     protected static $whiteListFunctions = array(
         'getPermalink', 'getRedirects', 'getTargetFile', 'getName', 'getFilePath', 'getRelativeFilePath', 'getContent',
-        'getExtension', 'getFrontMatter'
+        'getExtension', 'getFrontMatter', 'getBasename'
     );
 
     /**
@@ -423,7 +423,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
         {
             $this->frontMatterParser = new Parser($yaml, array(
                 'filename' => $this->getFileName(),
-                'basename' => $this->getName(),
+                'basename' => $this->getObjectName(),
             ));
             $this->frontMatterEvaluated = true;
         }
