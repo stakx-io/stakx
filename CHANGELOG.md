@@ -1,8 +1,25 @@
+## 0.1.2 "Watchful Bandicoot"
+
+For this release, all effort was focused on stabilizing the `watch` command and getting it out of its experimental phase.
+
+Here's the changelog since the beta 1 release:
+
+**New**
+
+- Add new `build.preserveCase` option to the configuration file which allows you to preserve the case of a permalink path. This option defaults to false meaning all permalinks are still converted to lower case. ([#55](https://github.com/stakx-io/stakx/issues/55))
+- ContentItems now support a `redirect_from` option in the FrontMatter to have custom redirects on a per ContentItem basis ([#26](https://github.com/stakx-io/stakx/issues/26))
+
+**Fixes**
+
+- Watching a folder with spaces in any part of the path works as intended
+- The target folder is automatically excluded and will no longer have a nested version of itself ([#54](https://github.com/stakx-io/stakx/issues/54))
+- The `basename` attribute is now available in ContentItems that don't have a parent PageView set ([#53](https://github.com/stakx-io/stakx/issues/53))
+
 ## 0.1.2 Beta 1
 
 **New**
 
-- You can define custom syntax highlighting definitions for your own languages
+- You can define custom syntax highlighting definitions for your own languages ([#51](https://github.com/stakx-io/stakx/issues/51))
 - Added new `zip` Twig filter
 - Added new `ignore_null` option to the `select` Twig filter
 - Added new `sha1` and `md5` Twig filters
@@ -11,7 +28,7 @@
 
 - Improve Twig dependency detection in PageViews
     - Collections and datasets with an underscore in the name are now handled correctly
-- Add more languages to our syntax highlighter
+- Add more languages to our syntax highlighter ([#50](https://github.com/stakx-io/stakx/issues/50))
 - More helpful error messages are now outputted during the watch command
 - The `url` Twig filter has received a new `absolute` boolean
     - When set to true, the generated URL takes `url` from your `_config.yml` and prepends it to the URL
