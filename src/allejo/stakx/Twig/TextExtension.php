@@ -47,6 +47,12 @@ class TextExtension extends Twig_Extension
         if (function_exists('simplexml_load_string'))
         {
             $content = simplexml_load_string('<html>' . $value . '</html>');
+
+            if ($content === false)
+            {
+                return $value;
+            }
+
             $count = min($paragraphCount, $content->count());
             $children = $content->children();
 
