@@ -14,7 +14,7 @@ use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\PageView;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Exception\DataSetNotFoundException;
-use allejo\stakx\System\FileExplorer;
+use allejo\stakx\Filesystem\FileExplorer;
 
 /**
  * This class is responsible for handling all of the PageViews within a website.

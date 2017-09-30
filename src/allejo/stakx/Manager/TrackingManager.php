@@ -13,7 +13,7 @@ use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\TrackableDocument;
 use allejo\stakx\Document\TwigDocument;
 use allejo\stakx\Service;
-use allejo\stakx\System\FileExplorer;
+use allejo\stakx\Filesystem\FileExplorer;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**

@@ -17,7 +17,7 @@ use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Manager\TwigManager;
-use allejo\stakx\System\FileExplorer;
+use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\Folder;
 use allejo\stakx\Twig\StakxTwigTextProfiler;

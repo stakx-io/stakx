@@ -5,10 +5,19 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\System;
+namespace allejo\stakx\Filesystem;
 
 use Symfony\Component\Finder\SplFileInfo;
 
+/**
+ * The core class to handle reading files from directories on the filesystem.
+ *
+ * This class is the macOS Finder or Windows Explorer equivalent for stakx. New instances of this class should only be
+ * created through the `FileExplorer::create()` helper function. To access the file iterator from this instance, use
+ * `FileExplorer::getExplorer()` to retrieve SplFileInfo objects.
+ *
+ * @internal
+ */
 class FileExplorer extends \RecursiveFilterIterator implements \Iterator
 {
     /**
@@ -36,7 +45,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      *
      * @var string[]
      */
-    public static $vcsPatterns = array('.git', '.hg', '.svn', '_svn');
+    public static $vcsPatterns = ['.git', '.hg', '.svn', '_svn'];
 
     /**
      * A list of phrases to exclude from the search.
