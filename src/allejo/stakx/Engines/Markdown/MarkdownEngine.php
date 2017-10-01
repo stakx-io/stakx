@@ -43,7 +43,7 @@ class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
         {
             $element = $Block['element']['name'];
 
-            if ($element == 'h1' || $element == 'h2')
+            if (in_array($element, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']))
             {
                 $Block['element']['attributes']['id'] = $this->slugifyHeader($Block);
             }
