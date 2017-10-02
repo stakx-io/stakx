@@ -35,9 +35,13 @@ class TableOfContentsFilter implements StakxTwigFilter
         $toc = '';
         $curr = $last = 0;
 
+        /**
+         * @var int         $index
+         * @var \DOMElement $heading
+         */
         foreach ($headings as $index => $heading)
         {
-            if (!isset($heading->attributes['id']))
+            if ($heading->attributes->getNamedItem('id') === null)
             {
                 continue;
             }
@@ -49,7 +53,7 @@ class TableOfContentsFilter implements StakxTwigFilter
                 continue;
             }
 
-            $headingID = $heading->attributes['id'];
+            $headingID = $heading->attributes->getNamedItem('id');
 
             if ($curr > $last) // If the current level is greater than the last level indent one level
             {
@@ -64,7 +68,7 @@ class TableOfContentsFilter implements StakxTwigFilter
                 $toc .= '</li>';
             }
 
-            $toc .= '<li><a href="#' . $headingID->value . '">' . $heading->nodeValue . '</a>';
+            $toc .= '<li><a href="#' . $headingID->nodeValue . '">' . $heading->nodeValue . '</a>';
             $last = $curr;
         }
 
