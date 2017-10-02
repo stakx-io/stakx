@@ -2,6 +2,9 @@
 
 namespace allejo\stakx\Twig;
 
+use DOMDocument;
+use DOMXPath;
+
 class TableOfContentsFilter implements StakxTwigFilter
 {
     /**
@@ -23,52 +26,49 @@ class TableOfContentsFilter implements StakxTwigFilter
             return '';
         }
 
-        $content = simplexml_load_string('<html>' . $html . '</html>');
+        $dom = new DOMDocument();
+        $dom->loadHTML('<div>' . $html . '</div>');
 
-        if ($content === false)
-        {
-            trigger_error('The HTML given to generate this Table of Contents was invalid.', E_USER_WARNING);
-            return '';
-        }
+        $xpath = new DOMXPath($dom);
+        $headings = $xpath->query('//h1|//h2|//h3|//h4|//h5|//h6');
 
         $toc = '';
-        $curr = $last = 1;
+        $curr = $last = 0;
 
-        $headings = $content->xpath('//h1|//h2|//h3|//h4|//h5|//h6');
-
-        foreach ($headings as $heading)
+        foreach ($headings as $index => $heading)
         {
-            if (!property_exists($heading->attributes(), 'id'))
+            if (!isset($heading->attributes['id']))
             {
                 continue;
             }
 
-            sscanf($heading->getName(), 'h%u', $curr);
+            sscanf($heading->tagName, 'h%u', $curr);
 
-            if (!($hMin <= $curr && $curr <= $hMax)) {
+            if (!($hMin <= $curr && $curr <= $hMax))
+            {
                 continue;
             }
 
-            $headingID = $heading->attributes()->id;
+            $headingID = $heading->attributes['id'];
 
-            // If the current level is greater than the last level indent one level
-            if ($curr > $last) {
+            if ($curr > $last) // If the current level is greater than the last level indent one level
+            {
                 $toc .= '<ul>';
             }
-            // If the current level is less than the last level go up appropriate amount.
-            elseif ($curr < $last) {
+            elseif ($curr < $last) // If the current level is less than the last level go up appropriate amount.
+            {
                 $toc .= str_repeat('</li></ul>', $last - $curr) . '</li>';
             }
-            // If the current level is equal to the last.
-            else {
+            else // If the current level is equal to the last.
+            {
                 $toc .= '</li>';
             }
 
-            $toc .= '<li><a href="#' . $headingID . '">' . (string)$heading . '</a>';
+            $toc .= '<li><a href="#' . $headingID->value . '">' . $heading->nodeValue . '</a>';
             $last = $curr;
         }
 
-        $toc .= str_repeat('</li></ul>', $last);
+        $toc .= str_repeat('</li></ul>', ($last - ($hMin - 1)));
 
         if ($id !== null || $class !== null)
         {
