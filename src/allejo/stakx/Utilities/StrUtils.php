@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Utilities;
 
-class StrUtils
+abstract class StrUtils
 {
     /**
      * Interpolates context values into the message placeholders.
