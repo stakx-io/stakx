@@ -180,6 +180,18 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
+     * Check whether or not a given path is a file.
+     *
+     * @param string $filePath
+     *
+     * @return bool
+     */
+    public function isFile($filePath)
+    {
+        return is_file($filePath);
+    }
+
+    /**
      * Check whether a given file path is a symlink
      *
      * @param  string $filePath
