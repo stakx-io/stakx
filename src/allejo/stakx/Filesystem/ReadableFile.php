@@ -5,12 +5,17 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\System;
+namespace allejo\stakx\Filesystem;
 
-abstract class ReadableFile
+use allejo\stakx\System\Filesystem;
+
+abstract class ReadableFile implements FileInterface
 {
+    /** @var string */
     protected $filePath;
+    /** @var string */
     protected $extension;
+    /** @var Filesystem */
     protected $fs;
 
     /**
@@ -40,7 +45,7 @@ abstract class ReadableFile
         return $this->fs->getBaseName($this->filePath);
     }
 
-    final public function getFilePath()
+    final public function getAbsoluteFilePath()
     {
         return $this->filePath;
     }

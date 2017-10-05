@@ -127,7 +127,7 @@ class DataItem extends PermalinkDocument implements
             throw new FileNotFoundException(null, 0, null, $this->filePath);
         }
 
-        $content = file_get_contents($this->getFilePath());
+        $content = file_get_contents($this->getAbsoluteFilePath());
         $fxnName = 'from' . ucfirst($this->getExtension());
 
         if (method_exists(get_called_class(), $fxnName))

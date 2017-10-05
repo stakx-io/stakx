@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\Document;
 
+use allejo\stakx\Filesystem\ReadableFile;
 use allejo\stakx\Service;
-use allejo\stakx\System\ReadableFile;
 
 /**
  * A document that will have a permalink

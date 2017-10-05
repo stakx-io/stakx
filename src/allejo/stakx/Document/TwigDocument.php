@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\System\FileInterface;
+use allejo\stakx\Filesystem\FileInterface;
 
 /**
  * This interface defines the requirements for an object that will be available through Twig.

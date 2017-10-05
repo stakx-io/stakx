@@ -197,7 +197,7 @@ class Compiler extends BaseManager
      */
     public function compilePageView(PageView &$pageView)
     {
-        $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
+        $this->twig->addGlobal('__currentTemplate', $pageView->getAbsoluteFilePath());
         $this->output->debug('Compiling {type} PageView: {pageview}', array(
             'pageview' => $pageView->getRelativeFilePath(),
             'type' => $pageView->getType()
@@ -321,7 +321,7 @@ class Compiler extends BaseManager
         $pageView = &$contentItem->getPageView();
         $template = $this->createTwigTemplate($pageView);
 
-        $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
+        $this->twig->addGlobal('__currentTemplate', $pageView->getAbsoluteFilePath());
         $contentItem->evaluateFrontMatter($pageView->getFrontMatter(false));
 
         $targetFile = $contentItem->getTargetFile();

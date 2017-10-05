@@ -5,7 +5,7 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\System;
+namespace allejo\stakx\Filesystem;
 
 interface FileInterface
 {
@@ -35,7 +35,7 @@ interface FileInterface
      *
      * @return string
      */
-    public function getFilePath();
+    public function getAbsoluteFilePath();
 
     /**
      * Get the name of the file with the extension.

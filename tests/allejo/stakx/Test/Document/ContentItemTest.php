@@ -28,7 +28,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
         $contentItem = new ContentItem($this->dummyFile->url());
 
-        $this->assertEquals($this->dummyFile->url(), $contentItem->getFilePath());
+        $this->assertEquals($this->dummyFile->url(), $contentItem->getAbsoluteFilePath());
     }
 
     public function testContentItemAppearsAsDraft()
@@ -339,7 +339,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->setExpectedException(FileNotFoundException::class);
 
         $content = $this->createContentItem(array());
-        $this->fs->remove($content->getFilePath());
+        $this->fs->remove($content->getAbsoluteFilePath());
         $content->refreshFileContent();
     }
 
