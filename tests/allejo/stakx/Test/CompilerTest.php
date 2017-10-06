@@ -16,7 +16,7 @@ use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\Service;
-use allejo\stakx\System\Folder;
+use allejo\stakx\Filesystem\Folder;
 use org\bovigo\vfs\vfsStream;
 
 class CompilerTest extends PHPUnit_Stakx_TestCase

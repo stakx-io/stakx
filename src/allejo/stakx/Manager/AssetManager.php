@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\System\Folder;
+use allejo\stakx\Filesystem\Folder;
 
 class AssetManager extends TrackingManager
 {

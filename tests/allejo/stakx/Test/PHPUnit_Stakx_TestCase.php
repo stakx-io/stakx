@@ -13,7 +13,7 @@ use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
-use allejo\stakx\System\Folder;
+use allejo\stakx\Filesystem\Folder;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;

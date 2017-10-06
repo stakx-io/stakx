@@ -19,7 +19,7 @@ use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\BaseManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Manager\TwigManager;
-use allejo\stakx\System\Folder;
+use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\System\FilePath;
 use Twig_Environment;
 use Twig_Error_Runtime;

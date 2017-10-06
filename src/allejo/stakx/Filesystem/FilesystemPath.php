@@ -56,7 +56,21 @@ final class FilesystemPath
             throw new \InvalidArgumentException("Appending to a file's path is not possible");
         }
 
-        $this->absolutePath = $this->buildPath($this->absolutePath, $this->unixifyPath($append), '/');
+        $this->absolutePath = $this->buildPath($this->absolutePath, $this->unixifyPath($append));
+    }
+
+    /**
+     * Generate a path based off this file path.
+     *
+     * This method will not modify the existing file path of this instance, use FilesystemPath::appendToPath() for that.
+     *
+     * @param string $append
+     *
+     * @return string
+     */
+    public function generatePath($append)
+    {
+        return $this->buildPath($this->absolutePath, $this->unixifyPath($append));
     }
 
     /**
