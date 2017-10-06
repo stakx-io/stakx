@@ -102,7 +102,7 @@ class AssetManager extends TrackingManager
         if (is_string($file))
         {
             $file = ltrim($this->fs->appendPath($options['prefix'], $file), DIRECTORY_SEPARATOR);
-            $file = $this->fs->createSplFileInfo($file);
+            $file = $this->fs->createFileObject($file);
         }
 
         if (!$this->fs->exists($file))
@@ -117,11 +117,11 @@ class AssetManager extends TrackingManager
         try
         {
             $this->addFileToTracker($file);
-            $this->saveTrackerOptions($file->getRelativePathname(), $options);
+            $this->saveTrackerOptions($file->getRelativeFilePath(), $options);
 
             $this->outputDirectory->copyFile($filePath, $siteTargetPath);
             $this->output->info('Copying file: {file}...', array(
-                'file' => $file->getRelativePathname(),
+                'file' => $file->getRelativeFilePath(),
             ));
         }
         catch (\Exception $e)

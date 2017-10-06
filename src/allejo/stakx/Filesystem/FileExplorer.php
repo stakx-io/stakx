@@ -7,14 +7,12 @@
 
 namespace allejo\stakx\Filesystem;
 
-use Symfony\Component\Finder\SplFileInfo;
-
 /**
  * The core class to handle reading files from directories on the filesystem.
  *
  * This class is the macOS Finder or Windows Explorer equivalent for stakx. New instances of this class should only be
  * created through the `FileExplorer::create()` helper function. To access the file iterator from this instance, use
- * `FileExplorer::getExplorer()` to retrieve SplFileInfo objects.
+ * `FileExplorer::getExplorer()` to retrieve File objects.
  *
  * @internal
  */
@@ -98,22 +96,22 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public function accept()
     {
-        $filePath = $this->current()->getRelativePathname();
+        $filePath = $this->current()->getRelativeFilePath();
 
         return $this->matchesPattern($filePath);
     }
 
     /**
-     * Get the current SplFileInfo object.
+     * Get the current File object.
      *
-     * @return SplFileInfo
+     * @return File
      */
     public function current()
     {
         /** @var \SplFileInfo $current */
         $current = parent::current();
 
-        return new SplFileInfo(
+        return new File(
             $current->getPathname(),
             self::getRelativePath($current->getPath()),
             self::getRelativePath($current->getPathname())

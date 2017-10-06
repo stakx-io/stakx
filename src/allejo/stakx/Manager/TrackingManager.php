@@ -12,9 +12,9 @@ use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\TrackableDocument;
 use allejo\stakx\Document\TwigDocument;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Service;
 use allejo\stakx\Filesystem\FileExplorer;
-use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Class TrackingManager.
@@ -88,7 +88,7 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * @param SplFileInfo|string $filePath
+     * @param File|string $filePath
      *
      * @return mixed|null
      */
@@ -135,7 +135,7 @@ abstract class TrackingManager extends BaseManager
     /**
      * Update the contents of a specified file.
      *
-     * @param SplFileInfo|string $filePath The relative path of the file
+     * @param File|string $filePath The relative path of the file
      *
      * @return PageView
      */
@@ -148,14 +148,14 @@ abstract class TrackingManager extends BaseManager
     // Internal object handling
     ///
 
-    protected function addFileToTracker(SplFileInfo &$file)
+    protected function addFileToTracker(File &$file)
     {
-        $this->trackedItemsFlattened[$file->getRelativePathname()] = &$file;
+        $this->trackedItemsFlattened[$file->getRelativeFilePath()] = &$file;
     }
 
-    protected function delFileFromTracker(SplFileInfo &$file)
+    protected function delFileFromTracker(File &$file)
     {
-        unset($this->trackedItemsFlattened[$file->getRelativePathname()]);
+        unset($this->trackedItemsFlattened[$file->getRelativeFilePath()]);
     }
 
     /**
@@ -272,7 +272,7 @@ abstract class TrackingManager extends BaseManager
      *  - TrackingManager::addFileToTracker()
      *  - TrackingManager::saveTrackerOptions()
      *
-     * @param SplFileInfo $filePath
+     * @param File $filePath
      * @param mixed       $options
      *
      * @return mixed|null

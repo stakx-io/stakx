@@ -9,7 +9,6 @@ namespace allejo\stakx\Filesystem;
 
 use allejo\stakx\System\Filesystem;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * A representation of a folder on a given filesystem.
@@ -80,7 +79,7 @@ final class Folder
      *
      * @since 0.1.0
      *
-     * @return SplFileInfo
+     * @return File
      */
     public function writeFile($relativePath, $content)
     {
@@ -94,10 +93,10 @@ final class Folder
 
         file_put_contents($targetFile, $content);
 
-        return (new SplFileInfo(
+        return (new File(
             $this->fs->getFileName($targetFile),
-            $targetFolderPath,
-            $targetFile
+            $this->fs->getFolderPath($relativePath),
+            $relativePath
         ));
     }
 }

@@ -8,9 +8,9 @@
 namespace allejo\stakx\System;
 
 use allejo\stakx\Exception\FileAccessDeniedException;
+use allejo\stakx\Filesystem\File;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
-use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Class Filesystem.
@@ -92,15 +92,15 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
-     * Create an instance of Symfony's SplFileInfo with relative path information.
+     * Create an instance of stakx's File object with relative path information.
      *
      * @param string $filePath
      *
-     * @return SplFileInfo
+     * @return File
      */
-    public function createSplFileInfo($filePath)
+    public function createFileObject($filePath)
     {
-        return new SplFileInfo(
+        return new File(
             $this->absolutePath($filePath),
             $this->getRelativePath($this->getFolderPath($filePath)),
             $this->getRelativePath($filePath)
