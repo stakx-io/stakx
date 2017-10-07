@@ -50,6 +50,7 @@ class DataItem extends PermalinkDocument implements
             'filename' => $this->getFileName(),
             'basename' => $this->getBaseName(),
         ));
+        $parser->parse();
 
         if (!is_null($parser) && $parser->hasExpansion())
         {

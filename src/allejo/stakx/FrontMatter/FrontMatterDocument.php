@@ -425,6 +425,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
                 'filename' => $this->getFileName(),
                 'basename' => $this->getObjectName(),
             ));
+            $this->frontMatterParser->parse();
             $this->frontMatterEvaluated = true;
         }
         catch (\Exception $e)

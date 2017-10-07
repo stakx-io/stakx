@@ -7,10 +7,55 @@
 
 namespace allejo\stakx\FrontMatter;
 
+use __;
 use allejo\stakx\FrontMatter\Exception\YamlUnsupportedVariableException;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\Utilities\ArrayUtilities;
 
+/**
+ * The parser tasked with sanitizing and evaluating Front Matter of its variables.
+ *
+ * stakx's Front Matter has support for "primitive" and "complex" variables. Primitive variables are variables defined
+ * through the Front Matter itself whereas complex variables are injected from other sources (e.g. the site's main
+ * _config.yml file).
+ *
+ * ## Primitive Variables
+ *
+ * **Syntax**: `%variableName`
+ *
+ * **Example**
+ *
+ * ```yaml
+ * ---
+ * variableName: Hello
+ * output: %variableName world! # "Hello world!"
+ * ---
+ * ```
+ *
+ * ## Complex Variables
+ *
+ * **Syntax**: `%{site.section.value}`
+ *
+ * **Example**
+ *
+ * ```yaml
+ * # _config.yml
+ *
+ * title: stakx's site
+ * someParent:
+ *   nestedValue: Toast
+ * ```
+ *
+ * ```yaml
+ * ---
+ * output: Hello from, %{site.title} # "Hello from, stakx's site"
+ * title: I want %{site.someParent.nestedValue} # "I want Toast"
+ * ---
+ * ```
+ *
+ * @since 0.2.0 Add support for complex variables.
+ * @since 0.1.0
+ */
 class Parser
 {
     /**
@@ -19,11 +64,16 @@ class Parser
     const VARIABLE_DEF = '/(?<!\\\\)%([a-zA-Z]+)/';
 
     /**
+     * The RegEx used to identify special variables.
+     */
+    const ARRAY_DEF = '/(?<!\\\\)%{([a-zA-Z\.]+)}/';
+
+    /**
      * A list of special fields in the Front Matter that will support expansion.
      *
      * @var string[]
      */
-    private static $expandableFields = array('permalink');
+    private static $expandableFields = ['permalink'];
 
     /**
      * Whether or not an field was expanded into several values.
@@ -65,15 +115,44 @@ class Parser
      */
     private $frontMatter;
 
+    /**
+     * YAML data that is being imported from external sources.
+     *
+     * @var array
+     */
+    private $complexVariables;
+
+    /**
+     * @param array $rawFrontMatter The array representation of a document's Front Matter
+     * @param array $specialKeys    Front Matter variables defined manually, which will override any values defined
+     *                              through Front Matter.
+     */
     public function __construct(array &$rawFrontMatter, array $specialKeys = array())
     {
         $this->expansionUsed = false;
         $this->nestingLevel = 0;
         $this->specialKeys = $specialKeys;
-        $this->yamlKeys = array();
+        $this->yamlKeys = [];
 
         $this->frontMatter = &$rawFrontMatter;
+        $this->complexVariables = [];
+    }
 
+    /**
+     * Make complex variables available to the parser.
+     *
+     * @param array $yaml
+     */
+    public function addComplexVariables(array $yaml)
+    {
+        $this->complexVariables = array_merge($this->complexVariables, $yaml);
+    }
+
+    /**
+     * Trigger the parsing functionality. The given array will be evaluated in place.
+     */
+    public function parse()
+    {
         $this->handleSpecialFrontMatter();
         $this->evaluateBlock($this->frontMatter);
     }
@@ -194,7 +273,7 @@ class Parser
 
             // Only continue expansion if there are Front Matter variables remain in the string, this means there'll be
             // Front Matter variables referencing arrays
-            $expandingVars = $this->getFrontMatterVariables($value);
+            $expandingVars = $this->findFrontMatterVariables($value);
             if (!empty($expandingVars))
             {
                 $value = $this->evaluateArrayType($key, $value, $expandingVars);
@@ -228,7 +307,9 @@ class Parser
 
         foreach ($arrayVariableNames as $variable)
         {
-            if (ArrayUtilities::is_multidimensional($this->frontMatter[$variable]))
+            $variableValue = $this->getVariableValue($frontMatterKey, $variable);
+
+            if (ArrayUtilities::is_multidimensional($variableValue))
             {
                 throw new YamlUnsupportedVariableException("Yaml array expansion is not supported with multidimensional arrays with `$variable` for key `$frontMatterKey`");
             }
@@ -237,10 +318,13 @@ class Parser
 
             foreach ($expandableValue as &$statement)
             {
-                foreach ($this->frontMatter[$variable] as $value)
+                foreach ($variableValue as $value)
                 {
                     $evaluatedValue = ($statement instanceof ExpandedValue) ? clone $statement : new ExpandedValue($statement);
-                    $evaluatedValue->setEvaluated(str_replace('%' . $variable, $value, $evaluatedValue->getEvaluated()));
+
+                    $varTemplate = $this->getVariableTemplate($variable);
+
+                    $evaluatedValue->setEvaluated(str_replace($varTemplate, $value, $evaluatedValue->getEvaluated()));
                     $evaluatedValue->setIterator($variable, $value);
 
                     $wip[] = $evaluatedValue;
@@ -267,7 +351,7 @@ class Parser
      */
     private function evaluateBasicType($key, $string, $ignoreArrays = false)
     {
-        $variables = $this->getFrontMatterVariables($string);
+        $variables = $this->findFrontMatterVariables($string);
 
         foreach ($variables as $variable)
         {
@@ -283,7 +367,9 @@ class Parser
                 throw new YamlUnsupportedVariableException("Yaml variable `$variable` for `$key` is not a supported data type.");
             }
 
-            $string = str_replace('%' . $variable, $value, $string);
+            // The FM variable template that we need to replace with our evaluated value
+            $varTemplate = $this->getVariableTemplate($variable);
+            $string = str_replace($varTemplate, $value, $string);
         }
 
         return $string;
@@ -300,35 +386,66 @@ class Parser
      *
      * @return string[]
      */
-    private function getFrontMatterVariables($string)
+    private function findFrontMatterVariables($string)
     {
-        $variables = array();
+        $primitiveVars = [];
+        preg_match_all(self::VARIABLE_DEF, $string, $primitiveVars);
 
-        preg_match_all(self::VARIABLE_DEF, $string, $variables);
+        $complexVars = [];
+        preg_match_all(self::ARRAY_DEF, $string, $complexVars);
 
-        // Default behavior causes $variables[0] is the entire string that was matched. $variables[1] will be each
+        // Default behavior causes $primitiveVars[0] is the entire string that was matched. $primitiveVars[1] will be each
         // matching result individually.
-        return $variables[1];
+        return array_merge($primitiveVars[1], $complexVars[1]);
     }
 
     /**
-     * Get the value of a FM variable or throw an exception.
+     * Get the value of a FM variable.
      *
-     * @param string $key
-     * @param string $varName
+     * @param string $key     The FM key that is being currently evaluated (used solely for a helpful error message)
+     * @param string $varName The variable name we're searching for without the `%`
      *
-     * @throws YamlVariableUndefinedException
+     * @throws YamlVariableUndefinedException When variable is not defined.
      *
      * @return mixed
      */
     private function getVariableValue($key, $varName)
     {
-        if (!isset($this->frontMatter[$varName]))
+        $isPrimitive = (strpos($varName, '.') === false);
+        $variableVal = null;
+
+        if ($isPrimitive)
+        {
+            $variableVal = ArrayUtilities::array_safe_get($this->frontMatter, $varName);
+        }
+        else
+        {
+            $variableVal = __::get($this->complexVariables, $varName);
+        }
+
+        if ($variableVal === null)
         {
             throw new YamlVariableUndefinedException("Yaml variable `$varName` is not defined for: $key");
         }
 
-        return $this->frontMatter[$varName];
+        return $variableVal;
+    }
+
+    /**
+     * Get the variable template that needs to be replaced.
+     *
+     * The syntax for primitive variables differ from complex variables, so this method will return the appropriate
+     * template that will be used to replace the value.
+     *
+     * @param string $variableName The variable name
+     *
+     * @return string
+     */
+    private function getVariableTemplate($variableName)
+    {
+        $isPrimitive = (strpos($variableName, '.') === false);
+
+        return ($isPrimitive) ? sprintf('%%%s', $variableName) : sprintf('%%{%s}', $variableName);
     }
 
     //
