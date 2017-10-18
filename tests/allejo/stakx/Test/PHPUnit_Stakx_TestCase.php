@@ -28,20 +28,11 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
     /** @var string */
     protected $assetFolder;
-
-    /**
-     * @var vfsStreamFile
-     */
+    /** @var vfsStreamFile */
     protected $dummyFile;
-
-    /**
-     * @var vfsStreamDirectory
-     */
+    /** @var vfsStreamDirectory */
     protected $rootDir;
-
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     protected $fs;
 
     public function setUp()
@@ -59,12 +50,22 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         // vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure();
     }
 
+    public function tearDown()
+    {
+        if ($this->assetFolder !== null)
+        {
+            $this->fs->remove($this->assetFolder);
+        }
+    }
+
     ///
     // Assertion functions
     ///
 
     /**
+     * @param string $needle
      * @param string $haystack
+     * @param string $message
      */
     protected function assertStringContains($needle, $haystack, $message = '')
     {
@@ -99,7 +100,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Write a temporary file to the asset folder
+     * Write a temporary file to the asset folder.
+     *
+     * This file will be written to the actual filesystem and not the virtual filesystem.
      *
      * @param $fileName
      * @param $content
@@ -114,6 +117,15 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $this->fs->appendPath($this->assetFolder, $fileName);
     }
 
+    /**
+     * Create a blank file on the virtual filesystem.
+     *
+     * @param string $filename
+     * @param string $classType
+     * @param string $content
+     *
+     * @return mixed
+     */
     protected function createBlankFile($filename, $classType, $content)
     {
         $file = vfsStream::newFile($filename);
@@ -123,30 +135,48 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
         $url = $file->url();
 
-        return new $classType($this->createFileForVFS($url));
-    }
-
-    protected function createVirtualFilePath($frontMatter = array(), $body = 'Body Text')
-    {
-        $this->dummyFile
-            ->setContent($this->generateFM($frontMatter, $body))
-            ->at($this->rootDir);
-
-        return $this->createFileForVFS($this->dummyFile->url());
+        return new $classType($this->createFileObjectFromPath($url));
     }
 
     /**
+     * Create a virtual file following the a FrontMatter-ready template.
+     *
      * @param string $classType
      * @param array  $frontMatter
      * @param string $body
      *
      * @return mixed
      */
-    protected function createVirtualFile($classType, $frontMatter = array(), $body = 'Body Text')
+    protected function createVirtualFrontMatterFile($classType, $frontMatter = array(), $body = 'Body Text')
     {
-        return new $classType($this->createVirtualFilePath($frontMatter, $body));
+        return new $classType($this->setAndCreateVirtualFrontMatterFileObject($frontMatter, $body));
     }
 
+    /**
+     * Set the contents of our default virtual file and create a File object for it.
+     *
+     * @param array  $frontMatter
+     * @param string $body
+     *
+     * @return File
+     */
+    protected function setAndCreateVirtualFrontMatterFileObject($frontMatter = array(), $body = 'Body Text')
+    {
+        $this->dummyFile
+            ->setContent($this->buildFrontMatterTemplate($frontMatter, $body))
+            ->at($this->rootDir);
+
+        return $this->createFileObjectFromPath($this->dummyFile->url());
+    }
+
+    /**
+     * Create multiple virtual files from a given array of information.
+     *
+     * @param string $classType
+     * @param array  $elements
+     *
+     * @return array
+     */
     protected function createMultipleVirtualFiles($classType, $elements)
     {
         $results = array();
@@ -164,19 +194,41 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
             $url = $file->url();
 
-            $results[] = new $classType($this->createFileForVFS($url));
+            $results[] = new $classType($this->createFileObjectFromPath($url));
         }
 
         return $results;
     }
 
-    protected function createFileForVFS($url)
+    /**
+     * Create a File object from a given path.
+     *
+     * @param  string $filePath
+     *
+     * @return File
+     */
+    protected function createFileObjectFromPath($filePath)
     {
         return (new File(
-            $url,
-            $this->fs->getFolderPath($url),
-            $url
+            $filePath,
+            $this->fs->getFolderPath($filePath),
+            $filePath
         ));
+    }
+
+    /**
+     * Generate a FrontMatter-ready syntax to be used as a file's content.
+     *
+     * @param array  $frontMatter
+     * @param string $body
+     *
+     * @return string
+     */
+    protected function buildFrontMatterTemplate(array $frontMatter = array(), $body = 'Body text')
+    {
+        $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
+
+        return sprintf(self::FM_OBJ_TEMPLATE, $fm, $body);
     }
 
     /**
@@ -204,24 +256,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Generate a FrontMatter-ready syntax to be used as a file's content.
-     *
-     * @param array  $frontMatter
-     * @param string $body
-     *
-     * @return string
-     */
-    protected function generateFM(array $frontMatter = array(), $body = 'Body text')
-    {
-        $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
-
-        return sprintf(self::FM_OBJ_TEMPLATE, $fm, $body);
-    }
-
-    /**
-     * Create a temporary folder where temporary file writes will be made to
-     *
-     * Remember to remove the folder in during the ::tearDown()
+     * Create a temporary folder where temporary file writes will be made to.
      *
      * @param string $folderName
      */

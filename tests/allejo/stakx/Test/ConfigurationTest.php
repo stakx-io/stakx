@@ -42,8 +42,6 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
         parent::tearDown();
 
         StreamInterceptor::$output = '';
-
-        $this->fs->remove($this->assetFolder);
     }
 
     public function testSampleConfigIsDebug()

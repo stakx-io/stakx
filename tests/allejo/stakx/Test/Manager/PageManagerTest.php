@@ -20,7 +20,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 {
     public function testDynamicPageViewCollectionFound()
     {
-        $this->createVirtualFile(DynamicPageView::class, array(
+        $this->createVirtualFrontMatterFile(DynamicPageView::class, array(
             'collection' => 'books',
             'permalink' => '/blog/%title/',
         ));
@@ -38,7 +38,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testPageViewsContentItems()
     {
-        $this->createVirtualFile(DynamicPageView::class, array(
+        $this->createVirtualFrontMatterFile(DynamicPageView::class, array(
             'collection' => 'books',
             'permalink' => '/blog/%title/',
         ));
@@ -60,7 +60,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
     {
         $this->setExpectedException(CollectionNotFoundException::class);
 
-        $this->createVirtualFile(DynamicPageView::class, array(
+        $this->createVirtualFrontMatterFile(DynamicPageView::class, array(
             'collection' => 'non-existent',
             'permalink' => '/blog/%title/',
         ));
@@ -117,7 +117,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testAddingContentItemToPageView()
     {
-        $this->createVirtualFile(DynamicPageView::class, array(
+        $this->createVirtualFrontMatterFile(DynamicPageView::class, array(
             'collection' => 'books',
             'permalink' => '/blog/%title/',
         ));
@@ -136,7 +136,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertGreaterThan(0, $originalCount);
 
         /** @var ContentItem $contentItem */
-        $contentItem = $this->createVirtualFile(ContentItem::class);
+        $contentItem = $this->createVirtualFrontMatterFile(ContentItem::class);
         $contentItem->setNamespace('books');
 
         $pageManager->trackNewContentItem($contentItem);

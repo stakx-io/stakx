@@ -111,7 +111,7 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
      */
     public function testHasTwigDependencyRegex($twig, $namespace, $needle, $match)
     {
-        $file = $this->createStub($this->createVirtualFilePath(array(), $twig));
+        $file = $this->createStub($this->setAndCreateVirtualFrontMatterFileObject(array(), $twig));
         $this->assertEquals($match, $file->hasTwigDependency($namespace, $needle));
     }
 

@@ -27,9 +27,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile->setContent(sprintf(self::FM_OBJ_TEMPLATE, '', 'Body Text'))
                         ->at($this->rootDir);
 
-        $url = $this->dummyFile->url();
-
-        $contentItem = new ContentItem($this->createFileForVFS($url));
+        $contentItem = $this->createContentItemFromVFS();
 
         $this->assertEquals($this->dummyFile->url(), $contentItem->getAbsoluteFilePath());
     }
@@ -118,9 +116,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile->setContent(sprintf(self::FM_OBJ_TEMPLATE, 'invalid yaml', 'body text'))
              ->at($this->rootDir);
 
-        $url = $this->dummyFile->url();
-
-        return new ContentItem($this->createFileForVFS($url));
+        return $this->createContentItemFromVFS();
     }
 
     public function testContentItemFrontMatterYamlVariables()
@@ -286,7 +282,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         ));
         $url = $root->getChild('dir/foo.html.twig')->url();
 
-        $contentItem = new ContentItem($this->createFileForVFS($url));
+        $contentItem = new ContentItem($this->createFileObjectFromPath($url));
 
         $this->assertEquals($this->fs->appendPath('root', 'dir', 'foo.html'), $contentItem->getTargetFile());
     }
@@ -301,7 +297,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
         $url = $rootDir->getChild('foo.html.twig')->url();
 
-        $contentItem = new ContentItem($this->createFileForVFS($url));
+        $contentItem = new ContentItem($this->createFileObjectFromPath($url));
 
         $this->assertEquals('foo.html', $contentItem->getTargetFile());
     }
@@ -320,9 +316,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile->setContent("---\n---\n\n  \n \t\n")
                         ->at($this->rootDir);
 
-        $url = $this->dummyFile->url();
-
-        new ContentItem($this->createFileForVFS($url));
+        $this->createContentItemFromVFS();
     }
 
     public function testContentItemWithNoBodyThrowsInvalidSyntaxException()
@@ -332,9 +326,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile->setContent("---\n---")
                         ->at($this->rootDir);
 
-        $url = $this->dummyFile->url();
-
-        new ContentItem($this->createFileForVFS($url));
+        $this->createContentItemFromVFS();
     }
 
     public function testContentItemWithEmptyFileThrowsInvalidSyntaxException()
@@ -343,7 +335,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
         $file = vfsStream::newFile('foo.html.twig')->at($this->rootDir);
 
-        new ContentItem($this->createFileForVFS($file->url()));
+        new ContentItem($this->createFileObjectFromPath($file->url()));
     }
 
     public function testContentItemWithDeletedFileAfterCreationThrowsFileNotFoundException()
@@ -463,12 +455,33 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
     // Utilities
     //
 
-    private function createContentItemWithEmptyFrontMatter($body = 'Body Text')
+    /**
+     * Create a ContentItem from the default virtual file in the VFS.
+     *
+     * @return ContentItem
+     */
+    private function createContentItemFromVFS()
     {
-        return $this->createVirtualFile(ContentItem::class, array(), $body);
+        return (new ContentItem(
+            $this->createFileObjectFromPath($this->dummyFile->url())
+        ));
     }
 
     /**
+     * Create a virtual ContentItem with only body text.
+     *
+     * @param string $body
+     *
+     * @return ContentItem
+     */
+    private function createContentItemWithEmptyFrontMatter($body = 'Body Text')
+    {
+        return $this->createContentItem([], $body);
+    }
+
+    /**
+     * Create a virtual ContentItem.
+     *
      * @param array  $frontMatter
      * @param string $body
      *
@@ -476,6 +489,6 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
      */
     private function createContentItem($frontMatter, $body = 'Body Text')
     {
-        return $this->createVirtualFile(ContentItem::class, $frontMatter, $body);
+        return $this->createVirtualFrontMatterFile(ContentItem::class, $frontMatter, $body);
     }
 }

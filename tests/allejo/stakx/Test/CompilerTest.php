@@ -85,7 +85,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
     public function testStaticPageViewRedirectsWrite(array $permalinks)
     {
         /** @var PageView $pageView */
-        $pageView = $this->createVirtualFile(PageView::class, array('permalink' => $permalinks));
+        $pageView = $this->createVirtualFrontMatterFile(PageView::class, array('permalink' => $permalinks));
         $pageViews = array(
             PageView::STATIC_TYPE => array(&$pageView),
             PageView::DYNAMIC_TYPE => array(),
@@ -197,7 +197,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
     public function testPageViewFileWritesExists($class, $pageViewType, $frontMatter, $expectedFiles)
     {
         /** @var RepeaterPageView $pageView */
-        $pageView = $this->createVirtualFile($class, $frontMatter);
+        $pageView = $this->createVirtualFrontMatterFile($class, $frontMatter);
         $pageViews = array(
             PageView::STATIC_TYPE => array(),
             PageView::DYNAMIC_TYPE => array(),
@@ -222,7 +222,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         $books = $this->bookCollectionProvider();
 
         /** @var DynamicPageView $pageView */
-        $pageView = $this->createVirtualFile(DynamicPageView::class, array(
+        $pageView = $this->createVirtualFrontMatterFile(DynamicPageView::class, array(
             'collction' => 'books',
             'permalink' => '/my-books/%title/',
         ));

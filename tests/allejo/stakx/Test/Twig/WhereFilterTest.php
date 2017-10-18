@@ -133,15 +133,15 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
     public function testWhereFilterAgainstContentItem()
     {
         $elements = array(
-            $this->createVirtualFile(ContentItem::class, array(
+            $this->createVirtualFrontMatterFile(ContentItem::class, array(
                 'aggregate' => 'toast',
                 'category' => 'warm',
             )),
-            $this->createVirtualFile(ContentItem::class, array(
+            $this->createVirtualFrontMatterFile(ContentItem::class, array(
                 'aggregate' => 'bacon',
                 'category' => 'warm',
             )),
-            $this->createVirtualFile(ContentItem::class, array(
+            $this->createVirtualFrontMatterFile(ContentItem::class, array(
                 'aggregate' => 'pancake',
                 'category' => 'cold',
             )),

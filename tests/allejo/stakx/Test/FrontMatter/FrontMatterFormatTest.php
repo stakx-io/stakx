@@ -172,6 +172,6 @@ LINE;
 
         $url = $this->dummyFile->url();
 
-        return new $classType($this->createFileForVFS($url));
+        return new $classType($this->createFileObjectFromPath($url));
     }
 }

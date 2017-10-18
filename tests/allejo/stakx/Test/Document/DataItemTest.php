@@ -159,11 +159,19 @@ LINE;
     {
         $this->setExpectedException(UnsupportedDataTypeException::class);
 
-        $this->createVirtualFile(ContentItem::class);
+        $this->createVirtualFrontMatterFile(ContentItem::class);
+        $this->createDataItemFromVFS();
+    }
 
-        $url = $this->dummyFile->url();
-
-        // The dummyFile defaults to a `.twig` extension
-        new DataItem($this->createFileForVFS($url));
+    /**
+     * Create a DataItem from the default virtual file in the VFS.
+     *
+     * @return DataItem
+     */
+    private function createDataItemFromVFS()
+    {
+        return (new DataItem(
+            $this->createFileObjectFromPath($this->dummyFile->url())
+        ));
     }
 }
