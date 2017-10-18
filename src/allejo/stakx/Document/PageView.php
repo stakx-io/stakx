@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Document;
 
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\System\StakxResource;
@@ -192,7 +193,13 @@ class PageView extends FrontMatterDocument
             ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $body))
             ->at(vfsStreamWrapper::getRoot());
 
-        return new self($redirectFile->url());
+        $file = new File(
+            $redirectFile->url(),
+            self::$fileSys->getFolderPath($redirectFile->url()),
+            $redirectFile->url()
+        );
+
+        return new self($file);
     }
 
     /**
