@@ -8,6 +8,7 @@
 namespace allejo\stakx\Test\Twig;
 
 use allejo\stakx\Document\PageView;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Twig\BaseUrlFunction;
@@ -51,7 +52,10 @@ class BaseUrlFilterTest extends PHPUnit_Stakx_TestCase
                 'some-key' => 'bacon/',
             )),
             array('/toast/static/', 'toast', (
-                new PageView($fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'static.html.twig'))
+                new PageView(new File(
+                    $fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'static.html.twig'),
+                    '', ''
+                ))
             )),
         );
     }

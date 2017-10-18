@@ -10,6 +10,7 @@ namespace allejo\stakx\Test;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Configuration;
 use allejo\stakx\Core\StakxLogger;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
@@ -120,7 +121,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
             ->setContent($content)
             ->at($this->rootDir);
 
-        return new $classType($file->url());
+        $url = $file->url();
+
+        return new $classType($this->createFileForVFS($url));
     }
 
     protected function createVirtualFilePath($frontMatter = array(), $body = 'Body Text')
@@ -129,7 +132,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
             ->setContent($this->generateFM($frontMatter, $body))
             ->at($this->rootDir);
 
-        return $this->dummyFile->url();
+        return $this->createFileForVFS($this->dummyFile->url());
     }
 
     /**
@@ -159,10 +162,21 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
                 ->setContent(sprintf("---\n%s\n---\n\n%s", $frontMatter, $body))
                 ->at($this->rootDir);
 
-            $results[] = new $classType($file->url());
+            $url = $file->url();
+
+            $results[] = new $classType($this->createFileForVFS($url));
         }
 
         return $results;
+    }
+
+    protected function createFileForVFS($url)
+    {
+        return (new File(
+            $url,
+            $this->fs->getFolderPath($url),
+            $url
+        ));
     }
 
     /**

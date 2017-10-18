@@ -10,6 +10,7 @@ namespace allejo\stakx\Test\Document;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
@@ -151,7 +152,7 @@ LINE;
     {
         $this->setExpectedException(FileNotFoundException::class);
 
-        new DataItem('/path/to/my-data.yml');
+        new DataItem(new File('/path/to/my-data.yml', '', ''));
     }
 
     public function testUnsupportedDataItemExtension()
@@ -160,7 +161,9 @@ LINE;
 
         $this->createVirtualFile(ContentItem::class);
 
+        $url = $this->dummyFile->url();
+
         // The dummyFile defaults to a `.twig` extension
-        new DataItem($this->dummyFile->url());
+        new DataItem($this->createFileForVFS($url));
     }
 }

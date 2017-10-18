@@ -170,6 +170,8 @@ LINE;
             ->setContent($content)
             ->at($this->rootDir);
 
-        return new $classType($this->dummyFile->url());
+        $url = $this->dummyFile->url();
+
+        return new $classType($this->createFileForVFS($url));
     }
 }

@@ -12,6 +12,7 @@ use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\RST\RstEngine;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
@@ -26,7 +27,9 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile->setContent(sprintf(self::FM_OBJ_TEMPLATE, '', 'Body Text'))
                         ->at($this->rootDir);
 
-        $contentItem = new ContentItem($this->dummyFile->url());
+        $url = $this->dummyFile->url();
+
+        $contentItem = new ContentItem($this->createFileForVFS($url));
 
         $this->assertEquals($this->dummyFile->url(), $contentItem->getAbsoluteFilePath());
     }
@@ -115,7 +118,9 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile->setContent(sprintf(self::FM_OBJ_TEMPLATE, 'invalid yaml', 'body text'))
              ->at($this->rootDir);
 
-        return new ContentItem($this->dummyFile->url());
+        $url = $this->dummyFile->url();
+
+        return new ContentItem($this->createFileForVFS($url));
     }
 
     public function testContentItemFrontMatterYamlVariables()
@@ -279,8 +284,9 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
                 'foo.html.twig' => sprintf(self::FM_OBJ_TEMPLATE, '', 'Body Text'),
             ),
         ));
+        $url = $root->getChild('dir/foo.html.twig')->url();
 
-        $contentItem = new ContentItem($root->getChild('dir/foo.html.twig')->url());
+        $contentItem = new ContentItem($this->createFileForVFS($url));
 
         $this->assertEquals($this->fs->appendPath('root', 'dir', 'foo.html'), $contentItem->getTargetFile());
     }
@@ -293,7 +299,9 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $file->setContent(sprintf(self::FM_OBJ_TEMPLATE, '', 'Body Text'))
              ->at($rootDir);
 
-        $contentItem = new ContentItem($rootDir->getChild('foo.html.twig')->url());
+        $url = $rootDir->getChild('foo.html.twig')->url();
+
+        $contentItem = new ContentItem($this->createFileForVFS($url));
 
         $this->assertEquals('foo.html', $contentItem->getTargetFile());
     }
@@ -302,7 +310,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
     {
         $this->setExpectedException(FileNotFoundException::class);
 
-        new ContentItem('foo.html.twig');
+        new ContentItem(new File('foo.html.twig', '', ''));
     }
 
     public function testContentItemWithEmptyBodyThrowsInvalidSyntaxException()
@@ -312,7 +320,9 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile->setContent("---\n---\n\n  \n \t\n")
                         ->at($this->rootDir);
 
-        new ContentItem($this->dummyFile->url());
+        $url = $this->dummyFile->url();
+
+        new ContentItem($this->createFileForVFS($url));
     }
 
     public function testContentItemWithNoBodyThrowsInvalidSyntaxException()
@@ -322,7 +332,9 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile->setContent("---\n---")
                         ->at($this->rootDir);
 
-        new ContentItem($this->dummyFile->url());
+        $url = $this->dummyFile->url();
+
+        new ContentItem($this->createFileForVFS($url));
     }
 
     public function testContentItemWithEmptyFileThrowsInvalidSyntaxException()
@@ -331,7 +343,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
         $file = vfsStream::newFile('foo.html.twig')->at($this->rootDir);
 
-        new ContentItem($file->url());
+        new ContentItem($this->createFileForVFS($file->url()));
     }
 
     public function testContentItemWithDeletedFileAfterCreationThrowsFileNotFoundException()

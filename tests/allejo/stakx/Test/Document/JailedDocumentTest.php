@@ -15,7 +15,8 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
 {
     public function getJailObject()
     {
-        $pageView = new PageView($this->fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'jail.html.twig'));
+        $url = $this->fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'jail.html.twig');
+        $pageView = new PageView($this->createFileForVFS($url));
         $pageView->getFrontMatter();
 
         return $pageView->createJail();
