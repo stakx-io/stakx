@@ -7,14 +7,14 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\Filesystem\FileInterface;
+use allejo\stakx\Document\DocumentInterface;
 
 /**
  * This interface defines the requirements for an object that will be available through Twig.
  */
 interface TwigDocument extends
     \IteratorAggregate,
-    FileInterface,
+    DocumentInterface,
     JailableDocument
 {
     /**

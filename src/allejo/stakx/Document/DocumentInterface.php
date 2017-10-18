@@ -5,9 +5,9 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Filesystem;
+namespace allejo\stakx\Document;
 
-interface FileInterface
+interface DocumentInterface
 {
     /**
      * Get a relative file relative to the root of the stakx website.

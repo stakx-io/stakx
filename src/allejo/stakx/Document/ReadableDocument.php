@@ -5,11 +5,13 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Filesystem;
+namespace allejo\stakx\Document;
 
+use allejo\stakx\Document\DocumentInterface;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\System\Filesystem;
 
-abstract class ReadableFile implements FileInterface
+abstract class ReadableDocument implements DocumentInterface
 {
     /** @var string */
     protected $filePath;
@@ -21,7 +23,7 @@ abstract class ReadableFile implements FileInterface
     /**
      * @param string $filePath
      */
-    public function __construct($filePath)
+    public function __construct(File $filePath)
     {
         $this->fs = new Filesystem();
         $p = $this->filePath = $this->fs->absolutePath((string)$filePath);
