@@ -107,6 +107,11 @@ class Configuration implements LoggerAwareInterface
         return $base;
     }
 
+    public function hasDataItems()
+    {
+        return ($this->getDataFolders() !== null || $this->getDataSets() !== null);
+    }
+
     /**
      * @return string[]
      */
@@ -185,6 +190,11 @@ class Configuration implements LoggerAwareInterface
     public function getTargetFolder()
     {
         return $this->returnConfigOption('target');
+    }
+
+    public function hasCollections()
+    {
+        return ($this->getCollectionsFolders() !== null);
     }
 
     /**

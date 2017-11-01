@@ -27,7 +27,6 @@ use Kwf\FileWatcher\Event\Create;
 use Kwf\FileWatcher\Event\Modify;
 use Kwf\FileWatcher\Event\Move;
 use Kwf\FileWatcher\Watcher;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Website
@@ -97,17 +96,18 @@ class Website
     /** @var array */
     private $creationQueue;
 
+    private $container;
+
     /**
      * Constructor.
      */
     public function __construct(ContainerInterface $container)
     {
+        $this->container = $container;
+
         $this->creationQueue = array();
         $this->output = $container->get('logger');
-        $this->cm = new CollectionManager();
-        $this->dm = new DataManager();
         $this->mm = new MenuManager();
-        $this->pm = new PageManager();
         $this->fs = new Filesystem();
     }
 
@@ -128,19 +128,11 @@ class Website
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
         $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
-        // Parse DataItems
-        $this->dm->setLogger($this->output);
-        $this->dm->parseDataItems($this->getConfiguration()->getDataFolders());
-        $this->dm->parseDataSets($this->getConfiguration()->getDataSets());
-
-        // Prepare Collections
-        $this->cm->setLogger($this->output);
-        $this->cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
+        $this->handleDataItems();
+        $this->handleCollections();
 
         // Handle PageViews
-        $this->pm->setLogger($this->output);
-        $this->pm->setCollections($this->cm->getCollections());
-        $this->pm->setDatasets($this->dm->getDataItems());
+        $this->pm = $this->container->get(PageManager::class);
         $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
 
         // Handle the site's menu
@@ -148,17 +140,27 @@ class Website
         $this->mm->buildFromPageViews($this->pm->getStaticPageViews());
 
         // Configure our Twig environment
-        $theme = $this->configuration->getTheme();
+        $twigGlobals = [
+            [
+                'name' => 'data',
+                'value' => ($this->container->has(DataManager::class)) ?
+                    $this->container->get(DataManager::class)->getJailedDataItems() : []
+            ],
+            [
+                'name' => 'collections',
+                'value' => ($this->container->has(CollectionManager::class)) ?
+                    $this->container->get(CollectionManager::class)->getJailedCollections() : []
+            ]
+        ];
+
         $twigEnv = new TwigManager();
         $twigEnv->configureTwig($this->getConfiguration(), array(
             'safe'    => Service::getParameter(BuildableCommand::SAFE_MODE),
-            'globals' => array(
+            'globals' => array_merge(array(
                 array('name' => 'site', 'value' => $this->getConfiguration()->getConfiguration()),
-                array('name' => 'collections', 'value' => $this->cm->getJailedCollections()),
                 array('name' => 'menu', 'value' => $this->mm->getSiteMenu()),
                 array('name' => 'pages', 'value' => $this->pm->getJailedStaticPageViews()),
-                array('name' => 'data', 'value' => $this->dm->getJailedDataItems()),
-            ),
+            ), $twigGlobals),
         ));
 
         $profiler = null;
@@ -170,6 +172,7 @@ class Website
         }
 
         // Compile everything
+        $theme = $this->configuration->getTheme();
         $this->compiler = new Compiler();
         $this->compiler->setLogger($this->output);
         $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
@@ -520,5 +523,49 @@ class Website
                 ));
             }
         }
+    }
+
+    ///
+    // Build Process
+    ///
+
+    private function handleDataItems()
+    {
+        $pm = $this->container->get(PageManager::class);
+
+        if (!$this->getConfiguration()->hasDataItems())
+        {
+            $this->container->get('logger')->notice('No DataItem folders or Datasets registered... Ignoring');
+
+            $this->pm->setDatasets([]);
+
+            return;
+        }
+
+        $dm = $this->container->get(DataManager::class);
+        $dm->parseDataItems($this->getConfiguration()->getDataFolders());
+        $dm->parseDataSets($this->getConfiguration()->getDataSets());
+
+        $pm->setDatasets($dm->getDataItems());
+    }
+
+    private function handleCollections()
+    {
+        $pm = $this->container->get(PageManager::class);
+
+        if (!$this->getConfiguration()->hasCollections())
+        {
+            $this->container->get('logger')->notice('No Collections registered... Ignoring');
+
+            $emptyCollections = [];
+            $pm->setCollections($emptyCollections);
+
+            return;
+        }
+
+        $cm = $this->container->get(CollectionManager::class);
+        $cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
+
+        $pm->setCollections($cm->getCollections());
     }
 }

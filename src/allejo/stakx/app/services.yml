@@ -1,6 +1,21 @@
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: true
+
+  allejo\stakx\Manager\:
+    resource: '../Manager/*'
+    calls:
+      - { method: 'setLogger', arguments: ['@logger'] }
+
+  allejo\stakx\Manager\ThemeManager:
+    arguments:
+      - null
+
   output:
     class: Symfony\Component\Console\Output\ConsoleOutput
+
   logger:
     class: allejo\stakx\Core\StakxLogger
     arguments:
