@@ -28,6 +28,7 @@ use Kwf\FileWatcher\Event\Modify;
 use Kwf\FileWatcher\Event\Move;
 use Kwf\FileWatcher\Watcher;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class Website
 {
@@ -97,14 +98,12 @@ class Website
     private $creationQueue;
 
     /**
-     * Website constructor.
-     *
-     * @param OutputInterface $output
+     * Constructor.
      */
-    public function __construct(OutputInterface $output)
+    public function __construct(ContainerInterface $container)
     {
         $this->creationQueue = array();
-        $this->output = new StakxLogger($output);
+        $this->output = $container->get('logger');
         $this->cm = new CollectionManager();
         $this->dm = new DataManager();
         $this->mm = new MenuManager();
@@ -488,7 +487,7 @@ class Website
 
         if (!Service::getParameter(BuildableCommand::USE_CACHE))
         {
-            $this->fs->remove($this->fs->absolutePath(Configuration::CACHE_FOLDER));
+            $this->fs->remove($this->fs->absolutePath(Configuration::CACHE_FOLDER, 'twig'));
             $this->fs->mkdir($this->fs->absolutePath($this->fs->appendPath(Configuration::CACHE_FOLDER, 'twig')));
         }
 

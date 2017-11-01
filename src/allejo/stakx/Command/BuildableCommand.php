@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * This abstract class handles configuring the website object
  */
-abstract class BuildableCommand extends Command
+abstract class BuildableCommand extends ContainerAwareCommand
 {
     const NO_CONF = 'no-conf';
     const NO_CLEAN = 'no-clean';
@@ -61,7 +61,7 @@ abstract class BuildableCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->website = new Website($output);
+        $this->website = new Website($this->getContainer());
         $this->website->setConfLess($input->getOption(self::NO_CONF));
 
         $flags = array(
