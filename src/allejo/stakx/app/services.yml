@@ -8,6 +8,7 @@ services:
     resource: '../Manager/*'
     calls:
       - { method: 'setLogger', arguments: ['@logger'] }
+      - { method: 'setContainer', arguments: ['@service_container'] }
 
   allejo\stakx\Manager\ThemeManager:
     arguments:
