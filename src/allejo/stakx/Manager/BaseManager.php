@@ -10,14 +10,17 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\System\Filesystem;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-abstract class BaseManager implements LoggerAwareInterface
+abstract class BaseManager implements LoggerAwareInterface, ContainerAwareInterface
 {
     protected static $documentIgnoreList = array('/\.example$/');
 
-    /**
-     * @var LoggerInterface
-     */
+    /** @var Container */
+    protected $container;
+    /** @var LoggerInterface */
     protected $output;
 
     /**
@@ -36,5 +39,13 @@ abstract class BaseManager implements LoggerAwareInterface
     public function setLogger(LoggerInterface $logger)
     {
         $this->output = $logger;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setContainer(ContainerInterface $container = null)
+    {
+        $this->container = $container;
     }
 }
