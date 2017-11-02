@@ -9,6 +9,7 @@ namespace allejo\stakx\System;
 
 use allejo\stakx\Exception\FileAccessDeniedException;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FilesystemPath;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 
@@ -246,5 +247,10 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
             $this->getFolderPath($filename),
             $this->getBaseName($filename)
         );
+    }
+
+    public function path($path)
+    {
+        return (new FilesystemPath($path));
     }
 }
