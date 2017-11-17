@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2972ced7d8834d1a1ea67472aff021f9",
+    "content-hash": "e8d232ee20660bd087b9652b99f6353f",
     "packages": [
         {
             "name": "aptoma/twig-markdown",
@@ -386,6 +386,57 @@
             "time": "2016-10-10T12:19:37+00:00"
         },
         {
+            "name": "scrivo/highlight.php",
+            "version": "v9.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scrivo/highlight.php.git",
+                "reference": "df9f732349c637c5dbc938c2f534640845c0644f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scrivo/highlight.php/zipball/df9f732349c637c5dbc938c2f534640845c0644f",
+                "reference": "df9f732349c637c5dbc938c2f534640845c0644f",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Highlight\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Geert Bergman",
+                    "homepage": "http://www.scrivo.org/",
+                    "role": "Project Author"
+                },
+                {
+                    "name": "Vladimir Jimenez",
+                    "homepage": "https://allejo.io",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Martin Folkers",
+                    "homepage": "https://twobrain.io",
+                    "role": "Contributor"
+                }
+            ],
+            "description": "Server side syntax highlighter that supports 176 languages. It's a PHP port of highlight.js",
+            "keywords": [
+                "code",
+                "highlight",
+                "highlight.js",
+                "highlight.php",
+                "syntax"
+            ],
+            "time": "2017-11-15T23:20:02+00:00"
+        },
+        {
             "name": "stakx/file-watcher",
             "version": "dev-master",
             "source": {
@@ -416,37 +467,6 @@
             "description": "Library for watching for file system changes",
             "homepage": "http://www.koala-framework.org/",
             "time": "2017-06-21 21:47:27"
-        },
-        {
-            "name": "stakx/highlight.php",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/stakx-io/highlight.php.git",
-                "reference": "5229e950b3c131225c1461a91e74ab28e95b2c5a"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Highlight\\": ""
-                }
-            },
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "Server side syntax highlighter that supports over 90 languages. It's a PHP port of highlight.js",
-            "keywords": [
-                "code",
-                "highlight",
-                "highlight.js",
-                "highlight.php",
-                "syntax"
-            ],
-            "support": {
-                "issues": "https://github.com/stakx-io/highlight.php/issues",
-                "source": "https://github.com/stakx-io/highlight.php"
-            },
-            "time": "2017-05-02 15:06:25"
         },
         {
             "name": "symfony/config",
@@ -2161,8 +2181,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "maciejczyzewski/bottomline": 20,
-        "stakx/file-watcher": 20,
-        "stakx/highlight.php": 20
+        "stakx/file-watcher": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
