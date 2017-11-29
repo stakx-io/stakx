@@ -537,7 +537,7 @@ class Website
         {
             $this->container->get('logger')->notice('No DataItem folders or Datasets registered... Ignoring');
 
-            $this->pm->setDatasets([]);
+            $pm->setDatasets([]);
 
             return;
         }
