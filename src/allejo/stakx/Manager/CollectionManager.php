@@ -7,11 +7,10 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Command\BuildableCommand;
+use allejo\stakx\Configuration;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
-use allejo\stakx\Service;
 
 /**
  * The class that reads and saves information about all of the collections.
@@ -24,6 +23,20 @@ class CollectionManager extends TrackingManager
      * @var string[][]
      */
     private $collectionDefinitions;
+
+    public function compileManager()
+    {
+        /** @var Configuration $conf */
+        $conf = $this->container->get(Configuration::class);
+
+        if (!$conf->hasCollections())
+        {
+            $this->container->get('logger')->notice('No Collections defined... Ignoring');
+            return;
+        }
+
+        $this->parseCollections($conf->getCollectionsFolders());
+    }
 
     /**
      * Get all of the ContentItems grouped by Collection name.

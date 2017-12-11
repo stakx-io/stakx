@@ -539,5 +539,7 @@ class Configuration implements LoggerAwareInterface
         {
             $this->configuration['exclude'][] = $this->getTargetFolder();
         }
+
+        Service::setParameter('build.preserveCase', $this->configuration['build']['preserveCase']);
     }
 }

@@ -9,10 +9,21 @@ services:
     calls:
       - { method: 'setLogger', arguments: ['@logger'] }
       - { method: 'setContainer', arguments: ['@service_container'] }
+      - { method: 'compileManager', arguments: [] }
 
   allejo\stakx\Manager\ThemeManager:
     arguments:
       - null
+
+  allejo\stakx\Configuration:
+    calls:
+      - { method: 'setLogger', arguments: ['@logger'] }
+
+  compiler:
+    class: allejo\stakx\Compiler
+    calls:
+      - { method: 'setLogger', arguments: ['@logger'] }
+      - { method: 'setContainer', arguments: ['@service_container'] }
 
   output:
     class: Symfony\Component\Console\Output\ConsoleOutput

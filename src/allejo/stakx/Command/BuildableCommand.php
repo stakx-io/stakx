@@ -73,16 +73,14 @@ abstract class BuildableCommand extends ContainerAwareCommand
         {
             $this->setServiceParameter($input, $flag);
         }
+
+        $this->configureConfigurationFile($input);
     }
 
-    /**
-     * Configure the website builder.
-     *
-     * @param InputInterface $input
-     */
-    protected function configureBuild(InputInterface $input)
+    private function configureConfigurationFile(InputInterface $input)
     {
-        $this->website->setConfiguration($input->getOption('conf'));
+        $conf = $this->getContainer()->get(Configuration::class);
+        $conf->parse($input->getOption('conf'));
     }
 
     /**

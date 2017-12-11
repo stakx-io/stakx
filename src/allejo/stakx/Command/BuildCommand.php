@@ -34,7 +34,6 @@ class BuildCommand extends BuildableCommand
 
         try
         {
-            $this->configureBuild($input);
             $this->website->build();
 
             $output->writeln(sprintf('Your site built successfully! It can be found at: %s',

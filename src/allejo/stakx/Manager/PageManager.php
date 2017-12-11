@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Configuration;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Document\DynamicPageView;
@@ -27,23 +28,11 @@ use allejo\stakx\Filesystem\FileExplorer;
 class PageManager extends TrackingManager
 {
     /**
-     * A reference to the collections available to this website.
-     *
-     * @var ContentItem[][]
-     */
-    private $collections;
-
-    /**
      * A place to store a reference to static PageViews with titles.
      *
      * @var PageView[]
      */
     private $staticPages;
-
-    /**
-     * @var DataItem[]|array
-     */
-    private $datasets;
 
     /**
      * PageManager constructor.
@@ -57,25 +46,15 @@ class PageManager extends TrackingManager
             PageView::DYNAMIC_TYPE  => array(),
             PageView::REPEATER_TYPE => array(),
         );
-        $this->collections = array();
         $this->staticPages = array();
     }
 
-    /**
-     * Give this manager the collections we'll be using for dynamic PageViews.
-     *
-     * @param ContentItem[][] $collections
-     *
-     * @since 0.1.0
-     */
-    public function setCollections(&$collections)
+    public function compileManager()
     {
-        $this->collections = &$collections;
-    }
+        /** @var Configuration $conf */
+        $conf = $this->container->get(Configuration::class);
 
-    public function setDatasets($datasets)
-    {
-        $this->datasets = $datasets;
+        $this->parsePageViews($conf->getPageViewFolders());
     }
 
     /**
@@ -243,21 +222,40 @@ class PageManager extends TrackingManager
      * @param DynamicPageView $pageView
      *
      * @since 0.1.0
+     *
+     * @throws \Exception
      */
     private function handleTrackableDynamicPageView(&$pageView)
     {
         $frontMatter = $pageView->getFrontMatter(false);
-        $namespace = (isset($frontMatter['collection'])) ? 'collection' : 'dataset';
+        $dataSource = null;
+        $namespace = null;
+
+        if (isset($frontMatter['collection']))
+        {
+            $dataSource = &$this->container->get(CollectionManager::class)->getCollections();
+            $namespace = 'collection';
+        }
+        elseif (isset($frontMatter['dataset']))
+        {
+            $dataSource = &$this->container->get(DataManager::class)->getDataItems();
+            $namespace = 'dataset';
+        }
+
+        if ($dataSource === null)
+        {
+            throw new \Exception('Invalid Dynamic PageView defined');
+        }
 
         $collection = $frontMatter[$namespace];
-        $array = $namespace . 's';
 
-        if (!isset($this->{$array}[$collection]))
+        if (!isset($dataSource[$collection]))
         {
             throw new CollectionNotFoundException("The '$collection' $namespace is not defined");
         }
 
-        foreach ($this->{$array}[$collection] as &$item)
+        /** @var ContentItem|DataItem $item */
+        foreach ($dataSource[$collection] as &$item)
         {
             $item->evaluateFrontMatter($frontMatter);
             $item->setParentPageView($pageView);

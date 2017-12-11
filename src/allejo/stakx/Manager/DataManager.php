@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Configuration;
 use allejo\stakx\Exception\DependencyMissingException;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
@@ -25,6 +26,21 @@ use allejo\stakx\Utilities\StrUtils;
  */
 class DataManager extends TrackingManager
 {
+    public function compileManager()
+    {
+        /** @var Configuration $conf */
+        $conf = $this->container->get(Configuration::class);
+
+        if (!$conf->hasDataItems())
+        {
+            $this->container->get('logger')->notice('No DataItems or Datasets detected... Ignoring.');
+            return;
+        }
+
+        $this->parseDataItems($conf->getDataFolders());
+        $this->parseDataSets($conf->getDataSets());
+    }
+
     /**
      * Get all of the DataItems and DataSets in this manager.
      *
@@ -47,7 +63,7 @@ class DataManager extends TrackingManager
      *
      * @param string[] $folders An array of folders to be searched for to contain DataItems
      */
-    public function parseDataItems($folders)
+    private function parseDataItems($folders)
     {
         if ($folders === null)
         {
@@ -68,7 +84,7 @@ class DataManager extends TrackingManager
      *
      * @param string[] $dataSets An array of DataSets
      */
-    public function parseDataSets($dataSets)
+    private function parseDataSets($dataSets)
     {
         if ($dataSets === null)
         {

@@ -18,6 +18,6 @@ abstract class Service
 
     public static function setParameter($key, $value)
     {
-        self::$parameters[$key] = $value;
+        return (self::$parameters[$key] = $value);
     }
 }

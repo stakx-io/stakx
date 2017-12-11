@@ -28,8 +28,6 @@ class WatchCommand extends BuildableCommand
 
         try
         {
-            $this->configureBuild($input);
-
             $this->website->watch();
         }
         catch (FileAwareException $e)

@@ -107,7 +107,6 @@ class Website
 
         $this->creationQueue = array();
         $this->output = $container->get('logger');
-        $this->mm = new MenuManager();
         $this->fs = new Filesystem();
     }
 
@@ -118,6 +117,15 @@ class Website
      */
     public function build($tracking = false)
     {
+        $logger = $this->container->get('logger');
+        $conf = $this->container->get(Configuration::class);
+
+        if (empty($conf->getPageViewFolders()))
+        {
+            $logger->error('No PageViews were configured for this site. Check the `pageviews` key in your _config.yml.');
+            return false;
+        }
+
         Service::setParameter(BuildableCommand::WATCHING, $tracking);
 
         // Configure the environment
@@ -128,39 +136,36 @@ class Website
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
         $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
-        $this->handleDataItems();
-        $this->handleCollections();
-
-        // Handle PageViews
-        $this->pm = $this->container->get(PageManager::class);
-        $this->pm->parsePageViews($this->getConfiguration()->getPageViewFolders());
-
-        // Handle the site's menu
-        $this->mm->setLogger($this->output);
-        $this->mm->buildFromPageViews($this->pm->getStaticPageViews());
-
         // Configure our Twig environment
         $twigGlobals = [
             [
+                'name' => 'site',
+                'value' => $this->getConfiguration()->getConfiguration(),
+            ],
+            [
                 'name' => 'data',
                 'value' => ($this->container->has(DataManager::class)) ?
-                    $this->container->get(DataManager::class)->getJailedDataItems() : []
+                    $this->container->get(DataManager::class)->getJailedDataItems() : [],
             ],
             [
                 'name' => 'collections',
                 'value' => ($this->container->has(CollectionManager::class)) ?
-                    $this->container->get(CollectionManager::class)->getJailedCollections() : []
-            ]
+                    $this->container->get(CollectionManager::class)->getJailedCollections() : [],
+            ],
+            [
+                'name' => 'menu',
+                'value' => $this->container->get(MenuManager::class)->getSiteMenu(),
+            ],
+            [
+                'name' => 'pages',
+                'value' => $this->container->get(PageManager::class)->getJailedStaticPageViews(),
+            ],
         ];
 
-        $twigEnv = new TwigManager();
+        $twigEnv = $this->container->get(TwigManager::class);
         $twigEnv->configureTwig($this->getConfiguration(), array(
             'safe'    => Service::getParameter(BuildableCommand::SAFE_MODE),
-            'globals' => array_merge(array(
-                array('name' => 'site', 'value' => $this->getConfiguration()->getConfiguration()),
-                array('name' => 'menu', 'value' => $this->mm->getSiteMenu()),
-                array('name' => 'pages', 'value' => $this->pm->getJailedStaticPageViews()),
-            ), $twigGlobals),
+            'globals' => $twigGlobals,
         ));
 
         $profiler = null;
@@ -168,15 +173,20 @@ class Website
         if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
         {
             $profiler = new \Twig_Profiler_Profile();
-            TwigManager::getInstance()->addExtension(new \Twig_Extension_Profiler($profiler));
+            $twigEnv->addExtension(new \Twig_Extension_Profiler($profiler));
         }
 
         // Compile everything
-        $theme = $this->configuration->getTheme();
+        $pm = $this->container->get(PageManager::class);
+        $theme = $this->getConfiguration()->getTheme();
+
         $this->compiler = new Compiler();
         $this->compiler->setLogger($this->output);
         $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
-        $this->compiler->setPageViews($this->pm->getPageViews(), $this->pm->getPageViewsFlattened());
+        $this->compiler->setPageViews(
+            $pm->getPageViews(),
+            $pm->getPageViewsFlattened()
+        );
         $this->compiler->setTargetFolder($this->outputDirectory);
         $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
@@ -186,7 +196,7 @@ class Website
             $dumper = new StakxTwigTextProfiler();
             $dumper->setTemplateMappings($this->compiler->getTemplateMappings());
             $text = $dumper->dump($profiler);
-            $this->output->writeln($text);
+            $logger->writeln($text);
         }
 
         // At this point, we are looking at static files to copy over meaning we need to ignore all of the files that
@@ -201,7 +211,7 @@ class Website
         //
         if (!is_null($theme))
         {
-            $this->output->notice("Looking for '${theme}' theme...");
+            $logger->notice("Looking for '${theme}' theme...");
 
             $this->tm = new ThemeManager($theme);
             $this->tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
@@ -294,34 +304,7 @@ class Website
      */
     public function getConfiguration()
     {
-        return $this->configuration;
-    }
-
-    /**
-     * @param string $configFile
-     *
-     * @throws \LogicException
-     */
-    public function setConfiguration($configFile)
-    {
-        if (!$this->fs->exists($configFile) && !$this->isConfLess())
-        {
-            $this->output->error('You are trying to build a website in a directory without a configuration file. Is this what you meant to do?');
-            $this->output->error("To build a website without a configuration, use the '--no-conf' option");
-
-            throw new \LogicException('Cannot build a website without a configuration when not in Configuration-less mode');
-        }
-
-        if ($this->isConfLess())
-        {
-            $configFile = '';
-        }
-
-        $this->configuration = new Configuration();
-        $this->configuration->setLogger($this->output);
-        $this->configuration->parse($configFile);
-
-        Service::setParameter('build.preserveCase', $this->configuration->getConfiguration()['build']['preserveCase']);
+        return $this->container->get(Configuration::class);
     }
 
     /**
@@ -415,7 +398,7 @@ class Website
      */
     private function modificationWatcher($filePath)
     {
-        $this->output->writeln(sprintf('File change detected: %s', $filePath));
+        $this->container->get('logger')->writeln(sprintf('File change detected: %s', $filePath));
 
         if (isset($this->creationQueue[$filePath]))
         {
@@ -481,7 +464,7 @@ class Website
      */
     private function createFolderStructure()
     {
-        $targetDir = $this->fs->absolutePath($this->configuration->getTargetFolder());
+        $targetDir = $this->fs->absolutePath($this->getConfiguration()->getTargetFolder());
 
         if (!Service::getParameter(BuildableCommand::NO_CLEAN))
         {
@@ -497,31 +480,35 @@ class Website
         $this->fs->mkdir($targetDir);
     }
 
+    /**
+     * Configure the Highlighter object for highlighting code blocks.
+     */
     private function configureHighlighter()
     {
-        // Configure our highlighter
-        Service::setParameter(Configuration::HIGHLIGHTER_ENABLED, $this->getConfiguration()->isHighlighterEnabled());
+        $enabled = Service::setParameter(Configuration::HIGHLIGHTER_ENABLED, $this->getConfiguration()->isHighlighterEnabled());
 
-        if (Service::getParameter(Configuration::HIGHLIGHTER_ENABLED))
+        if (!$enabled)
         {
-            foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
+          return;
+        }
+        
+        foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
+        {
+            $fullPath = $this->fs->absolutePath($path);
+
+            if (!$this->fs->exists($fullPath))
             {
-                $fullPath = $this->fs->absolutePath($path);
-
-                if (!$this->fs->exists($fullPath))
-                {
-                    $this->output->warning('The following language definition could not be found: {lang}', array(
-                        'lang' => $path
-                    ));
-                    continue;
-                }
-
-                Highlighter::registerLanguage($lang, $fullPath);
-                $this->output->debug('Loading custom language {lang} from {path}...', array(
-                    'lang' => $lang,
-                    'path' => $path
+                $this->output->warning('The following language definition could not be found: {lang}', array(
+                    'lang' => $path
                 ));
+                continue;
             }
+
+            Highlighter::registerLanguage($lang, $fullPath);
+            $this->output->debug('Loading custom language {lang} from {path}...', array(
+                'lang' => $lang,
+                'path' => $path
+            ));
         }
     }
 
@@ -542,30 +529,23 @@ class Website
             return;
         }
 
-        $dm = $this->container->get(DataManager::class);
-        $dm->parseDataItems($this->getConfiguration()->getDataFolders());
-        $dm->parseDataSets($this->getConfiguration()->getDataSets());
-
-        $pm->setDatasets($dm->getDataItems());
-    }
-
-    private function handleCollections()
-    {
-        $pm = $this->container->get(PageManager::class);
-
-        if (!$this->getConfiguration()->hasCollections())
+        foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
         {
-            $this->container->get('logger')->notice('No Collections registered... Ignoring');
+            $fullPath = $this->fs->absolutePath($path);
 
-            $emptyCollections = [];
-            $pm->setCollections($emptyCollections);
+            if (!$this->fs->exists($fullPath))
+            {
+                $this->container->get('logger')->warning('The following language definition could not be found: {lang}', array(
+                    'lang' => $path
+                ));
+                continue;
+            }
 
-            return;
+            Highlighter::registerLanguage($lang, $fullPath);
+            $this->output->debug('Loading custom language {lang} from {path}...', array(
+                'lang' => $lang,
+                'path' => $path
+            ));
         }
-
-        $cm = $this->container->get(CollectionManager::class);
-        $cm->parseCollections($this->getConfiguration()->getCollectionsFolders());
-
-        $pm->setCollections($cm->getCollections());
     }
 }
