@@ -13,9 +13,11 @@ use allejo\stakx\Document\DataItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\PageView;
+use allejo\stakx\Event\PageViewsCompleted;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Exception\DataSetNotFoundException;
 use allejo\stakx\Filesystem\FileExplorer;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * This class is responsible for handling all of the PageViews within a website.
@@ -157,6 +159,9 @@ class PageManager extends TrackingManager
                 'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES,
             ), array('/.html$/', '/.twig$/'));
         }
+
+        $ed = $this->container->get('event_dispatcher');
+        $ed->dispatch(PageViewsCompleted::NAME, null);
     }
 
     /**

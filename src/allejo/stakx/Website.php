@@ -162,25 +162,20 @@ class Website
             ],
         ];
 
-        $twigEnv = $this->container->get(TwigManager::class);
-        $twigEnv->configureTwig($this->getConfiguration(), array(
-            'safe'    => Service::getParameter(BuildableCommand::SAFE_MODE),
-            'globals' => $twigGlobals,
-        ));
-
+        $twig = $this->container->get('templating');
         $profiler = null;
 
         if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
         {
             $profiler = new \Twig_Profiler_Profile();
-            $twigEnv->addExtension(new \Twig_Extension_Profiler($profiler));
+            $twig->addExtension(new \Twig_Extension_Profiler($profiler));
         }
 
         // Compile everything
         $pm = $this->container->get(PageManager::class);
         $theme = $this->getConfiguration()->getTheme();
 
-        $this->compiler = new Compiler();
+        $this->compiler = $this->container->get('compiler');
         $this->compiler->setLogger($this->output);
         $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
         $this->compiler->setPageViews(

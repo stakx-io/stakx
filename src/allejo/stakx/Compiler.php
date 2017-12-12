@@ -18,7 +18,6 @@ use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\BaseManager;
 use allejo\stakx\Manager\ThemeManager;
-use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\System\FilePath;
 use Twig_Environment;
@@ -64,11 +63,11 @@ class Compiler extends BaseManager
     /** @var Twig_Environment */
     private $twig;
 
-    public function __construct()
+    public function __construct(Twig_Environment $twig)
     {
         parent::__construct();
 
-        $this->twig = TwigManager::getInstance();
+        $this->twig = $twig;
         $this->theme = '';
     }
 

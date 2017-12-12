@@ -6,6 +6,7 @@ services:
 
   allejo\stakx\Manager\:
     resource: '../Manager/*'
+    exclude: '../Manager/{Twig}Manager'
     calls:
       - { method: 'setLogger', arguments: ['@logger'] }
       - { method: 'setContainer', arguments: ['@service_container'] }
@@ -19,11 +20,21 @@ services:
     calls:
       - { method: 'setLogger', arguments: ['@logger'] }
 
+  allejo\stakx\EventSubscriber\:
+    resource: '../EventSubscriber/*'
+    tags:
+      - { name: 'kernel.event_subscriber' }
+
   compiler:
     class: allejo\stakx\Compiler
+    arguments:
+      - '@templating'
     calls:
       - { method: 'setLogger', arguments: ['@logger'] }
       - { method: 'setContainer', arguments: ['@service_container'] }
+
+  event_dispatcher:
+    class: Symfony\Component\EventDispatcher\EventDispatcher
 
   output:
     class: Symfony\Component\Console\Output\ConsoleOutput
@@ -32,3 +43,13 @@ services:
     class: allejo\stakx\Core\StakxLogger
     arguments:
       - '@output'
+
+  allejo\stakx\Templating\:
+    resource: '../Templating/*'
+
+  templating:
+    class: \Twig_Environment
+    factory: 'allejo\stakx\Templating\TwigFactory:createTwigEnvironment'
+    arguments:
+      $container: '@service_container'
+      $logger: '@logger'

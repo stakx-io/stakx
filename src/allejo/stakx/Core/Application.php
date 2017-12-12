@@ -18,6 +18,7 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
 /**
  * The base application class for stakx.
@@ -161,6 +162,8 @@ class Application extends BaseApplication
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../app/'));
         $loader->load('services.yml');
+
+        $container->addCompilerPass(new RegisterListenersPass());
 
         $container->compile();
         $dumper = new PhpDumper($container);
