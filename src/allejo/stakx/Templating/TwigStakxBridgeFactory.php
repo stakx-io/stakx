@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig_Environment;
 use Twig_Extension_Debug;
 
-class TwigFactory
+class TwigStakxBridgeFactory
 {
     public static function createTwigEnvironment(ContainerInterface $container, LoggerInterface $logger)
     {
@@ -71,6 +71,6 @@ class TwigFactory
             $twig->enableDebug();
         }
 
-        return $twig;
+        return (new TwigStakxBridge($twig));
     }
 }

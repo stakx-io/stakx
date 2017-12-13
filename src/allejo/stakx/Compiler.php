@@ -20,11 +20,9 @@ use allejo\stakx\Manager\BaseManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\System\FilePath;
-use Twig_Environment;
-use Twig_Error_Runtime;
-use Twig_Error_Syntax;
-use Twig_Source;
-use Twig_Template;
+use allejo\stakx\Templating\TemplateBridgeInterface;
+use allejo\stakx\Templating\TemplateErrorInterface;
+use allejo\stakx\Templating\TemplateInterface;
 
 /**
  * This class takes care of rendering the Twig body of PageViews with the respective information and it also takes care
@@ -42,7 +40,7 @@ class Compiler extends BaseManager
     /** @var PageView[][] */
     private $importDependencies;
 
-    /** @var Twig_Template[] */
+    /** @var TemplateInterface[] */
     private $templateDependencies;
 
     /** @var PageView[] */
@@ -60,14 +58,14 @@ class Compiler extends BaseManager
     /** @var string */
     private $theme;
 
-    /** @var Twig_Environment */
-    private $twig;
+    /** @var TemplateBridgeInterface */
+    private $templateBridge;
 
-    public function __construct(Twig_Environment $twig)
+    public function __construct(TemplateBridgeInterface $templateBridge)
     {
         parent::__construct();
 
-        $this->twig = $twig;
+        $this->templateBridge = $templateBridge;
         $this->theme = '';
     }
 
@@ -196,7 +194,7 @@ class Compiler extends BaseManager
      */
     public function compilePageView(PageView &$pageView)
     {
-        $this->twig->addGlobal('__currentTemplate', $pageView->getAbsoluteFilePath());
+        $this->templateBridge->setGlobalVariable('__currentTemplate', $pageView->getAbsoluteFilePath());
         $this->output->debug('Compiling {type} PageView: {pageview}', array(
             'pageview' => $pageView->getRelativeFilePath(),
             'type' => $pageView->getType()
@@ -222,10 +220,10 @@ class Compiler extends BaseManager
                     break;
             }
         }
-        catch (Twig_Error_Runtime $e)
+        catch (TemplateErrorInterface $e)
         {
             throw new FileAwareException(
-                $e->getRawMessage(),
+                $e->getMessage(),
                 $e->getCode(),
                 $e,
                 $pageView->getRelativeFilePath(),
@@ -240,6 +238,8 @@ class Compiler extends BaseManager
      * @param PageView $pageView
      *
      * @since 0.1.1
+     *
+     * @throws TemplateErrorInterface
      */
     private function compileStaticPageView(PageView &$pageView)
     {
@@ -256,6 +256,8 @@ class Compiler extends BaseManager
      * @param DynamicPageView $pageView
      *
      * @since 0.1.1
+     *
+     * @throws TemplateErrorInterface
      */
     private function compileDynamicPageViews(DynamicPageView &$pageView)
     {
@@ -287,8 +289,10 @@ class Compiler extends BaseManager
      * Write the compiled output for a repeater PageView.
      *
      * @param RepeaterPageView $pageView
-     *
+
      * @since 0.1.1
+     *
+     * @throws TemplateErrorInterface
      */
     private function compileRepeaterPageViews(RepeaterPageView &$pageView)
     {
@@ -320,7 +324,7 @@ class Compiler extends BaseManager
         $pageView = &$contentItem->getPageView();
         $template = $this->createTwigTemplate($pageView);
 
-        $this->twig->addGlobal('__currentTemplate', $pageView->getAbsoluteFilePath());
+        $this->templateBridge->setGlobalVariable('__currentTemplate', $pageView->getAbsoluteFilePath());
         $contentItem->evaluateFrontMatter($pageView->getFrontMatter(false));
 
         $targetFile = $contentItem->getTargetFile();
@@ -338,6 +342,8 @@ class Compiler extends BaseManager
      * Write redirects for standard redirects.
      *
      * @param PermalinkDocument $pageView
+     *
+     * @throws TemplateErrorInterface
      *
      * @since 0.1.1
      */
@@ -394,15 +400,15 @@ class Compiler extends BaseManager
     /**
      * Get the compiled HTML for a specific iteration of a repeater PageView.
      *
-     * @param Twig_Template $template
-     * @param PageView      $pageView
-     * @param ExpandedValue $expandedValue
+     * @param TemplateInterface $template
+     * @param RepeaterPageView  $pageView
+     * @param ExpandedValue     $expandedValue
      *
      * @since  0.1.1
      *
      * @return string
      */
-    private function renderRepeaterPageView(Twig_Template &$template, RepeaterPageView &$pageView, ExpandedValue &$expandedValue)
+    private function renderRepeaterPageView(TemplateInterface &$template, RepeaterPageView &$pageView, ExpandedValue &$expandedValue)
     {
         $pageView->setFrontMatter(array(
             'permalink' => $expandedValue->getEvaluated(),
@@ -418,14 +424,14 @@ class Compiler extends BaseManager
     /**
      * Get the compiled HTML for a specific ContentItem.
      *
-     * @param Twig_Template $template
-     * @param TwigDocument  $twigItem
+     * @param TemplateInterface $template
+     * @param TwigDocument      $twigItem
      *
-     * @return string
      * @since  0.1.1
      *
+     * @return string
      */
-    private function renderDynamicPageView(Twig_Template &$template, TwigDocument &$twigItem)
+    private function renderDynamicPageView(TemplateInterface &$template, TwigDocument &$twigItem)
     {
         return $template
             ->render(array(
@@ -440,9 +446,7 @@ class Compiler extends BaseManager
      *
      * @since  0.1.1
      *
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws Twig_Error_Syntax
+     * @throws TemplateErrorInterface
      *
      * @return string
      */
@@ -462,17 +466,15 @@ class Compiler extends BaseManager
      *
      * @since  0.1.1
      *
-     * @throws \Exception
-     * @throws \Throwable
-     * @throws Twig_Error_Syntax
+     * @throws TemplateErrorInterface
      *
-     * @return Twig_Template
+     * @return TemplateInterface
      */
     private function createTwigTemplate(PageView &$pageView)
     {
         try
         {
-            $template = $this->twig->createTemplate($pageView->getContent());
+            $template = $this->templateBridge->createTemplate($pageView->getContent());
 
             $this->templateMapping[$template->getTemplateName()] = $pageView->getRelativeFilePath();
 
@@ -485,7 +487,7 @@ class Compiler extends BaseManager
                 }
 
                 // Keep track of Twig extends'
-                $parent = $template->getParent(array());
+                $parent = $template->getParentTemplate();
 
                 while ($parent !== false)
                 {
@@ -495,20 +497,21 @@ class Compiler extends BaseManager
 
                     $this->templateDependencies[(string)$path][$pageView->getName()] = &$pageView;
 
-                    $parent = $parent->getParent(array());
+                    $parent = $parent->getParentTemplate();
                 }
             }
 
             return $template;
         }
-        catch (Twig_Error_Syntax $e)
+        catch (TemplateErrorInterface $e)
         {
-            $e->setTemplateLine($e->getTemplateLine() + $pageView->getLineOffset());
-            $e->setSourceContext(new Twig_Source(
-                $pageView->getContent(),
-                $pageView->getName(),
-                $pageView->getRelativeFilePath()
-            ));
+            $e
+                ->setTemplateLine($e->getTemplateLine() + $pageView->getLineOffset())
+                ->setContent($pageView->getContent())
+                ->setName($pageView->getObjectName())
+                ->setRelativeFilePath($pageView->getRelativeFilePath())
+                ->buildException()
+            ;
 
             throw $e;
         }

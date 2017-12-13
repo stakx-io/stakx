@@ -8,6 +8,7 @@ use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
+use allejo\stakx\Templating\TemplateBridgeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -35,23 +36,23 @@ class PageViewsCompletedSubscriber implements EventSubscriberInterface
 
     public function onPageViewsCompleted()
     {
-        /** @var \Twig_Environment $twig */
+        /** @var TemplateBridgeInterface $twig */
         $twig = $this->container->get('templating');
-        $twig->addGlobal('site', $this->container->get(Configuration::class)->getconfiguration());
+        $twig->setGlobalVariable('site', $this->container->get(Configuration::class)->getconfiguration());
 
         $dataItems = [];
         if ($this->container->has(DataManager::class)) {
             $dataItems = $this->container->get(DataManager::class)->getJailedDataItems();
         }
-        $twig->addGlobal('data', $dataItems);
+        $twig->setGlobalVariable('data', $dataItems);
 
         $collectionItems = [];
         if ($this->container->has(CollectionManager::class)) {
             $collectionItems = $this->container->get(CollectionManager::class)->getJailedCollections();
         }
-        $twig->addGlobal('collections', $collectionItems);
+        $twig->setGlobalVariable('collections', $collectionItems);
 
-        $twig->addGlobal('menu', $this->container->get(MenuManager::class)->getSiteMenu());
-        $twig->addGlobal('pages', $this->container->get(PageManager::class)->getJailedStaticPageViews());
+        $twig->setGlobalVariable('menu', $this->container->get(MenuManager::class)->getSiteMenu());
+        $twig->setGlobalVariable('pages', $this->container->get(PageManager::class)->getJailedStaticPageViews());
     }
 }

@@ -44,12 +44,6 @@ services:
     arguments:
       - '@output'
 
-  allejo\stakx\Templating\:
-    resource: '../Templating/*'
-
   templating:
-    class: \Twig_Environment
-    factory: 'allejo\stakx\Templating\TwigFactory:createTwigEnvironment'
-    arguments:
-      $container: '@service_container'
-      $logger: '@logger'
+    class: allejo\stakx\Templating\TwigStakxBridge
+    factory: ['allejo\stakx\Templating\TwigStakxBridgeFactory', createTwigEnvironment]

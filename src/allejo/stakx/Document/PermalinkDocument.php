@@ -43,8 +43,6 @@ abstract class PermalinkDocument extends ReadableDocument
     /**
      * Get the permalink of this Content Item.
      *
-     * @throws \Exception
-     *
      * @return string
      */
     final public function getPermalink()
