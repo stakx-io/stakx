@@ -136,32 +136,6 @@ class Website
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
         $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
-        // Configure our Twig environment
-        $twigGlobals = [
-            [
-                'name' => 'site',
-                'value' => $this->getConfiguration()->getConfiguration(),
-            ],
-            [
-                'name' => 'data',
-                'value' => ($this->container->has(DataManager::class)) ?
-                    $this->container->get(DataManager::class)->getJailedDataItems() : [],
-            ],
-            [
-                'name' => 'collections',
-                'value' => ($this->container->has(CollectionManager::class)) ?
-                    $this->container->get(CollectionManager::class)->getJailedCollections() : [],
-            ],
-            [
-                'name' => 'menu',
-                'value' => $this->container->get(MenuManager::class)->getSiteMenu(),
-            ],
-            [
-                'name' => 'pages',
-                'value' => $this->container->get(PageManager::class)->getJailedStaticPageViews(),
-            ],
-        ];
-
         $twig = $this->container->get('templating');
         $profiler = null;
 
@@ -486,7 +460,7 @@ class Website
         {
           return;
         }
-        
+
         foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
         {
             $fullPath = $this->fs->absolutePath($path);
@@ -494,43 +468,6 @@ class Website
             if (!$this->fs->exists($fullPath))
             {
                 $this->output->warning('The following language definition could not be found: {lang}', array(
-                    'lang' => $path
-                ));
-                continue;
-            }
-
-            Highlighter::registerLanguage($lang, $fullPath);
-            $this->output->debug('Loading custom language {lang} from {path}...', array(
-                'lang' => $lang,
-                'path' => $path
-            ));
-        }
-    }
-
-    ///
-    // Build Process
-    ///
-
-    private function handleDataItems()
-    {
-        $pm = $this->container->get(PageManager::class);
-
-        if (!$this->getConfiguration()->hasDataItems())
-        {
-            $this->container->get('logger')->notice('No DataItem folders or Datasets registered... Ignoring');
-
-            $pm->setDatasets([]);
-
-            return;
-        }
-
-        foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
-        {
-            $fullPath = $this->fs->absolutePath($path);
-
-            if (!$this->fs->exists($fullPath))
-            {
-                $this->container->get('logger')->warning('The following language definition could not be found: {lang}', array(
                     'lang' => $path
                 ));
                 continue;
