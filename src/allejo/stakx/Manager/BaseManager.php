@@ -49,6 +49,9 @@ abstract class BaseManager implements LoggerAwareInterface, ContainerAwareInterf
         $this->container = $container;
     }
 
+    /**
+     * Build the manager's internals after it's been configured.
+     */
     public function compileManager()
     {
 

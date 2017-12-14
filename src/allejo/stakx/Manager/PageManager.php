@@ -13,6 +13,7 @@ use allejo\stakx\Document\DataItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\PageView;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Event\PageViewsCompleted;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Exception\DataSetNotFoundException;
@@ -35,11 +36,14 @@ class PageManager extends TrackingManager
      * @var PageView[]
      */
     private $staticPages;
+    private $configuration;
+    private $collectionManager;
+    private $dataManager;
 
     /**
      * PageManager constructor.
      */
-    public function __construct()
+    public function __construct(Configuration $configuration, CollectionManager $collectionManager = null, DataManager $dataManager = null)
     {
         parent::__construct();
 
@@ -49,29 +53,52 @@ class PageManager extends TrackingManager
             PageView::REPEATER_TYPE => array(),
         );
         $this->staticPages = array();
-    }
-
-    public function compileManager()
-    {
-        /** @var Configuration $conf */
-        $conf = $this->container->get(Configuration::class);
-
-        $this->parsePageViews($conf->getPageViewFolders());
+        $this->configuration = $configuration;
+        $this->collectionManager = $collectionManager;
+        $this->dataManager = $dataManager;
     }
 
     /**
-     * Get all of the PageViews tracked by this manager.
+     * Go through all of the PageView directories and create a respective PageView for each and classify them by type.
      *
-     * @todo       Remove this function
+     * @param string[] $pageViewFolders
      *
-     * @deprecated Been replaced by getPageViewsFlattened()
-     * @since      0.1.0
+     * @since 0.1.0
      *
-     * @return PageView[][]
+     * @throws \Exception When the EventDispatcher service couldn't be found.
      */
-    public function getAllPageViews()
+    public function parsePageViews(array $pageViewFolders)
     {
-        return $this->trackedItemsFlattened;
+        foreach ($pageViewFolders as $pageViewFolderName)
+        {
+            $pageViewFolderPath = fs::absolutePath($pageViewFolderName);
+
+            if (!fs::exists($pageViewFolderPath))
+            {
+                $this->output->warning("The '$pageViewFolderName' folder could not be found");
+                continue;
+            }
+
+            $this->scanTrackableItems($pageViewFolderPath, [
+                'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES,
+            ], ['/.html$/', '/.twig$/']);
+        }
+
+        if ($this->container !== null)
+        {
+            $ed = $this->container->get('event_dispatcher');
+            $ed->dispatch(PageViewsCompleted::NAME, null);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws \Exception
+     */
+    public function compileManager()
+    {
+        $this->parsePageViews($this->configuration->getPageViewFolders());
     }
 
     /**
@@ -127,41 +154,6 @@ class PageManager extends TrackingManager
         }
 
         return $jailedObjects;
-    }
-
-    /**
-     * Go through all of the PageView directories and create a respective PageView for each and classify them as a
-     * dynamic or static PageView.
-     *
-     * @param string[] $pageViewFolders
-     *
-     * @since 0.1.0
-     */
-    public function parsePageViews($pageViewFolders)
-    {
-        if (empty($pageViewFolders))
-        {
-            return;
-        }
-
-        foreach ($pageViewFolders as $pageViewFolderName)
-        {
-            /** @var string $pageViewFolderPath */
-            $pageViewFolderPath = $this->fs->absolutePath($pageViewFolderName);
-
-            if (!$this->fs->exists($pageViewFolderPath))
-            {
-                $this->output->warning("The '$pageViewFolderName' folder could not be found");
-                continue;
-            }
-
-            $this->scanTrackableItems($pageViewFolderPath, array(
-                'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES,
-            ), array('/.html$/', '/.twig$/'));
-        }
-
-        $ed = $this->container->get('event_dispatcher');
-        $ed->dispatch(PageViewsCompleted::NAME, null);
     }
 
     /**
@@ -238,12 +230,12 @@ class PageManager extends TrackingManager
 
         if (isset($frontMatter['collection']))
         {
-            $dataSource = &$this->container->get(CollectionManager::class)->getCollections();
+            $dataSource = &$this->collectionManager->getCollections();
             $namespace = 'collection';
         }
         elseif (isset($frontMatter['dataset']))
         {
-            $dataSource = &$this->container->get(DataManager::class)->getDataItems();
+            $dataSource = &$this->dataManager->getDataItems();
             $namespace = 'dataset';
         }
 
