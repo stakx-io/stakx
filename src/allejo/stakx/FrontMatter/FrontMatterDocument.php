@@ -277,7 +277,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
      */
     private function findTwigImportDependencies()
     {
-        $regex = "/{%\s?(?:import|from)\s?['\"](.+)['\"].+/";
+        $regex = "/{%\s?(?:import|from|include)\s?['\"](.+)['\"].+/";
         $results = array();
 
         preg_match_all($regex, $this->bodyContent, $results);
