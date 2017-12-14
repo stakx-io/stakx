@@ -43,6 +43,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
         Service::setParameter(BuildableCommand::USE_DRAFTS, false);
         Service::setParameter(BuildableCommand::WATCHING, false);
+        Service::setParameter(BuildableCommand::SAFE_MODE, false);
         Service::setParameter(Configuration::HIGHLIGHTER_ENABLED, true);
         Service::setParameter('build.preserveCase', false);
 

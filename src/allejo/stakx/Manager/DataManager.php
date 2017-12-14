@@ -63,7 +63,7 @@ class DataManager extends TrackingManager
      *
      * @param string[] $folders An array of folders to be searched for to contain DataItems
      */
-    private function parseDataItems($folders)
+    public function parseDataItems($folders)
     {
         if ($folders === null)
         {
@@ -84,7 +84,7 @@ class DataManager extends TrackingManager
      *
      * @param string[] $dataSets An array of DataSets
      */
-    private function parseDataSets($dataSets)
+    public function parseDataSets($dataSets)
     {
         if ($dataSets === null)
         {
@@ -97,7 +97,7 @@ class DataManager extends TrackingManager
          * $dataSet['name']   string The name of the collection
          *         ['folder'] string The folder where this collection has its ContentItems
          *
-         * @var array
+         * @var array $dataSet
          */
         foreach ($dataSets as $dataSet)
         {

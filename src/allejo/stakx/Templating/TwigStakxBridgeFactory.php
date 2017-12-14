@@ -19,15 +19,13 @@ use Twig_Extension_Debug;
 
 class TwigStakxBridgeFactory
 {
-    public static function createTwigEnvironment(ContainerInterface $container, LoggerInterface $logger)
+    public static function createTwigEnvironment(Configuration $configuration, LoggerInterface $logger)
     {
         $fs = new Filesystem();
         $loader = new StakxTwigFileLoader(array(
             getcwd(),
         ));
 
-        /** @var Configuration $configuration */
-        $configuration = $container->get(Configuration::class);
         $theme = $configuration->getTheme();
         $mdEngine = new TwigMarkdownEngine();
 

@@ -17,6 +17,7 @@ use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\Service;
 use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Templating\TwigStakxBridgeFactory;
 use org\bovigo\vfs\vfsStream;
 
 class CompilerTest extends PHPUnit_Stakx_TestCase
@@ -39,15 +40,11 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         $config->setLogger($this->getMockLogger());
         $config->parse();
 
-        $twigEnv = new TwigManager();
-        $twigEnv->configureTwig($config, array(
-            'safe' => false,
-            'globals' => array(),
-        ));
+        $twig = TwigStakxBridgeFactory::createTwigEnvironment($config, $this->getMockLogger());
 
         $this->folder = new Folder($this->rootDir->getChild('_site')->url());
 
-        $this->compiler = new Compiler();
+        $this->compiler = new Compiler($twig);
         $this->compiler->setLogger($this->getMockLogger());
         $this->compiler->setTargetFolder($this->folder);
     }
