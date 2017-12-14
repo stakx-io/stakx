@@ -155,7 +155,7 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
      */
     public function testHasImportDependencyRegex($twig, $needle)
     {
-        $file = $this->createStub($this->setAndCreateVirtualFrontMatterFileObject([], $twig));
+        $file = $this->createStub($this->createVirtualFilePath([], $twig));
         $this->assertTrue($file->hasImportDependency($needle));
     }
 
