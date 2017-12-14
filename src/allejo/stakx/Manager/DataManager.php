@@ -8,6 +8,7 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Configuration;
+use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\Exception\DependencyMissingException;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
@@ -26,6 +27,15 @@ use allejo\stakx\Utilities\StrUtils;
  */
 class DataManager extends TrackingManager
 {
+    private $dataTransformerManager;
+
+    public function __construct(DataTransformerManager $dataTransformerManager)
+    {
+        $this->dataTransformerManager = $dataTransformerManager;
+
+        parent::__construct();
+    }
+
     public function compileManager()
     {
         /** @var Configuration $conf */
@@ -121,6 +131,7 @@ class DataManager extends TrackingManager
             $namespace = (isset($options['namespace'])) ? $options['namespace'] : null;
 
             $dataItem = new DataItem($filePath);
+            $dataItem->setDataTransformer($this->dataTransformerManager);
             $dataItem->setNamespace($namespace);
 
             $this->addObjectToTracker($dataItem, $namespace);

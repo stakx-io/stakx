@@ -4,6 +4,9 @@ services:
     autoconfigure: true
     public: true
 
+  allejo\stakx\DataTransformer\:
+    resource: '../DataTransformer/*'
+
   allejo\stakx\Manager\:
     resource: '../Manager/*'
     exclude: '../Manager/{Twig}Manager'

@@ -8,6 +8,8 @@
 namespace allejo\stakx\Core;
 
 use allejo\stakx\Configuration;
+use allejo\stakx\DataTransformer\DataTransformerInterface;
+use allejo\stakx\DependencyInjection\Compiler\DataTransformerPass;
 use allejo\stakx\Filesystem\FilesystemPath;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Application as BaseApplication;
@@ -163,7 +165,13 @@ class Application extends BaseApplication
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../app/'));
         $loader->load('services.yml');
 
-        $container->addCompilerPass(new RegisterListenersPass());
+        $container
+            ->addCompilerPass(new RegisterListenersPass())
+            ->addCompilerPass(new DataTransformerPass())
+
+            ->registerForAutoconfiguration(DataTransformerInterface::class)
+            ->addTag(DataTransformerInterface::NAME)
+        ;
 
         $container->compile();
         $dumper = new PhpDumper($container);

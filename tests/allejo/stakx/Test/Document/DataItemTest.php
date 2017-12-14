@@ -7,6 +7,11 @@
 
 namespace allejo\stakx\Test\Document;
 
+use allejo\stakx\DataTransformer\CsvTransformer;
+use allejo\stakx\DataTransformer\DataTransformerManager;
+use allejo\stakx\DataTransformer\JsonTransformer;
+use allejo\stakx\DataTransformer\XmlTransformer;
+use allejo\stakx\DataTransformer\YamlTransformer;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
@@ -16,6 +21,17 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class DataItemTest extends PHPUnit_Stakx_TestCase
 {
+    public function getDataTransformerManager()
+    {
+        $manager = new DataTransformerManager();
+        $manager->addDataTransformer(new CsvTransformer());
+        $manager->addDataTransformer(new JsonTransformer());
+        $manager->addDataTransformer(new XmlTransformer());
+        $manager->addDataTransformer(new YamlTransformer());
+
+        return $manager;
+    }
+
     public function testJsonAsDataItem()
     {
         $jsonFile = <<<LINE
@@ -38,6 +54,7 @@ class DataItemTest extends PHPUnit_Stakx_TestCase
 LINE;
         /** @var DataItem $dataItem */
         $dataItem = $this->createBlankFile('my-sample-JSON.json', DataItem::class, $jsonFile);
+        $dataItem->setDataTransformer($this->getDataTransformerManager());
         $jailItem = $dataItem->createJail();
 
         $this->assertEquals('my-sample-JSON', $dataItem->getObjectName());
@@ -75,6 +92,7 @@ id,name,gender
 LINE;
         /** @var DataItem $dataItem */
         $dataItem = $this->createBlankFile('my-file.csv', DataItem::class, $csvFile);
+        $dataItem->setDataTransformer($this->getDataTransformerManager());
         $jailItem = $dataItem->createJail();
 
         $this->assertEquals($dataItem[0], $jailItem[0]);
@@ -112,6 +130,9 @@ LINE;
         $dataItem = $this->createBlankFile('my-yaml.yml', DataItem::class, $yamlFile);
         $yamlExtension = $this->createBlankFile('my-file.yaml', DataItem::class, $yamlFile);
 
+        $dataItem->setDataTransformer($this->getDataTransformerManager());
+        $yamlExtension->setDataTransformer($this->getDataTransformerManager());
+
         $this->assertEquals($dataItem->getData(), $yamlExtension->getData());
 
         $tz = new \DateTimeZone('UTC');
@@ -139,6 +160,7 @@ LINE;
 LINE;
         /** @var DataItem $dataItem */
         $dataItem = $this->createBlankFile('my-data.xml', DataItem::class, $xmlFile);
+        $dataItem->setDataTransformer($this->getDataTransformerManager());
 
         $this->assertEquals(array(
             'to' => 'Tove',
@@ -160,7 +182,9 @@ LINE;
         $this->setExpectedException(UnsupportedDataTypeException::class);
 
         $this->createVirtualFrontMatterFile(ContentItem::class);
-        $this->createDataItemFromVFS();
+
+        $dataItem = $this->createDataItemFromVFS();
+        $dataItem->setDataTransformer($this->getDataTransformerManager());
     }
 
     /**

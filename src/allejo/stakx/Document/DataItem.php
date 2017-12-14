@@ -7,25 +7,35 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\Exception\DependencyMissingException;
-use allejo\stakx\Exception\UnsupportedDataTypeException;
+use allejo\stakx\DataTransformer\DataTransformerInterface;
+use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\FrontMatter\Parser;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Symfony\Component\Yaml\Yaml;
 
 class DataItem extends PermalinkDocument implements
     RepeatableItem,
     TrackableDocument,
     TwigDocument
 {
+    /** @var array */
     protected $data;
 
+    /** @var string */
     private $namespace;
+
+    /** @var PageView */
     private $pageView;
 
+    /** @var DataTransformerInterface */
+    private $transformer;
+
+    /**
+     * DataItem constructor.
+     */
     public function __construct($filePath)
     {
         $this->namespace = '';
+        $this->noReadOnConstructor = true;
 
         parent::__construct($filePath);
     }
@@ -80,6 +90,15 @@ class DataItem extends PermalinkDocument implements
         return;
     }
 
+    /**
+     * Set the transformer used to convert the file contents into an array,
+     */
+    public function setDataTransformer(DataTransformerManager $manager)
+    {
+        $this->transformer = $manager->getTransformer($this->getExtension());
+        $this->refreshFileContent();
+    }
+
     ///
     // Twig Document implementation
     ///
@@ -129,107 +148,7 @@ class DataItem extends PermalinkDocument implements
         }
 
         $content = file_get_contents($this->getAbsoluteFilePath());
-        $fxnName = 'from' . ucfirst($this->getExtension());
-
-        if (method_exists(get_called_class(), $fxnName))
-        {
-            $this->handleDependencies($this->getExtension());
-            $this->data = (null !== ($c = $this->$fxnName($content))) ? $c : array();
-
-            return;
-        }
-
-        throw new UnsupportedDataTypeException($this->getExtension(), 'There is no support to handle this file extension.');
-    }
-
-    ///
-    // File parsing helpers
-    ///
-
-    /**
-     * Convert from CSV into an associative array.
-     *
-     * @param string $content CSV formatted text
-     *
-     * @return array
-     */
-    private function fromCsv($content)
-    {
-        $rows = array_map('str_getcsv', explode("\n", trim($content)));
-        $columns = array_shift($rows);
-        $csv = array();
-
-        foreach ($rows as $row)
-        {
-            $csv[] = array_combine($columns, $row);
-        }
-
-        return $csv;
-    }
-
-    /**
-     * Convert from JSON into an associative array.
-     *
-     * @param string $content JSON formatted text
-     *
-     * @return array
-     */
-    private function fromJson($content)
-    {
-        return json_decode($content, true);
-    }
-
-    /**
-     * Convert from XML into an associative array.
-     *
-     * @param string $content XML formatted text
-     *
-     * @return array
-     */
-    private function fromXml($content)
-    {
-        return json_decode(json_encode(simplexml_load_string($content)), true);
-    }
-
-    /**
-     * Convert from YAML into an associative array.
-     *
-     * @param string $content YAML formatted text
-     *
-     * @return array
-     */
-    private function fromYaml($content)
-    {
-        return Yaml::parse($content, Yaml::PARSE_DATETIME);
-    }
-
-    /**
-     * An alias for handling `*.yml` files.
-     *
-     * @param string $content YAML formatted text
-     *
-     * @return array
-     */
-    private function fromYml($content)
-    {
-        return $this->fromYaml($content);
-    }
-
-    /**
-     * Check for any dependencies needed to parse for a specific file extension
-     *
-     * @param string $extension
-     *
-     * @todo 0.1.0 Create a help page on the main stakx website for this topic and link to it
-     *
-     * @throws DependencyMissingException
-     */
-    private function handleDependencies($extension)
-    {
-        if ($extension === 'xml' && !function_exists('simplexml_load_string'))
-        {
-            throw new DependencyMissingException('XML', 'XML support is not available with the current PHP installation.');
-        }
+        $this->data = $this->transformer->transformData($content);
     }
 
     ///

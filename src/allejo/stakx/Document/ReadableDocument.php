@@ -10,26 +10,46 @@ namespace allejo\stakx\Document;
 use allejo\stakx\Document\DocumentInterface;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\System\Filesystem;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 abstract class ReadableDocument implements DocumentInterface
 {
+    /**
+     * Do not read the file immediately at construction. The object will need to execute the self::refreshFileContent()
+     * manually at some point.
+     *
+     * @var bool
+     */
+    protected $noReadOnConstructor = false;
+
     /** @var string */
     protected $filePath;
+
     /** @var string */
     protected $extension;
+
     /** @var Filesystem */
     protected $fs;
 
     /**
-     * @param string $filePath
+     * ReadableDocument Constructor.
      */
     public function __construct(File $filePath)
     {
         $this->fs = new Filesystem();
         $p = $this->filePath = $this->fs->absolutePath((string)$filePath);
 
+        if (!$this->fs->exists($p))
+        {
+            throw new FileNotFoundException(null, 0, null, $p);
+        }
+
         $this->extension = strtolower($this->fs->getExtension($p));
-        $this->refreshFileContent();
+
+        if (!$this->noReadOnConstructor)
+        {
+            $this->refreshFileContent();
+        }
     }
 
     final public function getRelativeFilePath()
