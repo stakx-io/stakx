@@ -29,7 +29,13 @@ class TwigTemplate implements TemplateInterface
      */
     public function getParentTemplate()
     {
-        return $this->template->getParent([]);
+        $parent = $this->template->getParent([]);
+
+        if ($parent === false) {
+            return false;
+        }
+
+        return (new TwigTemplate($parent));
     }
 
     /**
