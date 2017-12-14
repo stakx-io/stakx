@@ -17,6 +17,7 @@ use allejo\stakx\Document\TwigDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\BaseManager;
+use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\System\FilePath;
@@ -85,7 +86,15 @@ class Compiler extends BaseManager
         $this->folder = $folder;
     }
 
+    public function setPageManager(PageManager $manager)
+    {
+        $this->pageViews = &$manager->getPageViews();
+        $this->pageViewsFlattened = &$manager->getPageViewsFlattened();
+    }
+
     /**
+     * @deprecated Use setPageManager()
+     *
      * @param PageView[][] $pageViews
      * @param PageView[]   $pageViewsFlattened
      */

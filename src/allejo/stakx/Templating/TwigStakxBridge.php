@@ -2,12 +2,17 @@
 
 namespace allejo\stakx\Templating;
 
+use allejo\stakx\Compiler;
+use allejo\stakx\Twig\StakxTwigTextProfiler;
 use Psr\Log\LoggerInterface;
 
 class TwigStakxBridge implements TemplateBridgeInterface
 {
     private $twig;
     private $logger;
+
+    /** @var \Twig_Profiler_Profile */
+    private $profiler;
 
     public function __construct(\Twig_Environment $twig)
     {
@@ -45,5 +50,32 @@ class TwigStakxBridge implements TemplateBridgeInterface
         }
 
         return (new TwigTemplate($template));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasProfiler()
+    {
+        return ($this->profiler !== null);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setProfiler($profiler)
+    {
+        $this->profiler = $profiler;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getProfilerOutput(Compiler $compiler)
+    {
+        $dumper = new StakxTwigTextProfiler();
+        $dumper->setTemplateMappings($compiler->getTemplateMappings());
+
+        return $dumper->dump($this->profiler);
     }
 }

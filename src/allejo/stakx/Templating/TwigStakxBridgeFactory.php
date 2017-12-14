@@ -63,12 +63,23 @@ class TwigStakxBridgeFactory
             $twig->addExtension(new FilesystemExtension());
         }
 
+        $profiler = null;
+
+        if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
+        {
+            $profiler = new \Twig_Profiler_Profile();
+            $twig->addExtension(new \Twig_Extension_Profiler($profiler));
+        }
+
         if ($configuration->isDebug())
         {
             $twig->addExtension(new Twig_Extension_Debug());
             $twig->enableDebug();
         }
 
-        return (new TwigStakxBridge($twig));
+        $bridge = new TwigStakxBridge($twig);
+        $bridge->setProfiler($profiler);
+
+        return $bridge;
     }
 }

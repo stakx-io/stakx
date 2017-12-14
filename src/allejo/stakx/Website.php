@@ -136,36 +136,30 @@ class Website
         $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
         $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
-        $twig = $this->container->get('templating');
-        $profiler = null;
-
-        if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
-        {
-            $profiler = new \Twig_Profiler_Profile();
-            $twig->addExtension(new \Twig_Extension_Profiler($profiler));
-        }
+        $templateEngine = $this->container->get('templating');
 
         // Compile everything
         $pm = $this->container->get(PageManager::class);
         $theme = $this->getConfiguration()->getTheme();
 
         $this->compiler = $this->container->get('compiler');
-        $this->compiler->setLogger($this->output);
         $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
-        $this->compiler->setPageViews(
-            $pm->getPageViews(),
-            $pm->getPageViewsFlattened()
-        );
+        $this->compiler->setPageManager($pm);
         $this->compiler->setTargetFolder($this->outputDirectory);
         $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
 
         if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
         {
-            $dumper = new StakxTwigTextProfiler();
-            $dumper->setTemplateMappings($this->compiler->getTemplateMappings());
-            $text = $dumper->dump($profiler);
-            $logger->writeln($text);
+            if (!$templateEngine->hasProfiler())
+            {
+                $logger->writeln('This template engine currently does not support a profiler.');
+            }
+            else
+            {
+                $profilerText = $templateEngine->getProfilerOutput($this->compiler);
+                $logger->writeln($profilerText);
+            }
         }
 
         // At this point, we are looking at static files to copy over meaning we need to ignore all of the files that

@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Templating;
 
+use allejo\stakx\Compiler;
 use Psr\Log\LoggerAwareInterface;
 
 /**
@@ -14,6 +15,29 @@ use Psr\Log\LoggerAwareInterface;
  */
 interface TemplateBridgeInterface extends LoggerAwareInterface
 {
+    /**
+     * Whether or not this bridge has a profiler configured.
+     *
+     * @return bool
+     */
+    public function hasProfiler();
+
+    /**
+     * Set a profiler for this bridge.
+     *
+     * @param object|null $profiler
+     *
+     * @return void
+     */
+    public function setProfiler($profiler);
+
+    /**
+     * Get the output of this profiler that'll be written to the console.s
+     *
+     * @return string
+     */
+    public function getProfilerOutput(Compiler $compiler);
+
     /**
      * Set or update a global variable within the template engine.
      *
