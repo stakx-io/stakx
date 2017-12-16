@@ -7,9 +7,9 @@
 
 namespace allejo\stakx\FrontMatter;
 
-use allejo\stakx\Document\PermalinkDocument;
-use allejo\stakx\Document\TrackableDocument;
-use allejo\stakx\Document\TwigDocument;
+use allejo\stakx\DocumentDeprecated\PermalinkDocument;
+use allejo\stakx\DocumentDeprecated\TrackableDocument;
+use allejo\stakx\DocumentDeprecated\TwigDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
@@ -79,7 +79,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
     protected $frontMatterEvaluated;
 
     /**
-     * @var Parser
+     * @var FrontMatterParser
      */
     protected $frontMatterParser;
 
@@ -200,7 +200,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
     /**
      * Read the file, and parse its contents.
      */
-    final public function refreshFileContent()
+    final public function readContent()
     {
         // This function can be called after the initial object was created and the file may have been deleted since the
         // creation of the object.
@@ -421,7 +421,7 @@ abstract class FrontMatterDocument extends PermalinkDocument implements
     {
         try
         {
-            $this->frontMatterParser = new Parser($yaml, array(
+            $this->frontMatterParser = new FrontMatterParser($yaml, array(
                 'filename' => $this->getFileName(),
                 'basename' => $this->getObjectName(),
             ));

@@ -10,7 +10,7 @@ namespace allejo\stakx\Test\FrontMatter;
 use allejo\stakx\FrontMatter\Exception\YamlUnsupportedVariableException;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\FrontMatter\ExpandedValue;
-use allejo\stakx\FrontMatter\Parser;
+use allejo\stakx\FrontMatter\FrontMatterParser;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use Symfony\Component\Yaml\Yaml;
 
@@ -24,7 +24,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'var' => '%undefinedVar',
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
     }
     public function testComplexVariableUndefinedThrowsException()
     {
@@ -34,7 +34,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'var' => '%{site.undefinedVar}',
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
     }
 
     public function testVariableStringReplacement()
@@ -45,7 +45,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'evaluated' => '%myVar butter',
         );
 
-        $fmp = new Parser($frontMatter);
+        $fmp = new FrontMatterParser($frontMatter);
         $fmp->parse();
 
         $this->assertEquals($eval . ' butter', $frontMatter['evaluated']);
@@ -59,7 +59,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'evaluated' => '%{site.title}',
         );
 
-        $fmp = new Parser($frontMatter);
+        $fmp = new FrontMatterParser($frontMatter);
         $fmp->addComplexVariables([
             'site' => [
                 'title' => $eval
@@ -78,7 +78,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'evaluated' => '%myVar1200',
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
 
         $this->assertEquals(51541200, $frontMatter['evaluated']);
     }
@@ -93,7 +93,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'evaluated' => '%myVar',
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
     }
 
     public function testVariableArrayReplacementThrowsException()
@@ -109,7 +109,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'evaluated' => '%myVar',
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
     }
 
     public function testMultidimensionalArrayValueExpansionThrowsException()
@@ -126,7 +126,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'permalink' => '/blog/%languages/',
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
     }
 
     public function testExpandedValueAsString()
@@ -146,7 +146,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'permalink' => '/blog/%languages/',
         );
 
-        $fmp = new Parser($frontMatter);
+        $fmp = new FrontMatterParser($frontMatter);
         $fmp->parse();
 
         $firstEval = new ExpandedValue('/blog/en/');
@@ -175,7 +175,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'permalink' => '/categories/%{site.categories}/',
         );
 
-        $fmp = new Parser($frontMatter);
+        $fmp = new FrontMatterParser($frontMatter);
         $fmp->addComplexVariables([
             'site' => [
                 'categories' => [
@@ -218,7 +218,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             ),
             'permalink' => '/blog/%languages/%status/',
         );
-        $fmp = new Parser($frontMatter);
+        $fmp = new FrontMatterParser($frontMatter);
         $fmp->parse();
 
         $firstEval = new ExpandedValue('/blog/en/final/');
@@ -267,7 +267,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             ),
         );
 
-        $fmp = new Parser($frontMatter);
+        $fmp = new FrontMatterParser($frontMatter);
         $fmp->parse();
 
         $firstEval = new ExpandedValue('/blog/en/');
@@ -306,7 +306,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'date' => new \DateTime('2016-05-31'),
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
 
         $this->assertEquals(2016, $frontMatter['year']);
         $this->assertEquals(5, $frontMatter['month']);
@@ -319,7 +319,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'date' => '2016-01-26',
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
 
         $this->assertEquals(2016, $frontMatter['year']);
         $this->assertEquals(1, $frontMatter['month']);
@@ -335,7 +335,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'date' => 1457395200,
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
 
         $this->assertEquals(2016, $frontMatter['year']);
         $this->assertEquals(3, $frontMatter['month']);
@@ -351,7 +351,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'date' => 1457395200,
         );
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
 
         $this->assertEquals(2016, $frontMatter['year']);
         $this->assertEquals(3, $frontMatter['month']);
@@ -362,7 +362,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
     {
         $frontMatter = Yaml::parse("date: '2016-02-28'");
 
-        (new Parser($frontMatter))->parse();
+        (new FrontMatterParser($frontMatter))->parse();
 
         $this->assertEquals(2016, $frontMatter['year']);
         $this->assertEquals(2, $frontMatter['month']);
@@ -375,7 +375,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'myVar' => '/blog/%basename/'
         );
 
-        (new Parser($frontMatter, array(
+        (new FrontMatterParser($frontMatter, array(
             'basename' => 'hello-world',
         )))->parse();
 
@@ -388,7 +388,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'myVar' => '/blog/%filename/'
         );
 
-        (new Parser($frontMatter, array(
+        (new FrontMatterParser($frontMatter, array(
             'filename' => 'hello-world.md',
         )))->parse();
 
@@ -401,7 +401,7 @@ class ParserTest extends PHPUnit_Stakx_TestCase
             'value' => 'foo'
         );
 
-        (new Parser($frontMatter, array(
+        (new FrontMatterParser($frontMatter, array(
             'value' => 'bar'
         )))->parse();
 

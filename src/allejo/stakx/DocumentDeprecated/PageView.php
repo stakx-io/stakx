@@ -5,8 +5,9 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Document;
+namespace allejo\stakx\DocumentDeprecated;
 
+use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\System\Filesystem;

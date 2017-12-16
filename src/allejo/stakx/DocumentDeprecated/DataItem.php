@@ -5,47 +5,56 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Document;
+namespace allejo\stakx\DocumentDeprecated;
 
 use allejo\stakx\DataTransformer\DataTransformerInterface;
 use allejo\stakx\DataTransformer\DataTransformerManager;
-use allejo\stakx\Filesystem\File;
+use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\FrontMatter\FrontMatterParser;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class DataItem extends ReadableDocument implements CollectableItem, TemplateReadyDocument, PermalinkDocument
+class DataItem extends PermalinkDocument implements
+    RepeatableItem,
+    TrackableDocument,
+    TwigDocument
 {
-    use CollectableItemTrait;
-    use PermalinkDocumentTrait;
-
     /** @var array */
     protected $data;
 
+    /** @var string */
+    private $namespace;
+
+    /** @var PageView */
+    private $pageView;
+
     /** @var DataTransformerInterface */
-    protected $dataTransformer;
+    private $transformer;
 
     /**
      * DataItem constructor.
      */
-    public function __construct(File $file)
+    public function __construct($filePath)
     {
+        $this->namespace = '';
         $this->noReadOnConstructor = true;
 
-        parent::__construct($file);
+        parent::__construct($filePath);
     }
 
-    /**
-     * Set the transformer used to convert the file contents into an array,
-     */
-    public function setDataTransformer(DataTransformerManager $manager)
+    public function getData()
     {
-        $this->dataTransformer = $manager->getTransformer($this->getExtension());
-        $this->readContent();
+        return $this->data;
+    }
+
+    public function getObjectName()
+    {
+        return $this->getBaseName();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function evaluateFrontMatter(array $variables = null)
+    public function evaluateFrontMatter($variables = array())
     {
         $workspace = array_merge($this->data, $variables);
         $parser = new FrontMatterParser($workspace, array(
@@ -83,20 +92,40 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     }
 
     /**
+     * Set the transformer used to convert the file contents into an array,
+     */
+    public function setDataTransformer(DataTransformerManager $manager)
+    {
+        $this->transformer = $manager->getTransformer($this->getExtension());
+        $this->readContent();
+    }
+
+    ///
+    // Twig Document implementation
+    ///
+
+    /**
      * {@inheritdoc}
      */
-    public function readContent()
+    public function getNamespace()
     {
-        $content = $this->file->getContents();
-        $this->data = $this->dataTransformer->transformData($content);
+        return $this->namespace;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getContent()
+    public function setNamespace($namespace)
     {
-        return $this->data;
+        $this->namespace = $namespace;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setParentPageView(PageView &$pageView)
+    {
+        $this->pageView = &$pageView;
     }
 
     /**
@@ -110,29 +139,33 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     /**
      * {@inheritdoc}
      */
-    public function createJail()
+    public function readContent()
     {
-        $whiteListedFunctions = array_merge(FrontMatterDocument::$whiteListedFunctions, [
-            'getDataset'
-        ]);
+        // This function can be called after the initial object was created and the file may have been deleted since the
+        // creation of the object.
+        if (!$this->fs->exists($this->filePath))
+        {
+            throw new FileNotFoundException(null, 0, null, $this->filePath);
+        }
 
-        $jailedFunctions = [
-            'getPageView' => 'getJailedPageView',
-        ];
-
-        return (new JailedDocument($this, $whiteListedFunctions, $jailedFunctions));
+        $content = file_get_contents($this->getAbsoluteFilePath());
+        $this->data = $this->transformer->transformData($content);
     }
 
     ///
-    // JsonSerializable implementation
+    // Jailed Document implementation
     ///
 
     /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
+    public function createJail()
     {
-        return $this->data;
+        return new JailedDocument($this, array(
+            'getExtension', 'getFilePath', 'getRelativeFilePath'
+        ), array(
+            'getName' => 'getObjectName'
+        ));
     }
 
     ///
@@ -172,7 +205,7 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
      */
     public function offsetSet($offset, $value)
     {
-        throw new \LogicException('DataItems are read-only.');
+        $this->data[$offset] = $value;
     }
 
     /**
@@ -180,6 +213,6 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
      */
     public function offsetUnset($offset)
     {
-        throw new \LogicException('DataItems are read-only.');
+        unset($this->data[$offset]);
     }
 }

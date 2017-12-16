@@ -5,9 +5,10 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Document;
+namespace allejo\stakx\DocumentDeprecated;
 
-use allejo\stakx\Document\DocumentInterface;
+use allejo\stakx\Document\JailableDocument;
+use allejo\stakx\DocumentDeprecated\DocumentInterface;
 
 /**
  * This interface defines the requirements for an object that will be available through Twig.

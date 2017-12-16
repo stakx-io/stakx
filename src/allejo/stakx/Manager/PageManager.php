@@ -8,17 +8,16 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Configuration;
+use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
-use allejo\stakx\Document\PageView;
+use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Event\PageViewsCompleted;
 use allejo\stakx\Exception\CollectionNotFoundException;
-use allejo\stakx\Exception\DataSetNotFoundException;
 use allejo\stakx\Filesystem\FileExplorer;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * This class is responsible for handling all of the PageViews within a website.
@@ -30,11 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class PageManager extends TrackingManager
 {
-    /**
-     * A place to store a reference to static PageViews with titles.
-     *
-     * @var PageView[]
-     */
+    /** @var StaticPageView[] A place to store a reference to static PageViews with titles. */
     private $staticPages;
     private $configuration;
     private $collectionManager;
@@ -48,9 +43,9 @@ class PageManager extends TrackingManager
         parent::__construct();
 
         $this->trackedItems = array(
-            PageView::STATIC_TYPE   => array(),
-            PageView::DYNAMIC_TYPE  => array(),
-            PageView::REPEATER_TYPE => array(),
+            BasePageView::STATIC_TYPE   => array(),
+            BasePageView::DYNAMIC_TYPE  => array(),
+            BasePageView::REPEATER_TYPE => array(),
         );
         $this->staticPages = array();
         $this->configuration = $configuration;
@@ -106,7 +101,7 @@ class PageManager extends TrackingManager
      *
      * @since  0.1.1
      *
-     * @return PageView[][]
+     * @return BasePageView[][]
      */
     public function &getPageViews()
     {
@@ -118,7 +113,7 @@ class PageManager extends TrackingManager
      *
      * @since  0.1.1
      *
-     * @return PageView[]
+     * @return BasePageView[]
      */
     public function &getPageViewsFlattened()
     {
@@ -130,7 +125,7 @@ class PageManager extends TrackingManager
      *
      * @since 0.1.0
      *
-     * @return PageView[]
+     * @return StaticPageView[]
      */
     public function getStaticPageViews()
     {
@@ -166,7 +161,7 @@ class PageManager extends TrackingManager
     public function trackNewContentItem(&$contentItem)
     {
         $collection = $contentItem->getNamespace();
-        $this->trackedItems[PageView::DYNAMIC_TYPE][$collection]->addRepeatableItem($contentItem);
+        $this->trackedItems[BasePageView::DYNAMIC_TYPE][$collection]->addCollectableItem($contentItem);
     }
 
     /**
@@ -174,16 +169,16 @@ class PageManager extends TrackingManager
      */
     protected function &handleTrackableItem($filePath, array $options = array())
     {
-        $pageView = PageView::create($filePath);
+        $pageView = BasePageView::create($filePath);
         $namespace = $pageView->getType();
 
         switch ($namespace)
         {
-            case PageView::STATIC_TYPE:
+            case BasePageView::STATIC_TYPE:
                 $this->handleTrackableStaticPageView($pageView);
                 break;
 
-            case PageView::DYNAMIC_TYPE:
+            case BasePageView::DYNAMIC_TYPE:
                 $this->handleTrackableDynamicPageView($pageView);
                 break;
 
@@ -199,7 +194,7 @@ class PageManager extends TrackingManager
     /**
      * Handle special behavior and treatment for static PageViews while we're iterating through them.
      *
-     * @param PageView $pageView
+     * @param StaticPageView $pageView
      *
      * @since 0.1.0
      */
@@ -257,7 +252,8 @@ class PageManager extends TrackingManager
             $item->evaluateFrontMatter($frontMatter);
             $item->setParentPageView($pageView);
             $item->buildPermalink(true);
-            $pageView->addRepeatableItem($item);
+
+            $pageView->addCollectableItem($item);
         }
     }
 }

@@ -8,10 +8,10 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Command\BuildableCommand;
+use allejo\stakx\Document\CollectableItem;
 use allejo\stakx\Document\JailedDocument;
-use allejo\stakx\Document\PageView;
-use allejo\stakx\Document\TrackableDocument;
-use allejo\stakx\Document\TwigDocument;
+use allejo\stakx\Document\ReadableDocument;
+use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Service;
 use allejo\stakx\Filesystem\FileExplorer;
@@ -50,7 +50,7 @@ abstract class TrackingManager extends BaseManager
      *
      * $trackedItemsOptions['<relative file path>'] = mixed
      *
-     * @var TrackableDocument[]
+     * @var ReadableDocument[]
      */
     protected $trackedItemsFlattened;
 
@@ -67,12 +67,12 @@ abstract class TrackingManager extends BaseManager
     protected $trackedItemsOptions;
 
     /**
-     * The storage used for TrackableDocuments in the respective static classes.
+     * The storage used for ReadableDocument in the respective static classes.
      *
      * $trackedItems['<namespace>']['<file name w/o extension>'] = mixed
      * $trackedItems['<file name w/o extension>'] = mixed
      *
-     * @var TrackableDocument[]
+     * @var ReadableDocument[]
      */
     protected $trackedItems;
 
@@ -137,7 +137,7 @@ abstract class TrackingManager extends BaseManager
      *
      * @param File|string $filePath The relative path of the file
      *
-     * @return PageView
+     * @return mixed|null
      */
     public function refreshItem($filePath)
     {
@@ -159,20 +159,20 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
-     * Add a TrackableDocument to the tracker.
+     * Add a ReadableDocument to the tracker.
      *
-     * @param TrackableDocument $trackedItem
+     * @param ReadableDocument $trackedItem
      * @param string|null       $namespace
      */
-    protected function addObjectToTracker(TrackableDocument &$trackedItem, $namespace = null)
+    protected function addObjectToTracker(ReadableDocument &$trackedItem, $namespace = null)
     {
         if ($namespace == null)
         {
-            $this->trackedItems[$trackedItem->getObjectName()] = &$trackedItem;
+            $this->trackedItems[$trackedItem->getRelativeFilePath()] = &$trackedItem;
         }
         else
         {
-            $this->trackedItems[$namespace][$trackedItem->getObjectName()] = &$trackedItem;
+            $this->trackedItems[$namespace][$trackedItem->getRelativeFilePath()] = &$trackedItem;
         }
 
         $this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()] = &$trackedItem;
@@ -181,18 +181,18 @@ abstract class TrackingManager extends BaseManager
     /**
      * Remove an entry from the tracked items array.
      *
-     * @param TrackableDocument $trackedItem
+     * @param ReadableDocument $trackedItem
      * @param string|null       $namespace
      */
-    protected function delObjectFromTracker(TrackableDocument &$trackedItem, $namespace = null)
+    protected function delObjectFromTracker(ReadableDocument &$trackedItem, $namespace = null)
     {
         if ($namespace == null)
         {
-            unset($this->trackedItems[$trackedItem->getObjectName()]);
+            unset($this->trackedItems[$trackedItem->getRelativeFilePath()]);
         }
         else
         {
-            unset($this->trackedItems[$namespace][$trackedItem->getObjectName()]);
+            unset($this->trackedItems[$namespace][$trackedItem->getRelativeFilePath()]);
         }
 
         unset($this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()]);
@@ -272,8 +272,8 @@ abstract class TrackingManager extends BaseManager
      *  - TrackingManager::addFileToTracker()
      *  - TrackingManager::saveTrackerOptions()
      *
-     * @param File $filePath
-     * @param mixed       $options
+     * @param File  $filePath
+     * @param array $options
      *
      * @return mixed|null
      */
@@ -295,20 +295,26 @@ abstract class TrackingManager extends BaseManager
         $jailItems = array();
 
         /**
-         * @var string       $key
-         * @var TwigDocument $item
+         * @var string                           $key
+         * @var CollectableItem|ReadableDocument $item
          */
         foreach ($elements as &$item)
         {
-            if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft()) { continue; }
+            if ($item instanceof TemplateReadyDocument)
+            {
+                if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft())
+                {
+                    continue;
+                }
+            }
 
             if (empty($item->getNamespace()))
             {
-                $jailItems[$item->getObjectName()] = $item->createJail();
+                $jailItems[$item->getRelativeFilePath()] = $item->createJail();
             }
             else
             {
-                $jailItems[$item->getNamespace()][$item->getObjectName()] = $item->createJail();
+                $jailItems[$item->getNamespace()][$item->getRelativeFilePath()] = $item->createJail();
             }
         }
 

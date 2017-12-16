@@ -8,13 +8,15 @@
 namespace allejo\stakx;
 
 use allejo\stakx\Command\BuildableCommand;
+use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
-use allejo\stakx\Document\PageView;
 use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Document\RepeaterPageView;
-use allejo\stakx\Document\TwigDocument;
+use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Exception\FileAwareException;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\BaseManager;
 use allejo\stakx\Manager\PageManager;
@@ -24,6 +26,7 @@ use allejo\stakx\System\FilePath;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use allejo\stakx\Templating\TemplateErrorInterface;
 use allejo\stakx\Templating\TemplateInterface;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
  * This class takes care of rendering the Twig body of PageViews with the respective information and it also takes care
@@ -38,19 +41,36 @@ class Compiler extends BaseManager
     /** @var string|false */
     private $redirectTemplate;
 
-    /** @var PageView[][] */
+    /** @var BasePageView[][] */
     private $importDependencies;
 
-    /** @var TemplateInterface[] */
+    /**
+     * Any time a PageView extends another template, that relationship is stored in this array. This is necessary so
+     * when watching a website, we can rebuild the necessary PageViews when these base templates change.
+     *
+     * ```
+     * array['_layouts/base.html.twig'] = &PageView;
+     * ```
+     *
+     * @var TemplateInterface[]
+     */
     private $templateDependencies;
 
-    /** @var PageView[] */
+    /**
+     * All of the PageViews handled by this Compiler instance indexed by their file paths relative to the site root.
+     *
+     * ```
+     * array['_pages/index.html.twig'] = &PageView;
+     * ```
+     *
+     * @var BasePageView[]
+     */
     private $pageViewsFlattened;
 
     /** @var string[] */
     private $templateMapping;
 
-    /** @var PageView[][] */
+    /** @var BasePageView[][] */
     private $pageViews;
 
     /** @var Folder */
@@ -95,8 +115,8 @@ class Compiler extends BaseManager
     /**
      * @deprecated Use setPageManager()
      *
-     * @param PageView[][] $pageViews
-     * @param PageView[]   $pageViewsFlattened
+     * @param BasePageView[][] $pageViews
+     * @param BasePageView[]   $pageViewsFlattened
      */
     public function setPageViews(array &$pageViews, array &$pageViewsFlattened)
     {
@@ -178,17 +198,34 @@ class Compiler extends BaseManager
 
     public function compileSome(array $filter = array())
     {
-        /** @var PageView $pageView */
+        /** @var BasePageView $pageView */
         foreach ($this->pageViewsFlattened as &$pageView)
         {
             $ns = $filter['namespace'];
 
-            if ($pageView->hasTwigDependency($ns, $filter['dependency']) ||
-                $pageView->hasTwigDependency($ns, null)
+            if ($pageView->hasDependencyOnAssortment($ns, $filter['dependency']) ||
+                $pageView->hasDependencyOnAssortment($ns, null)
             ) {
                 $this->compilePageView($pageView);
             }
         }
+    }
+
+    /**
+     * Compile an individual PageView from a given path.
+     *
+     * @param string $filePath
+     *
+     * @throws FileNotFoundException When the given file path isn't tracked by the Compiler.
+     */
+    public function compilePageViewFromPath($filePath)
+    {
+        if (!isset($this->pageViewsFlattened[$filePath]))
+        {
+            throw new FileNotFoundException(sprintf('The "%s" PageView is not being tracked by this compiler.', $filePath));
+        }
+
+        $this->compilePageView($this->pageViewsFlattened[$filePath]);
     }
 
     /**
@@ -197,11 +234,11 @@ class Compiler extends BaseManager
      * This function will take care of determining *how* to treat the PageView and write the compiled output to a the
      * respective target file.
      *
-     * @param DynamicPageView|RepeaterPageView|PageView $pageView The PageView that needs to be compiled
+     * @param DynamicPageView|RepeaterPageView|StaticPageView $pageView The PageView that needs to be compiled
      *
      * @since 0.1.1
      */
-    public function compilePageView(PageView &$pageView)
+    public function compilePageView(BasePageView &$pageView)
     {
         $this->templateBridge->setGlobalVariable('__currentTemplate', $pageView->getAbsoluteFilePath());
         $this->output->debug('Compiling {type} PageView: {pageview}', array(
@@ -213,17 +250,17 @@ class Compiler extends BaseManager
         {
             switch ($pageView->getType())
             {
-                case PageView::STATIC_TYPE:
+                case BasePageView::STATIC_TYPE:
                     $this->compileStaticPageView($pageView);
                     $this->compileStandardRedirects($pageView);
                     break;
 
-                case PageView::DYNAMIC_TYPE:
+                case BasePageView::DYNAMIC_TYPE:
                     $this->compileDynamicPageViews($pageView);
                     $this->compileStandardRedirects($pageView);
                     break;
 
-                case PageView::REPEATER_TYPE:
+                case BasePageView::REPEATER_TYPE:
                     $this->compileRepeaterPageViews($pageView);
                     $this->compileExpandedRedirects($pageView);
                     break;
@@ -244,13 +281,11 @@ class Compiler extends BaseManager
     /**
      * Write the compiled output for a static PageView.
      *
-     * @param PageView $pageView
-     *
      * @since 0.1.1
      *
      * @throws TemplateErrorInterface
      */
-    private function compileStaticPageView(PageView &$pageView)
+    private function compileStaticPageView(StaticPageView &$pageView)
     {
         $targetFile = $pageView->getTargetFile();
         $output = $this->renderStaticPageView($pageView);
@@ -270,7 +305,7 @@ class Compiler extends BaseManager
      */
     private function compileDynamicPageViews(DynamicPageView &$pageView)
     {
-        $contentItems = $pageView->getRepeatableItems();
+        $contentItems = $pageView->getCollectableItems();
         $template = $this->createTwigTemplate($pageView);
 
         foreach ($contentItems as &$contentItem)
@@ -316,7 +351,7 @@ class Compiler extends BaseManager
             $targetFile = $pageView->getTargetFile();
             $output = $this->renderRepeaterPageView($template, $pageView, $permalink);
 
-            $this->output->notice('Writing repeater file: {file}', array('file' => $targetFile));
+            $this->output->notice('Writing repeater file: {file}', ['file' => $targetFile]);
             $this->folder->writeFile($targetFile, $output);
         }
     }
@@ -350,8 +385,6 @@ class Compiler extends BaseManager
     /**
      * Write redirects for standard redirects.
      *
-     * @param PermalinkDocument $pageView
-     *
      * @throws TemplateErrorInterface
      *
      * @since 0.1.1
@@ -362,7 +395,7 @@ class Compiler extends BaseManager
 
         foreach ($redirects as $redirect)
         {
-            $redirectPageView = PageView::createRedirect(
+            $redirectPageView = BasePageView::createRedirect(
                 $redirect,
                 $pageView->getPermalink(),
                 $this->redirectTemplate
@@ -392,7 +425,7 @@ class Compiler extends BaseManager
              */
             foreach ($repeaterRedirect as $index => $redirect)
             {
-                $redirectPageView = PageView::createRedirect(
+                $redirectPageView = BasePageView::createRedirect(
                     $redirect->getEvaluated(),
                     $permalinks[$index]->getEvaluated(),
                     $this->redirectTemplate
@@ -419,10 +452,10 @@ class Compiler extends BaseManager
      */
     private function renderRepeaterPageView(TemplateInterface &$template, RepeaterPageView &$pageView, ExpandedValue &$expandedValue)
     {
-        $pageView->setFrontMatter(array(
+        $pageView->evaluateFrontMatter([
             'permalink' => $expandedValue->getEvaluated(),
             'iterators' => $expandedValue->getIterators(),
-        ));
+        ]);
 
         return $template
             ->render(array(
@@ -433,14 +466,11 @@ class Compiler extends BaseManager
     /**
      * Get the compiled HTML for a specific ContentItem.
      *
-     * @param TemplateInterface $template
-     * @param TwigDocument      $twigItem
-     *
      * @since  0.1.1
      *
      * @return string
      */
-    private function renderDynamicPageView(TemplateInterface &$template, TwigDocument &$twigItem)
+    private function renderDynamicPageView(TemplateInterface &$template, TemplateReadyDocument &$twigItem)
     {
         return $template
             ->render(array(
@@ -451,15 +481,13 @@ class Compiler extends BaseManager
     /**
      * Get the compiled HTML for a static PageView.
      *
-     * @param PageView $pageView
-     *
      * @since  0.1.1
      *
      * @throws TemplateErrorInterface
      *
      * @return string
      */
-    private function renderStaticPageView(PageView &$pageView)
+    private function renderStaticPageView(StaticPageView &$pageView)
     {
         return $this
             ->createTwigTemplate($pageView)
@@ -471,15 +499,13 @@ class Compiler extends BaseManager
     /**
      * Create a Twig template that just needs an array to render.
      *
-     * @param PageView $pageView The PageView whose body will be used for Twig compilation
-     *
      * @since  0.1.1
      *
      * @throws TemplateErrorInterface
      *
      * @return TemplateInterface
      */
-    private function createTwigTemplate(PageView &$pageView)
+    private function createTwigTemplate(BasePageView &$pageView)
     {
         try
         {
@@ -492,7 +518,7 @@ class Compiler extends BaseManager
                 // Keep track of import dependencies
                 foreach ($pageView->getImportDependencies() as $dependency)
                 {
-                    $this->importDependencies[$dependency][$pageView->getName()] = &$pageView;
+                    $this->importDependencies[$dependency][$pageView->getBasename()] = &$pageView;
                 }
 
                 // Keep track of Twig extends'
@@ -501,10 +527,10 @@ class Compiler extends BaseManager
                 while ($parent !== false)
                 {
                     // Replace the '@theme' namespace in Twig with the path to the theme folder and create a UnixFilePath object from the given path
-                    $path = str_replace('@theme', $this->fs->appendPath(ThemeManager::THEME_FOLDER, $this->theme), $parent->getTemplateName());
+                    $path = str_replace('@theme', fs::appendPath(ThemeManager::THEME_FOLDER, $this->theme), $parent->getTemplateName());
                     $path = new FilePath($path);
 
-                    $this->templateDependencies[(string)$path][$pageView->getName()] = &$pageView;
+                    $this->templateDependencies[(string)$path][$pageView->getBasename()] = &$pageView;
 
                     $parent = $parent->getParentTemplate();
                 }
@@ -517,7 +543,7 @@ class Compiler extends BaseManager
             $e
                 ->setTemplateLine($e->getTemplateLine() + $pageView->getLineOffset())
                 ->setContent($pageView->getContent())
-                ->setName($pageView->getObjectName())
+                ->setName($pageView->getRelativeFilePath())
                 ->setRelativeFilePath($pageView->getRelativeFilePath())
                 ->buildException()
             ;

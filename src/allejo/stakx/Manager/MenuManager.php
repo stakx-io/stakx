@@ -8,7 +8,7 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Document\JailedDocument;
-use allejo\stakx\Document\PageView;
+use allejo\stakx\DocumentDeprecated\PageView;
 
 class MenuManager extends BaseManager
 {

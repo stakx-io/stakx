@@ -7,162 +7,54 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\Document\ReadableDocument;
-use allejo\stakx\Service;
-
 /**
- * A document that will have a permalink
+ * A document that will have a permalink.
  */
-abstract class PermalinkDocument extends ReadableDocument
+interface PermalinkDocument
 {
-    /** @var array */
-    protected $permalink;
-
-    /** @var array */
-    protected $redirects;
+    /**
+     * If a document has extra redirects defined in a special manner, overload this function.
+     *
+     * @return void
+     */
+    public function handleSpecialRedirects();
 
     /**
      * Get the destination of where this Content Item would be written to when the website is compiled.
      *
      * @return string
      */
-    final public function getTargetFile()
-    {
-        $permalink = $this->getPermalink();
-        $missingFile = (substr($permalink, -1) == '/');
-        $permalink = str_replace('/', DIRECTORY_SEPARATOR, $permalink);
-
-        if ($missingFile)
-        {
-            $permalink = rtrim($permalink, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.html';
-        }
-
-        return ltrim($permalink, DIRECTORY_SEPARATOR);
-    }
+    public function getTargetFile();
 
     /**
      * Get the permalink of this Content Item.
      *
      * @return string
      */
-    final public function getPermalink()
-    {
-        $this->buildPermalink();
-
-        $this->permalink = $this->sanitizePermalink($this->permalink);
-        $this->permalink = str_replace(DIRECTORY_SEPARATOR, '/', $this->permalink);
-        $this->permalink = '/' . ltrim($this->permalink, '/'); // Permalinks should always use '/' and not be OS specific
-
-        return $this->permalink;
-    }
+    public function getPermalink();
 
     /**
      * Get an array of URLs that will redirect to.
      *
      * @return string[]
      */
-    final public function getRedirects()
-    {
-        if (is_null($this->redirects))
-        {
-            $this->getPermalink();
-        }
-
-        $this->handleSpecialRedirects();
-
-        return $this->redirects;
-    }
+    public function getRedirects();
 
     /**
-     * Get the permalink based off the location of where the file is relative to the website. This permalink is to be
-     * used as a fallback in the case that a permalink is not explicitly specified in the Front Matter.
+     * Get the relative path to the file, with respect to the site root.
      *
      * @return string
      */
-    protected function getPathPermalink()
-    {
-        // Remove the protocol of the path, if there is one and prepend a '/' to the beginning
-        $cleanPath = preg_replace('/[\w|\d]+:\/\//', '', $this->getRelativeFilePath());
-        $cleanPath = ltrim($cleanPath, DIRECTORY_SEPARATOR);
-
-        // Handle vfs:// paths by replacing their forward slashes with the OS appropriate directory separator
-        if (DIRECTORY_SEPARATOR !== '/')
-        {
-            $cleanPath = str_replace('/', DIRECTORY_SEPARATOR, $cleanPath);
-        }
-
-        // Check the first folder and see if it's a data folder (starts with an underscore) intended for stakx
-        $folders = explode(DIRECTORY_SEPARATOR, $cleanPath);
-
-        if (substr($folders[0], 0, 1) === '_')
-        {
-            array_shift($folders);
-        }
-
-        $cleanPath = implode(DIRECTORY_SEPARATOR, $folders);
-
-        return $cleanPath;
-    }
+    public function getRelativeFilePath();
 
     /**
-     * Sanitize a permalink to remove unsupported characters or multiple '/' and replace spaces with hyphens.
+     * Build the permalink from whatever information is available.
      *
-     * @param string $permalink A permalink
+     * For example, this function can take information from FrontMatter and build the permalink from there.
      *
-     * @return string $permalink The sanitized permalink
-     */
-    protected function sanitizePermalink($permalink)
-    {
-        // Remove multiple '/' together
-        $permalink = preg_replace('/\/+/', '/', $permalink);
-
-        // Replace all spaces with hyphens
-        $permalink = str_replace(' ', '-', $permalink);
-
-        // Remove all disallowed characters
-        $permalink = preg_replace('/[^0-9a-zA-Z-_\/\\\.]/', '', $permalink);
-
-        // Handle unnecessary extensions
-        $extensionsToStrip = array('twig');
-
-        if (in_array($this->fs->getExtension($permalink), $extensionsToStrip))
-        {
-            $permalink = $this->fs->removeExtension($permalink);
-        }
-
-        // Remove any special characters before a sane value
-        $permalink = preg_replace('/^[^0-9a-zA-Z-_]*/', '', $permalink);
-
-        // Convert permalinks to lower case
-        if (!Service::getParameter('build.preserveCase'))
-        {
-            $permalink = mb_strtolower($permalink, 'UTF-8');
-        }
-
-        return $permalink;
-    }
-
-    /**
-     * Evaluate the FrontMatter for the document.
-     *
-     * This FrontMatter can be the user-defined FrontMatter in a FrontMatterDocument but it can also be used as internal
-     * settings used for objects that do not have user-defined FrontMatter such as DataItems.
-     *
-     * @param array $variables
+     * @param bool $force Permalinks are often cached internal; set to true to force the permalink to be rebuilt.
      *
      * @return void
      */
-    abstract public function evaluateFrontMatter($variables = array());
-
-    /**
-     * @return void
-     */
-    abstract public function buildPermalink($force = false);
-
-    /**
-     * If a document has extra redirects defined in a special manner, overload this function.
-     */
-    public function handleSpecialRedirects()
-    {
-    }
+    public function buildPermalink($force = false);
 }

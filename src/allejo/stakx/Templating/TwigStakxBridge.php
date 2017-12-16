@@ -55,6 +55,40 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /**
      * {@inheritdoc}
      */
+    public function getAssortmentDependencies($namespace, $bodyContent)
+    {
+        // To see what this regex should match and what shouldn't be see:
+        //     tests/allejo/stakx/Test/FrontMatter/FrontMatterDocumentTest.php
+
+        $regex = "/{[{%].*?(?:$namespace)(?:\.|\[['\"])?([^_][^\W]+)?(?:\.|['\"]\])?[^_=]*?[%}]}/";
+        $results = array();
+
+        preg_match_all($regex, $bodyContent, $results);
+
+        return array_unique($results[1]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTemplateImportDependencies($bodyContent)
+    {
+        $regex = "/{%\s?(?:import|from|include)\s?['\"](.+)['\"].+/";
+        $results = array();
+
+        preg_match_all($regex, $bodyContent, $results);
+
+        if (empty($results[1]))
+        {
+            return [];
+        }
+
+        return array_unique($results[1]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasProfiler()
     {
         return ($this->profiler !== null);

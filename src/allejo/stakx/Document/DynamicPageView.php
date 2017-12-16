@@ -7,66 +7,57 @@
 
 namespace allejo\stakx\Document;
 
-/**
- * A dynamic PageView is created when the following keywords are found in the FrontMatter of a PageView:
- *
- *   - collection
- *   - dataset
- *
- * This PageView type will contain references to all of the RepeatableItems
- */
-class DynamicPageView extends PageView
+use allejo\stakx\DocumentDeprecated\ReadableDocument;
+use allejo\stakx\Filesystem\File;
+
+class DynamicPageView extends BasePageView
 {
-    /**
-     * The RepeatableItems that belong to this PageView.
-     *
-     * @var RepeatableItem[]
-     */
-    private $repeatableItems;
+    /** @var CollectableItem[] */
+    private $collectableItems = [];
 
     /**
-     * {@inheritdoc}
+     * DynamicPageView constructor.
      */
-    public function __construct($filePath)
+    public function __construct(File $file)
     {
-        parent::__construct($filePath);
+        parent::__construct($file);
 
-        $this->repeatableItems = array();
-        $this->type = PageView::DYNAMIC_TYPE;
+        $this->type = BasePageView::DYNAMIC_TYPE;
     }
 
     /**
-     * Add a RepeatableItem to this dynamic PageView.
-     *
-     * @param RepeatableItem $repeatableItem
+     * Add a CollectableItem for this PageView to handle.
      */
-    public function addRepeatableItem(RepeatableItem &$repeatableItem)
+    public function addCollectableItem(CollectableItem &$collectable)
     {
-        $this->repeatableItems[$repeatableItem->getObjectName()] = &$repeatableItem;
-        $repeatableItem->setParentPageView($this);
+        $this->collectableItems[$collectable->getRelativeFilePath()] = &$collectable;
+        $collectable->setParentPageView($this);
     }
 
     /**
-     * Remove a RepeatableItem from the list of items that this dynamic PageView is responsible for.
-     *
-     * @param RepeatableItem $repeatableItem
+     * Delete a CollectableItem from this PageView.
      */
-    public function delRepeatableItem(RepeatableItem &$repeatableItem)
+    public function delCollectableItem(CollectableItem &$collectableItem)
     {
-        unset($this->repeatableItems[$repeatableItem->getObjectName()]);
+        unset($this->collectableItems[$collectableItem->getRelativeFilePath()]);
     }
 
     /**
-     * Get all of the RepeatableItem that belong to this dynamic PageView.
+     * Get all of the CollectableItems handled by this PageView.
      *
-     * @return RepeatableItem[]
+     * @return CollectableItem[]|TemplateReadyDocument[]|ReadableDocument[]
      */
-    public function getRepeatableItems()
+    public function getCollectableItems()
     {
-        return $this->repeatableItems;
+        return $this->collectableItems;
     }
 
-    public function getRepeatableNamespace()
+    /**
+     * Get the namespace this PageView is handling.
+     *
+     * @return string
+     */
+    public function getCollectableNamespace()
     {
         $fm = $this->getFrontMatter(false);
 
@@ -76,10 +67,5 @@ class DynamicPageView extends PageView
         }
 
         return $fm['dataset'];
-    }
-
-    public function getObjectName()
-    {
-        return $this->getRepeatableNamespace();
     }
 }

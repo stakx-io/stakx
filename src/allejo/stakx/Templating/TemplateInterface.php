@@ -33,5 +33,5 @@ interface TemplateInterface
      *
      * @return string
      */
-    public function render(array $context);
+    public function render(array $context = []);
 }

@@ -8,7 +8,7 @@
 namespace allejo\stakx\Test\Manager;
 
 use allejo\stakx\Document\JailedDocument;
-use allejo\stakx\Document\PageView;
+use allejo\stakx\DocumentDeprecated\PageView;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 

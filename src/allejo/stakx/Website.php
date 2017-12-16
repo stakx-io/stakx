@@ -209,13 +209,14 @@ class Website
         $newWatcher = Watcher::create(getcwd());
         $newWatcher
             ->setLogger($this->output)
+            ->setEventDispatcher($this->container->get('event_dispatcher'))
             ->setExcludePatterns(array_merge(
                 $exclusions, FileExplorer::$vcsPatterns, array(Configuration::CACHE_FOLDER)
             ))
             ->setIterator($fileExplorer->getExplorer())
-            ->addListener(Create::NAME, function ($e) { $this->watchListenerFunction($e); })
-            ->addListener(Modify::NAME, function ($e) { $this->watchListenerFunction($e); })
-            ->addListener(Move::NAME,   function ($e) { $this->watchListenerFunction($e); })
+//            ->addListener(Create::NAME, function ($e) { $this->watchListenerFunction($e); })
+//            ->addListener(Modify::NAME, function ($e) { $this->watchListenerFunction($e); })
+//            ->addListener(Move::NAME,   function ($e) { $this->watchListenerFunction($e); })
         ;
 
         $this->output->writeln('Watch started successfully');
@@ -387,7 +388,7 @@ class Website
         elseif ($this->cm->isTracked($filePath))
         {
             $contentItem = &$this->cm->getContentItem($filePath);
-            $contentItem->refreshFileContent();
+            $contentItem->readContent();
 
             $this->compiler->compileContentItem($contentItem);
             $this->compiler->compileSome(array(

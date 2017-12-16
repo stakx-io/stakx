@@ -56,7 +56,7 @@ use allejo\stakx\Utilities\ArrayUtilities;
  * @since 0.2.0 Add support for complex variables.
  * @since 0.1.0
  */
-class Parser
+class FrontMatterParser
 {
     /**
      * The RegEx used to identify Front Matter variables.

@@ -8,44 +8,30 @@
 namespace allejo\stakx\Document;
 
 /**
- * Class JailObject.
- *
- * A wrapper object to only allow certain functions on the white list to be called. This is used in order to limit which
- * functions a user can call from Twig templates to prevent unexpected behavior.
+ * A wrapper object to only allow certain functions on the white list to be called and will redirect "jailed" function
+ * calls to their appropriate jailed calls. This is used in order to limit which functions a user can call from
+ * templates to prevent unexpected behavior.
  */
-class JailedDocument implements \ArrayAccess, \IteratorAggregate
+class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
 {
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $whiteListFunctions;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $jailedFunctions;
 
-    /**
-     * @var JailableDocument
-     */
+    /** @var TemplateReadyDocument */
     private $object;
 
     /**
      * JailObject constructor.
      *
-     * @param JailableDocument $object             The object that will be jailed
-     * @param array            $whiteListFunctions A list of function names that can be called
-     * @param array            $jailedFunctions
+     * @param TemplateReadyDocument $object The object that will be jailed.
+     * @param array $whiteListFunctions A list of function names that can be called.
+     * @param array $jailedFunctions    A list of functions that will be redirected to another function.
      */
-    public function __construct(&$object, array $whiteListFunctions, array $jailedFunctions = array())
+    public function __construct(TemplateReadyDocument &$object, array $whiteListFunctions, array $jailedFunctions = array())
     {
-        if (!($object instanceof JailableDocument) &&
-            !($object instanceof \ArrayAccess) &&
-            !($object instanceof \IteratorAggregate))
-        {
-            throw new \InvalidArgumentException('Must implement the ArrayAccess and Jailable interfaces');
-        }
-
         $this->object = &$object;
         $this->whiteListFunctions = $whiteListFunctions;
         $this->jailedFunctions = $jailedFunctions;
@@ -74,14 +60,21 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate
         throw new \BadMethodCallException();
     }
 
+    /**
+     * Check if the jailed object is an instance of a given class.
+     *
+     * @param string $class
+     *
+     * @return bool
+     */
     public function coreInstanceOf($class)
     {
         return is_subclass_of($this->object, $class);
     }
 
-    //
+    ///
     // ArrayAccess Implementation
-    //
+    ///
 
     /**
      * {@inheritdoc}
@@ -104,7 +97,7 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate
      */
     public function offsetSet($offset, $value)
     {
-        return $this->object->offsetSet($offset, $value);
+        throw new \LogicException('A jailed document is read-only.');
     }
 
     /**
@@ -112,12 +105,12 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate
      */
     public function offsetUnset($offset)
     {
-        return $this->object->offsetUnset($offset);
+        throw new \LogicException('A jailed document is read-only.');
     }
 
-    //
+    ///
     // IteratorAggregate implementation
-    //
+    ///
 
     /**
      * {@inheritdoc}
@@ -125,5 +118,17 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate
     public function getIterator()
     {
         return $this->object->getIterator();
+    }
+
+    ///
+    // JsonSerializable implementation
+    ///
+
+    /**
+     * {@inheritdoc}
+     */
+    public function jsonSerialize()
+    {
+        return $this->object->jsonSerialize();
     }
 }

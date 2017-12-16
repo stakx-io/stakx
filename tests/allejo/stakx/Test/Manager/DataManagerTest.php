@@ -12,7 +12,7 @@ use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\DataTransformer\JsonTransformer;
 use allejo\stakx\DataTransformer\XmlTransformer;
 use allejo\stakx\DataTransformer\YamlTransformer;
-use allejo\stakx\Document\DataItem;
+use allejo\stakx\DocumentDeprecated\DataItem;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 

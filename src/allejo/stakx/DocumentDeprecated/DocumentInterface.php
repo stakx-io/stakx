@@ -5,7 +5,7 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Document;
+namespace allejo\stakx\DocumentDeprecated;
 
 interface DocumentInterface
 {
@@ -52,5 +52,5 @@ interface DocumentInterface
      *
      * @return void
      */
-    public function refreshFileContent();
+    public function readContent();
 }

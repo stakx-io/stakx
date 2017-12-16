@@ -10,45 +10,20 @@ namespace allejo\stakx\Document;
 use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\PlainTextEngine;
 use allejo\stakx\Engines\RST\RstEngine;
-use allejo\stakx\FrontMatter\FrontMatterDocument;
-use allejo\stakx\Manager\TwigManager;
+use allejo\stakx\Templating\TemplateErrorInterface;
 
-class ContentItem extends FrontMatterDocument implements \JsonSerializable, RepeatableItem
+class ContentItem extends PermalinkFrontMatterDocument implements CollectableItem, TemplateReadyDocument
 {
-    /**
-     * The collection this Content Item belongs to.
-     *
-     * @var string
-     */
-    private $parentCollection;
+    use CollectableItemTrait;
+    use TemplateEngineDependent;
 
-    /**
-     * The Page View that will be used to render this Content Item.
-     *
-     * @var PageView
-     */
-    private $parentPageView;
+    ///
+    // Permalink management
+    ///
 
     /**
      * {@inheritdoc}
      */
-    public function createJail()
-    {
-        return new JailedDocument($this, array_merge(self::$whiteListFunctions, array(
-            'getCollection', 'isDraft'
-        )), array('getPageView' => 'getJailedPageView'));
-    }
-
-    public function getNamespace()
-    {
-        return $this->parentCollection;
-    }
-
-    public function setNamespace($collection)
-    {
-        $this->parentCollection = $collection;
-    }
-
     public function handleSpecialRedirects()
     {
         $fm = $this->getFrontMatter();
@@ -59,15 +34,19 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, Repe
 
             if (!is_array($redirects))
             {
-                $redirects = array($redirects);
+                $redirects = [$redirects];
             }
 
             $this->redirects = array_merge($this->redirects, $redirects);
         }
     }
 
+    ///
+    // Document body transformation
+    ///
+
     /**
-     * Return the body of the Content Item parsed as markdown.
+     * @throws TemplateErrorInterface
      *
      * @return string
      */
@@ -75,8 +54,8 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, Repe
     {
         if (!$this->bodyContentEvaluated)
         {
-            $this->parseTwig();
-            $this->parseEngines();
+            $this->bodyContent = $this->parseTemplateLanguage($this->bodyContent);
+            $this->parseMarkupLanguage();
 
             $this->bodyContentEvaluated = true;
         }
@@ -85,23 +64,11 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, Repe
     }
 
     /**
-     * Parse the Twig that is embedded inside a ContentItem's body.
+     * Transform the document's body from a markup language to HTML.
+     *
+     * @todo Port this to follow the same pattern as the template engine
      */
-    private function parseTwig()
-    {
-        $twig = TwigManager::getInstance();
-
-        if ($twig instanceof \Twig_Environment)
-        {
-            $template = $twig->createTemplate($this->bodyContent);
-            $this->bodyContent = $template->render(array());
-        }
-    }
-
-    /**
-     * Parse the ContentItem's body based on the extension of the file.
-     */
-    private function parseEngines()
+    private function parseMarkupLanguage()
     {
         switch ($this->getExtension())
         {
@@ -124,26 +91,19 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, Repe
     }
 
     /**
-     * @return PageView
+     * {@inheritdoc}
      */
-    public function &getPageView()
+    public function createJail()
     {
-        return $this->parentPageView;
-    }
+        $whiteListedFunctions = array_merge(self::$whiteListedFunctions, [
+            'getCollection',
+        ]);
 
-    public function getJailedPageView()
-    {
-        return $this->parentPageView->createJail();
-    }
+        $jailedFunctions = [
+            'getPageView' => 'getJailedPageView',
+        ];
 
-    /**
-     * Set the parent Page View that this Content Item will have be assigned to.
-     *
-     * @param PageView $pageView
-     */
-    public function setParentPageView(PageView &$pageView)
-    {
-        $this->parentPageView = &$pageView;
+        return (new JailedDocument($this, $whiteListedFunctions, $jailedFunctions));
     }
 
     /**
@@ -151,10 +111,10 @@ class ContentItem extends FrontMatterDocument implements \JsonSerializable, Repe
      */
     public function jsonSerialize()
     {
-        return array_merge($this->getFrontMatter(), array(
+        return array_merge($this->getFrontMatter(), [
             'content'   => $this->getContent(),
             'permalink' => $this->getPermalink(),
             'redirects' => $this->getRedirects(),
-        ));
+        ]);
     }
 }

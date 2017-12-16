@@ -94,7 +94,7 @@ final class Folder
         file_put_contents($targetFile, $content);
 
         return (new File(
-            $this->fs->getFileName($targetFile),
+            $targetFile,
             $this->fs->getFolderPath($relativePath),
             $relativePath
         ));

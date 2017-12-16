@@ -11,31 +11,39 @@ use allejo\stakx\Configuration;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 
 /**
  * The class that reads and saves information about all of the collections.
  */
 class CollectionManager extends TrackingManager
 {
-    /**
-     * A copy of the collection definitions to be available for later usage.
-     *
-     * @var string[][]
-     */
+    /** @var string[][] A copy of the collection definitions to be available for later usage. */
     private $collectionDefinitions;
+    private $configuration;
 
+    /**
+     * CollectionManager constructor.
+     */
+    public function __construct(Configuration $configuration)
+    {
+        parent::__construct();
+
+        $this->configuration = $configuration;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function compileManager()
     {
-        /** @var Configuration $conf */
-        $conf = $this->container->get(Configuration::class);
-
-        if (!$conf->hasCollections())
+        if (!$this->configuration->hasCollections())
         {
-            $this->container->get('logger')->notice('No Collections defined... Ignoring');
+            $this->output->notice('No Collections defined... Ignoring');
             return;
         }
 
-        $this->parseCollections($conf->getCollectionsFolders());
+        $this->parseCollections($this->configuration->getCollectionsFolders());
     }
 
     /**
@@ -96,20 +104,25 @@ class CollectionManager extends TrackingManager
         /**
          * The information which each collection has taken from the configuration file.
          *
-         * $collection['name']      string The name of the collection
-         *            ['folder']    string The folder where this collection has its ContentItems
+         * $collection['name']   string The name of the collection
+         *            ['folder'] string The folder where this collection has its ContentItems
          *
          * @var array
          */
         foreach ($collections as $collection)
         {
-            $this->output->notice("Loading '{$collection['name']}' collection...");
+            $this->output->notice("Loading '{name}' collection...", [
+                'name' => $collection['name'],
+            ]);
 
-            $collectionFolder = $this->fs->absolutePath($collection['folder']);
+            $collectionFolder = fs::absolutePath($collection['folder']);
 
-            if (!$this->fs->exists($collectionFolder))
+            if (!fs::exists($collectionFolder))
             {
-                $this->output->warning("The folder '{$collection['folder']}' could not be found for the '{$collection['name']}' collection");
+                $this->output->warning("The folder '{folder}' could not be found for the '{name}' collection", [
+                    'folder' => $collection['folder'],
+                    'name'   => $collection['name'],
+                ]);
                 continue;
             }
 
@@ -151,11 +164,10 @@ class CollectionManager extends TrackingManager
 
         $this->addObjectToTracker($contentItem, $collectionName);
 
-        $this->output->info(sprintf(
-            "Loading ContentItem into '%s' collection: %s",
-            $collectionName,
-            $this->fs->getRelativePath($filePath)
-        ));
+        $this->output->info("Loading ContentItem into '{name}' collection: {path}", [
+            'name' => $collectionName,
+            'path' => fs::getRelativePath($filePath),
+        ]);
 
         return $contentItem;
     }

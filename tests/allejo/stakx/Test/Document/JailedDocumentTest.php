@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\Test\Document;
 
-use allejo\stakx\Document\ContentItem;
-use allejo\stakx\Document\PageView;
+use allejo\stakx\DocumentDeprecated\ContentItem;
+use allejo\stakx\DocumentDeprecated\PageView;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class JailedDocumentTests extends PHPUnit_Stakx_TestCase

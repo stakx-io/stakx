@@ -39,6 +39,25 @@ interface TemplateBridgeInterface extends LoggerAwareInterface
     public function getProfilerOutput(Compiler $compiler);
 
     /**
+     * Get all of the references to either DataItems or ContentItems inside of given string.
+     *
+     * @param string $namespace   'collections' or 'data'
+     * @param string $bodyContent The body we're looking through to find references
+     *
+     * @return array
+     */
+    public function getAssortmentDependencies($namespace, $bodyContent);
+
+    /**
+     * Get all of the "import", "from", and "include" dependencies from a template body.
+     *
+     * @param string $bodyContent The body we're looking through to find references
+     *
+     * @return array
+     */
+    public function getTemplateImportDependencies($bodyContent);
+
+    /**
      * Set or update a global variable within the template engine.
      *
      * These will be values that are **always** available to all templates that are compiled by stakx.

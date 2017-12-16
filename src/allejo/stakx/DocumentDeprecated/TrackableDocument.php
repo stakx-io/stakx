@@ -5,7 +5,7 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Document;
+namespace allejo\stakx\DocumentDeprecated;
 
 /**
  * This interface defines the requirements for an object to be handled by a TrackingManager based class.

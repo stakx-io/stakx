@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Test\Document;
 
-use allejo\stakx\Document\ContentItem;
+use allejo\stakx\DocumentDeprecated\ContentItem;
 use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\RST\RstEngine;
 use allejo\stakx\Exception\FileAwareException;
@@ -344,7 +344,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
         $content = $this->createContentItem(array());
         $this->fs->remove($content->getAbsoluteFilePath());
-        $content->refreshFileContent();
+        $content->readContent();
     }
 
     public function testContentItemWithMdExtensionFile()

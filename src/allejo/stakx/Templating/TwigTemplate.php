@@ -41,7 +41,7 @@ class TwigTemplate implements TemplateInterface
     /**
      * {@inheritdoc}
      */
-    public function render(array $context)
+    public function render(array $context = [])
     {
         return $this->template->render($context);
     }

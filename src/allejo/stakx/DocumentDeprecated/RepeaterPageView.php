@@ -5,32 +5,43 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Document;
+namespace allejo\stakx\DocumentDeprecated;
 
-use allejo\stakx\Filesystem\File;
 use allejo\stakx\FrontMatter\ExpandedValue;
 
-class RepeaterPageView extends BasePageView implements TemplateReadyDocument
+class RepeaterPageView extends PageView
 {
-    /** @var \ArrayIterator An iterator for the permalinks used in order for this entity to be treated as a static PageView. */
+    /**
+     * An iterator for the permalinks used in order for this entity to be treated as a static PageView.
+     *
+     * @var \ArrayIterator
+     */
     private $permalinksIterator;
 
-    /** @var ExpandedValue[] All of the expanded permalinks. */
+    /**
+     * All of the expanded permalinks.
+     *
+     * @var ExpandedValue[]
+     */
     private $permalinks;
 
-    /** @var ExpandedValue[][] All of expanded redirects that should point to the respective permalink; this is estimated by index. */
+    /**
+     * All of expanded redirects that should point to the respective permalink; this is estimated by index.
+     *
+     * @var ExpandedValue[][]
+     */
     private $redirectLinks;
 
     /**
-     * RepeaterPageView constructor.
+     * {@inheritdoc}
      */
-    public function __construct(File $file)
+    public function __construct($filePath)
     {
-        parent::__construct($file);
+        parent::__construct($filePath);
 
-        $this->type = BasePageView::REPEATER_TYPE;
+        $this->type = PageView::REPEATER_TYPE;
 
-        $this->configurePermalinks();
+        $this->configureValues();
     }
 
     /**
@@ -72,9 +83,9 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
     }
 
     /**
-     * Configure permalinks from expanded values internally.
+     * Setup this object.
      */
-    private function configurePermalinks()
+    private function configureValues()
     {
         // Cause the Front Matter to be evaluated
         $this->getFrontMatter();
@@ -86,29 +97,5 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
         $this->redirectLinks = $evaluated;
 
         $this->permalinksIterator = new \ArrayIterator($this->permalinks);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function buildPermalink($force = false)
-    {
-        return;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createJail()
-    {
-        return (new JailedDocument($this, self::$whiteListedFunctions));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function jsonSerialize()
-    {
-        return [];
     }
 }

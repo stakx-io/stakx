@@ -8,10 +8,10 @@
 namespace allejo\stakx\Test\Manager;
 
 use allejo\stakx\Configuration;
-use allejo\stakx\Document\ContentItem;
-use allejo\stakx\Document\DynamicPageView;
+use allejo\stakx\DocumentDeprecated\ContentItem;
+use allejo\stakx\DocumentDeprecated\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
-use allejo\stakx\Document\PageView;
+use allejo\stakx\DocumentDeprecated\PageView;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\PageManager;

@@ -5,7 +5,7 @@
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Document;
+namespace allejo\stakx\DocumentDeprecated;
 
 /**
  * This interface defines what an object needs in order for a dynamic PageView to treat it as an item of a group of

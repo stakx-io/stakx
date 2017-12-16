@@ -15,40 +15,37 @@ use allejo\stakx\Exception\UnsupportedDataTypeException;
 use allejo\stakx\Utilities\StrUtils;
 
 /**
- * Class DataManager.
- *
- * This class handles everything in regards to DataItems and DataSets. This class supports reading the following data
- * types:
- *
- *   - CSV
- *   - JSON
- *   - XML
- *   - YAML
+ * This class handles everything in regards to DataItems and DataSets.
  */
 class DataManager extends TrackingManager
 {
     private $dataTransformerManager;
+    private $configuration;
 
-    public function __construct(DataTransformerManager $dataTransformerManager)
+    /**
+     * DataManager constructor.
+     */
+    public function __construct(DataTransformerManager $dataTransformerManager, Configuration $configuration)
     {
-        $this->dataTransformerManager = $dataTransformerManager;
-
         parent::__construct();
+
+        $this->dataTransformerManager = $dataTransformerManager;
+        $this->configuration = $configuration;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function compileManager()
     {
-        /** @var Configuration $conf */
-        $conf = $this->container->get(Configuration::class);
-
-        if (!$conf->hasDataItems())
+        if (!$this->configuration->hasDataItems())
         {
-            $this->container->get('logger')->notice('No DataItems or Datasets detected... Ignoring.');
+            $this->output->notice('No DataItems or Datasets detected... Ignoring.');
             return;
         }
 
-        $this->parseDataItems($conf->getDataFolders());
-        $this->parseDataSets($conf->getDataSets());
+        $this->parseDataItems($this->configuration->getDataFolders());
+        $this->parseDataSets($this->configuration->getDataSets());
     }
 
     /**
@@ -61,6 +58,9 @@ class DataManager extends TrackingManager
         return $this->trackedItems;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getJailedDataItems()
     {
         return self::getJailedTrackedItems($this->trackedItemsFlattened);
@@ -137,7 +137,7 @@ class DataManager extends TrackingManager
             $this->addObjectToTracker($dataItem, $namespace);
             $this->saveTrackerOptions($dataItem->getRelativeFilePath(), $options);
 
-            return $dataItem->getObjectName();
+            return $dataItem->getRelativeFilePath();
         }
         catch (DependencyMissingException $e)
         {
@@ -149,9 +149,9 @@ class DataManager extends TrackingManager
         }
         catch (UnsupportedDataTypeException $e)
         {
-            $this->output->warning(StrUtils::interpolate('There is no function to handle {ext} file format.', array(
-                'ext' => $e->getDataType()
-            )));
+            $this->output->warning('There is no function to handle {ext} file format.', [
+                'ext' => $e->getDataType(),
+            ]);
         }
 
         return $this->fs->getBaseName($filePath);

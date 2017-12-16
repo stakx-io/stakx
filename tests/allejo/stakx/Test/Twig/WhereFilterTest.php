@@ -8,7 +8,7 @@
 namespace allejo\stakx\Test\Twig;
 
 use allejo\stakx\Command\BuildableCommand;
-use allejo\stakx\Document\ContentItem;
+use allejo\stakx\DocumentDeprecated\ContentItem;
 use allejo\stakx\Service;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Twig\WhereFilter;

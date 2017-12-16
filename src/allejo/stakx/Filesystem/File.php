@@ -21,18 +21,17 @@ final class File extends \SplFileInfo
     private $relativeFilePath;
 
     /**
-     * Constructor.
+     * File Constructor.
      *
-     * @param string $filePath             The file name or absolute file path. If just a file name is given, then it
-     *                                     will look for the file in the current working directory.
-     * @param string $relativeParentFolder The relative path
-     * @param string $relativeFilePath     The relative path name
+     * @param string $absoluteFilePath     The absolute file path
+     * @param string $relativeParentFolder The relative path to its parent folder with respect to the CWD
+     * @param string $relativeFilePath     The relative path to the file (including the filename) with respect to the CWD
      *
      * @since 0.2.0
      */
-    public function __construct($filePath, $relativeParentFolder, $relativeFilePath)
+    public function __construct($absoluteFilePath, $relativeParentFolder, $relativeFilePath)
     {
-        parent::__construct($filePath);
+        parent::__construct($absoluteFilePath);
 
         $this->relativeParentFolder = $relativeParentFolder;
         $this->relativeFilePath = $relativeFilePath;
@@ -72,7 +71,7 @@ final class File extends \SplFileInfo
      *
      * @return string
      */
-    public function getFilePath()
+    public function getAbsolutePath()
     {
         return $this->getPathname();
     }
@@ -124,7 +123,7 @@ final class File extends \SplFileInfo
      */
     public function getContents()
     {
-        $content = file_get_contents($this->getFilePath());
+        $content = file_get_contents($this->getAbsolutePath());
 
         if ($content === false)
         {
