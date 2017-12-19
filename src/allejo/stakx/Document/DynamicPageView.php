@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\DocumentDeprecated\ReadableDocument;
 use allejo\stakx\Filesystem\File;
 
 class DynamicPageView extends BasePageView
@@ -23,6 +22,14 @@ class DynamicPageView extends BasePageView
         parent::__construct($file);
 
         $this->type = BasePageView::DYNAMIC_TYPE;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIndexName()
+    {
+        return $this->getCollectableNamespace();
     }
 
     /**

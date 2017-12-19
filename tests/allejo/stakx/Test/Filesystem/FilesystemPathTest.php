@@ -4,7 +4,6 @@ namespace allejo\stakx\Test\Filesystem;
 
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
-use org\bovigo\vfs\vfsStream;
 
 class FilesystemPathTest extends PHPUnit_Stakx_TestCase
 {

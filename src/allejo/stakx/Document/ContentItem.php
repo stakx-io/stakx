@@ -96,11 +96,11 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
     public function createJail()
     {
         $whiteListedFunctions = array_merge(self::$whiteListedFunctions, [
-            'getCollection',
         ]);
 
         $jailedFunctions = [
-            'getPageView' => 'getJailedPageView',
+            'getPageView'   => 'getJailedPageView',
+            'getCollection' => 'getNamespace',
         ];
 
         return (new JailedDocument($this, $whiteListedFunctions, $jailedFunctions));

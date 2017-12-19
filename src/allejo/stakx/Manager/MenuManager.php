@@ -8,11 +8,11 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Document\JailedDocument;
-use allejo\stakx\DocumentDeprecated\PageView;
+use allejo\stakx\Document\StaticPageView;
 
 class MenuManager extends BaseManager
 {
-    /** @var PageView */
+    /** @var StaticPageView */
     private $siteMenu;
 
     public function __construct()
@@ -46,20 +46,20 @@ class MenuManager extends BaseManager
     }
 
     /**
-     * @param PageView[] $pageViews
+     * @param StaticPageView[] $pageViews
      */
     public function buildFromPageViews($pageViews)
     {
-        foreach ($pageViews as &$pageView)
+        foreach ($pageViews as $pageView)
         {
             $this->addToSiteMenu($pageView);
         }
     }
 
     /**
-     * @param PageView $pageView
+     * @param StaticPageView $pageView
      */
-    public function addToSiteMenu(&$pageView)
+    public function addToSiteMenu($pageView)
     {
         $frontMatter = $pageView->getFrontMatter();
 

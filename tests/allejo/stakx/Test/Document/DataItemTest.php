@@ -12,8 +12,8 @@ use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\DataTransformer\JsonTransformer;
 use allejo\stakx\DataTransformer\XmlTransformer;
 use allejo\stakx\DataTransformer\YamlTransformer;
-use allejo\stakx\DocumentDeprecated\ContentItem;
-use allejo\stakx\DocumentDeprecated\DataItem;
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\DataItem;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
@@ -57,7 +57,7 @@ LINE;
         $dataItem->setDataTransformer($this->getDataTransformerManager());
         $jailItem = $dataItem->createJail();
 
-        $this->assertEquals('my-sample-JSON', $dataItem->getObjectName());
+        $this->assertEquals('my-sample-JSON', $dataItem->getBasename());
         $this->assertEquals(array(1, 2, 3), $dataItem['array']);
         $this->assertTrue($dataItem['boolean']);
         $this->assertNull($dataItem['null']);
@@ -80,7 +80,7 @@ LINE;
                 'e' => 'f',
             ),
             'string' => 'Hello World',
-        ), $dataItem->getData());
+        ), $dataItem->getContent());
     }
 
     public function testCsvAsDataItem()
@@ -97,8 +97,7 @@ LINE;
 
         $this->assertEquals($dataItem[0], $jailItem[0]);
         $this->assertEquals($dataItem->getIterator(), $jailItem->getIterator());
-        $this->assertEquals('my-file', $jailItem->getName());
-        $this->assertEquals($dataItem->getObjectName(), $jailItem->getName());
+        $this->assertEquals($dataItem->getBasename(), $jailItem->getBasename());
         $this->assertEquals('csv', $jailItem->getExtension());
         $this->assertEquals($dataItem->getExtension(), $jailItem->getExtension());
 
@@ -113,7 +112,7 @@ LINE;
                 'name' => 'Jane Doe',
                 'gender' => 'F',
             ),
-        ), $dataItem->getData());
+        ), $dataItem->getContent());
     }
 
     public function testYamlAsDataItem()
@@ -133,7 +132,7 @@ LINE;
         $dataItem->setDataTransformer($this->getDataTransformerManager());
         $yamlExtension->setDataTransformer($this->getDataTransformerManager());
 
-        $this->assertEquals($dataItem->getData(), $yamlExtension->getData());
+        $this->assertEquals($dataItem->getContent(), $yamlExtension->getContent());
 
         $tz = new \DateTimeZone('UTC');
 
@@ -145,7 +144,7 @@ LINE;
                 new \DateTime('2017-01-19', $tz),
                 new \DateTime('2017-01-30', $tz),
             ),
-        ), $dataItem->getData());
+        ), $dataItem->getContent());
     }
 
     public function testXmlAsDataItem()
@@ -167,7 +166,7 @@ LINE;
             'from' => 'Jani',
             'heading' => 'Reminder',
             'body' => "Don't forget me this weekend!"
-        ), $dataItem->getData());
+        ), $dataItem->getContent());
     }
 
     public function testDataItemDoesNotExist()

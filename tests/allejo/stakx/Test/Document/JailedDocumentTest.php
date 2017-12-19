@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\Test\Document;
 
-use allejo\stakx\DocumentDeprecated\ContentItem;
-use allejo\stakx\DocumentDeprecated\PageView;
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class JailedDocumentTests extends PHPUnit_Stakx_TestCase
@@ -16,7 +16,7 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
     public function getJailObject()
     {
         $url = $this->fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'jail.html.twig');
-        $pageView = new PageView($this->createFileObjectFromPath($url));
+        $pageView = new StaticPageView($this->createFileObjectFromPath($url));
         $pageView->getFrontMatter();
 
         return $pageView->createJail();

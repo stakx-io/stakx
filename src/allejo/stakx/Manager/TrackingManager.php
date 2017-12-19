@@ -106,7 +106,7 @@ abstract class TrackingManager extends BaseManager
      */
     public function isTracked($filePath)
     {
-        return array_key_exists($filePath, $this->trackedItemsFlattened);
+        return array_key_exists((string)$filePath, $this->trackedItemsFlattened);
     }
 
     /**
@@ -168,14 +168,14 @@ abstract class TrackingManager extends BaseManager
     {
         if ($namespace == null)
         {
-            $this->trackedItems[$trackedItem->getRelativeFilePath()] = &$trackedItem;
+            $this->trackedItems[$trackedItem->getIndexName()] = &$trackedItem;
         }
         else
         {
-            $this->trackedItems[$namespace][$trackedItem->getRelativeFilePath()] = &$trackedItem;
+            $this->trackedItems[$namespace][$trackedItem->getIndexName()] = &$trackedItem;
         }
 
-        $this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()] = &$trackedItem;
+        $this->trackedItemsFlattened[$trackedItem->getIndexName()] = &$trackedItem;
     }
 
     /**
@@ -188,14 +188,14 @@ abstract class TrackingManager extends BaseManager
     {
         if ($namespace == null)
         {
-            unset($this->trackedItems[$trackedItem->getRelativeFilePath()]);
+            unset($this->trackedItems[$trackedItem->getIndexName()]);
         }
         else
         {
-            unset($this->trackedItems[$namespace][$trackedItem->getRelativeFilePath()]);
+            unset($this->trackedItems[$namespace][$trackedItem->getIndexName()]);
         }
 
-        unset($this->trackedItemsFlattened[$trackedItem->getRelativeFilePath()]);
+        unset($this->trackedItemsFlattened[$trackedItem->getIndexName()]);
     }
 
     ///
@@ -286,11 +286,12 @@ abstract class TrackingManager extends BaseManager
     /**
      * Return an array of JailedDocuments created from the tracked items
      *
-     * @param array $elements
+     * @param array    $elements
+     * @param \Closure $name
      *
      * @return JailedDocument[]|JailedDocument[][]
      */
-    protected static function getJailedTrackedItems(array &$elements)
+    protected static function getJailedTrackedItems(array &$elements, \Closure $name = null)
     {
         $jailItems = array();
 
@@ -308,13 +309,15 @@ abstract class TrackingManager extends BaseManager
                 }
             }
 
+            $keyName = ($name === null) ? $item->getRelativeFilePath() : $name($item);
+
             if (empty($item->getNamespace()))
             {
-                $jailItems[$item->getRelativeFilePath()] = $item->createJail();
+                $jailItems[$keyName] = $item->createJail();
             }
             else
             {
-                $jailItems[$item->getNamespace()][$item->getRelativeFilePath()] = $item->createJail();
+                $jailItems[$item->getNamespace()][$keyName] = $item->createJail();
             }
         }
 

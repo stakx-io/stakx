@@ -2,7 +2,7 @@
 
 namespace allejo\stakx\Filesystem;
 
-use allejo\stakx\System\Filesystem;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 
 /**
  * A cross-platform filesystem path wrapper.
@@ -12,8 +12,6 @@ use allejo\stakx\System\Filesystem;
  */
 final class FilesystemPath
 {
-    /** @var Filesystem */
-    private $fs;
     /** @var string */
     private $absolutePath;
     /** @var string */
@@ -27,7 +25,6 @@ final class FilesystemPath
      */
     public function __construct($filePath, $dirSep = DIRECTORY_SEPARATOR)
     {
-        $this->fs = new Filesystem();
         $this->originalPath = $filePath;
         $this->isWindows = ($dirSep === '\\');
 
@@ -36,7 +33,7 @@ final class FilesystemPath
             $filePath = $this->unixifyPath($filePath);
         }
 
-        $this->absolutePath = ($this->fs->isAbsolutePath($filePath)) ? $filePath : $this->fs->absolutePath($filePath);
+        $this->absolutePath = (fs::isAbsolutePath($filePath)) ? $filePath : fs::absolutePath($filePath);
     }
 
     public function __toString()

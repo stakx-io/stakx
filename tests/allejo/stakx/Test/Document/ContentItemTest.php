@@ -7,13 +7,12 @@
 
 namespace allejo\stakx\Test\Document;
 
-use allejo\stakx\DocumentDeprecated\ContentItem;
+use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\RST\RstEngine;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\FrontMatter\FrontMatterDocument;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use org\bovigo\vfs\vfsStream;
@@ -45,8 +44,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
     {
         $item = $this->createContentItemWithEmptyFrontMatter();
 
-        // The only defined keys should be the ones specially defined
-        $this->assertCount(count(FrontMatterDocument::$specialFrontMatterKeys), $item->getFrontMatter());
+        $this->assertArrayHasKey('filePath', $item->getFrontMatter());
     }
 
     public function testContentItemWithValidFrontMatter()

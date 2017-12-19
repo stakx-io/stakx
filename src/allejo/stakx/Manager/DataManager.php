@@ -63,7 +63,9 @@ class DataManager extends TrackingManager
      */
     public function getJailedDataItems()
     {
-        return self::getJailedTrackedItems($this->trackedItemsFlattened);
+        return self::getJailedTrackedItems($this->trackedItemsFlattened, function (DataItem $dataItem) {
+            return $dataItem->getBasename();
+        });
     }
 
     /**

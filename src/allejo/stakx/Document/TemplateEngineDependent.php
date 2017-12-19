@@ -68,7 +68,7 @@ trait TemplateEngineDependent
      *
      * @return bool
      */
-    public function hasDependencyOnAssortment($namespace, $needle)
+    public function hasDependencyOnCollection($namespace, $needle)
     {
         return
             in_array($needle, $this->dataDependencies[$namespace]) ||
@@ -95,7 +95,10 @@ trait TemplateEngineDependent
         return $this->importDependencies;
     }
 
-    public function getAssortmentDependencies()
+    /**
+     * @return string[]
+     */
+    public function getCollectionDependencies()
     {
         return $this->dataDependencies;
     }

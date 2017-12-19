@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Test\FrontMatter;
 
-use allejo\stakx\DocumentDeprecated\ContentItem;
+use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 

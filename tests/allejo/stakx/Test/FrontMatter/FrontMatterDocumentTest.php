@@ -7,9 +7,8 @@
 
 namespace allejo\stakx\Test\FrontMatter;
 
-use allejo\stakx\FrontMatter\FrontMatterDocument;
+use allejo\stakx\Templating\TwigStakxBridge;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
-use \PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
 {
@@ -112,8 +111,10 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
      */
     public function testHasTwigDependencyRegex($twig, $namespace, $needle, $match)
     {
-        $file = $this->createStub($this->setAndCreateVirtualFrontMatterFileObject(array(), $twig));
-        $this->assertEquals($match, $file->hasTwigDependency($namespace, $needle));
+        $bridge = new TwigStakxBridge($this->getMock(\Twig_Environment::class));
+        $deps = $bridge->getAssortmentDependencies($namespace, $twig);
+
+        $this->assertEquals($match, (in_array($needle, $deps) || (is_null($needle) && !empty($deps))));
     }
 
     public static function dataProviderTwigImportTests()
@@ -155,21 +156,9 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
      */
     public function testHasImportDependencyRegex($twig, $needle)
     {
-        $file = $this->createStub($this->setAndCreateVirtualFrontMatterFileObject([], $twig));
-        $this->assertTrue($file->hasImportDependency($needle));
-    }
+        $bridge = new TwigStakxBridge($this->getMock(\Twig_Environment::class));
+        $deps = $bridge->getTemplateImportDependencies($twig);
 
-    /**
-     * @param $filePath
-     *
-     * @return FrontMatterDocument|MockObject
-     */
-    private function createStub($filePath)
-    {
-        return $this
-            ->getMockBuilder(FrontMatterDocument::class)
-            ->setConstructorArgs(array($filePath))
-            ->getMockForAbstractClass()
-        ;
+        $this->assertContains($needle, $deps);
     }
 }

@@ -10,11 +10,11 @@ namespace allejo\stakx\Test;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Compiler;
 use allejo\stakx\Configuration;
-use allejo\stakx\DocumentDeprecated\ContentItem;
-use allejo\stakx\DocumentDeprecated\DynamicPageView;
-use allejo\stakx\DocumentDeprecated\PageView;
-use allejo\stakx\DocumentDeprecated\RepeaterPageView;
-use allejo\stakx\Manager\TwigManager;
+use allejo\stakx\Document\BasePageView;
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\DynamicPageView;
+use allejo\stakx\Document\RepeaterPageView;
+use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Service;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Templating\TwigStakxBridgeFactory;
@@ -81,12 +81,12 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
      */
     public function testStaticPageViewRedirectsWrite(array $permalinks)
     {
-        /** @var PageView $pageView */
-        $pageView = $this->createVirtualFrontMatterFile(PageView::class, array('permalink' => $permalinks));
+        /** @var StaticPageView $pageView */
+        $pageView = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => $permalinks));
         $pageViews = array(
-            PageView::STATIC_TYPE => array(&$pageView),
-            PageView::DYNAMIC_TYPE => array(),
-            PageView::REPEATER_TYPE => array(),
+            BasePageView::STATIC_TYPE => array(&$pageView),
+            BasePageView::DYNAMIC_TYPE => array(),
+            BasePageView::REPEATER_TYPE => array(),
         );
         $pageViewsFlattened = array(&$pageView);
 
@@ -109,38 +109,38 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         return array(
             // Static PageView tests
             array(
-                PageView::class,
-                PageView::STATIC_TYPE,
+                StaticPageView::class,
+                BasePageView::STATIC_TYPE,
                 array('permalink' => '/toast.html'),
                 array('/toast.html'),
             ),
             array(
-                PageView::class,
-                PageView::STATIC_TYPE,
+                StaticPageView::class,
+                BasePageView::STATIC_TYPE,
                 array('permalink' => '/hello-world/'),
                 array('/hello-world/index.html'),
             ),
             array(
-                PageView::class,
-                PageView::STATIC_TYPE,
+                StaticPageView::class,
+                BasePageView::STATIC_TYPE,
                 array('permalink' => '/foo/bar/data.json'),
                 array('/foo/bar/data.json'),
             ),
             array(
-                PageView::class,
-                PageView::STATIC_TYPE,
+                StaticPageView::class,
+                BasePageView::STATIC_TYPE,
                 array('permalink' => '/static-page'),
                 array('/static-page'),
             ),
             array(
-                PageView::class,
-                PageView::STATIC_TYPE,
+                StaticPageView::class,
+                BasePageView::STATIC_TYPE,
                 array('permalink' => '/release-0.1.0-name/'),
                 array('/release-0.1.0-name/index.html'),
             ),
             array(
-                PageView::class,
-                PageView::STATIC_TYPE,
+                StaticPageView::class,
+                BasePageView::STATIC_TYPE,
                 array('permalink' => '/permal:;nk-~!a@^$-w3*rd-c(#4r$/'),
                 array('/permalnk-a-w3rd-c4r/index.html'),
             ),
@@ -148,7 +148,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             // Repeater PageView tests
             array(
                 RepeaterPageView::class,
-                PageView::REPEATER_TYPE,
+                BasePageView::REPEATER_TYPE,
                 array(
                     'value' => array('one', 'two', 'three', 'four'),
                     'permalink' => '/expandable/%value/',
@@ -162,7 +162,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             ),
             array(
                 RepeaterPageView::class,
-                PageView::REPEATER_TYPE,
+                BasePageView::REPEATER_TYPE,
                 array(
                     'category' => array('rants', 'misc', 'toast'),
                     'year' => array(2015, 2016, 2017),
@@ -196,9 +196,9 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         /** @var RepeaterPageView $pageView */
         $pageView = $this->createVirtualFrontMatterFile($class, $frontMatter);
         $pageViews = array(
-            PageView::STATIC_TYPE => array(),
-            PageView::DYNAMIC_TYPE => array(),
-            PageView::REPEATER_TYPE => array(),
+            BasePageView::STATIC_TYPE => array(),
+            BasePageView::DYNAMIC_TYPE => array(),
+            BasePageView::REPEATER_TYPE => array(),
         );
         $pageViews[$pageViewType][] = &$pageView;
         $pageViewsFlattened = array(&$pageView);
@@ -224,17 +224,17 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             'permalink' => '/my-books/%title/',
         ));
         $pageViews = array(
-            PageView::STATIC_TYPE => array(),
-            PageView::DYNAMIC_TYPE => array(),
-            PageView::REPEATER_TYPE => array(),
+            BasePageView::STATIC_TYPE => array(),
+            BasePageView::DYNAMIC_TYPE => array(),
+            BasePageView::REPEATER_TYPE => array(),
         );
-        $pageViews[PageView::DYNAMIC_TYPE][] = &$pageView;
+        $pageViews[BasePageView::DYNAMIC_TYPE][] = &$pageView;
         $pageViewsFlattened = array(&$pageView);
 
         foreach ($books['books'] as &$item)
         {
             $item->evaluateFrontMatter($pageView->getFrontMatter(false));
-            $pageView->addRepeatableItem($item);
+            $pageView->addCollectableItem($item);
         }
 
         $this->compiler->setPageViews($pageViews, $pageViewsFlattened);

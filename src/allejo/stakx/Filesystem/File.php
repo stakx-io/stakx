@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Filesystem;
 
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+
 /**
  * A representation of a file on a given filesystem.
  *
@@ -123,6 +125,11 @@ final class File extends \SplFileInfo
      */
     public function getContents()
     {
+        if (!file_exists($this->getAbsolutePath()))
+        {
+            throw new FileNotFoundException(null, 0, null, $this->getAbsolutePath());
+        }
+
         $content = file_get_contents($this->getAbsolutePath());
 
         if ($content === false)

@@ -203,8 +203,8 @@ class Compiler extends BaseManager
         {
             $ns = $filter['namespace'];
 
-            if ($pageView->hasDependencyOnAssortment($ns, $filter['dependency']) ||
-                $pageView->hasDependencyOnAssortment($ns, null)
+            if ($pageView->hasDependencyOnCollection($ns, $filter['dependency']) ||
+                $pageView->hasDependencyOnCollection($ns, null)
             ) {
                 $this->compilePageView($pageView);
             }

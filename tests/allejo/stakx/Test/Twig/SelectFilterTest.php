@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\test\Twig;
 
-use allejo\stakx\DocumentDeprecated\ContentItem;
+use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Twig\SelectFilter;
 

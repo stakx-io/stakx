@@ -113,11 +113,11 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     public function createJail()
     {
         $whiteListedFunctions = array_merge(FrontMatterDocument::$whiteListedFunctions, [
-            'getDataset'
         ]);
 
         $jailedFunctions = [
             'getPageView' => 'getJailedPageView',
+            'getDataset'  => 'getNamespace',
         ];
 
         return (new JailedDocument($this, $whiteListedFunctions, $jailedFunctions));

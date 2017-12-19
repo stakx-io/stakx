@@ -61,6 +61,14 @@ abstract class ReadableDocument
     }
 
     /**
+     * @return string
+     */
+    public function getIndexName()
+    {
+        return $this->getRelativeFilePath();
+    }
+
+    /**
      * Get the relative path to the file, with respect to the site root.
      *
      * @return string

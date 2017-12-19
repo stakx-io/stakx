@@ -8,10 +8,10 @@
 namespace allejo\stakx\Test\Manager;
 
 use allejo\stakx\Configuration;
-use allejo\stakx\DocumentDeprecated\ContentItem;
-use allejo\stakx\DocumentDeprecated\DynamicPageView;
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
-use allejo\stakx\DocumentDeprecated\PageView;
+use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\PageManager;
@@ -42,7 +42,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
      */
     private function getCollectionManager()
     {
-        $cm = new CollectionManager();
+        $cm = new CollectionManager($this->getMockConfiguration());
         $cm->setLogger($this->getMockLogger());
         $cm->parseCollections([
             [
@@ -59,7 +59,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
      */
     private function staticPageViewsProvider()
     {
-        return $this->createMultipleVirtualFiles(PageView::class, array(
+        return $this->createMultipleVirtualFiles(StaticPageView::class, array(
             array(
                 'filename' => 'pageview-1.html.twig',
                 'frontmatter' => array('title' => 'Hello World'),
@@ -128,7 +128,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageViews = $pageManager->getPageViewsFlattened();
         $pageView = current($pageViews);
-        $contentItems = $pageView->getRepeatableItems();
+        $contentItems = $pageView->getCollectableItems();
 
         $this->assertEquals($collectionManager->getCollections()['books'], $contentItems);
     }
@@ -161,7 +161,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         /** @var DynamicPageView $pageView */
         $pageView = current($pageViews);
 
-        $originalCount = count($pageView->getRepeatableItems());
+        $originalCount = count($pageView->getCollectableItems());
         $this->assertGreaterThan(0, $originalCount);
 
         /** @var ContentItem $contentItem */
@@ -170,7 +170,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageManager->trackNewContentItem($contentItem);
 
-        $this->assertCount($originalCount + 1, $pageView->getRepeatableItems());
+        $this->assertCount($originalCount + 1, $pageView->getCollectableItems());
     }
 
     public function testWarningThrownWhenPageViewFolderNotFound()

@@ -7,12 +7,13 @@
 
 namespace allejo\stakx\Test\Manager;
 
+use allejo\stakx\Configuration;
 use allejo\stakx\DataTransformer\CsvTransformer;
 use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\DataTransformer\JsonTransformer;
 use allejo\stakx\DataTransformer\XmlTransformer;
 use allejo\stakx\DataTransformer\YamlTransformer;
-use allejo\stakx\DocumentDeprecated\DataItem;
+use allejo\stakx\Document\DataItem;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
@@ -33,7 +34,7 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
     {
         $dataSetName = 'calendar';
 
-        $dm = new DataManager($this->getDataTransformerManager());
+        $dm = new DataManager($this->getDataTransformerManager(), $this->getMock(Configuration::class));
         $dm->parseDataSets(array(array(
             'name' => $dataSetName,
             'folder' => $this->fs->appendPath(__DIR__, '../assets/MyDataSet'),
@@ -65,7 +66,7 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testDataItemParsing()
     {
-        $dm = new DataManager($this->getDataTransformerManager());
+        $dm = new DataManager($this->getDataTransformerManager(), $this->getMock(Configuration::class));
         $dm->parseDataItems(array(
             $this->fs->appendPath(__DIR__, '../assets/MyDataSet')
         ));

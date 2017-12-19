@@ -89,7 +89,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
     protected function bookCollectionProvider($jailed = false)
     {
-        $cm = new CollectionManager();
+        $cm = new CollectionManager($this->getMock(Configuration::class));
         $cm->setLogger($this->getMockLogger());
         $cm->parseCollections(array(
             array(

@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\DocumentDeprecated\PageView;
 use allejo\stakx\Filesystem\File;
 
 class StaticPageView extends BasePageView implements TemplateReadyDocument
@@ -18,8 +17,8 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
     /** @var JailedDocument[] */
     private $jailedChildPageViews;
 
-    /** @var PageView[] */
-    private $childPageViews;
+    /** @var StaticPageView[] */
+    private $childPageViews = [];
 
     /**
      * StaticPageView constructor.
@@ -58,9 +57,9 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
      * A child is defined as a static PageView whose URL has a parent. For example, a PageView with a URL of
      * `/gallery/france/` would have the PageView whose URL is `/gallery` as a parent.
      *
-     * @return PageView[]
+     * @return StaticPageView[]
      */
-    public function getChildren()
+    public function &getChildren()
     {
         return $this->childPageViews;
     }
@@ -74,6 +73,8 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
     {
         if ($this->jailedChildPageViews === null)
         {
+            $this->jailedChildPageViews = [];
+
             foreach ($this->childPageViews as $key => &$child)
             {
                 $this->jailedChildPageViews[$key] = $child->createJail();
