@@ -18,7 +18,7 @@ class DataTransformerManager
         $this->transformers = [];
     }
 
-    public function addDataTransformer(DataTransformerInterface $transformer)
+    public function addDataTransformer(DataTransformer $transformer)
     {
         foreach ($transformer->getExtensions() as $extension)
         {

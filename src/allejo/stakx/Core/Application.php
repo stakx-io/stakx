@@ -8,7 +8,7 @@
 namespace allejo\stakx\Core;
 
 use allejo\stakx\Configuration;
-use allejo\stakx\DataTransformer\DataTransformerInterface;
+use allejo\stakx\DataTransformer\DataTransformer;
 use allejo\stakx\DependencyInjection\Compiler\DataTransformerPass;
 use allejo\stakx\Filesystem\FilesystemPath;
 use Symfony\Component\Config\FileLocator;
@@ -169,8 +169,8 @@ class Application extends BaseApplication
             ->addCompilerPass(new RegisterListenersPass())
             ->addCompilerPass(new DataTransformerPass())
 
-            ->registerForAutoconfiguration(DataTransformerInterface::class)
-            ->addTag(DataTransformerInterface::NAME)
+            ->registerForAutoconfiguration(DataTransformer::class)
+            ->addTag(DataTransformer::CONTAINER_TAG)
         ;
 
         $container->compile();

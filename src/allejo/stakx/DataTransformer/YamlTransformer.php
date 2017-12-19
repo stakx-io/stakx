@@ -8,14 +8,21 @@ namespace allejo\stakx\DataTransformer;
 
 use Symfony\Component\Yaml\Yaml;
 
-class YamlTransformer implements DataTransformerInterface
+class YamlTransformer implements DataTransformer
 {
     /**
      * {@inheritdoc}
      */
     public static function transformData($content)
     {
-        $data = Yaml::parse($content, Yaml::PARSE_DATETIME);
+        try
+        {
+            $data = Yaml::parse($content, Yaml::PARSE_DATETIME);
+        }
+        catch (\Exception $e)
+        {
+            return [];
+        }
 
         if ($data === null)
         {

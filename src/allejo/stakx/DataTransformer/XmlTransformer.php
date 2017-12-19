@@ -9,7 +9,7 @@ namespace allejo\stakx\DataTransformer;
 
 use allejo\stakx\Exception\DependencyMissingException;
 
-class XmlTransformer implements DataTransformerInterface
+class XmlTransformer implements DataTransformer
 {
     /**
      * {@inheritdoc}
@@ -21,9 +21,10 @@ class XmlTransformer implements DataTransformerInterface
             throw new DependencyMissingException('XML', 'XML support is not available with the current PHP installation.');
         }
 
+        libxml_use_internal_errors(true);
         $data = json_decode(json_encode(simplexml_load_string($content)), true);
 
-        if ($data === null)
+        if ($data === false || $data === null)
         {
             return [];
         }

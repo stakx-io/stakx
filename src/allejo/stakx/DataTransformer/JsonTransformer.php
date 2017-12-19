@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\DataTransformer;
 
-class JsonTransformer implements DataTransformerInterface
+class JsonTransformer implements DataTransformer
 {
     /**
      * {@inheritdoc}

@@ -7,21 +7,24 @@
 
 namespace allejo\stakx\DataTransformer;
 
-interface DataTransformerInterface
+/**
+ * The definition for transforming data formats supported in DataItems.
+ */
+interface DataTransformer
 {
-    const NAME = 'stakx.data_transformer';
+    const CONTAINER_TAG = 'stakx.data_transformer';
 
     /**
      * Transform content to an associative array.
      *
-     * @param  string $content
+     * @param string $content The content to be converted in an array.
      *
      * @return array
      */
     public static function transformData($content);
 
     /**
-     * The file extensions this transformer will be applied to.
+     * The lowercase file extensions this transformer will be applied to.
      *
      * @return array
      */

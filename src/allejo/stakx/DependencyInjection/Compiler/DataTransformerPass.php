@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\DependencyInjection\Compiler;
 
-use allejo\stakx\DataTransformer\DataTransformerInterface;
+use allejo\stakx\DataTransformer\DataTransformer;
 use allejo\stakx\DataTransformer\DataTransformerManager;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -28,7 +28,7 @@ class DataTransformerPass implements CompilerPassInterface
         }
 
         $definition = $container->findDefinition(DataTransformerManager::class);
-        $services = $container->findTaggedServiceIds(DataTransformerInterface::NAME);
+        $services = $container->findTaggedServiceIds(DataTransformer::CONTAINER_TAG);
 
         foreach ($services as $id => $tags)
         {

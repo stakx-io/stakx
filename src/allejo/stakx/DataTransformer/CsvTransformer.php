@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\DataTransformer;
 
-class CsvTransformer implements DataTransformerInterface
+class CsvTransformer implements DataTransformer
 {
     /**
      * {@inheritdoc}
