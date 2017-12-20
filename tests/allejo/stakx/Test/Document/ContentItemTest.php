@@ -304,7 +304,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
     {
         $this->setExpectedException(FileNotFoundException::class);
 
-        new ContentItem(new File('foo.html.twig', '', ''));
+        new ContentItem(new File('foo.html.twig'));
     }
 
     public function testContentItemWithEmptyBodyThrowsInvalidSyntaxException()

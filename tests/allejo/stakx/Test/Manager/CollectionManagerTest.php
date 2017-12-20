@@ -68,18 +68,18 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
     public function testCollectionManagerContainsContentItem()
     {
         $path = fs::path('tests/allejo/stakx/Test/assets/MyBookCollection/Tale-of-Despereaux.md');
-        $file = new File($path, fs::getFolderPath($path->getAbsolutePath()), fs::getRelativePath($path->getAbsolutePath()));
+        $file = new File($path);
         $this->assertTrue($this->cm->isTracked($file->getRelativeFilePath()));
 
         $path = fs::path('tests/allejo/stakx/Test/assets/MyBookCollection/Tiger-Rising.md');
-        $file = new File($path, fs::getFolderPath($path->getAbsolutePath()), fs::getRelativePath($path->getAbsolutePath()));
+        $file = new File($path);
         $this->assertTrue($this->cm->isTracked($file->getRelativeFilePath()));
     }
 
     public function testCollectionManagerGetContentItem()
     {
         $path = fs::path('tests/allejo/stakx/Test/assets/MyBookCollection/Tiger-Rising.md');
-        $file = new File($path, fs::getFolderPath($path->getAbsolutePath()), fs::getRelativePath($path->getAbsolutePath()));
+        $file = new File($path);
 
         $contentItem = $this->cm->getContentItem($file->getRelativeFilePath());
 

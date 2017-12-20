@@ -19,24 +19,21 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 final class File extends \SplFileInfo
 {
-    private $relativeParentFolder;
-    private $relativeFilePath;
+    private $relativePath;
 
     /**
      * File Constructor.
      *
-     * @param string $absoluteFilePath     The absolute file path
-     * @param string $relativeParentFolder The relative path to its parent folder with respect to the CWD
-     * @param string $relativeFilePath     The relative path to the file (including the filename) with respect to the CWD
+     * @param string $absoluteFilePath  The absolute file path
+     * @param string|null $relativePath The relative path to its parent folder with respect to the CWD
      *
      * @since 0.2.0
      */
-    public function __construct($absoluteFilePath, $relativeParentFolder, $relativeFilePath)
+    public function __construct($absoluteFilePath, $relativePath = null)
     {
-        parent::__construct($absoluteFilePath);
+        $this->relativePath = ($relativePath === null) ? getcwd() : $relativePath;
 
-        $this->relativeParentFolder = $relativeParentFolder;
-        $this->relativeFilePath = $relativeFilePath;
+        parent::__construct($absoluteFilePath);
     }
 
     /**
@@ -99,7 +96,9 @@ final class File extends \SplFileInfo
      */
     public function getRelativeFilePath()
     {
-        return $this->relativeFilePath;
+        $path = str_replace($this->relativePath, '', $this->getAbsolutePath());
+
+        return ltrim($path, "/\\");
     }
 
     /**
@@ -111,7 +110,7 @@ final class File extends \SplFileInfo
      */
     public function getRelativeParentFolder()
     {
-        return $this->relativeParentFolder;
+        return dirname($this->getRelativeFilePath());
     }
 
     /**

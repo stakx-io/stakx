@@ -173,7 +173,7 @@ LINE;
     {
         $this->setExpectedException(FileNotFoundException::class);
 
-        new DataItem(new File('/path/to/my-data.yml', '', ''));
+        new DataItem(new File('/path/to/my-data.yml'));
     }
 
     public function testUnsupportedDataItemExtension()

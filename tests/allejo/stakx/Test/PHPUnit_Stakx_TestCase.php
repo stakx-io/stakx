@@ -211,11 +211,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function createFileObjectFromPath($filePath)
     {
-        return (new File(
-            $filePath,
-            $this->fs->getFolderPath($filePath),
-            $filePath
-        ));
+        return (new File($filePath));
     }
 
     /**

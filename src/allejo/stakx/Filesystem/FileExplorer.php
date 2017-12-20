@@ -111,11 +111,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
         /** @var \SplFileInfo $current */
         $current = parent::current();
 
-        return new File(
-            $current->getPathname(),
-            self::getRelativePath($current->getPath()),
-            self::getRelativePath($current->getPathname())
-        );
+        return new File($current->getPathname());
     }
 
     /**

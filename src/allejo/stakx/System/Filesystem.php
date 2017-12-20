@@ -101,11 +101,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      */
     public function createFileObject($filePath)
     {
-        return new File(
-            $this->absolutePath($filePath),
-            $this->getRelativePath($this->getFolderPath($filePath)),
-            $this->getRelativePath($filePath)
-        );
+        return new File($this->absolutePath($filePath));
     }
 
     /**

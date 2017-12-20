@@ -53,8 +53,7 @@ class BaseUrlFilterTest extends PHPUnit_Stakx_TestCase
             )),
             array('/toast/static/', 'toast', (
                 new StaticPageView(new File(
-                    $fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'static.html.twig'),
-                    '', ''
+                    $fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'static.html.twig')
                 ))
             )),
         );

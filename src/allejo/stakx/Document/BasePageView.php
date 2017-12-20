@@ -87,11 +87,7 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
             ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $body))
             ->at(vfsStreamWrapper::getRoot());
 
-        $file = new File(
-            $redirectFile->url(),
-            fs::getFolderPath($redirectFile->url()),
-            $redirectFile->url()
-        );
+        $file = new File($redirectFile->url());
 
         return new StaticPageView($file);
     }

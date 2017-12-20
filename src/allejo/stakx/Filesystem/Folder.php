@@ -93,10 +93,6 @@ final class Folder
 
         file_put_contents($targetFile, $content);
 
-        return (new File(
-            $targetFile,
-            $this->fs->getFolderPath($relativePath),
-            $relativePath
-        ));
+        return (new File($targetFile));
     }
 }
