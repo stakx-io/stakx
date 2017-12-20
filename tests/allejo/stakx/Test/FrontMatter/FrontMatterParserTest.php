@@ -14,7 +14,7 @@ use allejo\stakx\FrontMatter\FrontMatterParser;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use Symfony\Component\Yaml\Yaml;
 
-class ParserTest extends PHPUnit_Stakx_TestCase
+class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
 {
     public function testPrimitiveVariableUndefinedThrowsException()
     {
