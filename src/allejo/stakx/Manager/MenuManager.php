@@ -13,13 +13,27 @@ use allejo\stakx\Document\StaticPageView;
 class MenuManager extends BaseManager
 {
     /** @var StaticPageView */
-    private $siteMenu;
+    private $siteMenu = [];
+    private $manager;
 
-    public function __construct()
+    public function __construct(PageManager $manager = null)
     {
         parent::__construct();
 
-        $this->siteMenu = array();
+        $this->manager = $manager;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function compileManager()
+    {
+        if ($this->manager === null)
+        {
+            return;
+        }
+
+        $this->buildFromPageViews($this->manager->getStaticPageViews());
     }
 
     /**
