@@ -319,6 +319,13 @@ class Compiler extends BaseManager
     public function compileContentItem(ContentItem &$contentItem)
     {
         $pageView = &$contentItem->getPageView();
+
+        if ($pageView === null)
+        {
+            $this->output->debug('ContentItem "{file}" does not have a parent PageView.');
+            return;
+        }
+
         $template = $this->createTwigTemplate($pageView);
 
         $this->twig->addGlobal('__currentTemplate', $pageView->getFilePath());
