@@ -2,8 +2,7 @@
 
 namespace allejo\stakx\Twig;
 
-use DOMDocument;
-use DOMXPath;
+use allejo\stakx\Utilities\HtmlUtils;
 
 class TableOfContentsFilter implements StakxTwigFilter
 {
@@ -26,11 +25,8 @@ class TableOfContentsFilter implements StakxTwigFilter
             return '';
         }
 
-        $dom = new DOMDocument();
-        $dom->loadHTML('<div>' . $html . '</div>');
-
-        $xpath = new DOMXPath($dom);
-        $headings = $xpath->query('//h1|//h2|//h3|//h4|//h5|//h6');
+        $dom = new \DOMDocument();
+        $headings = HtmlUtils::htmlXPath($dom, $html, '//h1|//h2|//h3|//h4|//h5|//h6');
 
         $toc = '';
         $curr = $last = 0;
