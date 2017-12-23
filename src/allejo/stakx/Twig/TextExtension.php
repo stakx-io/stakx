@@ -2,6 +2,7 @@
 
 namespace allejo\stakx\Twig;
 
+use allejo\stakx\Utilities\HtmlUtils;
 use Twig_Environment;
 use Twig_Extension;
 use Twig_SimpleFilter;
@@ -44,29 +45,23 @@ class TextExtension extends Twig_Extension
 
     public function twig_summary_filter($value, $paragraphCount = 1)
     {
-        if (function_exists('simplexml_load_string'))
+        if (!extension_loaded('dom'))
         {
-            $content = simplexml_load_string('<html>' . $value . '</html>');
-
-            if ($content === false)
-            {
-                return $value;
-            }
-
-            $count = min($paragraphCount, $content->count());
-            $children = $content->children();
-
-            $summary = '';
-
-            for ($i = 0; $i < $count; ++$i)
-            {
-                $summary .= $children[$i]->asXml();
-            }
-
-            return $summary;
+            @trigger_error('The DOM Extension is not loaded and is necessary for the "summary" Twig filter.', E_WARNING);
+            return $value;
         }
 
-        return $value;
+        $dom = new \DOMDocument();
+        $paragraphs = HtmlUtils::htmlXPath($dom, $value, sprintf('//body/p[position() <= %d]', $paragraphCount));
+
+        $summary = '';
+
+        foreach ($paragraphs as $paragraph)
+        {
+            $summary .= $dom->saveHTML($paragraph);
+        }
+
+        return $summary;
     }
 
     public function twig_truncate_filter(Twig_Environment $env, $value, $length = 30, $preserve = false, $separator = '...')
