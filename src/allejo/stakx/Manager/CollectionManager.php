@@ -161,6 +161,9 @@ class CollectionManager extends TrackingManager
 
         $contentItem = new ContentItem($filePath);
         $contentItem->setNamespace($collectionName);
+        $contentItem->evaluateFrontMatter([], [
+            'site' => $this->configuration->getConfiguration(),
+        ]);
 
         $this->addObjectToTracker($contentItem, $collectionName);
 

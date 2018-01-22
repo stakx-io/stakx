@@ -196,7 +196,10 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
             $url = $file->url();
 
-            $results[] = new $classType($this->createFileObjectFromPath($url));
+            $item = new $classType($this->createFileObjectFromPath($url));
+            $item->evaluateFrontMatter();
+
+            $results[] = $item;
         }
 
         return $results;

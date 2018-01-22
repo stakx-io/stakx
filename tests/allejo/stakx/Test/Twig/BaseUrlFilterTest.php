@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Test\Twig;
 
+use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\System\Filesystem;
@@ -68,6 +69,11 @@ class BaseUrlFilterTest extends PHPUnit_Stakx_TestCase
      */
     public function testBaseUrlFilter($expected, $base, $assetPath)
     {
+        if ($assetPath instanceof FrontMatterDocument)
+        {
+            $assetPath->evaluateFrontMatter();
+        }
+
         $this->twig_env->addGlobal('site', array(
             'baseurl' => $base,
         ));

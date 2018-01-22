@@ -66,7 +66,7 @@ class DynamicPageView extends BasePageView
      */
     public function getCollectableNamespace()
     {
-        $fm = $this->getFrontMatter(false);
+        $fm = $this->getRawFrontMatter();
 
         if (isset($fm['collection']))
         {

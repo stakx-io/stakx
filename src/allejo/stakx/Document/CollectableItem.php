@@ -57,7 +57,8 @@ interface CollectableItem
     /**
      * Evaluate the FrontMatter in this object by merging a custom array of data.
      *
-     * @param array|null $variables An array of YAML variables to use in evaluating the `$permalink` value
+     * @param array $variables An array of YAML variables to use in evaluating the `$permalink` value
+     * @param array $complexVariables Complex variables that will be available to the FrontMatter scope of this document.
      */
-    public function evaluateFrontMatter(array $variables = null);
+    public function evaluateFrontMatter(array $variables = [], array $complexVariables = []);
 }

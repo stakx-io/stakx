@@ -11,6 +11,7 @@ use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\FrontMatter\FrontMatterParser;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -29,14 +30,17 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
         'filePath' => null,
     ];
 
-    protected $frontMatterEvaluated = false;
+    /** @var bool Whether or not the body content has been evaluated yet. */
     protected $bodyContentEvaluated = false;
 
     /** @var FrontMatterParser */
     protected $frontMatterParser;
 
-    /** @var array FrontMatter that is read from user documents. */
-    protected $frontMatter = [];
+    /** @var array The raw FrontMatter that has not been evaluated. */
+    protected $rawFrontMatter = [];
+
+    /** @var array|null FrontMatter that is read from user documents. */
+    protected $frontMatter = null;
 
     /** @var int The number of lines that Twig template errors should offset. */
     protected $lineOffset = 0;
@@ -80,13 +84,35 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
     /**
      * {@inheritdoc}
      */
-    public function readContent()
+    protected function beforeReadContents()
     {
-        // $fileStructure[1] is the YAML
-        // $fileStructure[2] is the amount of new lines after the closing `---` and the beginning of content
-        // $fileStructure[3] is the body of the document
-        $fileStructure = array();
+        if (!$this->file->exists())
+        {
+            throw new FileNotFoundException(null, 0, null, $this->file->getAbsolutePath());
+        }
 
+        // If the "Last Modified" time is equal to what we have on record, then there's no need to read the file again
+        if ($this->metadata['last_modified'] === $this->file->getMTime())
+        {
+            return false;
+        }
+
+        $this->metadata['last_modified'] = $this->file->getMTime();
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function readContents($readNecessary)
+    {
+        if (!$readNecessary)
+        {
+            return [];
+        }
+
+        $fileStructure = [];
         $rawFileContents = $this->file->getContents();
         preg_match('/---\R(.*?\R)?---(\s+)(.*)/s', $rawFileContents, $fileStructure);
 
@@ -100,26 +126,76 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
             throw new InvalidSyntaxException('FrontMatter files must have a body to render', 0, null, $this->getRelativeFilePath());
         }
 
+        return $fileStructure;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function afterReadContents($fileStructure)
+    {
+        // The file wasn't modified since our last read, so we can exit out quickly
+        if (empty($fileStructure))
+        {
+            return;
+        }
+
+        /*
+         * $fileStructure[1] is the YAML
+         * $fileStructure[2] is the amount of new lines after the closing `---` and the beginning of content
+         * $fileStructure[3] is the body of the document
+         */
+
         // The hard coded 1 is the offset used to count the new line used after the first `---` that is not caught in the regex
         $this->lineOffset = substr_count($fileStructure[1], "\n") + substr_count($fileStructure[2], "\n") + 1;
-        $this->bodyContent = $fileStructure[3];
 
-        if (!empty(trim($fileStructure[1])))
+        //
+        // Update the FM of the document, if necessary
+        //
+
+        $fmHash = md5($fileStructure[1]);
+
+        if ($this->metadata['fm_hash'] !== $fmHash)
         {
-            $this->frontMatter = Yaml::parse($fileStructure[1], Yaml::PARSE_DATETIME);
+            $this->metadata['fm_hash'] = $fmHash;
 
-            if (!empty($this->frontMatter) && !is_array($this->frontMatter))
+            if (!empty(trim($fileStructure[1])))
             {
-                throw new ParseException('The evaluated FrontMatter should be an array');
+                $this->rawFrontMatter = Yaml::parse($fileStructure[1], Yaml::PARSE_DATETIME);
+
+                if (!empty($this->rawFrontMatter) && !is_array($this->rawFrontMatter))
+                {
+                    throw new ParseException('The evaluated FrontMatter should be an array');
+                }
+            }
+            else
+            {
+                $this->rawFrontMatter = array();
             }
         }
-        else
-        {
-            $this->frontMatter = array();
-        }
 
-        $this->frontMatterEvaluated = false;
-        $this->bodyContentEvaluated = false;
+        //
+        // Update the body of the document, if necessary
+        //
+
+        $bodyHash = md5($fileStructure[3]);
+
+        if ($this->metadata['body_sum'] !== $bodyHash)
+        {
+            $this->metadata['body_sum'] = $bodyHash;
+            $this->bodyContent = $fileStructure[3];
+            $this->bodyContentEvaluated = false;
+        }
+    }
+
+    /**
+     * Get the FrontMatter without evaluating its variables or special functionality.
+     *
+     * @return array
+     */
+    final public function getRawFrontMatter()
+    {
+        return $this->rawFrontMatter;
     }
 
     /**
@@ -133,32 +209,23 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
     {
         if ($this->frontMatter === null)
         {
-            $this->frontMatter = [];
-        }
-        elseif (!$this->frontMatterEvaluated && $evaluateYaml)
-        {
-            $this->evaluateYaml($this->frontMatter);
+            throw new \LogicException('FrontMatter has not been evaluated yet, be sure FrontMatterDocument::evaluateFrontMatter() is called before.');
         }
 
         return $this->frontMatter;
     }
 
     /**
-     * Evaluate the FrontMatter in this object by merging a custom array of data.
-     *
-     * @param array|null $variables An array of YAML variables to use in evaluating the `$permalink` value
+     * {@inheritdoc}
      */
-    final public function evaluateFrontMatter(array $variables = null)
+    final public function evaluateFrontMatter(array $variables = [], array $complexVariables = [])
     {
-        if ($variables !== null)
-        {
-            $this->frontMatter = array_merge($this->frontMatter, $variables);
-            $this->evaluateYaml($this->frontMatter);
-        }
+        $this->frontMatter = array_merge($this->rawFrontMatter, $variables);
+        $this->evaluateYaml($this->frontMatter, $complexVariables);
     }
 
     /**
-     * Returns true when the evaluated Front Matter has expanded values embeded.
+     * Returns true when the evaluated Front Matter has expanded values embedded.
      *
      * @return bool
      */
@@ -176,7 +243,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
      *
      * @throws YamlVariableUndefinedException A FrontMatter variable used does not exist
      */
-    private function evaluateYaml(&$yaml)
+    private function evaluateYaml(array &$yaml, array $complexVariables = [])
     {
         try
         {
@@ -184,8 +251,8 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
             $this->frontMatterParser = new FrontMatterParser($yaml, [
                 'filePath' => $this->getRelativeFilePath(),
             ]);
+            $this->frontMatterParser->addComplexVariables($complexVariables);
             $this->frontMatterParser->parse();
-            $this->frontMatterEvaluated = true;
         }
         catch (\Exception $e)
         {

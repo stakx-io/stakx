@@ -36,6 +36,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $item = $this->createContentItem(array(
             'draft' => true
         ));
+        $item->evaluateFrontMatter();
 
         $this->assertTrue($item->isDraft());
     }
@@ -43,6 +44,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
     public function testContentItemWithEmptyFrontMatter()
     {
         $item = $this->createContentItemWithEmptyFrontMatter();
+        $item->evaluateFrontMatter();
 
         $this->assertArrayHasKey('filePath', $item->getFrontMatter());
     }
@@ -56,6 +58,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         );
 
         $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->evaluateFrontMatter();
 
         foreach ($frontMatter as $key => $value)
         {
@@ -71,6 +74,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         );
 
         $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->evaluateFrontMatter();
 
         $this->assertTrue(isset($contentItem['foo']));
         $this->assertTrue(isset($contentItem['bar']));
@@ -87,7 +91,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         );
 
         $contentItem = $this->createContentItem($frontMatter);
-        $contentItem->getFrontMatter();
+        $contentItem->evaluateFrontMatter();
 
         $this->assertEquals($year, $contentItem['year']);
         $this->assertEquals($month, $contentItem['month']);
@@ -101,6 +105,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         );
 
         $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->evaluateFrontMatter();
 
         $this->assertNull($contentItem['year']);
         $this->assertNull($contentItem['month']);
@@ -128,6 +133,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         );
 
         $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->evaluateFrontMatter();
         $finalFM = $contentItem->getFrontMatter();
 
         $this->assertEquals(sprintf('%s %s', $fname, $lname), $finalFM['name']);
@@ -147,6 +153,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         );
 
         $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->evaluateFrontMatter();
         $finalFront = $contentItem->getFrontMatter();
 
         $this->assertEquals(sprintf('%s %s', $finalFront['name'], $suffix), $finalFront['name_full']);
@@ -199,6 +206,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         );
 
         $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->evaluateFrontMatter();
         $finalFront = $contentItem->getFrontMatter();
 
         $this->assertEquals(sprintf('%s, %s', $lname, $fname), $finalFront['other']['name_l']);
@@ -214,7 +222,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $contentItem = $this->createContentItem($frontMatter);
 
         try {
-            $contentItem->getFrontMatter();
+            $contentItem->evaluateFrontMatter();
         } catch (FileAwareException $f) {
             $this->assertInstanceOf(YamlVariableUndefinedException::class, $f->getPrevious());
 
@@ -231,6 +239,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         );
 
         $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->evaluateFrontMatter();
 
         $this->assertEquals($this->fs->appendPath('about', 'index.html'), $contentItem->getTargetFile());
     }
@@ -246,6 +255,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
             ),
         );
         $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->evaluateFrontMatter();
 
         $this->assertEquals($this->fs->appendPath('canonical', 'index.html'), $contentItem->getTargetFile());
         $this->assertEquals('/canonical/', $contentItem->getPermalink());
@@ -260,6 +270,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         );
 
         $contentItem = $this->createContentItem($frontMatter);
+        $contentItem->evaluateFrontMatter();
 
         $this->assertEquals($this->fs->appendPath('home', 'about.html'), $contentItem->getTargetFile());
     }
@@ -267,6 +278,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
     public function testContentItemTargetFileFromFileWithoutPermalinkAtRoot()
     {
         $contentItem = $this->createContentItemWithEmptyFrontMatter();
+        $contentItem->evaluateFrontMatter();
 
         $this->assertEquals($this->fs->appendPath('root', 'stakx.html'), $contentItem->getTargetFile());
     }
@@ -281,6 +293,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $url = $root->getChild('dir/foo.html.twig')->url();
 
         $contentItem = new ContentItem($this->createFileObjectFromPath($url));
+        $contentItem->evaluateFrontMatter();
 
         $this->assertEquals($this->fs->appendPath('root', 'dir', 'foo.html'), $contentItem->getTargetFile());
     }
@@ -296,6 +309,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $url = $rootDir->getChild('foo.html.twig')->url();
 
         $contentItem = new ContentItem($this->createFileObjectFromPath($url));
+        $contentItem->evaluateFrontMatter();
 
         $this->assertEquals('foo.html', $contentItem->getTargetFile());
     }
@@ -416,36 +430,48 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
     public function testContentItemPermalinkSanitationMultipleForwardSlashes()
     {
         $multipleForwardSlashes = $this->createContentItem(array('permalink' => '////index.html'));
+        $multipleForwardSlashes->evaluateFrontMatter();
+
         $this->assertEquals('/index.html', $multipleForwardSlashes->getPermalink());
     }
 
     public function testContentItemPermalinkSanitationReplaceSpaces()
     {
         $replaceSpaces = $this->createContentItem(array('permalink' => 'i like/toast and bacon.html'));
+        $replaceSpaces->evaluateFrontMatter();
+
         $this->assertEquals('/i-like/toast-and-bacon.html', $replaceSpaces->getPermalink());
     }
 
     public function testContentItemPermalinkSanitationDisallowedChars()
     {
         $disallowedCharacters = $this->createContentItem(array('permalink' => '/index-?!@#in_dex$%^&.html'));
+        $disallowedCharacters->evaluateFrontMatter();
+
         $this->assertEquals('/index-in_dex.html', $disallowedCharacters->getPermalink());
     }
 
     public function testContentItemPermalinkSanitationStripExtensions()
     {
         $stripExtensions = $this->createContentItem(array('permalink' => 'parent/foo.html.twig'));
+        $stripExtensions->evaluateFrontMatter();
+
         $this->assertEquals('/parent/foo.html', $stripExtensions->getPermalink());
     }
 
     public function testContentItemPermalinkSanitationSpecialDotSlash()
     {
         $specialDotSlash = $this->createContentItem(array('permalink' => './index.html'));
+        $specialDotSlash->evaluateFrontMatter();
+
         $this->assertEquals('/index.html', $specialDotSlash->getPermalink());
     }
 
     public function testContentItemPermalinkSanitationUpperCaseToLower()
     {
         $uppercase = $this->createContentItem(array('permalink' => 'UPPER_CASE.html'));
+        $uppercase->evaluateFrontMatter();
+
         $this->assertEquals('/upper_case.html', $uppercase->getPermalink());
     }
 

@@ -17,7 +17,7 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
     {
         $url = $this->fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'jail.html.twig');
         $pageView = new StaticPageView($this->createFileObjectFromPath($url));
-        $pageView->getFrontMatter();
+        $pageView->evaluateFrontMatter();
 
         return $pageView->createJail();
     }
@@ -76,6 +76,8 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
         $value = 'super bacon!';
 
         $contentItem = $this->createVirtualFrontMatterFile(ContentItem::class, array('value' => $value));
+        $contentItem->evaluateFrontMatter();
+
         $jailable = $contentItem->createJail();
 
         $this->assertEquals($value, $jailable['value']);

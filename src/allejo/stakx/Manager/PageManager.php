@@ -200,6 +200,10 @@ class PageManager extends TrackingManager
      */
     private function handleTrackableStaticPageView(&$pageView)
     {
+        $pageView->evaluateFrontMatter([], [
+            'site' => $this->configuration->getConfiguration(),
+        ]);
+
         if (empty($pageView['title']))
         {
             return;
@@ -219,7 +223,7 @@ class PageManager extends TrackingManager
      */
     private function handleTrackableDynamicPageView(&$pageView)
     {
-        $frontMatter = $pageView->getFrontMatter(false);
+        $frontMatter = $pageView->getRawFrontMatter();
         $dataSource = null;
         $namespace = null;
 
@@ -249,7 +253,9 @@ class PageManager extends TrackingManager
         /** @var ContentItem|DataItem $item */
         foreach ($dataSource[$collection] as &$item)
         {
-            $item->evaluateFrontMatter($frontMatter);
+            $item->evaluateFrontMatter($frontMatter, [
+                'site' => $this->configuration->getConfiguration(),
+            ]);
             $item->setParentPageView($pageView);
             $item->buildPermalink(true);
 

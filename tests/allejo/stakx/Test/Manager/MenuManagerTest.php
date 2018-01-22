@@ -25,12 +25,22 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->mm->setLogger($this->getMockLogger());
     }
 
+    private function menuFrontMatterEvaluator(array &$pageViews)
+    {
+        foreach ($pageViews as $pageView)
+        {
+            $pageView->evaluateFrontMatter();
+        }
+    }
+
     public function dataProvider_SingleLevelMenu()
     {
         $pageViews = array();
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/about/'));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/contact/'));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/blog/'));
+
+        $this->menuFrontMatterEvaluator($pageViews);
 
         return $pageViews;
     }
@@ -44,6 +54,8 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/dwight/'));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/blog/'));
 
+        $this->menuFrontMatterEvaluator($pageViews);
+
         return $pageViews;
     }
 
@@ -54,6 +66,8 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/jim/'));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/dwight/'));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/blog/'));
+
+        $this->menuFrontMatterEvaluator($pageViews);
 
         return $pageViews;
     }
@@ -68,6 +82,8 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/english/jim/'));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/english/dwight/'));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/blog/'));
+
+        $this->menuFrontMatterEvaluator($pageViews);
 
         return $pageViews;
     }
@@ -128,6 +144,8 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/yas/', 'menu' => true));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/no/', 'menu' => false));
 
+        $this->menuFrontMatterEvaluator($pageViews);
+
         $this->mm->buildFromPageViews($pageViews);
         $menu = $this->mm->getSiteMenu();
 
@@ -139,6 +157,8 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
     {
         $pageViews = array();
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/'));
+
+        $this->menuFrontMatterEvaluator($pageViews);
 
         $this->mm->buildFromPageViews($pageViews);
         $menu = $this->mm->getSiteMenu();
@@ -153,6 +173,8 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/michael/'));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/jim/'));
         $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/'));
+
+        $this->menuFrontMatterEvaluator($pageViews);
 
         $this->mm->buildFromPageViews($pageViews);
         $menu = $this->mm->getSiteMenu();

@@ -400,6 +400,9 @@ class Compiler extends BaseManager
                 $pageView->getPermalink(),
                 $this->redirectTemplate
             );
+            $redirectPageView->evaluateFrontMatter([], [
+                'site' => $this->container->get(Configuration::class)->getConfiguration(),
+            ]);
 
             $this->compileStaticPageView($redirectPageView);
         }
@@ -430,6 +433,10 @@ class Compiler extends BaseManager
                     $permalinks[$index]->getEvaluated(),
                     $this->redirectTemplate
                 );
+                $redirectPageView->evaluateFrontMatter([], [
+                    'site' => $this->container->get(Configuration::class)->getConfiguration(),
+                ]);
+
                 $this->compilePageView($redirectPageView);
             }
         }

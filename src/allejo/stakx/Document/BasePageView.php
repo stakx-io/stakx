@@ -47,13 +47,13 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
     {
         $instance = new StaticPageView($filePath);
 
-        if (isset($instance->getFrontMatter(false)['collection']) ||
-            isset($instance->getFrontMatter(false)['dataset'])
+        if (isset($instance->getRawFrontMatter()['collection']) ||
+            isset($instance->getRawFrontMatter()['dataset'])
         ) {
             return new DynamicPageView($filePath);
         }
 
-        $instance->getFrontMatter();
+        $instance->evaluateFrontMatter();
 
         if ($instance->hasExpandedFrontMatter())
         {

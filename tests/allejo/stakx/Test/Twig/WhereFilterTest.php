@@ -147,6 +147,11 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
             )),
         );
 
+        foreach ($elements as $element)
+        {
+            $element->evaluateFrontMatter();
+        }
+
         $whereFilter = new WhereFilter();
         $filteredAggregate = $whereFilter($elements, 'aggregate', '==', 'toast');
         $filteredCategory = $whereFilter($elements, 'category', '==', 'warm');

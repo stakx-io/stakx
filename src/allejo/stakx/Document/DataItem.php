@@ -45,13 +45,14 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     /**
      * {@inheritdoc}
      */
-    public function evaluateFrontMatter(array $variables = null)
+    public function evaluateFrontMatter(array $variables = [], array $complexVariables = [])
     {
         $workspace = array_merge($this->data, $variables);
         $parser = new FrontMatterParser($workspace, array(
             'filename' => $this->getFileName(),
             'basename' => $this->getBaseName(),
         ));
+        $parser->addComplexVariables($complexVariables);
         $parser->parse();
 
         if (!is_null($parser) && $parser->hasExpansion())
