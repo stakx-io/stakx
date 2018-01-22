@@ -29,8 +29,6 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
         parent::__construct($file);
 
         $this->type = BasePageView::REPEATER_TYPE;
-
-        $this->configurePermalinks();
     }
 
     /**
@@ -74,11 +72,8 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
     /**
      * Configure permalinks from expanded values internally.
      */
-    private function configurePermalinks()
+    public function configurePermalinks()
     {
-        // Cause the Front Matter to be evaluated
-        $this->getFrontMatter();
-
         $evaluated = $this->frontMatter['permalink'];
 
         $this->permalinks = $evaluated[0];

@@ -37,6 +37,16 @@ final class File extends \SplFileInfo
     }
 
     /**
+     * Whether or not this file exists on the filesystem.
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        return file_exists($this->getAbsolutePath());
+    }
+
+    /**
      * Get the name of the file without an extension.
      *
      * @param  null $suffix This value will be discarded and is only needed to be able to override the \SplFileInfo
@@ -124,7 +134,7 @@ final class File extends \SplFileInfo
      */
     public function getContents()
     {
-        if (!file_exists($this->getAbsolutePath()))
+        if (!$this->exists())
         {
             throw new FileNotFoundException(null, 0, null, $this->getAbsolutePath());
         }

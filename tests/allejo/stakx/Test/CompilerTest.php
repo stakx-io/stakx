@@ -15,10 +15,13 @@ use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Templating\TwigStakxBridgeFactory;
 use org\bovigo\vfs\vfsStream;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use Symfony\Component\DependencyInjection\Container;
 
 class CompilerTest extends PHPUnit_Stakx_TestCase
 {
@@ -44,7 +47,16 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
 
         $this->folder = new Folder($this->rootDir->getChild('_site')->url());
 
+        /** @var Container|MockObject $container */
+        $container = $this->getMock(Container::class);
+        $container
+            ->method('get')
+            ->with(Configuration::class)
+            ->willReturn($config)
+        ;
+
         $this->compiler = new Compiler($twig);
+        $this->compiler->setContainer($container);
         $this->compiler->setLogger($this->getMockLogger());
         $this->compiler->setTargetFolder($this->folder);
     }
@@ -81,18 +93,16 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
      */
     public function testStaticPageViewRedirectsWrite(array $permalinks)
     {
-        /** @var StaticPageView $pageView */
-        $pageView = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => $permalinks));
-        $pageViews = array(
-            BasePageView::STATIC_TYPE => array(&$pageView),
-            BasePageView::DYNAMIC_TYPE => array(),
-            BasePageView::REPEATER_TYPE => array(),
-        );
-        $pageViewsFlattened = array(&$pageView);
+        $this->setAndCreateVirtualFrontMatterFileObject(['permalink' => $permalinks]);
 
-        $this->compiler->setPageViews($pageViews, $pageViewsFlattened);
+        $pageManager = $this->makePageManager();
+
+        $this->compiler->setPageManager($pageManager);
         $this->compiler->compileAll();
         $permalink = array_shift($permalinks);
+
+        $pageViews = $pageManager->getPageViewsFlattened();
+        $pageView = reset($pageViews);
 
         $this->assertFileExists(vfsStream::url('root/_site/' . $pageView->getTargetFile()));
 
@@ -193,17 +203,10 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
      */
     public function testPageViewFileWritesExists($class, $pageViewType, $frontMatter, $expectedFiles)
     {
-        /** @var RepeaterPageView $pageView */
-        $pageView = $this->createVirtualFrontMatterFile($class, $frontMatter);
-        $pageViews = array(
-            BasePageView::STATIC_TYPE => array(),
-            BasePageView::DYNAMIC_TYPE => array(),
-            BasePageView::REPEATER_TYPE => array(),
-        );
-        $pageViews[$pageViewType][] = &$pageView;
-        $pageViewsFlattened = array(&$pageView);
+        $this->createVirtualFrontMatterFile($class, $frontMatter);
+        $pageManager = $this->makePageManager();
 
-        $this->compiler->setPageViews($pageViews, $pageViewsFlattened);
+        $this->compiler->setPageManager($pageManager);
         $this->compiler->compileAll();
 
         foreach ($expectedFiles as $expectedFile)
@@ -273,5 +276,17 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
 
         $uri = vfsStream::url('root/_site/my-books/unpublished-title/index.html');
         $this->assertFileExists($uri);
+    }
+
+    private function makePageManager()
+    {
+        /** @var PageManager|MockObject $pm */
+        $pm = new PageManager($this->getMock(Configuration::class));
+        $pm->setLogger($this->getMockLogger());
+        $pm->parsePageViews([
+            $this->rootDir->url(),
+        ]);
+
+        return $pm;
     }
 }

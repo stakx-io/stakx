@@ -86,7 +86,7 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     /**
      * {@inheritdoc}
      */
-    public function readContent()
+    public function readContents($mixed)
     {
         $content = $this->file->getContents();
         $this->data = $this->dataTransformer->transformData($content);

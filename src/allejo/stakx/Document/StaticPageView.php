@@ -105,4 +105,9 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
             'redirects' => $this->getRedirects(),
         ]);
     }
+
+    protected function beforeCompile()
+    {
+        $this->buildPermalink(true);
+    }
 }

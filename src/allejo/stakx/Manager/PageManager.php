@@ -13,6 +13,7 @@ use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Event\PageViewsCompleted;
@@ -182,6 +183,10 @@ class PageManager extends TrackingManager
                 $this->handleTrackableDynamicPageView($pageView);
                 break;
 
+            case BasePageView::REPEATER_TYPE:
+                $this->handleTrackableRepeaterPageView($pageView);
+                break;
+
             default:
                 break;
         }
@@ -261,5 +266,20 @@ class PageManager extends TrackingManager
 
             $pageView->addCollectableItem($item);
         }
+    }
+
+    /**
+     * Handle special behavior and treatment for repeater PageViews while we're iterating through them.
+     *
+     * @param RepeaterPageView $pageView
+     *
+     * @since 0.2.0
+     */
+    private function handleTrackableRepeaterPageView(&$pageView)
+    {
+        $pageView->evaluateFrontMatter([], [
+            'site' => $this->configuration->getConfiguration(),
+        ]);
+        $pageView->configurePermalinks();
     }
 }

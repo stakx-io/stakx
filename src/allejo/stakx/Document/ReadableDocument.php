@@ -9,6 +9,7 @@ namespace allejo\stakx\Document;
 
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Utilities\NullableArray;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 abstract class ReadableDocument
@@ -27,6 +28,8 @@ abstract class ReadableDocument
     protected $metadata;
     protected $file;
 
+    private $compiled = false;
+
     /**
      * ReadableDocument Constructor.
      *
@@ -41,7 +44,7 @@ abstract class ReadableDocument
             throw new FileNotFoundException(null, 0, null, $filePath);
         }
 
-        $this->metadata = [];
+        $this->metadata = new NullableArray();
         $this->file = $file;
 
         if (!$this->noReadOnConstructor)
@@ -66,6 +69,31 @@ abstract class ReadableDocument
     public function getIndexName()
     {
         return $this->getRelativeFilePath();
+    }
+
+    /**
+     * When a document is compiled, all of its internals are finished being configured.
+     */
+    final public function compile()
+    {
+        if ($this->compiled)
+        {
+            return;
+        }
+
+        $this->beforeCompile();
+
+        $this->compiled = true;
+    }
+
+    /**
+     * Determine whether or not this document has been compiled.
+     *
+     * @return bool
+     */
+    final protected function isCompiled()
+    {
+        return $this->compiled;
     }
 
     /**
@@ -119,14 +147,46 @@ abstract class ReadableDocument
     }
 
     /**
-     * Read the contents of the file and handle any parsing that needs to be done.
+     * Read the contents of this file and handle all of the necessary processing/setup for this document.
+     */
+    final public function readContent()
+    {
+        $beforeEvent = $this->beforeReadContents();
+        $actualEvent = $this->readContents($beforeEvent);
+        $this->afterReadContents($actualEvent);
+    }
+
+    /**
+     * Prepare the Document so it can handle the data that's about to be read in.
      *
-     * For example, if a file needs to parse and evaluate FrontMatter, that will need to be in this function call after
-     * reading the file contents.
+     * @return mixed Any information that will be passed to the readContents() method.
+     */
+    protected function beforeReadContents()
+    {
+        return null;
+    }
+
+    /**
+     * Read the contents of the file and store the information internally **only**.
+     *
+     * @param mixed $mixed Any information returned from the beforeReadContents() method.
      *
      * @throws \RuntimeException When the file cannot be read.
      *
-     * @return void
+     * @return mixed
      */
-    abstract public function readContent();
+    abstract protected function readContents($mixed);
+
+    /**
+     * After the Document's content has been read, process the it and handle any parsing that's needed.
+     *
+     * @param mixed $mixed Any information returned from the readContents() method.
+     */
+    protected function afterReadContents($mixed) {}
+
+    /**
+     * Functionality that needs to take place before this document is considered "compiled," meaning everything has been
+     * processed, configured, and built.
+     */
+    protected function beforeCompile() {}
 }

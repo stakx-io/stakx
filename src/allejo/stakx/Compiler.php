@@ -287,6 +287,8 @@ class Compiler extends BaseManager
      */
     private function compileStaticPageView(StaticPageView &$pageView)
     {
+        $pageView->compile();
+
         $targetFile = $pageView->getTargetFile();
         $output = $this->renderStaticPageView($pageView);
 
