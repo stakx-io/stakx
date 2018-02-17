@@ -241,7 +241,8 @@ class DataItem extends PermalinkDocument implements
     public function createJail()
     {
         return new JailedDocument($this, array(
-            'getExtension', 'getFilePath', 'getRelativeFilePath'
+            'getExtension', 'getFilePath', 'getRelativeFilePath', 'getBasename', 'getPermalink', 'getTargetFile',
+            'getRedirects',
         ), array(
             'getName' => 'getObjectName'
         ));
