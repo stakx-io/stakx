@@ -1,3 +1,21 @@
+## 0.1.3 "Pacifist Tasmanian Devil"
+
+A maintenance release with small bug fixes.
+
+**New**
+
+- Added new `toc` filter that will pick out headings from given HTML and make them into an unordered list
+
+**Change**
+
+- All HTML headings now have IDs generated for them in markdown content
+
+**Fixes**
+
+- Parsing HTML isn't the same as XML, so filters like `summary` have been made more robust and knowledgable about HTML
+- ContentItems not being a part of a collection no longer crashes the watch command
+- DataItems now correctly have access to `basename`, `permalink`, `targetFile`, and `redirects` for when they are in Datasets
+
 ## 0.1.2 "Watchful Bandicoot"
 
 For this release, all effort was focused on stabilizing the `watch` command and getting it out of its experimental phase.
