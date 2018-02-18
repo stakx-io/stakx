@@ -1,7 +1,7 @@
 {
   "name": "stakx/stakx",
   "description": "Yet another static website generator powered by Symfony and Twig",
-  "license": "LGPL",
+  "license": "MIT",
   "type": "project",
   "authors": [
     {
