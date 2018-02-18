@@ -170,7 +170,9 @@ class PageManager extends TrackingManager
      */
     protected function &handleTrackableItem($filePath, array $options = array())
     {
-        $pageView = BasePageView::create($filePath);
+        $pageView = BasePageView::create($filePath, [
+            'site' => $this->configuration->getConfiguration(),
+        ]);
         $namespace = $pageView->getType();
 
         switch ($namespace)

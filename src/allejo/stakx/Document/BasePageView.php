@@ -43,7 +43,7 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
      *
      * @return DynamicPageView|StaticPageView|RepeaterPageView
      */
-    public static function create(File $filePath)
+    public static function create(File $filePath, array $complexVariables = [])
     {
         $instance = new StaticPageView($filePath);
 
@@ -53,7 +53,7 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
             return new DynamicPageView($filePath);
         }
 
-        $instance->evaluateFrontMatter();
+        $instance->evaluateFrontMatter([], $complexVariables);
 
         if ($instance->hasExpandedFrontMatter())
         {

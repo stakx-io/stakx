@@ -1,5 +1,6 @@
 ---
 title: Something Super Awesome
+category: uncategorized
 date: 2016-03-04
 draft: true
 ---

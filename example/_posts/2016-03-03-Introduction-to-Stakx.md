@@ -1,6 +1,7 @@
 ---
 title: Introduction to Stakx
 date: 2016-03-03
+category: blogging
 ---
 
 By now you must understand that Stakx is an alternative to Jekyll. But how is it different and what added features does it have that Jekyll doesn't?

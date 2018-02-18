@@ -6,6 +6,11 @@ collections:
   - name: books
     folder: _books
 
+categories:
+  - features
+  - blogging
+  - uncategorized
+
 data:
   - _data
 

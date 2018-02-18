@@ -1,0 +1,19 @@
+---
+permalink: /blog/categories/%{site.categories}/
+---
+
+{% extends "_layouts/base.html.twig" %}
+
+{% block content %}
+    {% set category = this.iterators['site.categories'] %}
+
+    <h2>Category :: {{ category }}</h2>
+
+    <ul>
+        {% for post in collections.posts | where('category', '==', category) %}
+            <li>
+                <a href="{{ url(post) }}">{{ post.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

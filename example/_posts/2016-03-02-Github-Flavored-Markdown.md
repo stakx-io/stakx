@@ -1,6 +1,7 @@
 ---
 title: GitHub Flavored Markdown
 date: 2016-03-02
+category: features
 ---
 
 Stakx uses [Parsedown](http://parsedown.org/) for rendering markdown which is:
