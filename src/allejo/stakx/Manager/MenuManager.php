@@ -9,18 +9,22 @@ namespace allejo\stakx\Manager;
 
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\StaticPageView;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MenuManager extends BaseManager
 {
     /** @var StaticPageView */
     private $siteMenu = [];
-    private $manager;
+    private $pageManager;
+    private $eventDispatcher;
+    private $logger;
 
-    public function __construct(PageManager $manager = null)
+    public function __construct(PageManager $pageManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
-        parent::__construct();
-
-        $this->manager = $manager;
+        $this->pageManager = $pageManager;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
     }
 
     /**
@@ -28,12 +32,12 @@ class MenuManager extends BaseManager
      */
     public function compileManager()
     {
-        if ($this->manager === null)
+        if ($this->pageManager === null)
         {
             return;
         }
 
-        $this->buildFromPageViews($this->manager->getStaticPageViews());
+        $this->buildFromPageViews($this->pageManager->getStaticPageViews());
     }
 
     /**
@@ -43,7 +47,7 @@ class MenuManager extends BaseManager
      */
     public function getSiteMenu()
     {
-        $jailedMenu = array();
+        $jailedMenu = [];
 
         foreach ($this->siteMenu as $key => $value)
         {

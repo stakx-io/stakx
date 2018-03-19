@@ -28,8 +28,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * PageManager will parse all available dynamic and static PageViews. After, dynamic PageViews will be prepared by
  * setting the appropriate values for each ContentItem such as permalinks.
- *
- * @internal
  */
 class PageManager extends TrackingManager
 {
@@ -44,7 +42,7 @@ class PageManager extends TrackingManager
     /**
      * PageManager constructor.
      */
-    public function __construct(Configuration $configuration, CollectionManager $collectionManager = null, DataManager $dataManager = null, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
+    public function __construct(Configuration $configuration, CollectionManager $collectionManager, DataManager $dataManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
         $this->trackedItems = [
             BasePageView::STATIC_TYPE   => [],
