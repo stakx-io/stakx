@@ -106,7 +106,7 @@ class CollectionManager extends TrackingManager
      */
     public function parseCollections($collections)
     {
-        if ($collections === null)
+        if ($collections == null || empty($collections))
         {
             $this->logger->debug('No collections found, nothing to parse.');
 
@@ -153,7 +153,7 @@ class CollectionManager extends TrackingManager
      */
     public function createNewItem($filePath)
     {
-        $collection = $this->getTentativeCollectionName($filePath);
+        $collection = $this->getCollectionNameFromPath($filePath);
 
         return $this->handleTrackableItem($filePath, [
             'namespace' => $collection,
@@ -191,25 +191,12 @@ class CollectionManager extends TrackingManager
     }
 
     /**
-     * Get the name of the Collection this Content Item belongs to.
+     * Get the name of the Collection this ContentItem belongs to based on its location.
      *
-     * @param string $filePath
+     * @param File $file
      *
      * @return string
      */
-    private function getTentativeCollectionName($filePath)
-    {
-        foreach ($this->collectionDefinitions as $collection)
-        {
-            if (strpos($filePath, $collection['folder']) === 0)
-            {
-                return $collection['name'];
-            }
-        }
-
-        return '';
-    }
-
     private function getCollectionNameFromPath(File $file)
     {
         $folders = array_column($this->collectionDefinitions, 'folder');
