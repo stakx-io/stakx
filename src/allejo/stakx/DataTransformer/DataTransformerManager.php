@@ -18,6 +18,14 @@ class DataTransformerManager
         $this->transformers = [];
     }
 
+    public function addDataTransformers(/*iterable*/ $dataTransformers)
+    {
+        foreach ($dataTransformers as $dataTransformer)
+        {
+            $this->addDataTransformer($dataTransformer);
+        }
+    }
+
     public function addDataTransformer(DataTransformer $transformer)
     {
         foreach ($transformer->getExtensions() as $extension)

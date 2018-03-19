@@ -166,9 +166,6 @@ class Application extends BaseApplication
         $loader->load('services.yml');
 
         $container
-            ->addCompilerPass(new RegisterListenersPass())
-            ->addCompilerPass(new DataTransformerPass())
-
             ->registerForAutoconfiguration(DataTransformer::class)
             ->addTag(DataTransformer::CONTAINER_TAG)
         ;

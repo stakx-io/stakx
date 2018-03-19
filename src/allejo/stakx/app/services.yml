@@ -7,6 +7,11 @@ services:
   allejo\stakx\DataTransformer\:
     resource: '../DataTransformer/*'
 
+  allejo\stakx\DataTransformer\DataTransformerManager:
+    calls:
+      - method: addDataTransformers
+        arguments: [!tagged stakx.data_transformer]
+
   allejo\stakx\Manager\:
     resource: '../Manager/*'
     exclude: '../Manager/{Twig}Manager'
