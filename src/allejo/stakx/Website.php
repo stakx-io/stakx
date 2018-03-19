@@ -139,12 +139,10 @@ class Website
         $templateEngine = $this->container->get('templating');
 
         // Compile everything
-        $pm = $this->container->get(PageManager::class);
         $theme = $this->getConfiguration()->getTheme();
 
         $this->compiler = $this->container->get('compiler');
         $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
-        $this->compiler->setPageManager($pm);
         $this->compiler->setTargetFolder($this->outputDirectory);
         $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
@@ -176,9 +174,8 @@ class Website
         {
             $logger->notice("Looking for '${theme}' theme...");
 
-            $this->tm = new ThemeManager($theme);
+            $this->tm = new ThemeManager($theme, $this->container->get('event_dispatcher'), $this->container->get('logger'));
             $this->tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
-            $this->tm->setLogger($this->output);
             $this->tm->setFolder($this->outputDirectory);
             $this->tm->copyFiles();
         }
@@ -186,9 +183,8 @@ class Website
         //
         // Static file management
         //
-        $this->am = new AssetManager();
+        $this->am = $this->container->get(AssetManager::class);
         $this->am->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
-        $this->am->setLogger($this->output);
         $this->am->setFolder($this->outputDirectory);
         $this->am->copyFiles();
     }

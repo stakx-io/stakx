@@ -7,6 +7,9 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -21,25 +24,25 @@ class ThemeManager extends AssetManager
     private $themeData;
     private $themeName;
 
-    public function __construct($themeName)
+    public function __construct($themeName, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
-        parent::__construct();
+        parent::__construct($eventDispatcher, $logger);
 
-        $this->themeFolderRelative = $this->fs->appendPath(self::THEME_FOLDER, $themeName);
-        $this->themeFolder = $this->fs->absolutePath(self::THEME_FOLDER, $themeName);
+        $this->themeFolderRelative = fs::appendPath(self::THEME_FOLDER, $themeName);
+        $this->themeFolder = fs::absolutePath(self::THEME_FOLDER, $themeName);
         $this->themeName = $themeName;
-        $this->themeFile = $this->fs->appendPath($this->themeFolder, self::THEME_DEFINITION_FILE);
+        $this->themeFile = fs::appendPath($this->themeFolder, self::THEME_DEFINITION_FILE);
         $this->themeData = array(
             'exclude' => array(),
             'include' => array(),
         );
 
-        if (!$this->fs->exists($this->themeFolder))
+        if (!fs::exists($this->themeFolder))
         {
             throw new FileNotFoundException("The '${themeName}' theme folder could not be found.'");
         }
 
-        if ($this->fs->exists($this->themeFile))
+        if (fs::exists($this->themeFile))
         {
             $themeData = Yaml::parse(file_get_contents($this->themeFile));
 
@@ -48,7 +51,7 @@ class ThemeManager extends AssetManager
 
         foreach ($this->themeData['include'] as &$include)
         {
-            $include = $this->fs->appendPath($this->themeFolder, $include);
+            $include = fs::appendPath($this->themeFolder, $include);
         }
     }
 
@@ -89,7 +92,7 @@ class ThemeManager extends AssetManager
 
     public function copyFiles()
     {
-        $this->output->notice('Copying theme files...');
+        $this->logger->notice('Copying theme files...');
 
         $this->scanTrackableItems(
             $this->themeFolder,

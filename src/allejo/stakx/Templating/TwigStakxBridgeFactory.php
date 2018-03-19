@@ -5,6 +5,9 @@ namespace allejo\stakx\Templating;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Configuration;
 use allejo\stakx\Engines\Markdown\TwigMarkdownEngine;
+use allejo\stakx\Manager\CollectionManager;
+use allejo\stakx\Manager\DataManager;
+use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Twig\FilesystemExtension;
@@ -14,13 +17,20 @@ use allejo\stakx\Twig\TwigExtension;
 use Aptoma\Twig\Extension\MarkdownExtension;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig_Environment;
 use Twig_Extension_Debug;
 
 class TwigStakxBridgeFactory
 {
-    public static function createTwigEnvironment(Configuration $configuration, LoggerInterface $logger)
-    {
+    public static function createTwigEnvironment(
+        Configuration $configuration,
+        CollectionManager $collectionManager,
+        DataManager $dataManager,
+        PageManager $pageManager,
+        EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger
+    ) {
         $fs = new Filesystem();
         $loader = new StakxTwigFileLoader(array(
             getcwd(),
@@ -53,6 +63,13 @@ class TwigStakxBridgeFactory
 
         // We'll use this to access the current file in our Twig filters
         $twig->addGlobal('__currentTemplate', '');
+
+        // Global variables maintained by stakx
+        $twig->addGlobal('site', $configuration->getConfiguration());
+        $twig->addGlobal('data', $dataManager->getJailedDataItems());
+        $twig->addGlobal('collections', $collectionManager->getJailedCollections());
+        $twig->addGlobal('menu', []);
+        $twig->addGlobal('pages', $pageManager->getJailedStaticPageViews());
 
         $twig->addExtension(new TwigExtension());
         $twig->addExtension(new TextExtension());

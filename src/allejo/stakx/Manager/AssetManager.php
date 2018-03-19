@@ -7,7 +7,11 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AssetManager extends TrackingManager
 {
@@ -31,6 +35,15 @@ class AssetManager extends TrackingManager
      * @var array
      */
     protected $includes;
+
+    protected $eventDispatcher;
+    protected $logger;
+
+    public function __construct(EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
+    }
 
     public function configureFinder($includes = array(), $excludes = array())
     {
@@ -97,21 +110,21 @@ class AssetManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem($file, array $options = array())
+    protected function handleTrackableItem(File $file, array $options = array())
     {
         if (is_string($file))
         {
-            $file = ltrim($this->fs->appendPath($options['prefix'], $file), DIRECTORY_SEPARATOR);
-            $file = $this->fs->createFileObject($file);
+            $file = ltrim(fs::appendPath($options['prefix'], $file), DIRECTORY_SEPARATOR);
+            $file = fs::createFileObject($file);
         }
 
-        if (!$this->fs->exists($file))
+        if (!fs::exists($file))
         {
             return;
         }
 
         $filePath = $file->getRealPath();
-        $pathToStrip = $this->fs->appendPath(getcwd(), $options['prefix']);
+        $pathToStrip = fs::appendPath(getcwd(), $options['prefix']);
         $siteTargetPath = ltrim(str_replace($pathToStrip, '', $filePath), DIRECTORY_SEPARATOR);
 
         try
@@ -120,13 +133,13 @@ class AssetManager extends TrackingManager
             $this->saveTrackerOptions($file->getRelativeFilePath(), $options);
 
             $this->outputDirectory->copyFile($filePath, $siteTargetPath);
-            $this->output->info('Copying file: {file}...', array(
+            $this->logger->info('Copying file: {file}...', array(
                 'file' => $file->getRelativeFilePath(),
             ));
         }
         catch (\Exception $e)
         {
-            $this->output->error($e->getMessage());
+            $this->logger->error($e->getMessage());
         }
     }
 }

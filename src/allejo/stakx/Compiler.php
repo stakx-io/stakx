@@ -26,6 +26,10 @@ use allejo\stakx\System\FilePath;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use allejo\stakx\Templating\TemplateErrorInterface;
 use allejo\stakx\Templating\TemplateInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
@@ -36,8 +40,11 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  *
  * @since 0.1.1
  */
-class Compiler extends BaseManager
+class Compiler
 {
+    use LoggerAwareTrait;
+    use ContainerAwareTrait;
+
     /** @var string|false */
     private $redirectTemplate;
 
@@ -81,13 +88,24 @@ class Compiler extends BaseManager
 
     /** @var TemplateBridgeInterface */
     private $templateBridge;
+    /**
+     * @var PageManager
+     */
+    private $pageManager;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
-    public function __construct(TemplateBridgeInterface $templateBridge)
+    public function __construct(TemplateBridgeInterface $templateBridge, PageManager $pageManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
-        parent::__construct();
-
         $this->templateBridge = $templateBridge;
         $this->theme = '';
+        $this->pageManager = $pageManager;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
+
+        $this->pageViewsFlattened = &$pageManager->getPageViewsFlattened();
     }
 
     /**
@@ -104,24 +122,6 @@ class Compiler extends BaseManager
     public function setTargetFolder(Folder $folder)
     {
         $this->folder = $folder;
-    }
-
-    public function setPageManager(PageManager $manager)
-    {
-        $this->pageViews = &$manager->getPageViews();
-        $this->pageViewsFlattened = &$manager->getPageViewsFlattened();
-    }
-
-    /**
-     * @deprecated Use setPageManager()
-     *
-     * @param BasePageView[][] $pageViews
-     * @param BasePageView[]   $pageViewsFlattened
-     */
-    public function setPageViews(array &$pageViews, array &$pageViewsFlattened)
-    {
-        $this->pageViews = &$pageViews;
-        $this->pageViewsFlattened = &$pageViewsFlattened;
     }
 
     /**
@@ -241,7 +241,7 @@ class Compiler extends BaseManager
     public function compilePageView(BasePageView &$pageView)
     {
         $this->templateBridge->setGlobalVariable('__currentTemplate', $pageView->getAbsoluteFilePath());
-        $this->output->debug('Compiling {type} PageView: {pageview}', array(
+        $this->logger->debug('Compiling {type} PageView: {pageview}', array(
             'pageview' => $pageView->getRelativeFilePath(),
             'type' => $pageView->getType()
         ));
@@ -292,7 +292,7 @@ class Compiler extends BaseManager
         $targetFile = $pageView->getTargetFile();
         $output = $this->renderStaticPageView($pageView);
 
-        $this->output->notice('Writing file: {file}', array('file' => $targetFile));
+        $this->logger->notice('Writing file: {file}', array('file' => $targetFile));
         $this->folder->writeFile($targetFile, $output);
     }
 
@@ -314,7 +314,7 @@ class Compiler extends BaseManager
         {
             if ($contentItem->isDraft() && !Service::getParameter(BuildableCommand::USE_DRAFTS))
             {
-                $this->output->debug('{file}: marked as a draft', array(
+                $this->logger->debug('{file}: marked as a draft', array(
                     'file' => $contentItem->getRelativeFilePath()
                 ));
 
@@ -324,7 +324,7 @@ class Compiler extends BaseManager
             $targetFile = $contentItem->getTargetFile();
             $output = $this->renderDynamicPageView($template, $contentItem);
 
-            $this->output->notice('Writing file: {file}', array('file' => $targetFile));
+            $this->logger->notice('Writing file: {file}', array('file' => $targetFile));
             $this->folder->writeFile($targetFile, $output);
 
             $this->compileStandardRedirects($contentItem);
@@ -353,7 +353,7 @@ class Compiler extends BaseManager
             $targetFile = $pageView->getTargetFile();
             $output = $this->renderRepeaterPageView($template, $pageView, $permalink);
 
-            $this->output->notice('Writing repeater file: {file}', ['file' => $targetFile]);
+            $this->logger->notice('Writing repeater file: {file}', ['file' => $targetFile]);
             $this->folder->writeFile($targetFile, $output);
         }
     }
@@ -376,7 +376,7 @@ class Compiler extends BaseManager
         $targetFile = $contentItem->getTargetFile();
         $output = $this->renderDynamicPageView($template, $contentItem);
 
-        $this->output->notice('Writing file: {file}', array('file' => $targetFile));
+        $this->logger->notice('Writing file: {file}', array('file' => $targetFile));
         $this->folder->writeFile($targetFile, $output);
     }
 

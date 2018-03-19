@@ -12,7 +12,10 @@ use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\Exception\DependencyMissingException;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
-use allejo\stakx\Utilities\StrUtils;
+use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class handles everything in regards to DataItems and DataSets.
@@ -21,16 +24,18 @@ class DataManager extends TrackingManager
 {
     private $dataTransformerManager;
     private $configuration;
+    private $eventDispatcher;
+    private $logger;
 
     /**
      * DataManager constructor.
      */
-    public function __construct(DataTransformerManager $dataTransformerManager, Configuration $configuration)
+    public function __construct(DataTransformerManager $dataTransformerManager, Configuration $configuration, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
-        parent::__construct();
-
         $this->dataTransformerManager = $dataTransformerManager;
         $this->configuration = $configuration;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
     }
 
     /**
@@ -40,7 +45,7 @@ class DataManager extends TrackingManager
     {
         if (!$this->configuration->hasDataItems())
         {
-            $this->output->notice('No DataItems or Datasets detected... Ignoring.');
+            $this->logger->notice('No DataItems or Datasets detected... Ignoring.');
             return;
         }
 
@@ -118,7 +123,7 @@ class DataManager extends TrackingManager
             ));
             $this->scanTrackableItems(
                 $dataSet['folder'],
-                array('namespace' => $dataSet['name'])
+                ['namespace' => $dataSet['name']]
             );
         }
     }
@@ -126,7 +131,7 @@ class DataManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem($filePath, array $options = array())
+    protected function handleTrackableItem(File $filePath, array $options = [])
     {
         try
         {
@@ -145,17 +150,17 @@ class DataManager extends TrackingManager
         {
             if ($e->getDependency() === 'XML')
             {
-                $this->output->critical('XML support is not available in your PHP installation. For XML support, please install the appropriate package for your system:');
-                $this->output->critical('  e.g. php7.0-xml');
+                $this->logger->critical('XML support is not available in your PHP installation. For XML support, please install the appropriate package for your system:');
+                $this->logger->critical('  e.g. php7.0-xml');
             }
         }
         catch (UnsupportedDataTypeException $e)
         {
-            $this->output->warning('There is no function to handle {ext} file format.', [
+            $this->logger->warning('There is no function to handle {ext} file format.', [
                 'ext' => $e->getDataType(),
             ]);
         }
 
-        return $this->fs->getBaseName($filePath);
+        return fs::getBaseName($filePath);
     }
 }

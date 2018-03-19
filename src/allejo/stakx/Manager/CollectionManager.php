@@ -11,7 +11,10 @@ use allejo\stakx\Configuration;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * The class that reads and saves information about all of the collections.
@@ -21,15 +24,17 @@ class CollectionManager extends TrackingManager
     /** @var string[][] A copy of the collection definitions to be available for later usage. */
     private $collectionDefinitions;
     private $configuration;
+    private $eventDispatcher;
+    private $logger;
 
     /**
      * CollectionManager constructor.
      */
-    public function __construct(Configuration $configuration)
+    public function __construct(Configuration $configuration, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
-        parent::__construct();
-
         $this->configuration = $configuration;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
     }
 
     /**
@@ -39,7 +44,7 @@ class CollectionManager extends TrackingManager
     {
         if (!$this->configuration->hasCollections())
         {
-            $this->output->notice('No Collections defined... Ignoring');
+            $this->logger->notice('No Collections defined... Ignoring');
             return;
         }
 
@@ -49,6 +54,15 @@ class CollectionManager extends TrackingManager
     /**
      * Get all of the ContentItems grouped by Collection name.
      *
+     * ```php
+     * [
+     *     'collection name' => [
+     *         new ContentItem(),
+     *         new ContentItem(),
+     *     ]
+     * ]
+     * ```
+     *
      * @return ContentItem[][]
      */
     public function &getCollections()
@@ -57,7 +71,7 @@ class CollectionManager extends TrackingManager
     }
 
     /**
-     * Get a ContentItem from a Collection pased on it's path.
+     * Get a ContentItem from a Collection passed on it's path.
      *
      * @param string $filePath
      *
@@ -94,7 +108,7 @@ class CollectionManager extends TrackingManager
     {
         if ($collections === null)
         {
-            $this->output->debug('No collections found, nothing to parse.');
+            $this->logger->debug('No collections found, nothing to parse.');
 
             return;
         }
@@ -111,7 +125,7 @@ class CollectionManager extends TrackingManager
          */
         foreach ($collections as $collection)
         {
-            $this->output->notice("Loading '{name}' collection...", [
+            $this->logger->notice('Loading "{name}" collection...', [
                 'name' => $collection['name'],
             ]);
 
@@ -119,17 +133,18 @@ class CollectionManager extends TrackingManager
 
             if (!fs::exists($collectionFolder))
             {
-                $this->output->warning("The folder '{folder}' could not be found for the '{name}' collection", [
+                $this->logger->warning('The folder "{folder}" could not be found for the "{name}" collection', [
                     'folder' => $collection['folder'],
                     'name'   => $collection['name'],
                 ]);
+
                 continue;
             }
 
             $this->saveFolderDefinition($collection['folder'], $collection);
-            $this->scanTrackableItems($collectionFolder, array(
+            $this->scanTrackableItems($collectionFolder, [
                 'namespace' => $collection['name'],
-            ));
+            ]);
         }
     }
 
@@ -140,9 +155,9 @@ class CollectionManager extends TrackingManager
     {
         $collection = $this->getTentativeCollectionName($filePath);
 
-        return $this->handleTrackableItem($filePath, array(
+        return $this->handleTrackableItem($filePath, [
             'namespace' => $collection,
-        ));
+        ]);
     }
 
     /**
@@ -155,7 +170,7 @@ class CollectionManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem($filePath, array $options = array())
+    protected function handleTrackableItem(File $filePath, array $options = [])
     {
         $collectionName = $options['namespace'];
 
@@ -167,7 +182,7 @@ class CollectionManager extends TrackingManager
 
         $this->addObjectToTracker($contentItem, $collectionName);
 
-        $this->output->info("Loading ContentItem into '{name}' collection: {path}", [
+        $this->logger->info('Loading ContentItem into "{name}" collection: {path}', [
             'name' => $collectionName,
             'path' => fs::getRelativePath($filePath),
         ]);
@@ -190,6 +205,19 @@ class CollectionManager extends TrackingManager
             {
                 return $collection['name'];
             }
+        }
+
+        return '';
+    }
+
+    private function getCollectionNameFromPath(File $file)
+    {
+        $folders = array_column($this->collectionDefinitions, 'folder');
+        $index = array_search($file->getRelativeParentFolder(), $folders);
+
+        if (isset($this->collectionDefinitions[$index]['name']))
+        {
+            return $this->collectionDefinitions[$index]['name'];
         }
 
         return '';

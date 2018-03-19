@@ -13,6 +13,7 @@ use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\ReadableDocument;
 use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Service;
 use allejo\stakx\Filesystem\FileExplorer;
 
@@ -24,7 +25,7 @@ abstract class TrackingManager extends BaseManager
     /**
      * @var FileExplorer
      */
-    protected $fileExplorer;
+    protected $fileExplorer = null;
 
     /**
      * An array corresponding with $folderDefinitions to store metadata regarding a specificc folder.
@@ -33,7 +34,7 @@ abstract class TrackingManager extends BaseManager
      *
      * @var string[]
      */
-    protected $folderDefinitionsOptions;
+    protected $folderDefinitionsOptions = [];
 
     /**
      * An array of folders which tracked items are stored in.
@@ -42,7 +43,7 @@ abstract class TrackingManager extends BaseManager
      *
      * @var string[]
      */
-    protected $folderDefinitions;
+    protected $folderDefinitions = [];
 
     /**
      * The storage which contains the same information as $trackedItems but organized by relative file path instead of a
@@ -50,9 +51,9 @@ abstract class TrackingManager extends BaseManager
      *
      * $trackedItemsOptions['<relative file path>'] = mixed
      *
-     * @var ReadableDocument[]
+     * @var array
      */
-    protected $trackedItemsFlattened;
+    protected $trackedItemsFlattened = [];
 
     /**
      * The storage used to cache any information needed for a specific FrontMatterObject or DataItem.
@@ -64,7 +65,7 @@ abstract class TrackingManager extends BaseManager
      *
      * @var array
      */
-    protected $trackedItemsOptions;
+    protected $trackedItemsOptions = [];
 
     /**
      * The storage used for ReadableDocument in the respective static classes.
@@ -72,20 +73,9 @@ abstract class TrackingManager extends BaseManager
      * $trackedItems['<namespace>']['<file name w/o extension>'] = mixed
      * $trackedItems['<file name w/o extension>'] = mixed
      *
-     * @var ReadableDocument[]
+     * @var array
      */
-    protected $trackedItems;
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->folderDefinitionsOptions = array();
-        $this->folderDefinitions = array();
-        $this->trackedItemsFlattened = array();
-        $this->trackedItemsOptions = array();
-        $this->trackedItems = array();
-    }
+    protected $trackedItems = [];
 
     /**
      * @param File|string $filePath
@@ -249,7 +239,7 @@ abstract class TrackingManager extends BaseManager
      */
     protected function scanTrackableItems($path, array $options = array(), array $includes = array(), array $excludes = array())
     {
-        $this->folderDefinitions[] = $this->fs->getRelativePath($path);
+        $this->folderDefinitions[] = fs::getRelativePath($path);
 
         $excludes = empty($excludes) ? self::$documentIgnoreList : $excludes;
 
@@ -277,7 +267,7 @@ abstract class TrackingManager extends BaseManager
      *
      * @return mixed|null
      */
-    abstract protected function handleTrackableItem($filePath, array $options = array());
+    abstract protected function handleTrackableItem(File $filePath, array $options = array());
 
     ///
     // Utility functions

@@ -16,8 +16,6 @@ services:
     resource: '../Manager/*'
     exclude: '../Manager/{Twig}Manager'
     calls:
-      - { method: 'setLogger', arguments: ['@logger'] }
-      - { method: 'setContainer', arguments: ['@service_container'] }
       - { method: 'compileManager', arguments: [] }
 
   allejo\stakx\Manager\ThemeManager:
