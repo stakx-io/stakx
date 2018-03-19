@@ -42,8 +42,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
      */
     private function getCollectionManager()
     {
-        $cm = new CollectionManager($this->getMockConfiguration());
-        $cm->setLogger($this->getMockLogger());
+        $cm = new CollectionManager($this->getMockConfiguration(), $this->getMockEventDistpatcher(), $this->getMockLogger());
         $cm->parseCollections([
             [
                 'name' => 'books',
@@ -59,20 +58,20 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
      */
     private function staticPageViewsProvider()
     {
-        return $this->createMultipleVirtualFiles(StaticPageView::class, array(
-            array(
+        return $this->createMultipleVirtualFiles(StaticPageView::class, [
+            [
                 'filename' => 'pageview-1.html.twig',
-                'frontmatter' => array('title' => 'Hello World'),
-            ),
-            array(
+                'frontmatter' => ['title' => 'Hello World'],
+            ],
+            [
                 'filename' => 'pageview-2.html.twig',
-                'frontmatter' => array(),
-            ),
-            array(
+                'frontmatter' => [],
+            ],
+            [
                 'filename' => 'pageview-3.html.twig',
-                'frontmatter' => array('title' => 'Lorem Ipsum'),
-            ),
-        ));
+                'frontmatter' => ['title' => 'Lorem Ipsum'],
+            ],
+        ]);
     }
 
     public function testStaticPageViewTitles()

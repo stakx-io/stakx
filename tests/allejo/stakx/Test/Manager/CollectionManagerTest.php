@@ -9,6 +9,7 @@ namespace allejo\stakx\Test\Manager;
 
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Configuration;
+use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\CollectionManager;
@@ -36,13 +37,12 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
             ->willReturn([
                 [
                     'name' => 'My Books',
-                    'folder' => fs::appendPath(__DIR__, '..', 'assets', 'MyBookCollection'),
+                    'folder' => fs::path($this->getTestRoot() . '/assets/MyBookCollection'),
                 ],
             ])
         ;
 
-        $this->cm = new CollectionManager($conf);
-        $this->cm->setLogger($this->getMockLogger());
+        $this->cm = new CollectionManager($conf, $this->getMockEventDistpatcher(), $this->getMockLogger());
         $this->cm->compileManager();
     }
 
@@ -58,27 +58,26 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
         /** @var Configuration $conf */
         $conf = $this->getMock(Configuration::class);
 
-        $cm = new CollectionManager($conf);
-        $cm->setLogger($this->getMockLogger());
-        $cm->parseCollections(array());
+        $cm = new CollectionManager($conf, $this->getMockEventDistpatcher(), $this->getMockLogger());
+        $cm->parseCollections([]);
 
         $this->assertEmpty($cm->getCollections());
     }
 
     public function testCollectionManagerContainsContentItem()
     {
-        $path = fs::path('tests/allejo/stakx/Test/assets/MyBookCollection/Tale-of-Despereaux.md');
+        $path = fs::path($this->getTestRoot() . '/assets/MyBookCollection/Tale-of-Despereaux.md');
         $file = new File($path);
         $this->assertTrue($this->cm->isTracked($file->getRelativeFilePath()));
 
-        $path = fs::path('tests/allejo/stakx/Test/assets/MyBookCollection/Tiger-Rising.md');
+        $path = fs::path($this->getTestRoot() . '/assets/MyBookCollection/Tiger-Rising.md');
         $file = new File($path);
         $this->assertTrue($this->cm->isTracked($file->getRelativeFilePath()));
     }
 
     public function testCollectionManagerGetContentItem()
     {
-        $path = fs::path('tests/allejo/stakx/Test/assets/MyBookCollection/Tiger-Rising.md');
+        $path = fs::path($this->getTestRoot() . '/assets/MyBookCollection/Tiger-Rising.md');
         $file = new File($path);
 
         $contentItem = $this->cm->getContentItem($file->getRelativeFilePath());
@@ -97,5 +96,42 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
         $withDrafts = count($this->cm->getJailedCollections()['My Books']);
 
         $this->assertGreaterThan($withoutDrafts, $withDrafts);
+    }
+
+    public function testCollectionManagerAdditionNewContentItem()
+    {
+        $this->createMultipleVirtualFiles(ContentItem::class, [
+            [
+                'frontmatter' => [ 'title' => 'Dark Matter' ],
+            ],
+            [
+                'frontmatter' => [ 'title' => 'Sphere' ]
+            ]
+        ]);
+
+        $collections = [
+            [
+                'name' => 'Sci-Fi',
+                'folder' => $this->rootDir->url(),
+            ],
+        ];
+
+        /** @var Configuration $conf */
+        $conf = $this->getMock(Configuration::class);
+        $cm = new CollectionManager($conf, $this->getMockEventDistpatcher(), $this->getMockLogger());
+
+        $cm->parseCollections($collections);
+        $this->assertCount(2, $cm->getCollections()['Sci-Fi']);
+
+        //
+        // Create a new ContentItem and register it with an existing CollectionManager
+        //
+
+        /** @var ContentItem $newItem */
+        $newItem = $this->createVirtualFrontMatterFile(ContentItem::class, [ 'title' => 'The Expanse' ]);
+        $pushedItem = $cm->createNewItem($newItem->getFile());
+
+        $this->assertCount(3, $cm->getCollections()['Sci-Fi']);
+        $this->assertEquals('Sci-Fi', $pushedItem->getNamespace());
     }
 }

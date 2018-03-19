@@ -10,6 +10,7 @@ namespace allejo\stakx\Test;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Configuration;
 use allejo\stakx\Core\StakxLogger;
+use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Service;
@@ -20,6 +21,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Yaml\Yaml;
 
 abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
@@ -89,8 +91,11 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
     protected function bookCollectionProvider($jailed = false)
     {
-        $cm = new CollectionManager($this->getMock(Configuration::class));
-        $cm->setLogger($this->getMockLogger());
+        $cm = new CollectionManager(
+            $this->getMock(Configuration::class),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
         $cm->parseCollections(array(
             array(
                 'name' => 'books',
@@ -196,6 +201,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
             $url = $file->url();
 
+            /** @var FrontMatterDocument $item */
             $item = new $classType($this->createFileObjectFromPath($url));
             $item->evaluateFrontMatter();
 
@@ -233,6 +239,14 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return EventDispatcherInterface
+     */
+    protected function getMockEventDistpatcher()
+    {
+        return $this->getMock(EventDispatcherInterface::class);
+    }
+
+    /**
      * Get a mock logger.
      *
      * @return LoggerInterface
@@ -254,6 +268,11 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         stream_filter_append($stakxLogger->getOutputInterface()->getStream(), 'intercept');
 
         return $stakxLogger;
+    }
+
+    protected function getTestRoot()
+    {
+        return __DIR__;
     }
 
     /**

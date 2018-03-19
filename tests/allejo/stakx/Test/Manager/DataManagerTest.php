@@ -34,7 +34,12 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
     {
         $dataSetName = 'calendar';
 
-        $dm = new DataManager($this->getDataTransformerManager(), $this->getMock(Configuration::class));
+        $dm = new DataManager(
+            $this->getDataTransformerManager(),
+            $this->getMock(Configuration::class),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
         $dm->parseDataSets(array(array(
             'name' => $dataSetName,
             'folder' => $this->fs->appendPath(__DIR__, '../assets/MyDataSet'),
@@ -66,7 +71,12 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testDataItemParsing()
     {
-        $dm = new DataManager($this->getDataTransformerManager(), $this->getMock(Configuration::class));
+        $dm = new DataManager(
+            $this->getDataTransformerManager(),
+            $this->getMock(Configuration::class),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
         $dm->parseDataItems(array(
             $this->fs->appendPath(__DIR__, '../assets/MyDataSet')
         ));
