@@ -201,7 +201,7 @@ abstract class TrackingManager extends BaseManager
     protected function saveFolderDefinition($folderPath, array $options = array())
     {
         $this->folderDefinitions[] = $folderPath;
-        $this->folderDefinitionsOptions[$folderPath] = $options;
+        $this->folderDefinitionsOptions[(string)$folderPath] = $options;
     }
 
     /**
