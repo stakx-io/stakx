@@ -7,6 +7,7 @@ use allejo\stakx\Configuration;
 use allejo\stakx\Engines\Markdown\TwigMarkdownEngine;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
+use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
@@ -28,6 +29,7 @@ class TwigStakxBridgeFactory
         CollectionManager $collectionManager,
         DataManager $dataManager,
         PageManager $pageManager,
+        MenuManager $menuManager,
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface $logger
     ) {
@@ -68,7 +70,7 @@ class TwigStakxBridgeFactory
         $twig->addGlobal('site', $configuration->getConfiguration());
         $twig->addGlobal('data', $dataManager->getJailedDataItems());
         $twig->addGlobal('collections', $collectionManager->getJailedCollections());
-        $twig->addGlobal('menu', []);
+        $twig->addGlobal('menu', $menuManager->getSiteMenu());
         $twig->addGlobal('pages', $pageManager->getJailedStaticPageViews());
 
         $twig->addExtension(new TwigExtension());
