@@ -97,6 +97,16 @@ abstract class ReadableDocument
     }
 
     /**
+     * Get the original File object given to this document.
+     *
+     * @return File
+     */
+    final public function getFile()
+    {
+        return $this->file;
+    }
+
+    /**
      * Get the relative path to the file, with respect to the site root.
      *
      * @return string
