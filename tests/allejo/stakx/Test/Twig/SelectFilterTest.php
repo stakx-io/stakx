@@ -15,7 +15,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
 {
     private function getDummyCollection()
     {
-        return $this->createMultipleVirtualFiles(ContentItem::class, array(
+        return $this->createMultipleFrontMatterDocumentsOfType(ContentItem::class, array(
             array('frontmatter' => array('tags' => array('red', 'blue'))),
             array('frontmatter' => array('tags' => array('red', 'green'))),
             array('frontmatter' => array('tags' => array('green', 'blue', 'orange'))),

@@ -64,7 +64,7 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
 
     public function testJailWhiteListFunction()
     {
-        $contentItem = $this->createVirtualFrontMatterFile(ContentItem::class);
+        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class);
         $jailable = $contentItem->createJail();
         $content = $jailable->getContent();
 
@@ -75,7 +75,7 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
     {
         $value = 'super bacon!';
 
-        $contentItem = $this->createVirtualFrontMatterFile(ContentItem::class, array('value' => $value));
+        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class, null, ['value' => $value]);
         $contentItem->evaluateFrontMatter();
 
         $jailable = $contentItem->createJail();
@@ -88,7 +88,7 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
         $this->setExpectedException(\BadMethodCallException::class);
 
         /** @var ContentItem $contentItem */
-        $contentItem = $this->createVirtualFrontMatterFile(ContentItem::class);
+        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class);
         $jailable = $contentItem->createJail();
         $jailable->getLineOffset();
     }

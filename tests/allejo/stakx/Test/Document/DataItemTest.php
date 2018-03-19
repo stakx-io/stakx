@@ -21,17 +21,6 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class DataItemTest extends PHPUnit_Stakx_TestCase
 {
-    public function getDataTransformerManager()
-    {
-        $manager = new DataTransformerManager();
-        $manager->addDataTransformer(new CsvTransformer());
-        $manager->addDataTransformer(new JsonTransformer());
-        $manager->addDataTransformer(new XmlTransformer());
-        $manager->addDataTransformer(new YamlTransformer());
-
-        return $manager;
-    }
-
     public function testJsonAsDataItem()
     {
         $jsonFile = <<<LINE
@@ -53,7 +42,7 @@ class DataItemTest extends PHPUnit_Stakx_TestCase
 }
 LINE;
         /** @var DataItem $dataItem */
-        $dataItem = $this->createBlankFile('my-sample-JSON.json', DataItem::class, $jsonFile);
+        $dataItem = $this->createDocumentOfType(DataItem::class, 'my-sample-JSON.json', $jsonFile);
         $dataItem->setDataTransformer($this->getDataTransformerManager());
         $jailItem = $dataItem->createJail();
 
@@ -91,7 +80,7 @@ id,name,gender
 2,Jane Doe,F
 LINE;
         /** @var DataItem $dataItem */
-        $dataItem = $this->createBlankFile('my-file.csv', DataItem::class, $csvFile);
+        $dataItem = $this->createDocumentOfType(DataItem::class, 'my-file.csv', $csvFile);
         $dataItem->setDataTransformer($this->getDataTransformerManager());
         $jailItem = $dataItem->createJail();
 
@@ -126,8 +115,8 @@ events:
   - 2017-01-30
 LINE;
         /** @var DataItem $dataItem */
-        $dataItem = $this->createBlankFile('my-yaml.yml', DataItem::class, $yamlFile);
-        $yamlExtension = $this->createBlankFile('my-file.yaml', DataItem::class, $yamlFile);
+        $dataItem = $this->createDocumentOfType(DataItem::class, 'my-yaml.yml', $yamlFile);
+        $yamlExtension = $this->createDocumentOfType(DataItem::class, 'my-file.yaml', $yamlFile);
 
         $dataItem->setDataTransformer($this->getDataTransformerManager());
         $yamlExtension->setDataTransformer($this->getDataTransformerManager());
@@ -158,7 +147,7 @@ LINE;
 </note>
 LINE;
         /** @var DataItem $dataItem */
-        $dataItem = $this->createBlankFile('my-data.xml', DataItem::class, $xmlFile);
+        $dataItem = $this->createDocumentOfType(DataItem::class, 'my-data.xml', $xmlFile);
         $dataItem->setDataTransformer($this->getDataTransformerManager());
 
         $this->assertEquals(array(
@@ -180,21 +169,24 @@ LINE;
     {
         $this->setExpectedException(UnsupportedDataTypeException::class);
 
-        $this->createVirtualFrontMatterFile(ContentItem::class);
+        /** @var ContentItem $contentItem */
+        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class);
 
-        $dataItem = $this->createDataItemFromVFS();
+        $dataItem = new DataItem($contentItem->getFile());
         $dataItem->setDataTransformer($this->getDataTransformerManager());
     }
 
     /**
-     * Create a DataItem from the default virtual file in the VFS.
-     *
-     * @return DataItem
+     * @return DataTransformerManager
      */
-    private function createDataItemFromVFS()
+    private function getDataTransformerManager()
     {
-        return (new DataItem(
-            $this->createFileObjectFromPath($this->dummyFile->url())
-        ));
+        $manager = new DataTransformerManager();
+        $manager->addDataTransformer(new CsvTransformer());
+        $manager->addDataTransformer(new JsonTransformer());
+        $manager->addDataTransformer(new XmlTransformer());
+        $manager->addDataTransformer(new YamlTransformer());
+
+        return $manager;
     }
 }

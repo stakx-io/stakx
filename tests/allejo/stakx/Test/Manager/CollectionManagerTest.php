@@ -100,7 +100,7 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
 
     public function testCollectionManagerAdditionNewContentItem()
     {
-        $this->createMultipleVirtualFiles(ContentItem::class, [
+        $this->createMultipleFrontMatterDocumentsOfType(ContentItem::class, [
             [
                 'frontmatter' => [ 'title' => 'Dark Matter' ],
             ],
@@ -128,7 +128,7 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
         //
 
         /** @var ContentItem $newItem */
-        $newItem = $this->createVirtualFrontMatterFile(ContentItem::class, [ 'title' => 'The Expanse' ]);
+        $newItem = $this->createFrontMatterDocumentOfType(ContentItem::class, null, [ 'title' => 'The Expanse' ]);
         $pushedItem = $cm->createNewItem($newItem->getFile());
 
         $this->assertCount(3, $cm->getCollections()['Sci-Fi']);

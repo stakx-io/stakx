@@ -58,7 +58,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
      */
     private function staticPageViewsProvider()
     {
-        return $this->createMultipleVirtualFiles(StaticPageView::class, [
+        return $this->createMultipleFrontMatterDocumentsOfType(StaticPageView::class, [
             [
                 'filename' => 'pageview-1.html.twig',
                 'frontmatter' => ['title' => 'Hello World'],
@@ -87,10 +87,10 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testDynamicPageViewCollectionFound()
     {
-        $this->createVirtualFrontMatterFile(DynamicPageView::class, array(
+        $this->createFrontMatterDocumentOfType(DynamicPageView::class, null, [
             'collection' => 'books',
             'permalink' => '/blog/%title/',
-        ));
+        ]);
 
         $pageManager = new PageManager($this->getMockConfiguration(), $this->getCollectionManager());
         $pageManager->compileManager();
@@ -105,10 +105,10 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
     {
         $this->setExpectedException(CollectionNotFoundException::class);
 
-        $this->createVirtualFrontMatterFile(DynamicPageView::class, array(
+        $this->createFrontMatterDocumentOfType(DynamicPageView::class, null, [
             'collection' => 'non-existent',
             'permalink' => '/blog/%title/',
-        ));
+        ]);
 
         $pageManager = new PageManager($this->getMockConfiguration(), $this->getCollectionManager());
         $pageManager->compileManager();
@@ -116,7 +116,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testPageViewsContentItems()
     {
-        $this->createVirtualFrontMatterFile(DynamicPageView::class, array(
+        $this->createFrontMatterDocumentOfType(DynamicPageView::class, null, array(
             'collection' => 'books',
             'permalink' => '/blog/%title/',
         ));
@@ -147,10 +147,10 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testAddingContentItemToPageView()
     {
-        $this->createVirtualFrontMatterFile(DynamicPageView::class, array(
+        $this->createFrontMatterDocumentOfType(DynamicPageView::class, null, [
             'collection' => 'books',
             'permalink' => '/blog/%title/',
-        ));
+        ]);
 
         $pageManager = new PageManager($this->getMockConfiguration(), $this->getCollectionManager());
         $pageManager->compileManager();
@@ -164,7 +164,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertGreaterThan(0, $originalCount);
 
         /** @var ContentItem $contentItem */
-        $contentItem = $this->createVirtualFrontMatterFile(ContentItem::class);
+        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class);
         $contentItem->setNamespace('books');
 
         $pageManager->trackNewContentItem($contentItem);

@@ -12,6 +12,7 @@ use allejo\stakx\Configuration;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
@@ -63,7 +64,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     ///
-    // Assertion functions
+    // Assertion Functions
     ///
 
     /**
@@ -76,6 +77,11 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $this->assertNotFalse(strpos($haystack, $needle), $message);
     }
 
+    /**
+     * @param string $fileContent
+     * @param string $filePath
+     * @param string $message
+     */
     protected function assertFileContains($fileContent, $filePath, $message = '')
     {
         (substr($filePath, -1, 1) == '/') && $filePath .= 'index.html';
@@ -86,123 +92,131 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     ///
-    // Utility Functions
+    // Filesystem Functions
     ///
 
-    protected function bookCollectionProvider($jailed = false)
+    /**
+     * Create a temporary folder where temporary file writes will be made to.
+     *
+     * @param string $folderName
+     */
+    protected function createAssetFolder($folderName)
     {
-        $cm = new CollectionManager(
-            $this->getMock(Configuration::class),
-            $this->getMockEventDistpatcher(),
-            $this->getMockLogger()
-        );
-        $cm->parseCollections(array(
-            array(
-                'name' => 'books',
-                'folder' => 'tests/allejo/stakx/Test/assets/MyBookCollection/',
-            ),
-        ));
+        $this->assetFolder = fs::getRelativePath(fs::appendPath(__DIR__, $folderName));
 
-        return (!$jailed) ? $cm->getCollections() : $cm->getJailedCollections();
+        fs::mkdir($this->assetFolder);
     }
 
     /**
-     * Write a temporary file to the asset folder.
+     * Write a file to the asset folder.
      *
-     * This file will be written to the actual filesystem and not the virtual filesystem.
+     * This file will be written to the actual filesystem and not the virtual filesystem. This file will be deleted at
+     * each tearDown().
      *
-     * @param $fileName
-     * @param $content
+     * @param string $fileName
+     * @param string $content
      *
      * @return string Path to the temporary file; relative to the project's root
      */
-    protected function createTempFile($fileName, $content)
+    protected function createPhysicalFile($fileName, $content)
     {
         $folder = new Folder($this->assetFolder);
         $folder->writeFile($fileName, $content);
 
-        return $this->fs->appendPath($this->assetFolder, $fileName);
+        return fs::appendPath($this->assetFolder, $fileName);
     }
 
     /**
-     * Create a blank file on the virtual filesystem.
+     * Write a file to the virtual filesystem.
+     *
+     * This file will be deleted at each tearDown().
      *
      * @param string $filename
-     * @param string $classType
      * @param string $content
      *
-     * @return mixed
+     * @return string The URL of the file on the virtual filesystem.
      */
-    protected function createBlankFile($filename, $classType, $content)
+    protected function createVirtualFile($filename, $content)
     {
         $file = vfsStream::newFile($filename);
         $file
             ->setContent($content)
-            ->at($this->rootDir);
+            ->at($this->rootDir)
+        ;
 
-        $url = $file->url();
-
-        return new $classType($this->createFileObjectFromPath($url));
+        return $file->url();
     }
 
     /**
-     * Create a virtual file following the a FrontMatter-ready template.
+     * Create an object of a given type.
+     *
+     * This will create a virtual file and then create an object of the specified type for the created file.
      *
      * @param string $classType
-     * @param array  $frontMatter
-     * @param string $body
+     * @param string $filename
+     * @param string $content
      *
-     * @return mixed
+     * @return object An instance of $classType
      */
-    protected function createVirtualFrontMatterFile($classType, $frontMatter = array(), $body = 'Body Text')
+    protected function createDocumentOfType($classType, $filename, $content)
     {
-        return new $classType($this->setAndCreateVirtualFrontMatterFileObject($frontMatter, $body));
+        $file = $this->createVirtualFile($filename, $content);
+
+        return new $classType(new File($file));
     }
 
     /**
-     * Set the contents of our default virtual file and create a File object for it.
+     * Create an object of a given type following the Front Matter format.
      *
+     * @param string $classType
+     * @param string $filename
      * @param array  $frontMatter
-     * @param string $body
+     * @param string $content
      *
-     * @return File
+     * @return object An instance of $classType
      */
-    protected function setAndCreateVirtualFrontMatterFileObject($frontMatter = array(), $body = 'Body Text')
+    protected function createFrontMatterDocumentOfType($classType, $filename = null, $frontMatter = [], $content = 'Body Text')
     {
-        $this->dummyFile
-            ->setContent($this->buildFrontMatterTemplate($frontMatter, $body))
-            ->at($this->rootDir);
+        $body = $this->buildFrontMatterTemplate($frontMatter, $content);
 
-        return $this->createFileObjectFromPath($this->dummyFile->url());
+        if (!$filename)
+        {
+            $filename = hash('sha256', uniqid(mt_rand(), true), false);
+        }
+
+        return $this->createDocumentOfType($classType, $filename, $body);
     }
 
     /**
      * Create multiple virtual files from a given array of information.
+     *
+     * ```php
+     * $elements = [
+     *     [
+     *         'filename' => '<string>',
+     *         'frontmatter' => [],
+     *         'body' => '<string>',
+     *     ],
+     * ];
+     * ```
      *
      * @param string $classType
      * @param array  $elements
      *
      * @return array
      */
-    protected function createMultipleVirtualFiles($classType, $elements)
+    protected function createMultipleFrontMatterDocumentsOfType($classType, $elements)
     {
-        $results = array();
+        $results = [];
 
         foreach ($elements as $element)
         {
-            $filename = (isset($element['filename'])) ? $element['filename'] : hash('sha256', uniqid(mt_rand(), true), false);
-            $frontMatter = (empty($element['frontmatter'])) ? '' : Yaml::dump($element['frontmatter'], 2);
+            $filename = (isset($element['filename'])) ? $element['filename'] : null;
+            $frontMatter = (isset($element['frontmatter']) || empty($element['frontmatter'])) ? [] : $element['frontmatter'];
             $body = (isset($element['body'])) ? $element['body'] : 'Body Text';
 
-            $file = vfsStream::newFile($filename);
-            $file
-                ->setContent(sprintf("---\n%s\n---\n\n%s", $frontMatter, $body))
-                ->at($this->rootDir);
-
-            $url = $file->url();
-
             /** @var FrontMatterDocument $item */
-            $item = new $classType($this->createFileObjectFromPath($url));
+            $item = $this->createFrontMatterDocumentOfType($classType, $filename, $frontMatter, $body);
             $item->evaluateFrontMatter();
 
             $results[] = $item;
@@ -214,6 +228,8 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     /**
      * Create a File object from a given path.
      *
+     * @deprecated
+     *
      * @param  string $filePath
      *
      * @return File
@@ -223,22 +239,13 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return (new File($filePath));
     }
 
-    /**
-     * Generate a FrontMatter-ready syntax to be used as a file's content.
-     *
-     * @param array  $frontMatter
-     * @param string $body
-     *
-     * @return string
-     */
-    protected function buildFrontMatterTemplate(array $frontMatter = array(), $body = 'Body text')
-    {
-        $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
-
-        return sprintf(self::FM_OBJ_TEMPLATE, $fm, $body);
-    }
+    ///
+    // Mock Objects
+    ///
 
     /**
+     * Get a mock EventDispatcher.
+     *
      * @return EventDispatcherInterface
      */
     protected function getMockEventDistpatcher()
@@ -270,20 +277,53 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $stakxLogger;
     }
 
+    ///
+    // Utility Functions
+    ///
+
+    /**
+     * Get the directory of the unit tests.
+     *
+     * @return string
+     */
     protected function getTestRoot()
     {
         return __DIR__;
     }
 
     /**
-     * Create a temporary folder where temporary file writes will be made to.
+     * Generate a FrontMatter-ready syntax to be used as a file's content.
      *
-     * @param string $folderName
+     * @param array  $frontMatter
+     * @param string $body
+     *
+     * @return string
      */
-    protected function createAssetFolder($folderName)
+    private function buildFrontMatterTemplate(array $frontMatter = array(), $body = 'Body text')
     {
-        $this->assetFolder = $this->fs->getRelativePath($this->fs->appendPath(__DIR__, $folderName));
+        $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
 
-        $this->fs->mkdir($this->assetFolder);
+        return sprintf(self::FM_OBJ_TEMPLATE, $fm, $body);
+    }
+
+    ///
+    // Misc Functions
+    ///
+
+    protected function bookCollectionProvider($jailed = false)
+    {
+        $cm = new CollectionManager(
+            $this->getMock(Configuration::class),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
+        $cm->parseCollections(array(
+            array(
+                'name' => 'books',
+                'folder' => 'tests/allejo/stakx/Test/assets/MyBookCollection/',
+            ),
+        ));
+
+        return (!$jailed) ? $cm->getCollections() : $cm->getJailedCollections();
     }
 }

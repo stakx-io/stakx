@@ -10,6 +10,7 @@ namespace allejo\stakx\Test\Manager;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Manager\MenuManager;
+use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class MenuManagerTest extends PHPUnit_Stakx_TestCase
@@ -21,8 +22,13 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
     {
         parent::setUp();
 
-        $this->mm = new MenuManager();
-        $this->mm->setLogger($this->getMockLogger());
+        /** @var PageManager|\PHPUnit_Framework_MockObject_MockObject $pm */
+        $pm = $this->getMockBuilder(PageManager::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        $this->mm = new MenuManager($pm, $this->getMockEventDistpatcher(), $this->getMockLogger());
     }
 
     private function menuFrontMatterEvaluator(array &$pageViews)
@@ -35,10 +41,10 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
 
     public function dataProvider_SingleLevelMenu()
     {
-        $pageViews = array();
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/about/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/contact/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/blog/'));
+        $pageViews = [];
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/about/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/contact/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/blog/']);
 
         $this->menuFrontMatterEvaluator($pageViews);
 
@@ -47,12 +53,12 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
 
     public function dataProvider_SecondLevelMenu()
     {
-        $pageViews = array();
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/michael/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/jim/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/dwight/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/blog/'));
+        $pageViews = [];
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/michael/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/jim/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/dwight/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/blog/']);
 
         $this->menuFrontMatterEvaluator($pageViews);
 
@@ -61,11 +67,11 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
 
     public function dataProvider_SecondLevelMenuWithOrphans()
     {
-        $pageViews = array();
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/michael/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/jim/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/dwight/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/blog/'));
+        $pageViews = [];
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/michael/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/jim/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/dwight/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/blog/']);
 
         $this->menuFrontMatterEvaluator($pageViews);
 
@@ -74,14 +80,14 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
 
     public function dataProvider_ThirdLevelMenu()
     {
-        $pageViews = array();
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/british/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/english/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/english/michael/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/english/jim/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/english/dwight/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/blog/'));
+        $pageViews = [];
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/british/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/english/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/english/michael/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/english/jim/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/english/dwight/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/blog/']);
 
         $this->menuFrontMatterEvaluator($pageViews);
 
@@ -139,10 +145,10 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testSiteMenuExclusionWithMenuFrontMatter()
     {
-        $pageViews = array();
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/yes/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/yas/', 'menu' => true));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/no/', 'menu' => false));
+        $pageViews = [];
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/yes/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/yas/', 'menu' => true]);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/no/', 'menu' => false]);
 
         $this->menuFrontMatterEvaluator($pageViews);
 
@@ -155,8 +161,8 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testSiteMenuWithEmptyPermalink()
     {
-        $pageViews = array();
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/'));
+        $pageViews = [];
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/']);
 
         $this->menuFrontMatterEvaluator($pageViews);
 
@@ -169,10 +175,10 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testSiteMenuWithChildrenOutOfOrder()
     {
-        $pageViews = array();
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/michael/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/jim/'));
-        $pageViews[] = $this->createVirtualFrontMatterFile(StaticPageView::class, array('permalink' => '/authors/'));
+        $pageViews = [];
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/michael/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/jim/']);
+        $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/']);
 
         $this->menuFrontMatterEvaluator($pageViews);
 

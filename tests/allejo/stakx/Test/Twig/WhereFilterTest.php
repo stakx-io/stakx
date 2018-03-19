@@ -132,20 +132,20 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
 
     public function testWhereFilterAgainstContentItem()
     {
-        $elements = array(
-            $this->createVirtualFrontMatterFile(ContentItem::class, array(
+        $elements = [
+            $this->createFrontMatterDocumentOfType(ContentItem::class, null, [
                 'aggregate' => 'toast',
                 'category' => 'warm',
-            )),
-            $this->createVirtualFrontMatterFile(ContentItem::class, array(
+            ]),
+            $this->createFrontMatterDocumentOfType(ContentItem::class, null, [
                 'aggregate' => 'bacon',
                 'category' => 'warm',
-            )),
-            $this->createVirtualFrontMatterFile(ContentItem::class, array(
+            ]),
+            $this->createFrontMatterDocumentOfType(ContentItem::class, null, [
                 'aggregate' => 'pancake',
                 'category' => 'cold',
-            )),
-        );
+            ]),
+        ];
 
         foreach ($elements as $element)
         {
@@ -162,26 +162,26 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
 
     public static function fmDataProvider()
     {
-        return array(
-            array('completed', '==', true, 3),
-            array('completed', '==', false, 2),
-            array('completed', '==', null, 1),
-            array('completed', '!=', false, 4),
-            array('completed', '~=', false, 0),
-            array('page_count', '>=', 200, 2),
-            array('page_count', '~=', 200, 0),
-            array('shipping_weight', '>', 6, 3),
-            array('shipping_weight', '>=', 12.6, 2),
-            array('shipping_weight', '<', 12.6, 3),
-            array('shipping_weight', '<=', 12.6, 5),
-            array('publisher', '~=', 'Candle', 3),
-            array('publisher', '~=', 'candle', 0),
-            array('publisher', '~=', 'R', 2),
-            array('publisher', '_=', 'candle', 3),
-            array('publisher', '_=', 'r', 2),
-            array('animals', '_=', 'Dog', 2),
-            array('publisher', '/=', '/.wick.?/', 3),
-        );
+        return [
+            ['completed', '==', true, 3],
+            ['completed', '==', false, 2],
+            ['completed', '==', null, 1],
+            ['completed', '!=', false, 4],
+            ['completed', '~=', false, 0],
+            ['page_count', '>=', 200, 2],
+            ['page_count', '~=', 200, 0],
+            ['shipping_weight', '>', 6, 3],
+            ['shipping_weight', '>=', 12.6, 2],
+            ['shipping_weight', '<', 12.6, 3],
+            ['shipping_weight', '<=', 12.6, 5],
+            ['publisher', '~=', 'Candle', 3],
+            ['publisher', '~=', 'candle', 0],
+            ['publisher', '~=', 'R', 2],
+            ['publisher', '_=', 'candle', 3],
+            ['publisher', '_=', 'r', 2],
+            ['animals', '_=', 'Dog', 2],
+            ['publisher', '/=', '/.wick.?/', 3],
+        ];
     }
 
     /**

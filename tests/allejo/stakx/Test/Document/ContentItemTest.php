@@ -513,6 +513,6 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
      */
     private function createContentItem($frontMatter, $body = 'Body Text')
     {
-        return $this->createVirtualFrontMatterFile(ContentItem::class, $frontMatter, $body);
+        return $this->createFrontMatterDocumentOfType(ContentItem::class, null, $frontMatter, $body);
     }
 }
