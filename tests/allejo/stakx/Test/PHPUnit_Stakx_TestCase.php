@@ -14,6 +14,7 @@ use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\CollectionManager;
+use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Filesystem\Folder;
@@ -212,7 +213,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         foreach ($elements as $element)
         {
             $filename = (isset($element['filename'])) ? $element['filename'] : null;
-            $frontMatter = (isset($element['frontmatter']) || empty($element['frontmatter'])) ? [] : $element['frontmatter'];
+            $frontMatter = (!isset($element['frontmatter']) || empty($element['frontmatter'])) ? [] : $element['frontmatter'];
             $body = (isset($element['body'])) ? $element['body'] : 'Body Text';
 
             /** @var FrontMatterDocument $item */
@@ -242,6 +243,28 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     ///
     // Mock Objects
     ///
+
+    /**
+     * @return CollectionManager|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMockCollectionManager()
+    {
+        return $this->getMockBuilder(CollectionManager::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+    }
+
+    /**
+     * @return DataManager|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMockDataManager()
+    {
+        return $this->getMockBuilder(DataManager::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+    }
 
     /**
      * Get a mock EventDispatcher.
