@@ -90,7 +90,7 @@ class DataManager extends TrackingManager
         foreach ($folders as $folder)
         {
             $this->saveFolderDefinition($folder);
-            $this->scanTrackableItems($folder);
+            $this->scanTrackableItems(fs::absolutePath($folder));
         }
     }
 
@@ -122,7 +122,7 @@ class DataManager extends TrackingManager
                 'namespace' => $dataSet['name'],
             ));
             $this->scanTrackableItems(
-                $dataSet['folder'],
+                fs::absolutePath($dataSet['folder']),
                 ['namespace' => $dataSet['name']]
             );
         }

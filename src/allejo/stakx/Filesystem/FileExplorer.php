@@ -176,7 +176,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public static function create($folder, $excludes = array(), $includes = array(), $flags = null)
     {
-        $folder = self::realpath($folder);
+        $folder = File::realpath($folder);
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
 
         return new self($iterator, $excludes, $includes, $flags);
@@ -224,22 +224,5 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     private static function getRelativePath($path)
     {
         return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $path);
-    }
-
-    /**
-     * A vfsStream friendly way of getting the realpath() of something.
-     *
-     * @param string $path
-     *
-     * @return string
-     */
-    private static function realpath($path)
-    {
-        if (substr($path, 0, 6) == 'vfs://')
-        {
-            return $path;
-        }
-
-        return realpath($path);
     }
 }

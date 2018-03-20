@@ -9,6 +9,7 @@ namespace allejo\stakx;
 
 abstract class Service
 {
+    protected static $workingDirectory;
     protected static $parameters;
 
     public static function getParameter($key)
@@ -19,5 +20,15 @@ abstract class Service
     public static function setParameter($key, $value)
     {
         return (self::$parameters[$key] = $value);
+    }
+
+    public static function getWorkingDirectory()
+    {
+        return self::$workingDirectory;
+    }
+
+    public static function setWorkingDirectory($directory)
+    {
+        self::$workingDirectory = $directory;
     }
 }

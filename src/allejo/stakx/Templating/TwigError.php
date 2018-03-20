@@ -12,6 +12,7 @@ class TwigError extends \Exception implements TemplateErrorInterface
     public function __construct(\Twig_Error $error)
     {
         $this->error = $error;
+        $this->message = $error->getRawMessage();
     }
 
     /**

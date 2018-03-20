@@ -10,6 +10,7 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Service;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -67,7 +68,7 @@ class AssetManager extends TrackingManager
     public function copyFiles()
     {
         $this->scanTrackableItems(
-            getcwd(),
+            Service::getWorkingDirectory(),
             array(
                 'prefix' => '',
             ),
@@ -124,7 +125,7 @@ class AssetManager extends TrackingManager
         }
 
         $filePath = $file->getRealPath();
-        $pathToStrip = fs::appendPath(getcwd(), $options['prefix']);
+        $pathToStrip = fs::appendPath(Service::getWorkingDirectory(), $options['prefix']);
         $siteTargetPath = ltrim(str_replace($pathToStrip, '', $filePath), DIRECTORY_SEPARATOR);
 
         try

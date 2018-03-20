@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Twig;
 
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use Symfony\Component\Finder\Finder;
 use Twig_Environment;
 
@@ -17,7 +18,7 @@ class FinderFunction extends TwigFilesystem implements StakxTwigFunction
         parent::__invoke($env, $folderLocation);
 
         $finder = new Finder();
-        $finder->in($folderLocation);
+        $finder->in(fs::absolutePath($folderLocation));
 
         return $finder;
     }

@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Filesystem;
 
+use allejo\stakx\Service;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
@@ -31,9 +32,14 @@ final class File extends \SplFileInfo
      */
     public function __construct($absoluteFilePath, $relativePath = null)
     {
-        $this->relativePath = ($relativePath === null) ? getcwd() : $relativePath;
+        parent::__construct(self::realpath($absoluteFilePath));
 
-        parent::__construct($absoluteFilePath);
+        $this->relativePath = $relativePath;
+
+        if ($this->relativePath === null)
+        {
+            $this->relativePath = str_replace(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR, '', $this->getAbsolutePath());
+        }
     }
 
     /**
@@ -106,9 +112,7 @@ final class File extends \SplFileInfo
      */
     public function getRelativeFilePath()
     {
-        $path = str_replace($this->relativePath, '', $this->getAbsolutePath());
-
-        return ltrim($path, "/\\");
+        return $this->relativePath;
     }
 
     /**
@@ -148,5 +152,22 @@ final class File extends \SplFileInfo
         }
 
         return $content;
+    }
+
+    /**
+     * A vfsStream friendly way of getting the realpath() of something.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function realpath($path)
+    {
+        if (substr($path, 0, 6) == 'vfs://')
+        {
+            return $path;
+        }
+
+        return realpath($path);
     }
 }

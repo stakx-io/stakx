@@ -35,7 +35,7 @@ class TwigStakxBridgeFactory
     ) {
         $fs = new Filesystem();
         $loader = new StakxTwigFileLoader(array(
-            getcwd(),
+            Service::getWorkingDirectory(),
         ));
 
         $theme = $configuration->getTheme();

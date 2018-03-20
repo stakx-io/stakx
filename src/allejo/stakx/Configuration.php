@@ -9,7 +9,7 @@ namespace allejo\stakx;
 
 use allejo\stakx\Exception\FileAccessDeniedException;
 use allejo\stakx\Exception\RecursiveConfigurationException;
-use allejo\stakx\System\Filesystem;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Utilities\ArrayUtilities;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -56,17 +56,11 @@ class Configuration implements LoggerAwareInterface
     private $output;
 
     /**
-     * @var Filesystem
-     */
-    private $fs;
-
-    /**
      * Configuration constructor.
      */
     public function __construct()
     {
         $this->configuration = array();
-        $this->fs = new Filesystem();
     }
 
     /**
@@ -249,8 +243,7 @@ class Configuration implements LoggerAwareInterface
      */
     private static function readFile($filePath)
     {
-        $fs = new Filesystem();
-        $fileRaw = $fs->safeReadFile($filePath);
+        $fileRaw = fs::safeReadFile($filePath);
         $parsed = Yaml::parse($fileRaw);
 
         return (null === $parsed) ? array() : $parsed;
@@ -263,7 +256,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function parse($configFile = null)
     {
-        $this->parentConfig = $this->fs->getRelativePath($configFile);
+        $this->parentConfig = fs::getRelativePath($configFile);
         self::$configImports = array();
 
         $this->configuration = $this->parseConfig($configFile);
@@ -398,7 +391,7 @@ class Configuration implements LoggerAwareInterface
             return;
         }
 
-        $parentConfigLocation = $this->fs->getFolderPath($this->parentConfig);
+        $parentConfigLocation = fs::getFolderPath($this->parentConfig);
 
         foreach ($imports as $import)
         {
@@ -426,7 +419,7 @@ class Configuration implements LoggerAwareInterface
             return;
         }
 
-        $import = $this->fs->appendPath($parentConfLoc, $importDef);
+        $import = fs::appendPath($parentConfLoc, $importDef);
 
         if (!$this->isValidImport($import))
         {
@@ -470,19 +463,19 @@ class Configuration implements LoggerAwareInterface
     {
         $errorMsg = '';
 
-        if ($this->fs->isDir($filePath))
+        if (fs::isDir($filePath))
         {
             $errorMsg = 'a directory';
         }
-        elseif ($this->fs->isSymlink($filePath))
+        elseif (fs::isSymlink($filePath))
         {
             $errorMsg = 'a symbolically linked file';
         }
-        elseif ($this->fs->absolutePath($this->currentFile) == $this->fs->absolutePath($filePath))
+        elseif (fs::absolutePath($this->currentFile) == fs::absolutePath($filePath))
         {
             $errorMsg = 'yourself';
         }
-        elseif (($ext = $this->fs->getExtension($filePath)) != 'yml' && $ext != 'yaml')
+        elseif (($ext = fs::getExtension($filePath)) != 'yml' && $ext != 'yaml')
         {
             $errorMsg = 'a non-YAML configuration';
         }

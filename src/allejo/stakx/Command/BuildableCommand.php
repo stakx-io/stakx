@@ -8,10 +8,10 @@
 namespace allejo\stakx\Command;
 
 use allejo\stakx\Configuration;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Service;
-use allejo\stakx\System\Filesystem;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Website;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -37,17 +37,12 @@ abstract class BuildableCommand extends ContainerAwareCommand
     /** @var Website */
     protected $website;
 
-    /** @var Filesystem */
-    protected $fs;
-
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
-        $this->fs = new Filesystem();
-
-        $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', $this->fs->absolutePath(Configuration::DEFAULT_NAME));
+        $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', Configuration::DEFAULT_NAME);
         $this->addOption(self::SAFE_MODE, 's', InputOption::VALUE_NONE, 'Disable file system access from Twig');
         $this->addOption(self::NO_CONF, 'l', InputOption::VALUE_NONE, 'Build a stakx website without a configuration file');
         $this->addOption(self::NO_CLEAN, 'x', InputOption::VALUE_NONE, "Don't clean the _site before recompiling the website");
@@ -79,8 +74,24 @@ abstract class BuildableCommand extends ContainerAwareCommand
 
     private function configureConfigurationFile(InputInterface $input)
     {
+        /** @var Configuration $conf */
         $conf = $this->getContainer()->get(Configuration::class);
-        $conf->parse($input->getOption('conf'));
+
+        if (Service::getParameter(self::NO_CONF))
+        {
+            Service::setWorkingDirectory(getcwd());
+            $conf->parse();
+        }
+        else
+        {
+            $confFilePath = $input->getOption('conf');
+            $siteRoot = fs::getFolderPath(realpath($confFilePath));
+            Service::setWorkingDirectory($siteRoot);
+
+            $configFile = new File($confFilePath);
+
+            $conf->parse($configFile->getAbsolutePath());
+        }
     }
 
     /**

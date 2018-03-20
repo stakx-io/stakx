@@ -10,6 +10,7 @@ namespace allejo\stakx\System;
 use allejo\stakx\Exception\FileAccessDeniedException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemPath;
+use allejo\stakx\Service;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 
@@ -35,7 +36,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
         }
 
         $args = func_get_args();
-        array_unshift($args, getcwd());
+        array_unshift($args, Service::getWorkingDirectory());
 
         return implode(DIRECTORY_SEPARATOR, $args);
     }
@@ -113,7 +114,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      */
     public function getRelativePath($path)
     {
-        return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $path);
+        return str_replace(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR, '', $path);
     }
 
     /**
@@ -219,7 +220,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
             ));
         }
 
-        if (strpos($absPath, getcwd()) !== 0)
+        if (strpos($absPath, Service::getWorkingDirectory()) !== 0)
         {
             throw new FileAccessDeniedException(sprintf(
                 "The '%s' file is outside the website working directory",
