@@ -277,7 +277,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
     public function testContentItemTargetFileFromFileWithoutPermalinkAtRoot()
     {
-        $contentItem = $this->createContentItemWithEmptyFrontMatter();
+        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class, 'stakx.html.twig');
         $contentItem->evaluateFrontMatter();
 
         $this->assertEquals($this->fs->appendPath('root', 'stakx.html'), $contentItem->getTargetFile());
@@ -364,7 +364,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile = vfsStream::newFile('Sample Markdown.md');
         $markdownContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample Markdown.md');
 
-        $contentItem = $this->createContentItemWithEmptyFrontMatter($markdownContent);
+        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class, 'document.md', [], $markdownContent);
         $pd = new MarkdownEngine();
 
         $this->assertEquals($pd->parse($markdownContent), $contentItem->getContent());
@@ -387,7 +387,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
         $rstContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample reStructuredText.rst');
 
-        $contentItem = $this->createContentItemWithEmptyFrontMatter($rstContent);
+        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class, 'document.rst', [], $rstContent);
         $pd = new RstEngine();
 
         $this->assertEquals((string) $pd->parse($rstContent), $contentItem->getContent());
