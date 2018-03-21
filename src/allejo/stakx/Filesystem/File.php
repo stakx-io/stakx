@@ -25,21 +25,15 @@ final class File extends \SplFileInfo
     /**
      * File Constructor.
      *
-     * @param string $absoluteFilePath  The absolute file path
-     * @param string|null $relativePath The relative path to its parent folder with respect to the CWD
+     * @param string $absoluteFilePath The absolute file path
      *
      * @since 0.2.0
      */
-    public function __construct($absoluteFilePath, $relativePath = null)
+    public function __construct($absoluteFilePath)
     {
         parent::__construct(self::realpath($absoluteFilePath));
 
-        $this->relativePath = $relativePath;
-
-        if ($this->relativePath === null)
-        {
-            $this->relativePath = str_replace(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR, '', $this->getAbsolutePath());
-        }
+        $this->relativePath = str_replace(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR, '', $this->getAbsolutePath());
     }
 
     /**
