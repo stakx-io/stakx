@@ -39,6 +39,18 @@ final class File extends \SplFileInfo
     }
 
     /**
+     * Get a new File object for another file relative to this file.
+     *
+     * @param string $path
+     *
+     * @return File
+     */
+    public function createFileForRelativePath($path)
+    {
+        return new File(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR . $path);
+    }
+
+    /**
      * Whether or not this file exists on the filesystem.
      *
      * @return bool
