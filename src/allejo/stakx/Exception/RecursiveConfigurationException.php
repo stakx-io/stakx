@@ -7,16 +7,14 @@
 
 namespace allejo\stakx\Exception;
 
+use allejo\stakx\Filesystem\File;
 use Exception;
 
 class RecursiveConfigurationException extends \RuntimeException
 {
     private $import;
 
-    /**
-     * @param string $import
-     */
-    public function __construct($import, $message = '', $code = 0, Exception $previous = null)
+    public function __construct(File $import, $message = '', $code = 0, Exception $previous = null)
     {
         $this->import = $import;
 
@@ -25,6 +23,6 @@ class RecursiveConfigurationException extends \RuntimeException
 
     public function getRecursiveImport()
     {
-        return $this->import;
+        return $this->import->getRelativeFilePath();
     }
 }

@@ -7,18 +7,21 @@
 
 namespace allejo\stakx;
 
+use __;
 use allejo\stakx\Exception\FileAccessDeniedException;
 use allejo\stakx\Exception\RecursiveConfigurationException;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Utilities\ArrayUtilities;
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 class Configuration implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     const HIGHLIGHTER_ENABLED = 'highlighter-enabled';
 
     const DEFAULT_NAME = '_config.yml';
@@ -43,17 +46,23 @@ class Configuration implements LoggerAwareInterface
     private $configuration;
 
     /**
-     * @var string
+     * The master configuration file for the current build.
+     *
+     * This is the file that will be handling imports, if any.
+     *
+     * @var File
      */
-    private $parentConfig;
-
-    /** @var string */
-    private $currentFile;
+    private $configFile;
 
     /**
-     * @var LoggerInterface
+     * The current configuration file being processed.
+     *
+     * If there are no imports used, this value will equal $this->configFile. Otherwise, this file will equal to the
+     * current imported configuration file that is being evaluated.
+     *
+     * @var File
      */
-    private $output;
+    private $currentFile;
 
     /**
      * Configuration constructor.
@@ -61,14 +70,6 @@ class Configuration implements LoggerAwareInterface
     public function __construct()
     {
         $this->configuration = array();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->output = $logger;
     }
 
     ///
@@ -80,25 +81,15 @@ class Configuration implements LoggerAwareInterface
      */
     public function isDebug()
     {
-        return $this->returnConfigOption('debug', false);
+        return __::get($this->configuration, 'debug', false);
     }
 
     /**
-     * @TODO 1.0.0 Remove support for 'base' in next major release; it has been replaced by 'baseurl'
-     *
-     * @return mixed|null
+     * @return string|null
      */
     public function getBaseUrl()
     {
-        $base = $this->returnConfigOption('base');
-        $baseUrl = $this->returnConfigOption('baseurl');
-
-        if (is_null($base) || (!empty($baseUrl)))
-        {
-            return $baseUrl;
-        }
-
-        return $base;
+        return __::get($this->configuration, 'baseurl');
     }
 
     public function hasDataItems()
@@ -106,12 +97,17 @@ class Configuration implements LoggerAwareInterface
         return ($this->getDataFolders() !== null || $this->getDataSets() !== null);
     }
 
+    public function hasCollections()
+    {
+        return ($this->getCollectionsFolders() !== null);
+    }
+
     /**
      * @return string[]
      */
     public function getDataFolders()
     {
-        return $this->returnConfigOption('data');
+        return __::get($this->configuration, 'data');
     }
 
     /**
@@ -119,7 +115,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getDataSets()
     {
-        return $this->returnConfigOption('datasets');
+        return __::get($this->configuration, 'datasets');
     }
 
     /**
@@ -127,7 +123,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getIncludes()
     {
-        return $this->returnConfigOption('include', array());
+        return __::get($this->configuration, 'include', []);
     }
 
     /**
@@ -135,7 +131,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getExcludes()
     {
-        return $this->returnConfigOption('exclude', array());
+        return __::get($this->configuration, 'exclude', []);
     }
 
     /**
@@ -143,7 +139,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getHighlighterCustomLanguages()
     {
-        return $this->configuration['highlighter']['languages'];
+        return __::get($this->configuration, 'highlighter.languages', []);
     }
 
     /**
@@ -151,7 +147,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function isHighlighterEnabled()
     {
-        return $this->configuration['highlighter']['enabled'];
+        return __::get($this->configuration, 'highlighter.enabled', true);
     }
 
     /**
@@ -159,7 +155,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getTheme()
     {
-        return $this->returnConfigOption('theme');
+        return __::get($this->configuration, 'theme');
     }
 
     /**
@@ -175,7 +171,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getPageViewFolders()
     {
-        return $this->returnConfigOption('pageviews');
+        return __::get($this->configuration, 'pageviews', []);
     }
 
     /**
@@ -183,12 +179,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getTargetFolder()
     {
-        return $this->returnConfigOption('target');
-    }
-
-    public function hasCollections()
-    {
-        return ($this->getCollectionsFolders() !== null);
+        return __::get($this->configuration, 'target');
     }
 
     /**
@@ -196,7 +187,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getCollectionsFolders()
     {
-        return $this->returnConfigOption('collections');
+        return __::get($this->configuration, 'collections', []);
     }
 
     /**
@@ -204,7 +195,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getTwigAutoescape()
     {
-        return $this->configuration['twig']['autoescape'];
+        return __::get($this->configuration, 'twig.autoescape');
     }
 
     /**
@@ -212,20 +203,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function getRedirectTemplate()
     {
-        return $this->configuration['templates']['redirect'];
-    }
-
-    /**
-     * Return the specified configuration option if available, otherwise return the default.
-     *
-     * @param string     $name    The configuration option to lookup
-     * @param mixed|null $default The default value returned if the configuration option isn't found
-     *
-     * @return mixed|null
-     */
-    private function returnConfigOption($name, $default = null)
-    {
-        return isset($this->configuration[$name]) ? $this->configuration[$name] : $default;
+        return __::get($this->configuration, 'templates.redirect');
     }
 
     ///
@@ -233,38 +211,21 @@ class Configuration implements LoggerAwareInterface
     ///
 
     /**
-     * Safely read a YAML configuration file and return an array representation of it.
-     *
-     * This function will only read files from within the website folder.
-     *
-     * @param  string $filePath
-     *
-     * @return array
-     */
-    private static function readFile($filePath)
-    {
-        $fileRaw = fs::safeReadFile($filePath);
-        $parsed = Yaml::parse($fileRaw);
-
-        return (null === $parsed) ? array() : $parsed;
-    }
-
-    /**
      * Parse a configuration file.
      *
-     * @param string|null $configFile
+     * @param File|null $configFile
      */
-    public function parse($configFile = null)
+    public function parse(File $configFile = null)
     {
-        $this->parentConfig = fs::getRelativePath($configFile);
-        self::$configImports = array();
+        $this->configFile = $configFile;
+        self::$configImports = [];
 
         $this->configuration = $this->parseConfig($configFile);
         $this->mergeDefaultConfiguration();
         $this->handleDefaultOperations();
         $this->handleDeprecations();
 
-        self::$configImports = array();
+        self::$configImports = [];
     }
 
     /**
@@ -273,16 +234,16 @@ class Configuration implements LoggerAwareInterface
      * This function will automatically take care of imports in each file, whether it be a child or grandchild config
      * file. `$configFile` should be called with 'null' when "configuration-less" mode is used.
      *
-     * @param string|null $configFile     The path to the configuration file. If null, the default configuration will be
-     *                                    used
+     * @param File|null $configFile The path to the configuration file. If null, the default configuration will be
+     *                              used
      *
      * @return array
      */
-    private function parseConfig($configFile = null)
+    private function parseConfig(File $configFile = null)
     {
-        if (null === $configFile)
+        if ($configFile === null)
         {
-            return array();
+            return [];
         }
 
         $this->currentFile = $configFile;
@@ -291,30 +252,36 @@ class Configuration implements LoggerAwareInterface
         {
             $this->isRecursiveImport($configFile);
 
-            $parsedConfig = self::readFile($configFile);
+            $parsedConfig = Yaml::parse($configFile->getContents());
+
+            if ($parsedConfig === null)
+            {
+                $parsedConfig = [];
+            }
 
             $this->handleImports($parsedConfig);
 
             unset($parsedConfig[self::IMPORT_KEYWORD]);
+
             return $parsedConfig;
         }
         catch (ParseException $e)
         {
-            $this->output->error('{file}: parsing failed... {message}', array(
+            $this->logger->error('{file}: parsing failed... {message}', array(
                 'message' => $e->getMessage(),
                 'file' => $configFile,
             ));
-            $this->output->error('Using default configuration...');
+            $this->logger->error('Using default configuration...');
         }
         catch (RecursiveConfigurationException $e)
         {
-            $this->output->error("{file}: you can't recursively import a file that's already been imported: {import}", array(
+            $this->logger->error("{file}: you can't recursively import a file that's already been imported: {import}", array(
                 'file' => $configFile,
                 'import' => $e->getRecursiveImport(),
             ));
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -357,13 +324,7 @@ class Configuration implements LoggerAwareInterface
      */
     private function handleDeprecations()
     {
-        // @TODO 1.0.0 handle 'base' deprecation in _config.yml
-        $base = $this->returnConfigOption('base');
-
-        if (!is_null($base))
-        {
-            $this->output->warning("The 'base' configuration option has been replaced by 'baseurl' and will be removed in in version 1.0.0.");
-        }
+        // Nothing deprecated right now
     }
 
     /**
@@ -375,10 +336,10 @@ class Configuration implements LoggerAwareInterface
      */
     private function handleImports(array &$configuration)
     {
-        if (!array_key_exists(self::IMPORT_KEYWORD, $configuration))
+        if (!isset($configuration[self::IMPORT_KEYWORD]))
         {
-            $this->output->debug('{file}: does not import any other files', array(
-                'file' => $this->parentConfig,
+            $this->logger->debug('{file}: does not import any other files', array(
+                'file' => $this->currentFile->getRelativeFilePath(),
             ));
 
             return;
@@ -386,16 +347,14 @@ class Configuration implements LoggerAwareInterface
 
         if (!is_array($imports = $configuration[self::IMPORT_KEYWORD]))
         {
-            $this->output->error('{file}: the reserved "import" keyword can only be an array');
+            $this->logger->error('{file}: the reserved "import" keyword can only be an array');
 
             return;
         }
 
-        $parentConfigLocation = fs::getFolderPath($this->parentConfig);
-
         foreach ($imports as $import)
         {
-            $this->handleImport($import, $parentConfigLocation, $configuration);
+            $this->handleImport($import, $configuration);
         }
     }
 
@@ -404,31 +363,30 @@ class Configuration implements LoggerAwareInterface
      *
      * @param string $importDef     The path for a given import; this will be treated as a relative path to the parent
      *                              configuration
-     * @param string $parentConfLoc The path to the parent configuration
      * @param array  $configuration The array representation of the current configuration; this will be modified in place
      */
-    private function handleImport($importDef, $parentConfLoc, array &$configuration)
+    private function handleImport($importDef, array &$configuration)
     {
         if (!is_string($importDef))
         {
-            $this->output->error('{file}: invalid import: {message}', array(
-                'file' => $this->parentConfig,
+            $this->logger->error('{file}: invalid import: {message}', array(
+                'file' => $this->configFile->getRelativeFilePath(),
                 'message' => $importDef,
             ));
 
             return;
         }
 
-        $import = fs::appendPath($parentConfLoc, $importDef);
+        $import = $this->configFile->createFileForRelativePath($importDef);
 
         if (!$this->isValidImport($import))
         {
             return;
         }
 
-        $this->output->debug('{file}: imports additional file: {import}', array(
-            'file' => $this->parentConfig,
-            'import' => $import,
+        $this->logger->debug('{file}: imports additional file: {import}', array(
+            'file' => $this->configFile->getRelativeFilePath(),
+            'import' => $import->getRelativeFilePath(),
         ));
 
         try
@@ -438,15 +396,15 @@ class Configuration implements LoggerAwareInterface
         }
         catch (FileAccessDeniedException $e)
         {
-            $this->output->warning('{file}: trying access file outside of project directory: {import}', array(
-                'file' => $this->parentConfig,
+            $this->logger->warning('{file}: trying access file outside of project directory: {import}', array(
+                'file' => $this->configFile->getRelativeFilePath(),
                 'import' => $import,
             ));
         }
         catch (FileNotFoundException $e)
         {
-            $this->output->warning('{file}: could not find file to import: {import}', array(
-                'file' => $this->parentConfig,
+            $this->logger->warning('{file}: could not find file to import: {import}', array(
+                'file' => $this->configFile->getRelativeFilePath(),
                 'import' => $import,
             ));
         }
@@ -455,35 +413,35 @@ class Configuration implements LoggerAwareInterface
     /**
      * Check whether a given file path is a valid import.
      *
-     * @param  string $filePath
+     * @param  File $filePath
      *
      * @return bool
      */
-    private function isValidImport($filePath)
+    private function isValidImport(File $filePath)
     {
         $errorMsg = '';
 
-        if (fs::isDir($filePath))
+        if ($filePath->isDir())
         {
             $errorMsg = 'a directory';
         }
-        elseif (fs::isSymlink($filePath))
+        elseif ($filePath->isLink())
         {
             $errorMsg = 'a symbolically linked file';
         }
-        elseif (fs::absolutePath($this->currentFile) == fs::absolutePath($filePath))
+        elseif ($this->currentFile->getAbsolutePath() == $filePath->getAbsolutePath())
         {
             $errorMsg = 'yourself';
         }
-        elseif (($ext = fs::getExtension($filePath)) != 'yml' && $ext != 'yaml')
+        elseif (($ext = $filePath->getExtension()) != 'yml' && $ext != 'yaml')
         {
             $errorMsg = 'a non-YAML configuration';
         }
 
         if (!($noErrors = empty($errorMsg)))
         {
-            $this->output->error("{file}: you can't import {message}: {import}", array(
-                'file' => $this->parentConfig,
+            $this->logger->error("{file}: you can't import {message}: {import}", array(
+                'file' => $this->configFile->getRelativeFilePath(),
                 'message' => $errorMsg,
                 'import' => $filePath
             ));
@@ -495,18 +453,18 @@ class Configuration implements LoggerAwareInterface
     /**
      * Check whether or not a filename has already been imported in a given process.
      *
-     * @param string $filePath
+     * @param File $filePath
      */
-    private function isRecursiveImport($filePath)
+    private function isRecursiveImport(File $filePath)
     {
-        if (in_array($filePath, self::$configImports))
+        if (in_array($filePath->getRelativeFilePath(), self::$configImports))
         {
             throw new RecursiveConfigurationException($filePath, sprintf(
-                'The %s file has already been imported', $filePath
+                'The %s file has already been imported', $filePath->getRelativeFilePath()
             ));
         }
 
-        self::$configImports[] = $filePath;
+        self::$configImports[] = $filePath->getRelativeFilePath();
     }
 
     /**

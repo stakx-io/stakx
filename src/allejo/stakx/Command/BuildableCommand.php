@@ -90,7 +90,7 @@ abstract class BuildableCommand extends ContainerAwareCommand
 
             $configFile = new File($confFilePath);
 
-            $conf->parse($configFile->getAbsolutePath());
+            $conf->parse($configFile);
         }
     }
 
