@@ -8,27 +8,30 @@
 namespace allejo\stakx\Test;
 
 use allejo\stakx\Configuration;
+use allejo\stakx\Service;
+use org\bovigo\vfs\vfsStream;
 
 class ConfigurationTest extends PHPUnit_Stakx_TestCase
 {
-    /**
-     * @var Configuration
-     */
+    /** @var Configuration */
     private $sampleConfig;
-
-    /**
-     * @var Configuration
-     */
+    /** @var Configuration */
     private $defaultConfig;
 
     public function setup()
     {
         parent::setUp();
 
+        $sampleConfigContent = file_get_contents(__DIR__ . '/assets/ConfigurationFiles/sample.yml');
+
+        $file = $this->createVirtualFile('_config.yml', $sampleConfigContent);
+
+        Service::setWorkingDirectory('vfs://root');
+
         $output = $this->getMockLogger();
         $this->sampleConfig = new Configuration();
         $this->sampleConfig->setLogger($output);
-        $this->sampleConfig->parse(__DIR__ . '/assets/ConfigurationFiles/sample.yml');
+        $this->sampleConfig->parse($file);
 
         $this->defaultConfig = new Configuration();
         $this->defaultConfig->setLogger($output);
@@ -138,7 +141,7 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
     public function testInvalidConfigurationFails()
     {
         $output = $this->getReadableLogger();
-        $configPath = $this->createPhysicalFile('_config.yml', "foo: bar\nfoo baz");
+        $configPath = $this->createVirtualFile('_config.yml', "foo: bar\nfoo baz");
 
         $config = new Configuration();
         $config->setLogger($output);
@@ -270,7 +273,7 @@ value_one: 1
 
         foreach ($rules['files'] as $fileName => $fileContent)
         {
-            $files[] = $this->createPhysicalFile($fileName, $fileContent);
+            $files[] = $this->createVirtualFile($fileName, $fileContent);
         }
 
         $masterConfig = $files[0];
@@ -290,8 +293,12 @@ value_one: 1
 
     public function testConfigurationImportDirectoryFails()
     {
-        $masterConfig = $this->createPhysicalFile('_config.yml', "import:\n  - hello/");
-        $this->createPhysicalFile('hello/world.yml', 'dummy file');
+        $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - hello/");
+        vfsStream::create([
+            'hello' => [
+                'world.yml' => 'dummy file',
+            ],
+        ]);
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -302,7 +309,7 @@ value_one: 1
 
     public function testConfigurationImportSelfFails()
     {
-        $masterConfig = $this->createPhysicalFile('_config.yml', "import:\n  - _config.yml");
+        $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - _config.yml");
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -313,8 +320,8 @@ value_one: 1
 
     public function testConfigurationImportNonYamlFails()
     {
-        $masterConfig = $this->createPhysicalFile('_config.yml', "import:\n  - my_xml.xml");
-        $this->createPhysicalFile('my_xml.xml', '<root></root>');
+        $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - my_xml.xml");
+        $this->createVirtualFile('my_xml.xml', '<root></root>');
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -325,7 +332,7 @@ value_one: 1
 
     public function testConfigurationImportSymlinkFails()
     {
-        $masterConfig = $this->createPhysicalFile('_config.yml', "import:\n  - my_sym.yml");
+        $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - my_sym.yml");
         $this->createPhysicalFile('original_file.yml', 'value: one');
         $this->fs->symlink(
             $this->fs->appendPath($this->assetFolder, 'original_file.yml'),
@@ -341,7 +348,7 @@ value_one: 1
 
     public function testConfigurationImportFileNotFound()
     {
-        $masterConfig = $this->createPhysicalFile('_config.yml', "import:\n  - fake_file.yml");
+        $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - fake_file.yml");
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -352,9 +359,9 @@ value_one: 1
 
     public function testConfigurationImportGrandchild()
     {
-        $masterConfig = $this->createPhysicalFile('grandparent.yml', "import:\n  - parent.yml\ngrandparent_value: 1");
-        $this->createPhysicalFile('parent.yml', "import:\n  - child.yml\nparent_value: 2");
-        $this->createPhysicalFile('child.yml', 'child_value: 3');
+        $masterConfig = $this->createVirtualFile('grandparent.yml', "import:\n  - parent.yml\ngrandparent_value: 1");
+        $this->createVirtualFile('parent.yml', "import:\n  - child.yml\nparent_value: 2");
+        $this->createVirtualFile('child.yml', 'child_value: 3');
 
         $config = new Configuration();
         $config->setLogger($this->getMockLogger());
@@ -368,8 +375,8 @@ value_one: 1
 
     public function testConfigurationImportRecursivelyFails()
     {
-        $masterConfig = $this->createPhysicalFile('_config.yml', "import:\n  - _second.yml");
-        $this->createPhysicalFile('_second.yml', "import:\n  - _config.yml");
+        $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - _second.yml");
+        $this->createVirtualFile('_second.yml', "import:\n  - _config.yml");
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -394,7 +401,7 @@ value_one: 1
      */
     public function testConfigurationInvalidImportArrayFails($invalidImportArray)
     {
-        $configPath = $this->createPhysicalFile('config.yml', $invalidImportArray);
+        $configPath = $this->createVirtualFile('config.yml', $invalidImportArray);
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -420,7 +427,7 @@ value_one: 1
      */
     public function testConfigurationImportNotAnArray($invalidImport)
     {
-        $configPath = $this->createPhysicalFile('config.yml', $invalidImport);
+        $configPath = $this->createVirtualFile('config.yml', $invalidImport);
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
@@ -431,7 +438,7 @@ value_one: 1
 
     public function testDeprecatedBase()
     {
-        $configPath = $this->createPhysicalFile('_config.yml', 'base: /my-deprecated');
+        $configPath = $this->createVirtualFile('_config.yml', 'base: /my-deprecated');
 
         $config = new Configuration();
         $config->setLogger($this->getMockLogger());
@@ -442,7 +449,7 @@ value_one: 1
 
     public function testDeprecatedBasePriority()
     {
-        $configPath = $this->createPhysicalFile('_config.yml', "base: /my-deprecated\nbaseurl: /my-new");
+        $configPath = $this->createVirtualFile('_config.yml', "base: /my-deprecated\nbaseurl: /my-new");
 
         $config = new Configuration();
         $config->setLogger($this->getMockLogger());

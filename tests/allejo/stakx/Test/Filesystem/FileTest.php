@@ -9,9 +9,12 @@ namespace allejo\stakx\Test\Filesystem;
 
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class FileTest extends PHPUnit_Stakx_TestCase
 {
+    /** @var string */
+    private $absPath;
     /** @var File */
     private $file;
 
@@ -19,46 +22,63 @@ class FileTest extends PHPUnit_Stakx_TestCase
     {
         parent::setUp();
 
-        $this->dummyFile
-            ->at($this->rootDir)
-            ->setContent('hello world')
-        ;
+        $this->absPath = __DIR__ . '/../assets/ConfigurationFiles/sample.yml';
+        $this->file = new File($this->absPath);
+    }
 
-        $this->file = new File($this->dummyFile->url(), 'vfs://');
+    public function testExists()
+    {
+        $this->assertTrue($this->file->exists());
     }
 
     public function testGetBasename()
     {
-        $this->assertEquals('stakx.html', $this->file->getBasename());
+        $this->assertEquals('sample', $this->file->getBasename());
     }
 
     public function testGetFilename()
     {
-        $this->assertEquals('stakx.html.twig', $this->file->getFilename());
+        $this->assertEquals('sample.yml', $this->file->getFilename());
     }
 
     public function testGetAbsolutePath()
     {
-        $this->assertEquals('vfs://root/stakx.html.twig', $this->file->getAbsolutePath());
+        $this->assertEquals(realpath($this->absPath), $this->file->getAbsolutePath());
     }
 
     public function testGetParentFolder()
     {
-        $this->assertEquals('vfs://root', $this->file->getParentFolder());
+        $this->assertEquals(realpath(__DIR__ . '/../assets/ConfigurationFiles'), $this->file->getParentFolder());
     }
 
     public function testGetRelativeFilePath()
     {
-        $this->assertEquals('root/stakx.html.twig', $this->file->getRelativeFilePath());
+        $this->assertEquals('tests/allejo/stakx/Test/assets/ConfigurationFiles/sample.yml', $this->file->getRelativeFilePath());
     }
 
     public function testGetRelativeParentFolder()
     {
-        $this->assertEquals('root', $this->file->getRelativeParentFolder());
+        $this->assertEquals('tests/allejo/stakx/Test/assets/ConfigurationFiles', $this->file->getRelativeParentFolder());
     }
 
     public function testGetContents()
     {
-        $this->assertEquals('hello world', $this->file->getContents());
+        $fileContent = file_get_contents($this->absPath);
+        $this->assertEquals($fileContent, $this->file->getContents());
+    }
+
+    public function testNonExistentFileReturnsFalse()
+    {
+        $file = new File('non-existent');
+
+        $this->assertFalse($file->exists());
+    }
+
+    public function testGetContentsThrowsErrorOnNonExistentFile()
+    {
+        $this->setExpectedException(FileNotFoundException::class);
+
+        $file = new File('non-existent');
+        $file->getContents();
     }
 }

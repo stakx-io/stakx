@@ -210,7 +210,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      */
     public function safeReadFile($filePath)
     {
-        $absPath = realpath($this->absolutePath($filePath));
+        $absPath = File::realpath($this->absolutePath($filePath));
 
         if (!$this->exists($absPath))
         {
