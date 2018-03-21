@@ -7,11 +7,12 @@
 
 namespace allejo\stakx\Filesystem;
 
+use allejo\stakx\Exception\FileAccessDeniedException;
 use allejo\stakx\Service;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
- * A representation of a file on a given filesystem.
+ * A representation of a file on a given filesystem, virtual or physical.
  *
  * This class extends \SplFileInfo and adds new methods along with overriding some methods solely because I feel that
  * some of the naming can be misleading.
@@ -20,18 +21,19 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 final class File extends \SplFileInfo
 {
+    /** @var string */
     private $relativePath;
 
     /**
      * File Constructor.
      *
-     * @param string $absoluteFilePath The absolute file path
+     * @param string $filePath An absolute file path or a path relative to the current working directory.
      *
      * @since 0.2.0
      */
-    public function __construct($absoluteFilePath)
+    public function __construct($filePath)
     {
-        parent::__construct(self::realpath($absoluteFilePath));
+        parent::__construct(self::realpath($filePath));
 
         $this->relativePath = str_replace(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR, '', $this->getAbsolutePath());
     }
@@ -132,6 +134,8 @@ final class File extends \SplFileInfo
      */
     public function getContents()
     {
+        $this->isSafeToRead();
+
         if (!$this->exists())
         {
             throw new FileNotFoundException(null, 0, null, $this->getAbsolutePath());
@@ -149,6 +153,25 @@ final class File extends \SplFileInfo
     }
 
     /**
+     * Check if a file is safe to read.
+     */
+    private function isSafeToRead()
+    {
+        if (self::isVFS($this->getAbsolutePath()))
+        {
+            return;
+        }
+
+        if (strpos($this->getAbsolutePath(), Service::getWorkingDirectory()) !== 0)
+        {
+            throw new FileAccessDeniedException(sprintf(
+                'The given path "%s" is outside the website working directory',
+                $this->getRelativeFilePath()
+            ));
+        }
+    }
+
+    /**
      * A vfsStream friendly way of getting the realpath() of something.
      *
      * @param string $path
@@ -157,11 +180,18 @@ final class File extends \SplFileInfo
      */
     public static function realpath($path)
     {
-        if (substr($path, 0, 6) == 'vfs://')
-        {
-            return $path;
-        }
+        return self::isVFS($path) ? $path : realpath($path);
+    }
 
-        return realpath($path);
+    /**
+     * Check whether a given path is on the virtual filesystem.
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    private static function isVFS($path)
+    {
+        return substr($path, 0, 6) == 'vfs://';
     }
 }
