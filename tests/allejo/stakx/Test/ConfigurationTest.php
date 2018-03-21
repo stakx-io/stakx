@@ -8,6 +8,7 @@
 namespace allejo\stakx\Test;
 
 use allejo\stakx\Configuration;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Service;
 use org\bovigo\vfs\vfsStream;
 
@@ -31,7 +32,7 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
         $output = $this->getMockLogger();
         $this->sampleConfig = new Configuration();
         $this->sampleConfig->setLogger($output);
-        $this->sampleConfig->parse($file);
+        $this->sampleConfig->parse(new File($file));
 
         $this->defaultConfig = new Configuration();
         $this->defaultConfig->setLogger($output);
@@ -145,7 +146,7 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
 
         $config = new Configuration();
         $config->setLogger($output);
-        $config->parse($configPath);
+        $config->parse(new File($configPath));
 
         $this->assertStringContains('parsing failed...', StreamInterceptor::$output);
     }
@@ -280,7 +281,7 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getMockLogger());
-        $config->parse($masterConfig);
+        $config->parse(new File($masterConfig));
         $result = $config->getConfiguration();
 
         $this->assertArrayNotHasKey('import', $result);
@@ -302,7 +303,7 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
-        $config->parse($masterConfig);
+        $config->parse(new File($masterConfig));
 
         $this->assertContains("can't import a directory", StreamInterceptor::$output);
     }
@@ -313,7 +314,7 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
-        $config->parse($masterConfig);
+        $config->parse(new File($masterConfig));
 
         $this->assertContains("can't import yourself", StreamInterceptor::$output);
     }
@@ -325,13 +326,15 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
-        $config->parse($masterConfig);
+        $config->parse(new File($masterConfig));
 
         $this->assertContains('a non-YAML configuration', StreamInterceptor::$output);
     }
 
     public function testConfigurationImportSymlinkFails()
     {
+        $this->markTestIncomplete('This needs to be enabled/changed when I test against a sample site and not vfs.');
+
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - my_sym.yml");
         $this->createPhysicalFile('original_file.yml', 'value: one');
         $this->fs->symlink(
@@ -341,7 +344,7 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
-        $config->parse($masterConfig);
+        $config->parse(new File($masterConfig));
 
         $this->assertContains('a symbolically linked file', StreamInterceptor::$output);
     }
@@ -352,7 +355,7 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
-        $config->parse($masterConfig);
+        $config->parse(new File($masterConfig));
 
         $this->assertContains('could not find file to import', StreamInterceptor::$output);
     }
@@ -365,7 +368,7 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getMockLogger());
-        $config->parse($masterConfig);
+        $config->parse(new File($masterConfig));
         $result = $config->getConfiguration();
 
         $this->assertArrayHasKey('grandparent_value', $result);
@@ -380,7 +383,7 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
-        $config->parse($masterConfig);
+        $config->parse(new File($masterConfig));
 
         $this->assertContains("can't recursively import a file", StreamInterceptor::$output);
     }
@@ -405,7 +408,7 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
-        $config->parse($configPath);
+        $config->parse(new File($configPath));
 
         $this->assertContains('invalid import:', StreamInterceptor::$output);
     }
@@ -414,7 +417,6 @@ value_one: 1
     {
         return array(
             array('import: true'),
-            array('import: ~'),
             array('import: 1234'),
             array('import: butter & toast'),
         );
@@ -431,30 +433,8 @@ value_one: 1
 
         $config = new Configuration();
         $config->setLogger($this->getReadableLogger());
-        $config->parse($configPath);
+        $config->parse(new File($configPath));
 
         $this->assertContains('the reserved "import" keyword can only be an array', StreamInterceptor::$output);
-    }
-
-    public function testDeprecatedBase()
-    {
-        $configPath = $this->createVirtualFile('_config.yml', 'base: /my-deprecated');
-
-        $config = new Configuration();
-        $config->setLogger($this->getMockLogger());
-        $config->parse($configPath);
-
-        $this->assertEquals('/my-deprecated', $config->getBaseUrl());
-    }
-
-    public function testDeprecatedBasePriority()
-    {
-        $configPath = $this->createVirtualFile('_config.yml', "base: /my-deprecated\nbaseurl: /my-new");
-
-        $config = new Configuration();
-        $config->setLogger($this->getMockLogger());
-        $config->parse($configPath);
-
-        $this->assertEquals('/my-new', $config->getBaseUrl());
     }
 }
