@@ -59,5 +59,11 @@
       "php -r \"file_put_contents('stakx.phar.version', sha1_file('stakx.phar'));\""
     ],
     "test": "phpunit"
+  },
+  "config": {
+    "platform": {
+      "php": "5.5.9"
+    },
+    "sort-packages": true
   }
 }
