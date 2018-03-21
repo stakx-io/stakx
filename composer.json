@@ -39,6 +39,7 @@
     "stakx/file-watcher": "@dev",
     "symfony/config": "^3.4.0",
     "symfony/console": "^3.4.0",
+    "symfony/debug": "^3.4.0",
     "symfony/dependency-injection": "^3.4.0",
     "symfony/event-dispatcher": "^3.4.0",
     "symfony/filesystem": "^3.4.0",
