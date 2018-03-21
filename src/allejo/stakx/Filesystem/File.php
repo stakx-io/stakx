@@ -168,19 +168,26 @@ final class File extends \SplFileInfo
      */
     private function isSafeToRead()
     {
+        $e = new FileNotFoundException(
+            sprintf('The given path "%s" does not exist or is outside the website working directory', $this->rawPath),
+            0,
+            null,
+            $this->rawPath
+        );
+
+        if (!$this->exists())
+        {
+            throw $e;
+        }
+
         if (self::isVFS($this->getAbsolutePath()))
         {
             return;
         }
 
-        if (strpos($this->getAbsolutePath(), Service::getWorkingDirectory()) !== 0 || !$this->exists())
+        if (strpos($this->getAbsolutePath(), Service::getWorkingDirectory()) !== 0)
         {
-            throw new FileNotFoundException(
-                sprintf('The given path "%s" does not exist or is outside the website working directory', $this->rawPath),
-                0,
-                null,
-                $this->rawPath
-            );
+            throw $e;
         }
     }
 
