@@ -24,6 +24,9 @@ abstract class Service
 
     public static function getWorkingDirectory()
     {
+        if (!self::$workingDirectory)
+            return getcwd();
+
         return self::$workingDirectory;
     }
 
