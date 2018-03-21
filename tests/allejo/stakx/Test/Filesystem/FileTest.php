@@ -76,7 +76,7 @@ class FileTest extends PHPUnit_Stakx_TestCase
 
     public function testGetContentsThrowsErrorOnNonExistentFile()
     {
-        $this->setExpectedException(FileNotFoundException::class);
+        $this->setExpectedExceptionRegExp(FileNotFoundException::class, '/.*"non-existent".*/');
 
         $file = new File('non-existent');
         $file->getContents();

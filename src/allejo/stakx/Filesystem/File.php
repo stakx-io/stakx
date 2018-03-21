@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\Filesystem;
 
-use allejo\stakx\Exception\FileAccessDeniedException;
 use allejo\stakx\Service;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
@@ -21,8 +20,11 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 final class File extends \SplFileInfo
 {
-    /** @var string */
+    /** @var string The path relative to the site's working directory. */
     private $relativePath;
+
+    /** @var string The original raw path given to the constructor. */
+    private $rawPath;
 
     /**
      * File Constructor.
@@ -33,6 +35,8 @@ final class File extends \SplFileInfo
      */
     public function __construct($filePath)
     {
+        $this->rawPath = $filePath;
+
         parent::__construct(self::realpath($filePath));
 
         $this->relativePath = str_replace(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR, '', $this->getAbsolutePath());
@@ -148,11 +152,6 @@ final class File extends \SplFileInfo
     {
         $this->isSafeToRead();
 
-        if (!$this->exists())
-        {
-            throw new FileNotFoundException(null, 0, null, $this->getAbsolutePath());
-        }
-
         $content = file_get_contents($this->getAbsolutePath());
 
         if ($content === false)
@@ -174,12 +173,14 @@ final class File extends \SplFileInfo
             return;
         }
 
-        if (strpos($this->getAbsolutePath(), Service::getWorkingDirectory()) !== 0)
+        if (strpos($this->getAbsolutePath(), Service::getWorkingDirectory()) !== 0 || !$this->exists())
         {
-            throw new FileAccessDeniedException(sprintf(
-                'The given path "%s" is outside the website working directory',
-                $this->getRelativeFilePath()
-            ));
+            throw new FileNotFoundException(
+                sprintf('The given path "%s" does not exist or is outside the website working directory', $this->rawPath),
+                0,
+                null,
+                $this->rawPath
+            );
         }
     }
 
