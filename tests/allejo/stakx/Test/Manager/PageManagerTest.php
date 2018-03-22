@@ -25,7 +25,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
     /**
      * @return Configuration|MockObject
      */
-    private function getMockConfiguration()
+    protected function getMockConfiguration()
     {
         $mock = $this->getMock(Configuration::class);
         $mock

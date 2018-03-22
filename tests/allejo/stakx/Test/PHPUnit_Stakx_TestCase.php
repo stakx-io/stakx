@@ -15,6 +15,8 @@ use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
+use allejo\stakx\Manager\MenuManager;
+use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Filesystem\Folder;
@@ -246,14 +248,64 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     ///
 
     /**
+     * @return Configuration|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMockConfiguration()
+    {
+        $stub = $this->getMockBuilder(Configuration::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        $stub->method('getConfiguration')->willReturn([]);
+        $stub->method('getTwigAutoescape')->willReturn(false);
+
+        return $stub;
+    }
+
+    /**
+     * @return PageManager|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMockPageManager()
+    {
+        $stub = $this->getMockBuilder(PageManager::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        $stub->method('getJailedStaticPageViews')->willReturn([]);
+
+        return $stub;
+    }
+
+    /**
+     * @return MenuManager|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMockMenuManager()
+    {
+        $stub = $this->getMockBuilder(MenuManager::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        $stub->method('getSiteMenu')->willReturn([]);
+
+        return $stub;
+    }
+
+    /**
      * @return CollectionManager|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getMockCollectionManager()
     {
-        return $this->getMockBuilder(CollectionManager::class)
+        $stub = $this->getMockBuilder(CollectionManager::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
+
+        $stub->method('getJailedCollections')->willReturn([]);
+
+        return $stub;
     }
 
     /**
@@ -261,10 +313,14 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function getMockDataManager()
     {
-        return $this->getMockBuilder(DataManager::class)
+        $stub = $this->getMockBuilder(DataManager::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
+
+        $stub->method('getJailedDataItems')->willReturn([]);
+
+        return $stub;
     }
 
     /**
@@ -323,7 +379,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      *
      * @return string
      */
-    private function buildFrontMatterTemplate(array $frontMatter = array(), $body = 'Body text')
+    protected function buildFrontMatterTemplate(array $frontMatter = array(), $body = 'Body text')
     {
         $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
 
