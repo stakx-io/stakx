@@ -71,8 +71,6 @@ class PageManager extends TrackingManager
      * @param string[] $pageViewFolders
      *
      * @since 0.1.0
-     *
-     * @throws \Exception When the EventDispatcher service couldn't be found.
      */
     public function parsePageViews(array $pageViewFolders)
     {
