@@ -18,7 +18,6 @@ use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\FrontMatter\ExpandedValue;
-use allejo\stakx\Manager\BaseManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Filesystem\Folder;
@@ -26,9 +25,7 @@ use allejo\stakx\System\FilePath;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use allejo\stakx\Templating\TemplateErrorInterface;
 use allejo\stakx\Templating\TemplateInterface;
-use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
@@ -42,9 +39,6 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 class Compiler
 {
-    use LoggerAwareTrait;
-    use ContainerAwareTrait;
-
     /** @var string|false */
     private $redirectTemplate;
 
@@ -77,43 +71,28 @@ class Compiler
     /** @var string[] */
     private $templateMapping;
 
-    /** @var BasePageView[][] */
-    private $pageViews;
-
     /** @var Folder */
     private $folder;
 
     /** @var string */
     private $theme;
 
-    /** @var TemplateBridgeInterface */
     private $templateBridge;
-    /**
-     * @var PageManager
-     */
     private $pageManager;
-    /**
-     * @var EventDispatcherInterface
-     */
     private $eventDispatcher;
+    private $configuration;
 
-    public function __construct(TemplateBridgeInterface $templateBridge, PageManager $pageManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
+    public function __construct(TemplateBridgeInterface $templateBridge, Configuration $configuration, PageManager $pageManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
         $this->templateBridge = $templateBridge;
         $this->theme = '';
         $this->pageManager = $pageManager;
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
+        $this->configuration = $configuration;
 
         $this->pageViewsFlattened = &$pageManager->getPageViewsFlattened();
-    }
-
-    /**
-     * @param string|false $template
-     */
-    public function setRedirectTemplate($template)
-    {
-        $this->redirectTemplate = $template;
+        $this->redirectTemplate = $this->configuration->getRedirectTemplate();
     }
 
     /**
@@ -403,7 +382,7 @@ class Compiler
                 $this->redirectTemplate
             );
             $redirectPageView->evaluateFrontMatter([], [
-                'site' => $this->container->get(Configuration::class)->getConfiguration(),
+                'site' => $this->configuration->getConfiguration(),
             ]);
 
             $this->compileStaticPageView($redirectPageView);
@@ -436,7 +415,7 @@ class Compiler
                     $this->redirectTemplate
                 );
                 $redirectPageView->evaluateFrontMatter([], [
-                    'site' => $this->container->get(Configuration::class)->getConfiguration(),
+                    'site' => $this->configuration->getConfiguration(),
                 ]);
 
                 $this->compilePageView($redirectPageView);

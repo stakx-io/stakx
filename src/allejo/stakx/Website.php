@@ -142,7 +142,6 @@ class Website
         $theme = $this->getConfiguration()->getTheme();
 
         $this->compiler = $this->container->get('compiler');
-        $this->compiler->setRedirectTemplate($this->getConfiguration()->getRedirectTemplate());
         $this->compiler->setTargetFolder($this->outputDirectory);
         $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
