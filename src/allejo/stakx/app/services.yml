@@ -35,9 +35,6 @@ services:
     class: allejo\stakx\Compiler
     arguments:
       - '@templating'
-    calls:
-      - { method: 'setLogger', arguments: ['@logger'] }
-      - { method: 'setContainer', arguments: ['@service_container'] }
 
   event_dispatcher:
     class: Symfony\Component\EventDispatcher\EventDispatcher
