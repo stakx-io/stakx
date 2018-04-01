@@ -29,7 +29,7 @@
   ],
   "require": {
     "aptoma/twig-markdown": "^2.0.0",
-    "erusev/parsedown": "^1.6.1",
+    "erusev/parsedown": "~1.6.1",
     "erusev/parsedown-extra": "^0.7.1",
     "gregwar/rst": "^1.0.3",
     "maciejczyzewski/bottomline": "dev-master",
