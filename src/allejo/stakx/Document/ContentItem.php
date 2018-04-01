@@ -10,6 +10,7 @@ namespace allejo\stakx\Document;
 use allejo\stakx\Engines\Markdown\MarkdownEngine;
 use allejo\stakx\Engines\PlainTextEngine;
 use allejo\stakx\Engines\RST\RstEngine;
+use allejo\stakx\Service;
 use allejo\stakx\Templating\TemplateErrorInterface;
 
 class ContentItem extends PermalinkFrontMatterDocument implements CollectableItem, TemplateReadyDocument
@@ -79,7 +80,7 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
 
             case 'rst':
                 $pd = new RstEngine();
-                $pd->setIncludePolicy(true, getcwd());
+                $pd->setIncludePolicy(true, Service::getWorkingDirectory());
                 break;
 
             default:
