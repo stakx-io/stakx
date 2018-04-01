@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Twig;
 
+use allejo\stakx\Service;
 use Twig_Environment;
 
 class BaseUrlFunction implements StakxTwigFilter
@@ -74,6 +75,10 @@ class BaseUrlFunction implements StakxTwigFilter
         elseif (is_null($assetPath))
         {
             return '/';
+        }
+        elseif ($assetPath instanceof \SplFileInfo)
+        {
+            return str_replace(Service::getWorkingDirectory(), '', $assetPath);
         }
 
         return $assetPath;
