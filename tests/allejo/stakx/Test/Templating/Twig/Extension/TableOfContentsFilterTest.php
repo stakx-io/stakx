@@ -175,6 +175,6 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
      */
     private function standardizeHTML($html)
     {
-        return trim(preg_replace('/(\n\s+|\n)/', '', $html));
+        return trim(preg_replace('/(\R\s+|\R)/', '', $html));
     }
 }
