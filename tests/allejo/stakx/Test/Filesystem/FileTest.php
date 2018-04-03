@@ -53,12 +53,16 @@ class FileTest extends PHPUnit_Stakx_TestCase
 
     public function testGetRelativeFilePath()
     {
-        $this->assertEquals('tests/allejo/stakx/Test/assets/ConfigurationFiles/sample.yml', $this->file->getRelativeFilePath());
+        $path = ['tests', 'allejo/stakx/Test/assets/ConfigurationFiles/sample.yml'];
+
+        $this->assertEquals(implode(DIRECTORY_SEPARATOR, $path), $this->file->getRelativeFilePath());
     }
 
     public function testGetRelativeParentFolder()
     {
-        $this->assertEquals('tests/allejo/stakx/Test/assets/ConfigurationFiles', $this->file->getRelativeParentFolder());
+        $path = ['tests', 'allejo', 'stakx', 'Test', 'assets', 'ConfigurationFiles'];
+
+        $this->assertEquals(implode(DIRECTORY_SEPARATOR, $path), $this->file->getRelativeParentFolder());
     }
 
     public function testGetContents()
