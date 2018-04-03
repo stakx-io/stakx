@@ -31,6 +31,16 @@ services:
     tags:
       - { name: 'kernel.event_subscriber' }
 
+  allejo\stakx\Templating\Twig\Extension\:
+    resource: '../Templating/Twig/Extension/*'
+
+  allejo\stakx\Templating\Twig\TwigExtension:
+    calls:
+      - method: addFilters
+        arguments: [!tagged stakx.twig_filter]
+      - method: addFunctions
+        arguments: [!tagged stakx.twig_function]
+
   compiler:
     class: allejo\stakx\Compiler
     arguments:
@@ -48,5 +58,5 @@ services:
       - '@output'
 
   templating:
-    class: allejo\stakx\Templating\TwigStakxBridge
-    factory: ['allejo\stakx\Templating\TwigStakxBridgeFactory', createTwigEnvironment]
+    class: allejo\stakx\Templating\Twig\TwigStakxBridge
+    factory: ['allejo\stakx\Templating\Twig\TwigStakxBridgeFactory', createTwigEnvironment]

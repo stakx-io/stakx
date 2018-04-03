@@ -20,6 +20,7 @@ use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Templating\Twig\TwigExtension;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
@@ -324,6 +325,16 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return TwigExtension|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMockTwigExtension()
+    {
+        // too lazy to actually mock all the methods... just create an actual instance of and dub it a "mock" to match
+        // all the other mock methods. if this causes problems: sorry, future me!
+        return new TwigExtension();
+    }
+
+    /**
      * Get a mock EventDispatcher.
      *
      * @return EventDispatcherInterface
@@ -366,7 +377,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      *
      * @return string
      */
-    protected function getTestRoot()
+    protected static function getTestRoot()
     {
         return __DIR__;
     }

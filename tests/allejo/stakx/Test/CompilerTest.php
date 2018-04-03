@@ -10,7 +10,7 @@ namespace allejo\stakx\Test;
 use allejo\stakx\Compiler;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Manager\PageManager;
-use allejo\stakx\Templating\TwigStakxBridgeFactory;
+use allejo\stakx\Templating\Twig\TwigStakxBridgeFactory;
 use org\bovigo\vfs\vfsStream;
 
 class CompilerTest extends PHPUnit_Stakx_TestCase
@@ -277,6 +277,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             $this->getMockDataManager(),
             $pageManager,
             $this->getMockMenuManager(),
+            $this->getMockTwigExtension(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );

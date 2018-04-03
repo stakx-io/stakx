@@ -20,7 +20,6 @@ use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Filesystem\Folder;
-use allejo\stakx\Twig\StakxTwigTextProfiler;
 use Highlight\Highlighter;
 use Kwf\FileWatcher\Event\AbstractEvent;
 use Kwf\FileWatcher\Event\Create;

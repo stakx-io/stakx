@@ -11,6 +11,8 @@ use allejo\stakx\Configuration;
 use allejo\stakx\DataTransformer\DataTransformer;
 use allejo\stakx\DependencyInjection\Compiler\DataTransformerPass;
 use allejo\stakx\Filesystem\FilesystemPath;
+use allejo\stakx\Templating\Twig\Extension\TwigFilterInterface;
+use allejo\stakx\Templating\Twig\Extension\TwigFunctionInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -168,6 +170,16 @@ class Application extends BaseApplication
         $container
             ->registerForAutoconfiguration(DataTransformer::class)
             ->addTag(DataTransformer::CONTAINER_TAG)
+        ;
+
+        $container
+            ->registerForAutoconfiguration(TwigFilterInterface::class)
+            ->addTag(TwigFilterInterface::CONTAINER_TAG)
+        ;
+
+        $container
+            ->registerForAutoconfiguration(TwigFunctionInterface::class)
+            ->addTag(TwigFunctionInterface::CONTAINER_TAG)
         ;
 
         $container->compile();

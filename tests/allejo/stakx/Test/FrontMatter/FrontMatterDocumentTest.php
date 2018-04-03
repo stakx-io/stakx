@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Test\FrontMatter;
 
-use allejo\stakx\Templating\TwigStakxBridge;
+use allejo\stakx\Templating\Twig\TwigStakxBridge;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
