@@ -21,7 +21,7 @@ stakx provides a sample project for people to learn from. The sample project can
 Get the latest PHAR from the [Releases](https://github.com/stakx-io/stakx/releases) page, download the repository, put the PHAR in the `example` directory and run the following command from within the `example` directory:
 
 ```
-./stakx.phar build
+php ./stakx.phar build
 ```
 
 ### Build from Git
