@@ -39,7 +39,6 @@ class TwigStakxBridgeFactory
         ));
 
         $theme = $configuration->getTheme();
-        $mdEngine = new TwigMarkdownEngine();
 
         // Only load a theme if one is specified and actually exists
         if ($theme !== null)
@@ -74,7 +73,6 @@ class TwigStakxBridgeFactory
         $twig->addGlobal('pages', $pageManager->getJailedStaticPageViews());
 
         $twig->addExtension($twigExtension);
-        $twig->addExtension(new MarkdownExtension($mdEngine));
 
         $profiler = null;
 

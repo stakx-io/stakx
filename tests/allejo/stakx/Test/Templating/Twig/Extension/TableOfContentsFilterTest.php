@@ -2,7 +2,7 @@
 
 namespace allejo\stakx\test\Templating\Twig\Extension;
 
-use allejo\stakx\Engines\Markdown\MarkdownEngine;
+use allejo\stakx\MarkupEngine\MarkdownEngine;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Templating\Twig\Extension\TableOfContentsFilter;
 

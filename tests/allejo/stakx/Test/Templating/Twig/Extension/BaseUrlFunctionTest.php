@@ -10,10 +10,12 @@ namespace allejo\stakx\Test\Templating\Twig\Extension;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Templating\Twig\TwigExtension;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Templating\Twig\Extension\BaseUrlFunction;
+use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
 class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
 {
@@ -24,7 +26,10 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
     {
         parent::setUp();
 
-        $extension = new TwigExtension();
+        /** @var MockObject|MarkupEngineManager $markupEngine */
+        $markupEngine = $this->getMock(MarkupEngineManager::class);
+
+        $extension = new TwigExtension($markupEngine);
         $extension->addFilters([new BaseUrlFunction()]);
 
         $loader = new \Twig_Loader_Filesystem();

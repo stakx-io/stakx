@@ -12,6 +12,14 @@ services:
       - method: addDataTransformers
         arguments: [!tagged stakx.data_transformer]
 
+  allejo\stakx\MarkupEngine\:
+    resource: '../MarkupEngine/*'
+
+  allejo\stakx\MarkupEngine\MarkupEngineManager:
+    calls:
+      - method: addMarkupEngines
+        arguments: [!tagged stakx.markup_engine]
+
   allejo\stakx\Manager\:
     resource: '../Manager/*'
     exclude: '../Manager/{Twig}Manager'

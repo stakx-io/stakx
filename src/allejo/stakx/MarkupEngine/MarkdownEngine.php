@@ -1,18 +1,17 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
+ * @copyright 2018 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Engines\Markdown;
+namespace allejo\stakx\MarkupEngine;
 
 use allejo\stakx\Configuration;
-use allejo\stakx\Engines\ParsingEngine;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
 
-class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
+class MarkdownEngine extends \ParsedownExtra implements MarkupEngine
 {
     protected $highlighter;
 
@@ -78,7 +77,7 @@ class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
                 // Only return the block if Highlighter knew the language and how to handle it.
                 return $block;
             }
-            // Exception thrown when language not supported
+                // Exception thrown when language not supported
             catch (\DomainException $exception)
             {
                 trigger_error("An unsupported language ($language) was detected in a code block", E_USER_WARNING);
@@ -86,5 +85,29 @@ class MarkdownEngine extends \ParsedownExtra implements ParsingEngine
         }
 
         return parent::blockFencedCodeComplete($block);
+    }
+
+    ///
+    // MarkupEngine Implementation
+    ///
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTemplateTag()
+    {
+        return 'markdown';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getExtensions()
+    {
+        return [
+            'md',
+            'mdown',
+            'markdown',
+        ];
     }
 }

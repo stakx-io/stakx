@@ -1,17 +1,17 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
+ * @copyright 2018 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Engines\RST;
+namespace allejo\stakx\Markup;
 
 use Gregwar\RST\Directives\CodeBlock;
 use Gregwar\RST\Parser;
 use Highlight\Highlighter;
 
-class SyntaxBlock extends CodeBlock
+class RstSyntaxBlock extends CodeBlock
 {
     public function process(Parser $parser, $node, $variable, $data, array $options)
     {

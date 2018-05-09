@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
+ * @copyright 2018 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\Engines\Markdown;
 
-use allejo\stakx\Engines\Markdown\MarkdownEngine;
+use allejo\stakx\MarkupEngine\MarkdownEngine;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class MarkdownEngineTest extends PHPUnit_Stakx_TestCase
@@ -19,7 +19,7 @@ class MarkdownEngineTest extends PHPUnit_Stakx_TestCase
     {
         parent::setUp();
 
-        $this->mdEngine = MarkdownEngine::instance();
+        $this->mdEngine = new MarkdownEngine();
     }
 
     public function testHeaderIdAttr()

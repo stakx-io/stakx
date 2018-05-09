@@ -8,8 +8,10 @@
 namespace allejo\stakx\Test\Document;
 
 use allejo\stakx\Document\ContentItem;
-use allejo\stakx\Engines\Markdown\MarkdownEngine;
-use allejo\stakx\Engines\RST\RstEngine;
+use allejo\stakx\MarkupEngine\MarkdownEngine;
+use allejo\stakx\MarkupEngine\MarkupEngineManager;
+use allejo\stakx\MarkupEngine\PlainTextEngine;
+use allejo\stakx\MarkupEngine\RstEngine;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
 use allejo\stakx\Filesystem\File;
@@ -275,14 +277,6 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($this->fs->appendPath('home', 'about.html'), $contentItem->getTargetFile());
     }
 
-    public function testContentItemTargetFileFromFileWithoutPermalinkAtRoot()
-    {
-        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class, 'stakx.html.twig');
-        $contentItem->evaluateFrontMatter();
-
-        $this->assertEquals($this->fs->appendPath('root', 'stakx.html'), $contentItem->getTargetFile());
-    }
-
     public function testContentItemTargetFileFromFileWithoutPermalinkInDir()
     {
         $root = vfsStream::create(array(
@@ -364,7 +358,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile = vfsStream::newFile('Sample Markdown.md');
         $markdownContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample Markdown.md');
 
-        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class, 'document.md', [], $markdownContent);
+        $contentItem = $this->createContentItem([], $markdownContent);
         $pd = new MarkdownEngine();
 
         $this->assertEquals($pd->parse($markdownContent), $contentItem->getContent());
@@ -387,7 +381,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
         $rstContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample reStructuredText.rst');
 
-        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class, 'document.rst', [], $rstContent);
+        $contentItem = $this->createContentItem([], $rstContent,'document.rst');
         $pd = new RstEngine();
 
         $this->assertEquals((string) $pd->parse($rstContent), $contentItem->getContent());
@@ -508,11 +502,16 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
      *
      * @param array  $frontMatter
      * @param string $body
+     * @param string $filename
      *
      * @return ContentItem
      */
-    private function createContentItem($frontMatter, $body = 'Body Text')
+    private function createContentItem($frontMatter, $body = 'Body Text', $filename = 'document.md')
     {
-        return $this->createFrontMatterDocumentOfType(ContentItem::class, null, $frontMatter, $body);
+        /** @var ContentItem $contentItem */
+        $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class, $filename, $frontMatter, $body);
+        $contentItem->setMarkupEngine($this->getMockMarkupEngineManager());
+
+        return $contentItem;
     }
 }
