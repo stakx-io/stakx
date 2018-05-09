@@ -111,7 +111,7 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
 
         if (!$redirectTemplate || !fs::exists(fs::absolutePath($redirectTemplate)))
         {
-            $contentItemBody = StakxResource::getResource('redirect.html.twig');
+            $contentItemBody = fs::getInternalResource('redirect.html.twig');
         }
         else
         {

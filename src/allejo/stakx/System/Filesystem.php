@@ -224,4 +224,11 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     {
         return (new FilesystemPath($path));
     }
+
+    public function getInternalResource($name)
+    {
+        $path = new FilesystemPath(__DIR__ . '/../Resources/' . $name);
+
+        return file_get_contents($path);
+    }
 }
