@@ -17,6 +17,10 @@ use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
+use allejo\stakx\MarkupEngine\MarkdownEngine;
+use allejo\stakx\MarkupEngine\MarkupEngineManager;
+use allejo\stakx\MarkupEngine\PlainTextEngine;
+use allejo\stakx\MarkupEngine\RstEngine;
 use allejo\stakx\Service;
 use allejo\stakx\System\Filesystem;
 use allejo\stakx\Filesystem\Folder;
@@ -325,13 +329,31 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return TwigExtension|\PHPUnit_Framework_MockObject_MockObject
+     * @return TwigExtension
      */
     protected function getMockTwigExtension()
     {
         // too lazy to actually mock all the methods... just create an actual instance of and dub it a "mock" to match
         // all the other mock methods. if this causes problems: sorry, future me!
-        return new TwigExtension();
+        return new TwigExtension($this->getMockMarkupEngineManager());
+    }
+
+    /**
+     * @return MarkupEngineManager
+     */
+    protected function getMockMarkupEngineManager()
+    {
+        // Just trying to keep the naming convention the same, but create an actual markup engine manager since it's
+        // necessary in a lot of the unit tests
+        $markupEngine = new MarkupEngineManager();
+
+        $markupEngine->addMarkupEngines([
+            new MarkdownEngine(),
+            new RstEngine(),
+            new PlainTextEngine(),
+        ]);
+
+        return $markupEngine;
     }
 
     /**
@@ -404,6 +426,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     protected function bookCollectionProvider($jailed = false)
     {
         $cm = new CollectionManager(
+            $this->getMockMarkupEngineManager(),
             $this->getMock(Configuration::class),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()

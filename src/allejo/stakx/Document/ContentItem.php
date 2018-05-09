@@ -20,17 +20,9 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
     /** @var MarkupEngine */
     private $markupEngine;
 
-    public function __construct(File $file)
-    {
-        $this->noReadOnConstructor = true;
-
-        parent::__construct($file);
-    }
-
     public function setMarkupEngine(MarkupEngineManager $manager)
     {
         $this->markupEngine = $manager->getEngineByExtension($this->getExtension());
-        $this->readContent();
     }
 
     ///
@@ -71,7 +63,11 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
         if (!$this->bodyContentEvaluated)
         {
             $this->bodyContent = $this->parseTemplateLanguage($this->bodyContent);
-            $this->bodyContent = $this->markupEngine->parse($this->bodyContent);
+
+            if ($this->markupEngine)
+            {
+                $this->bodyContent = $this->markupEngine->parse($this->bodyContent);
+            }
 
             $this->bodyContentEvaluated = true;
         }

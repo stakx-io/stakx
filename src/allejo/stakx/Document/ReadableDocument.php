@@ -179,6 +179,9 @@ abstract class ReadableDocument
     /**
      * Read the contents of the file and store the information internally **only**.
      *
+     * This method must **not** handle any parsing or processing of the file's content. That should be handled by the
+     * `afterReadContents()` method.
+     *
      * @param mixed $mixed Any information returned from the beforeReadContents() method.
      *
      * @throws \RuntimeException When the file cannot be read.

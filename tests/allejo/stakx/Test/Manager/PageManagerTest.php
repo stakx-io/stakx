@@ -14,7 +14,6 @@ use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Manager\CollectionManager;
-use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Test\StreamInterceptor;
@@ -43,7 +42,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
      */
     private function getCollectionManager()
     {
-        $cm = new CollectionManager($this->getMockConfiguration(), $this->getMockEventDistpatcher(), $this->getMockLogger());
+        $cm = new CollectionManager($this->getMockMarkupEngineManager(), $this->getMockConfiguration(), $this->getMockEventDistpatcher(), $this->getMockLogger());
         $cm->parseCollections([
             [
                 'name' => 'books',
@@ -55,7 +54,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @return PageView[]
+     * @return StaticPageView[]
      */
     private function staticPageViewsProvider()
     {
