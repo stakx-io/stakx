@@ -29,7 +29,7 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
 
     public function setMarkupEngine(MarkupEngineManager $manager)
     {
-        $this->markupEngine = $manager->getMarkupEngine($this->getExtension());
+        $this->markupEngine = $manager->getEngineByExtension($this->getExtension());
         $this->readContent();
     }
 

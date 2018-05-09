@@ -12,12 +12,8 @@ use allejo\stakx\Exception\UnsupportedMarkupException;
 
 class MarkupEngineManager
 {
-    private $engines;
-
-    public function __construct()
-    {
-        $this->engines = [];
-    }
+    private $enginesByTags = [];
+    private $enginesByExtension = [];
 
     public function addMarkupEngines(/*iterable*/ $markupEngines)
     {
@@ -36,22 +32,39 @@ class MarkupEngineManager
         {
             if ($k === 0)
             {
-                $this->engines[$extension] = $markupEngine;
+                $this->enginesByExtension[$extension] = $markupEngine;
             }
             else
             {
-                $this->engines[$extension] = &$this->engines[$primaryExt];
+                $this->enginesByExtension[$extension] = &$this->enginesByExtension[$primaryExt];
             }
         }
+
+        $this->enginesByTags[$markupEngine->getTemplateTag()] = &$this->enginesByExtension[$primaryExt];
     }
 
-    public function getMarkupEngine($extension)
+    public function getEngineByTag($tag)
     {
-        if (isset($this->engines[$extension]))
+        if (isset($this->enginesByTags[$tag]))
         {
-            return $this->engines[$extension];
+            return $this->enginesByTags[$tag];
+        }
+
+        throw new UnsupportedMarkupException($tag, 'There is no support to handle this markup format.');
+    }
+
+    public function getEngineByExtension($extension)
+    {
+        if (isset($this->enginesByExtension[$extension]))
+        {
+            return $this->enginesByExtension[$extension];
         }
 
         throw new UnsupportedMarkupException($extension, 'There is no support to handle this markup format.');
+    }
+
+    public function getTemplateTags()
+    {
+        return array_filter(array_keys($this->enginesByTags));
     }
 }
