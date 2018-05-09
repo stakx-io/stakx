@@ -13,6 +13,7 @@ use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -23,6 +24,7 @@ class CollectionManager extends TrackingManager
 {
     /** @var string[][] A copy of the collection definitions to be available for later usage. */
     private $collectionDefinitions;
+    private $markupEngineManager;
     private $configuration;
     private $eventDispatcher;
     private $logger;
@@ -30,8 +32,9 @@ class CollectionManager extends TrackingManager
     /**
      * CollectionManager constructor.
      */
-    public function __construct(Configuration $configuration, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
+    public function __construct(MarkupEngineManager $markupEngineManager, Configuration $configuration, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
+        $this->markupEngineManager = $markupEngineManager;
         $this->configuration = $configuration;
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
@@ -175,6 +178,7 @@ class CollectionManager extends TrackingManager
         $collectionName = $options['namespace'];
 
         $contentItem = new ContentItem($filePath);
+        $contentItem->setMarkupEngine($this->markupEngineManager);
         $contentItem->setNamespace($collectionName);
         $contentItem->evaluateFrontMatter([], [
             'site' => $this->configuration->getConfiguration(),

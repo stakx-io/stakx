@@ -7,16 +7,31 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\Engines\Markdown\MarkdownEngine;
-use allejo\stakx\Engines\PlainTextEngine;
-use allejo\stakx\Engines\RST\RstEngine;
-use allejo\stakx\Service;
+use allejo\stakx\Filesystem\File;
+use allejo\stakx\MarkupEngine\MarkupEngine;
+use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\Templating\TemplateErrorInterface;
 
 class ContentItem extends PermalinkFrontMatterDocument implements CollectableItem, TemplateReadyDocument
 {
     use CollectableItemTrait;
     use TemplateEngineDependent;
+
+    /** @var MarkupEngine */
+    private $markupEngine;
+
+    public function __construct(File $file)
+    {
+        $this->noReadOnConstructor = true;
+
+        parent::__construct($file);
+    }
+
+    public function setMarkupEngine(MarkupEngineManager $manager)
+    {
+        $this->markupEngine = $manager->getMarkupEngine($this->getExtension());
+        $this->readContent();
+    }
 
     ///
     // Permalink management
@@ -56,39 +71,12 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
         if (!$this->bodyContentEvaluated)
         {
             $this->bodyContent = $this->parseTemplateLanguage($this->bodyContent);
-            $this->parseMarkupLanguage();
+            $this->bodyContent = $this->markupEngine->parse($this->bodyContent);
 
             $this->bodyContentEvaluated = true;
         }
 
         return (string)$this->bodyContent;
-    }
-
-    /**
-     * Transform the document's body from a markup language to HTML.
-     *
-     * @todo Port this to follow the same pattern as the template engine
-     */
-    private function parseMarkupLanguage()
-    {
-        switch ($this->getExtension())
-        {
-            case 'md':
-            case 'markdown':
-                $pd = new MarkdownEngine();
-                break;
-
-            case 'rst':
-                $pd = new RstEngine();
-                $pd->setIncludePolicy(true, Service::getWorkingDirectory());
-                break;
-
-            default:
-                $pd = new PlainTextEngine();
-                break;
-        }
-
-        $this->bodyContent = $pd->parse($this->bodyContent);
     }
 
     /**
