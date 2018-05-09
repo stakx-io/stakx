@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\System;
 
-use allejo\stakx\Exception\FileAccessDeniedException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Service;
@@ -204,36 +203,6 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     public function isSymlink($filePath)
     {
         return is_link($filePath);
-    }
-
-    /**
-     * Only read a file's contents if it's within the current working directory
-     *
-     * @param  string $filePath
-     *
-     * @return bool|string
-     */
-    public function safeReadFile($filePath)
-    {
-        $absPath = File::realpath($this->absolutePath($filePath));
-
-        if (!$this->exists($absPath))
-        {
-            throw new FileNotFoundException(sprintf(
-                "The '%s' file could not be found or is outside the website working directory",
-                $filePath
-            ));
-        }
-
-        if (strpos($absPath, Service::getWorkingDirectory()) !== 0)
-        {
-            throw new FileAccessDeniedException(sprintf(
-                "The '%s' file is outside the website working directory",
-                $filePath
-            ));
-        }
-
-        return file_get_contents($absPath);
     }
 
     /**
