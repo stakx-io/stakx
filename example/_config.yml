@@ -25,6 +25,9 @@ theme: bootstrap
 
 title: My First Stakx Website
 
+templates:
+  redirect: false
+
 highlighter:
   languages:
     bzw: _languages/bzw.json
