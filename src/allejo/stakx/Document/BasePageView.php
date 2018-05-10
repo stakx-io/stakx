@@ -9,7 +9,6 @@ namespace allejo\stakx\Document;
 
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\System\StakxResource;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamWrapper;
 use Symfony\Component\Yaml\Yaml;
@@ -109,13 +108,19 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
             'menu'      => false,
         );
 
-        if (!$redirectTemplate || !fs::exists(fs::absolutePath($redirectTemplate)))
+        $contentItemBody = fs::getInternalResource('redirect.html.twig');
+
+        try
         {
-            $contentItemBody = fs::getInternalResource('redirect.html.twig');
+            if (!empty($redirectTemplate))
+            {
+                $redirectView = new File($redirectTemplate);
+                $contentItemBody = $redirectView->getContents();
+            }
         }
-        else
+        catch (\Exception $e)
         {
-            $contentItemBody = file_get_contents(fs::absolutePath($redirectTemplate));
+            trigger_error($e->getMessage(), E_USER_WARNING);
         }
 
         return self::createVirtual($frontMatter, $contentItemBody);
