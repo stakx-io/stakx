@@ -22,7 +22,7 @@ use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\MarkupEngine\PlainTextEngine;
 use allejo\stakx\MarkupEngine\RstEngine;
 use allejo\stakx\Service;
-use allejo\stakx\System\Filesystem;
+use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Templating\Twig\TwigExtension;
 use org\bovigo\vfs\vfsStream;
@@ -43,14 +43,11 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     protected $dummyFile;
     /** @var vfsStreamDirectory */
     protected $rootDir;
-    /** @var Filesystem */
-    protected $fs;
 
     public function setUp()
     {
         $this->dummyFile = vfsStream::newFile('stakx.html.twig');
         $this->rootDir = vfsStream::setup();
-        $this->fs = new Filesystem();
 
         Service::setWorkingDirectory(null);
         Service::setParameter(BuildableCommand::USE_DRAFTS, false);
@@ -68,7 +65,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     {
         if ($this->assetFolder !== null)
         {
-            $this->fs->remove($this->assetFolder);
+            fs::remove($this->assetFolder);
         }
     }
 

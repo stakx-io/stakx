@@ -10,8 +10,9 @@ namespace allejo\stakx\Test\Templating\Twig\Extension;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
-use allejo\stakx\System\Filesystem;
+use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Templating\Twig\TwigExtension;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Templating\Twig\Extension\BaseUrlFunction;
@@ -39,8 +40,6 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
 
     public static function dataProvider()
     {
-        $fs = new Filesystem();
-
         return array(
             array('/toast/link.html', '/toast/', 'link.html'),
             array('/toast/link.html', '/toast', '/link.html'),
@@ -62,7 +61,7 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
             )),
             array('/toast/static/', 'toast', (
                 new StaticPageView(new File(
-                    $fs->appendPath(self::getTestRoot(), 'assets', 'PageViews', 'static.html.twig')
+                    fs::appendPath(self::getTestRoot(), 'assets', 'PageViews', 'static.html.twig')
                 ))
             )),
         );

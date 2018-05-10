@@ -10,15 +10,14 @@ namespace allejo\stakx;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Exception\FileAwareException;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
-use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Manager\TwigManager;
 use allejo\stakx\Filesystem\FileExplorer;
-use allejo\stakx\System\Filesystem;
 use allejo\stakx\Filesystem\Folder;
 use Highlight\Highlighter;
 use Kwf\FileWatcher\Event\AbstractEvent;
@@ -37,12 +36,6 @@ class Website
      */
     private $outputDirectory;
 
-    /**
-     * The main configuration to be used to build the specified website.
-     *
-     * @var Configuration
-     */
-    private $configuration;
 
     /**
      * When set to true, the Stakx website will be built without a configuration file.
@@ -72,14 +65,6 @@ class Website
     private $dm;
 
     /**
-     * @var Filesystem
-     */
-    private $fs;
-
-    /** @var MenuManager */
-    private $mm;
-
-    /**
      * @var PageManager
      */
     private $pm;
@@ -106,7 +91,6 @@ class Website
 
         $this->creationQueue = array();
         $this->output = $container->get('logger');
-        $this->fs = new Filesystem();
     }
 
     /**
@@ -220,7 +204,7 @@ class Website
 
     private function watchListenerFunction(AbstractEvent $event)
     {
-        $filePath = $this->fs->getRelativePath($event->filename);
+        $filePath = fs::getRelativePath($event->filename);
 
         try
         {
@@ -235,7 +219,7 @@ class Website
                     break;
 
                 case Move::NAME:
-                    $newFile = $this->fs->getRelativePath($event->destFilename);
+                    $newFile = fs::getRelativePath($event->destFilename);
 
                     $this->deletionWatcher($filePath);
                     $this->creationWatcher($newFile);
@@ -422,20 +406,20 @@ class Website
      */
     private function createFolderStructure()
     {
-        $targetDir = $this->fs->absolutePath($this->getConfiguration()->getTargetFolder());
+        $targetDir = fs::absolutePath($this->getConfiguration()->getTargetFolder());
 
         if (!Service::getParameter(BuildableCommand::NO_CLEAN))
         {
-            $this->fs->remove($targetDir);
+            fs::remove($targetDir);
         }
 
         if (!Service::getParameter(BuildableCommand::USE_CACHE))
         {
-            $this->fs->remove($this->fs->absolutePath(Configuration::CACHE_FOLDER, 'twig'));
-            $this->fs->mkdir($this->fs->absolutePath($this->fs->appendPath(Configuration::CACHE_FOLDER, 'twig')));
+            fs::remove(fs::absolutePath(Configuration::CACHE_FOLDER, 'twig'));
+            fs::mkdir(fs::absolutePath(fs::appendPath(Configuration::CACHE_FOLDER, 'twig')));
         }
 
-        $this->fs->mkdir($targetDir);
+        fs::mkdir($targetDir);
     }
 
     /**
@@ -452,9 +436,9 @@ class Website
 
         foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
         {
-            $fullPath = $this->fs->absolutePath($path);
+            $fullPath = fs::absolutePath($path);
 
-            if (!$this->fs->exists($fullPath))
+            if (!fs::exists($fullPath))
             {
                 $this->output->warning('The following language definition could not be found: {lang}', array(
                     'lang' => $path

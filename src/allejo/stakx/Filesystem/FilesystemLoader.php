@@ -7,8 +7,6 @@
 
 namespace allejo\stakx\Filesystem;
 
-use allejo\stakx\System\Filesystem;
-
 /**
  * @method static string absolutePath(string ...$pathFragments) Build an absolute file or directory path separated by the OS specific directory separator.
  * @method static bool exists(string $path) Check whether a given file path exists or not.

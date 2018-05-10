@@ -8,9 +8,8 @@
 namespace allejo\stakx\Test\Document;
 
 use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\MarkupEngine\MarkdownEngine;
-use allejo\stakx\MarkupEngine\MarkupEngineManager;
-use allejo\stakx\MarkupEngine\PlainTextEngine;
 use allejo\stakx\MarkupEngine\RstEngine;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Exception\InvalidSyntaxException;
@@ -243,7 +242,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $contentItem = $this->createContentItem($frontMatter);
         $contentItem->evaluateFrontMatter();
 
-        $this->assertEquals($this->fs->appendPath('about', 'index.html'), $contentItem->getTargetFile());
+        $this->assertEquals(fs::appendPath('about', 'index.html'), $contentItem->getTargetFile());
     }
 
     public function testContentItemTargetFileFromPrettyUrlWithRedirects()
@@ -259,7 +258,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $contentItem = $this->createContentItem($frontMatter);
         $contentItem->evaluateFrontMatter();
 
-        $this->assertEquals($this->fs->appendPath('canonical', 'index.html'), $contentItem->getTargetFile());
+        $this->assertEquals(fs::appendPath('canonical', 'index.html'), $contentItem->getTargetFile());
         $this->assertEquals('/canonical/', $contentItem->getPermalink());
         $this->assertContains('/redirect/', $contentItem->getRedirects());
         $this->assertContains('/redirect-me/', $contentItem->getRedirects());
@@ -274,7 +273,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $contentItem = $this->createContentItem($frontMatter);
         $contentItem->evaluateFrontMatter();
 
-        $this->assertEquals($this->fs->appendPath('home', 'about.html'), $contentItem->getTargetFile());
+        $this->assertEquals(fs::appendPath('home', 'about.html'), $contentItem->getTargetFile());
     }
 
     public function testContentItemTargetFileFromFileWithoutPermalinkInDir()
@@ -289,7 +288,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $contentItem = new ContentItem($this->createFileObjectFromPath($url));
         $contentItem->evaluateFrontMatter();
 
-        $this->assertEquals($this->fs->appendPath('root', 'dir', 'foo.html'), $contentItem->getTargetFile());
+        $this->assertEquals(fs::appendPath('root', 'dir', 'foo.html'), $contentItem->getTargetFile());
     }
 
     public function testContentItemTargetFileFromFileWithStakxDataFolder()
@@ -349,7 +348,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->setExpectedException(FileNotFoundException::class);
 
         $content = $this->createContentItem(array());
-        $this->fs->remove($content->getAbsoluteFilePath());
+        fs::remove($content->getAbsoluteFilePath());
         $content->readContent();
     }
 

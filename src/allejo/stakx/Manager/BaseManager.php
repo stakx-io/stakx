@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\System\Filesystem;
+use allejo\stakx\Filesystem\Filesystem;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Container;

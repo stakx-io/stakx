@@ -1,14 +1,12 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
+ * @copyright 2018 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\System;
+namespace allejo\stakx\Filesystem;
 
-use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Service;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
