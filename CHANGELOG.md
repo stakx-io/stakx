@@ -1,3 +1,35 @@
+## HEAD
+
+A major release with the description yet to be determined.
+
+**Deprecations**
+
+**New**
+
+- FrontMatter now has "complex variables," meaning you can inject variables from your site's configuration file into any FM block
+
+**Change**
+
+- The "working directory" of websites is now relative to the given configuration file
+
+**Fixes**
+
+- Twig files through `{% include %}` are now treated as dependencies for the watch functionality
+- The `summary` and `toc` Twig filters now better support HTML5 and are more robust
+
+**Development**
+
+- A **lot** of restructuring and moving of namespaces
+- All references to files are now handled by a dedicated `File` object
+- Add Symfony container, which will autowrite classes and support dependency injection
+- Use the official highlight.php library again, which is now maintained again
+- Templating has been abstracted out into interfaces; a new Twig to stakx bridge has been created
+- Updated to Symfony 3.4.x components
+- Abstracted out data transformers into separate classes with an interface for DataItems
+- Twig filters and functions are now handled through the container
+- Improved cross-platform support for file paths used internally
+- Markup engines have been abstracted out into interfaces and separate classes
+
 ## 0.1.3 "Pacifist Tasmanian Devil"
 
 A maintenance release with small bug fixes.
