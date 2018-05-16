@@ -40,6 +40,8 @@ final class File extends \SplFileInfo
         parent::__construct(self::realpath($filePath));
 
         $this->relativePath = str_replace(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR, '', $this->getAbsolutePath());
+
+        $this->isSafeToRead();
     }
 
     /**
@@ -150,7 +152,10 @@ final class File extends \SplFileInfo
      */
     public function getContents()
     {
-        $this->isSafeToRead();
+        if (!$this->exists())
+        {
+            throw $this->buildNotFoundException();
+        }
 
         $content = file_get_contents($this->getAbsolutePath());
 
@@ -168,18 +173,6 @@ final class File extends \SplFileInfo
      */
     private function isSafeToRead()
     {
-        $e = new FileNotFoundException(
-            sprintf('The given path "%s" does not exist or is outside the website working directory', $this->rawPath),
-            0,
-            null,
-            $this->rawPath
-        );
-
-        if (!$this->exists())
-        {
-            throw $e;
-        }
-
         if (self::isVFS($this->getAbsolutePath()))
         {
             return;
@@ -187,8 +180,18 @@ final class File extends \SplFileInfo
 
         if (strpos($this->getAbsolutePath(), Service::getWorkingDirectory()) !== 0)
         {
-            throw $e;
+            throw $this->buildNotFoundException();
         }
+    }
+
+    private function buildNotFoundException()
+    {
+        return new FileNotFoundException(
+            sprintf('The given path "%s" does not exist or is outside the website working directory', $this->rawPath),
+            0,
+            null,
+            $this->rawPath
+        );
     }
 
     /**

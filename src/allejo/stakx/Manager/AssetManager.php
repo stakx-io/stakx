@@ -113,13 +113,7 @@ class AssetManager extends TrackingManager
      */
     protected function handleTrackableItem(File $file, array $options = array())
     {
-        if (is_string($file))
-        {
-            $file = ltrim(fs::appendPath($options['prefix'], $file), DIRECTORY_SEPARATOR);
-            $file = fs::createFileObject($file);
-        }
-
-        if (!fs::exists($file))
+        if (!$file->exists())
         {
             return;
         }

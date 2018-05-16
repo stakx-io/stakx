@@ -161,6 +161,6 @@ class DataManager extends TrackingManager
             ]);
         }
 
-        return fs::getBaseName($filePath);
+        return $filePath->getBasename();
     }
 }
