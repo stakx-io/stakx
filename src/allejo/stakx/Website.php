@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx;
@@ -10,15 +10,15 @@ namespace allejo\stakx;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Exception\FileAwareException;
+use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Manager\TwigManager;
-use allejo\stakx\Filesystem\FileExplorer;
-use allejo\stakx\Filesystem\Folder;
 use Highlight\Highlighter;
 use Kwf\FileWatcher\Event\AbstractEvent;
 use Kwf\FileWatcher\Event\Create;
@@ -35,7 +35,6 @@ class Website
      * @var Folder
      */
     private $outputDirectory;
-
 
     /**
      * When set to true, the Stakx website will be built without a configuration file.
@@ -89,7 +88,7 @@ class Website
     {
         $this->container = $container;
 
-        $this->creationQueue = array();
+        $this->creationQueue = [];
         $this->output = $container->get('logger');
     }
 
@@ -106,6 +105,7 @@ class Website
         if (empty($conf->getPageViewFolders()))
         {
             $logger->error('No PageViews were configured for this site. Check the `pageviews` key in your _config.yml.');
+
             return false;
         }
 
@@ -177,9 +177,9 @@ class Website
         $this->build(true);
         $this->output->writeln(sprintf('Watching %s', getcwd()));
 
-        $exclusions = array_merge($this->getConfiguration()->getExcludes(), array(
-            $this->getConfiguration()->getTargetFolder()
-        ));
+        $exclusions = array_merge($this->getConfiguration()->getExcludes(), [
+            $this->getConfiguration()->getTargetFolder(),
+        ]);
         $fileExplorer = FileExplorer::create(
             getcwd(), $exclusions, $this->getConfiguration()->getIncludes()
         );
@@ -189,7 +189,7 @@ class Website
             ->setLogger($this->output)
             ->setEventDispatcher($this->container->get('event_dispatcher'))
             ->setExcludePatterns(array_merge(
-                $exclusions, FileExplorer::$vcsPatterns, array(Configuration::CACHE_FOLDER)
+                $exclusions, FileExplorer::$vcsPatterns, [Configuration::CACHE_FOLDER]
             ))
             ->setIterator($fileExplorer->getExplorer())
 //            ->addListener(Create::NAME, function ($e) { $this->watchListenerFunction($e); })
@@ -271,6 +271,7 @@ class Website
 
     /**
      * @param string $filePath
+     * @param mixed  $newlyCreate
      */
     private function creationWatcher($filePath, $newlyCreate = true)
     {
@@ -303,10 +304,10 @@ class Website
 
                 $this->pm->trackNewContentItem($contentItem);
                 $this->compiler->compileContentItem($contentItem);
-                $this->compiler->compileSome(array(
-                    'namespace'  => 'collections',
+                $this->compiler->compileSome([
+                    'namespace' => 'collections',
                     'dependency' => $contentItem->getNamespace(),
-                ));
+                ]);
 
                 unset($this->creationQueue[$filePath]);
             }
@@ -320,10 +321,10 @@ class Website
             $change = $this->dm->createNewItem($filePath);
             TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
 
-            $this->compiler->compileSome(array(
-                'namespace'  => 'data',
+            $this->compiler->compileSome([
+                'namespace' => 'data',
                 'dependency' => $change,
-            ));
+            ]);
         }
         elseif (!is_null($this->tm) && $this->tm->shouldBeTracked($filePath))
         {
@@ -369,20 +370,20 @@ class Website
             $contentItem->readContent();
 
             $this->compiler->compileContentItem($contentItem);
-            $this->compiler->compileSome(array(
-                'namespace'  => 'collections',
+            $this->compiler->compileSome([
+                'namespace' => 'collections',
                 'dependency' => $contentItem->getNamespace(),
-            ));
+            ]);
         }
         elseif ($this->dm->isTracked($filePath))
         {
             $change = $this->dm->refreshItem($filePath);
             TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
 
-            $this->compiler->compileSome(array(
-                'namespace'  => 'data',
+            $this->compiler->compileSome([
+                'namespace' => 'data',
                 'dependency' => $change,
-            ));
+            ]);
         }
         elseif (!is_null($this->tm) && $this->tm->isTracked($filePath))
         {
@@ -431,7 +432,7 @@ class Website
 
         if (!$enabled)
         {
-          return;
+            return;
         }
 
         foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
@@ -440,17 +441,17 @@ class Website
 
             if (!fs::exists($fullPath))
             {
-                $this->output->warning('The following language definition could not be found: {lang}', array(
-                    'lang' => $path
-                ));
+                $this->output->warning('The following language definition could not be found: {lang}', [
+                    'lang' => $path,
+                ]);
                 continue;
             }
 
             Highlighter::registerLanguage($lang, $fullPath);
-            $this->output->debug('Loading custom language {lang} from {path}...', array(
+            $this->output->debug('Loading custom language {lang} from {path}...', [
                 'lang' => $lang,
-                'path' => $path
-            ));
+                'path' => $path,
+            ]);
         }
     }
 }

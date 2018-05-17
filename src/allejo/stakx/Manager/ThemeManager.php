@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
@@ -32,10 +32,10 @@ class ThemeManager extends AssetManager
         $this->themeFolder = fs::absolutePath(self::THEME_FOLDER, $themeName);
         $this->themeName = $themeName;
         $this->themeFile = fs::appendPath($this->themeFolder, self::THEME_DEFINITION_FILE);
-        $this->themeData = array(
-            'exclude' => array(),
-            'include' => array(),
-        );
+        $this->themeData = [
+            'exclude' => [],
+            'include' => [],
+        ];
 
         if (!fs::exists($this->themeFolder))
         {
@@ -85,9 +85,9 @@ class ThemeManager extends AssetManager
     {
         $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
 
-        return $this->handleTrackableItem($relativeFilePath, array(
+        return $this->handleTrackableItem($relativeFilePath, [
             'prefix' => $this->themeFolderRelative,
-        ));
+        ]);
     }
 
     public function copyFiles()
@@ -96,9 +96,9 @@ class ThemeManager extends AssetManager
 
         $this->scanTrackableItems(
             $this->themeFolder,
-            array(
+            [
                 'prefix' => $this->themeFolderRelative,
-            ),
+            ],
             array_merge(
                 $this->includes,
                 $this->themeData['include']

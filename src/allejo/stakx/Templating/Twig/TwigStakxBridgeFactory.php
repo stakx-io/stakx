@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig;
@@ -14,7 +15,6 @@ use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
-use allejo\stakx\Filesystem\Filesystem;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig_Environment;
@@ -32,9 +32,9 @@ class TwigStakxBridgeFactory
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface $logger
     ) {
-        $loader = new TwigFileLoader(array(
+        $loader = new TwigFileLoader([
             Service::getWorkingDirectory(),
-        ));
+        ]);
 
         $theme = $configuration->getTheme();
 
@@ -47,18 +47,18 @@ class TwigStakxBridgeFactory
             }
             catch (\Twig_Error_Loader $e)
             {
-                $logger->error('The following theme could not be loaded: {theme}', array(
+                $logger->error('The following theme could not be loaded: {theme}', [
                     'theme' => $theme,
-                ));
+                ]);
                 $logger->error($e->getMessage());
             }
         }
 
-        $twig = new Twig_Environment($loader, array(
-            'autoescape'  => $configuration->getTwigAutoescape(),
+        $twig = new Twig_Environment($loader, [
+            'autoescape' => $configuration->getTwigAutoescape(),
             'auto_reload' => true,
-            'cache'       => fs::absolutePath('.stakx-cache/twig'),
-        ));
+            'cache' => fs::absolutePath('.stakx-cache/twig'),
+        ]);
 
         // We'll use this to access the current file in our Twig filters
         $twig->addGlobal('__currentTemplate', '');

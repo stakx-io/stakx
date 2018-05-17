@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\DataTransformer;
@@ -35,16 +35,19 @@ class DataTransformerManagerTest extends PHPUnit_Stakx_TestCase
     public static function dataProviderExtensions()
     {
         return [
-            [ CsvTransformer::class, 'csv' ],
-            [ JsonTransformer::class, 'json' ],
-            [ XmlTransformer::class, 'xml' ],
-            [ YamlTransformer::class, 'yaml' ],
-            [ YamlTransformer::class, 'yml' ],
+            [CsvTransformer::class, 'csv'],
+            [JsonTransformer::class, 'json'],
+            [XmlTransformer::class, 'xml'],
+            [YamlTransformer::class, 'yaml'],
+            [YamlTransformer::class, 'yml'],
         ];
     }
 
     /**
      * @dataProvider dataProviderExtensions
+     *
+     * @param mixed $class
+     * @param mixed $extension
      */
     public function testCorrectTransformer($class, $extension)
     {

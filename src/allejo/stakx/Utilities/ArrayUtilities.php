@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Utilities;
@@ -20,7 +20,8 @@ abstract class ArrayUtilities
      */
     public static function array_safe_get(array $array, $key, $default = null)
     {
-        if (isset($array[$key])) {
+        if (isset($array[$key]))
+        {
             return $array[$key];
         }
 
@@ -28,7 +29,7 @@ abstract class ArrayUtilities
     }
 
     /**
-     * @param  array $array
+     * @param array $array
      *
      * @return bool
      */
@@ -58,8 +59,8 @@ abstract class ArrayUtilities
      * )
      * ```
      *
-     * @param  array  $arr
-     * @param  string $indexKey The key to consider the index
+     * @param array  $arr
+     * @param string $indexKey The key to consider the index
      *
      * @return bool
      */
@@ -89,16 +90,16 @@ abstract class ArrayUtilities
      * )
      * ```
      *
-     * @param  array  $arr
-     * @param  string $indexKey
+     * @param array  $arr
+     * @param string $indexKey
      *
      * @see    ArrayUtilities::array_can_be_indexed()
      *
-     * @return array  The original array but each element's key will be the value of the element's key value
+     * @return array The original array but each element's key will be the value of the element's key value
      */
     public static function array_index_by_key(array &$arr, $indexKey)
     {
-        $result = array();
+        $result = [];
 
         foreach ($arr as &$value)
         {
@@ -114,9 +115,9 @@ abstract class ArrayUtilities
     /**
      * Merge two arrays together while respecting possible indexing.
      *
-     * @param  array  $arr1     The first array
-     * @param  array  $arr2     The values in this array will overwrite the respective values from $arr2
-     * @param  string $indexKey The key to respect when indexing
+     * @param array  $arr1     The first array
+     * @param array  $arr2     The values in this array will overwrite the respective values from $arr2
+     * @param string $indexKey The key to respect when indexing
      *
      * @see    ArrayUtilities::array_index_by_key()
      *
@@ -153,17 +154,17 @@ abstract class ArrayUtilities
     /**
      * Split an associative array into two chunks based on the position of a key.
      *
-     * @param  string $key       The key we'll be using as the splitting point
-     * @param  array  $array     The array we're splitting up
-     * @param  bool   $inclusive When set to true, the key being used as the splitting point will be incorporated in the
-     *                           first chunk of the split.
+     * @param string $key       The key we'll be using as the splitting point
+     * @param array  $array     The array we're splitting up
+     * @param bool   $inclusive when set to true, the key being used as the splitting point will be incorporated in the
+     *                          first chunk of the split
      *
-     * @return array  An array with two indices (0 & 1) containing the respective chunks of the array
+     * @return array An array with two indices (0 & 1) containing the respective chunks of the array
      */
     public static function associative_array_split($key, array &$array, $inclusive = true)
     {
         $offset = array_search($key, array_keys($array)) + (int)$inclusive;
-        $result = array();
+        $result = [];
 
         $result[0] = array_slice($array, 0, $offset, true);
         $result[1] = array_slice($array, $offset, null, true);

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
@@ -57,8 +57,8 @@ interface CollectableItem
     /**
      * Evaluate the FrontMatter in this object by merging a custom array of data.
      *
-     * @param array $variables An array of YAML variables to use in evaluating the `$permalink` value
-     * @param array $complexVariables Complex variables that will be available to the FrontMatter scope of this document.
+     * @param array $variables        An array of YAML variables to use in evaluating the `$permalink` value
+     * @param array $complexVariables complex variables that will be available to the FrontMatter scope of this document
      */
     public function evaluateFrontMatter(array $variables = [], array $complexVariables = []);
 }

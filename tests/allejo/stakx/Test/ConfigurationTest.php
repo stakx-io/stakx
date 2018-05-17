@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test;
@@ -61,18 +61,18 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
     public function testSampleConfigGetDataFolders()
     {
         $this->assertCount(1, $this->sampleConfig->getDataFolders());
-        $this->assertEquals(array('_data'), $this->sampleConfig->getDataFolders());
+        $this->assertEquals(['_data'], $this->sampleConfig->getDataFolders());
     }
 
     public function testSampleConfigGetDataSets()
     {
         $this->assertCount(1, $this->sampleConfig->getDataSets());
-        $this->assertEquals(array(
-            array(
+        $this->assertEquals([
+            [
                 'name' => 'months',
                 'folder' => '_datasets/months',
-            ),
-        ), $this->sampleConfig->getDataSets());
+            ],
+        ], $this->sampleConfig->getDataSets());
     }
 
     public function testSampleConfigCombinedInclude()
@@ -118,10 +118,10 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
         $collections = $this->sampleConfig->getCollectionsFolders();
 
         $this->assertCount(2, $collections);
-        $this->assertContains(array(
+        $this->assertContains([
             'name' => 'posts',
             'folder' => '_posts',
-        ), $collections);
+        ], $collections);
     }
 
     public function testDefaultConfigTwigEscape()
@@ -153,10 +153,10 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
 
     public static function dataProviderImportTests()
     {
-        return array(
-            array(
-                array(
-                    'files' => array(
+        return [
+            [
+                [
+                    'files' => [
                         'parent.yml' => '
 value_one: 1
 value_two: 2
@@ -167,16 +167,16 @@ import:
                         'child.yml' => '
 value_one: 5
 ',
-                    ),
-                    'keys' => array(
+                    ],
+                    'keys' => [
                         'value_one' => 5,
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
 
-            array(
-                array(
-                    'files' => array(
+            [
+                [
+                    'files' => [
                         'child.yml' => '
 import:
   - parent.yml
@@ -187,16 +187,16 @@ value_two: 2
                         'parent.yml' => '
 value_one: 5
 ',
-                    ),
-                    'keys' => array(
+                    ],
+                    'keys' => [
                         'value_one' => 1,
-                    ),
-                ),
-            ),
+                    ],
+                ],
+            ],
 
-            array(
-                array(
-                    'files' => array(
+            [
+                [
+                    'files' => [
                         'parent.yml' => '
 import:
   - child.yml
@@ -208,16 +208,16 @@ data:
 data:
   - _calendar
 ',
-                    ),
-                    'keys' => array(
-                        'data' => array('_calendar', '_data'),
-                    ),
-                ),
-            ),
+                    ],
+                    'keys' => [
+                        'data' => ['_calendar', '_data'],
+                    ],
+                ],
+            ],
 
-            array(
-                array(
-                    'files' => array(
+            [
+                [
+                    'files' => [
                         'parent.yml' => '
 data:
   - _data
@@ -229,16 +229,16 @@ import:
 data:
   - _calendar
 ',
-                    ),
-                    'keys' => array(
-                        'data' => array('_data', '_calendar'),
-                    ),
-                ),
-            ),
+                    ],
+                    'keys' => [
+                        'data' => ['_data', '_calendar'],
+                    ],
+                ],
+            ],
 
-            array(
-                array(
-                    'files' => array(
+            [
+                [
+                    'files' => [
                         'parent.yml' => '
 data:
   - _data
@@ -254,13 +254,13 @@ data:
 
 value_one: 1
 ',
-                    ),
-                    'keys' => array(
-                        'value_one' => 100
-                    ),
-                ),
-            ),
-        );
+                    ],
+                    'keys' => [
+                        'value_one' => 100,
+                    ],
+                ],
+            ],
+        ];
     }
 
     /**
@@ -270,7 +270,7 @@ value_one: 1
      */
     public function testConfigurationImports(array $rules)
     {
-        $files = array();
+        $files = [];
 
         foreach ($rules['files'] as $fileName => $fileContent)
         {
@@ -390,11 +390,11 @@ value_one: 1
 
     public static function dataProviderInvalidImportArrays()
     {
-        return array(
-            array("import:\n- 1"),
-            array("import:\n- true"),
-            array("import:\n- 2017-01-01"),
-        );
+        return [
+            ["import:\n- 1"],
+            ["import:\n- true"],
+            ["import:\n- 2017-01-01"],
+        ];
     }
 
     /**
@@ -415,11 +415,11 @@ value_one: 1
 
     public static function dataProviderInvalidImports()
     {
-        return array(
-            array('import: true'),
-            array('import: 1234'),
-            array('import: butter & toast'),
-        );
+        return [
+            ['import: true'],
+            ['import: 1234'],
+            ['import: butter & toast'],
+        ];
     }
 
     /**

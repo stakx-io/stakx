@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\FrontMatter;
@@ -20,19 +20,20 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     {
         $this->setExpectedException(YamlVariableUndefinedException::class);
 
-        $frontMatter = array(
+        $frontMatter = [
             'var' => '%undefinedVar',
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
     }
+
     public function testComplexVariableUndefinedThrowsException()
     {
         $this->setExpectedException(YamlVariableUndefinedException::class);
 
-        $frontMatter = array(
+        $frontMatter = [
             'var' => '%{site.undefinedVar}',
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
     }
@@ -40,10 +41,10 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     public function testVariableStringReplacement()
     {
         $eval = 'variable value';
-        $frontMatter = array(
+        $frontMatter = [
             'myVar' => $eval,
             'evaluated' => '%myVar butter',
-        );
+        ];
 
         $fmp = new FrontMatterParser($frontMatter);
         $fmp->parse();
@@ -55,15 +56,15 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     public function testExternalVariableStringReplacement()
     {
         $eval = 'My Super Site';
-        $frontMatter = array(
+        $frontMatter = [
             'evaluated' => '%{site.title}',
-        );
+        ];
 
         $fmp = new FrontMatterParser($frontMatter);
         $fmp->addComplexVariables([
             'site' => [
-                'title' => $eval
-            ]
+                'title' => $eval,
+            ],
         ]);
         $fmp->parse();
 
@@ -73,10 +74,10 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     public function testVariableIntReplacement()
     {
         $eval = 5154;
-        $frontMatter = array(
+        $frontMatter = [
             'myVar' => $eval,
             'evaluated' => '%myVar1200',
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
 
@@ -88,10 +89,10 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $this->setExpectedException(YamlUnsupportedVariableException::class);
 
         $eval = true;
-        $frontMatter = array(
+        $frontMatter = [
             'myVar' => $eval,
             'evaluated' => '%myVar',
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
     }
@@ -100,14 +101,14 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     {
         $this->setExpectedException(YamlUnsupportedVariableException::class);
 
-        $frontMatter = array(
-            'myVar' => array(
+        $frontMatter = [
+            'myVar' => [
                 'one',
                 'two',
                 'three',
-            ),
+            ],
             'evaluated' => '%myVar',
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
     }
@@ -116,15 +117,15 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     {
         $this->setExpectedException(YamlUnsupportedVariableException::class);
 
-        $frontMatter = array(
-            'languages' => array(
-                'first' => array(
+        $frontMatter = [
+            'languages' => [
+                'first' => [
                     'en',
                     'fr',
-                ),
-            ),
+                ],
+            ],
             'permalink' => '/blog/%languages/',
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
     }
@@ -133,18 +134,18 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     {
         $val = '/blog/en/';
         $eval = new ExpandedValue($val);
-        $this->assertEquals($val, (string) $eval);
+        $this->assertEquals($val, (string)$eval);
     }
 
     public function testVariableStringValueExpansion()
     {
-        $frontMatter = array(
-            'languages' => array(
+        $frontMatter = [
+            'languages' => [
                 'en',
                 'fr',
-            ),
+            ],
             'permalink' => '/blog/%languages/',
-        );
+        ];
 
         $fmp = new FrontMatterParser($frontMatter);
         $fmp->parse();
@@ -155,15 +156,15 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $secondEval = new ExpandedValue('/blog/fr/');
         $secondEval->setIterator('languages', 'fr');
 
-        $expected = array(
+        $expected = [
             'languages' => $frontMatter['languages'],
-            'permalink' => array(
-                array(
+            'permalink' => [
+                [
                     $firstEval,
                     $secondEval,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         $this->assertEquals($expected, $frontMatter);
         $this->assertTrue($fmp->hasExpansion());
@@ -171,9 +172,9 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
 
     public function testVariableStringValueExpansionFromExternalVariables()
     {
-        $frontMatter = array(
+        $frontMatter = [
             'permalink' => '/categories/%{site.categories}/',
-        );
+        ];
 
         $fmp = new FrontMatterParser($frontMatter);
         $fmp->addComplexVariables([
@@ -181,8 +182,8 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
                 'categories' => [
                     'misc',
                     'updates',
-                ]
-            ]
+                ],
+            ],
         ]);
         $fmp->parse();
 
@@ -192,14 +193,14 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $secondEval = new ExpandedValue('/categories/updates/');
         $secondEval->setIterator('site.categories', 'updates');
 
-        $expected = array(
-            'permalink' => array(
-                array(
+        $expected = [
+            'permalink' => [
+                [
                     $firstEval,
                     $secondEval,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         $this->assertEquals($expected, $frontMatter);
         $this->assertTrue($fmp->hasExpansion());
@@ -207,17 +208,17 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
 
     public function testVariableMultipleStringValueExpansion()
     {
-        $frontMatter = array(
-            'status' => array(
+        $frontMatter = [
+            'status' => [
                 'final',
                 'drafts',
-            ),
-            'languages' => array(
+            ],
+            'languages' => [
                 'en',
                 'fr',
-            ),
+            ],
             'permalink' => '/blog/%languages/%status/',
-        );
+        ];
         $fmp = new FrontMatterParser($frontMatter);
         $fmp->parse();
 
@@ -237,18 +238,18 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $fourthEval->setIterator('languages', 'fr');
         $fourthEval->setIterator('status', 'drafts');
 
-        $expected = array(
+        $expected = [
             'status' => $frontMatter['status'],
             'languages' => $frontMatter['languages'],
-            'permalink' => array(
-                array(
+            'permalink' => [
+                [
                     $firstEval,
                     $secondEval,
                     $thirdEval,
                     $fourthEval,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         $this->assertEquals($expected, $frontMatter);
         $this->assertTrue($fmp->hasExpansion());
@@ -256,16 +257,16 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
 
     public function testVariableArrayValueExpansion()
     {
-        $frontMatter = array(
-            'languages' => array(
+        $frontMatter = [
+            'languages' => [
                 'en',
                 'fr',
-            ),
-            'permalink' => array(
+            ],
+            'permalink' => [
                 '/blog/%languages/',
                 '/el-blog/%languages/',
-            ),
-        );
+            ],
+        ];
 
         $fmp = new FrontMatterParser($frontMatter);
         $fmp->parse();
@@ -282,19 +283,19 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $fourthEval = new ExpandedValue('/el-blog/fr/');
         $fourthEval->setIterator('languages', 'fr');
 
-        $expected = array(
+        $expected = [
             'languages' => $frontMatter['languages'],
-            'permalink' => array(
-                array(
+            'permalink' => [
+                [
                     $firstEval,
                     $secondEval,
-                ),
-                array(
+                ],
+                [
                     $thirdEval,
                     $fourthEval,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         $this->assertEquals($expected, $frontMatter);
         $this->assertTrue($fmp->hasExpansion());
@@ -302,9 +303,9 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
 
     public function testSpecialFieldsDataAsDateTime()
     {
-        $frontMatter = array(
+        $frontMatter = [
             'date' => new \DateTime('2016-05-31'),
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
 
@@ -315,9 +316,9 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
 
     public function testSpecialFieldsDateAsString()
     {
-        $frontMatter = array(
+        $frontMatter = [
             'date' => '2016-01-26',
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
 
@@ -331,9 +332,9 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         date_default_timezone_set('America/Los_Angeles');
 
         // In the LA timezone, this Epoch should be the 7th of March
-        $frontMatter = array(
+        $frontMatter = [
             'date' => 1457395200,
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
 
@@ -347,9 +348,9 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         date_default_timezone_set('UTC');
 
         // In UTC, this Epoch should be the 8th of March
-        $frontMatter = array(
+        $frontMatter = [
             'date' => 1457395200,
-        );
+        ];
 
         (new FrontMatterParser($frontMatter))->parse();
 
@@ -371,39 +372,39 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
 
     public function testSpecialKeyBaseNameDefinedByParser()
     {
-        $frontMatter = array(
-            'myVar' => '/blog/%basename/'
-        );
+        $frontMatter = [
+            'myVar' => '/blog/%basename/',
+        ];
 
-        (new FrontMatterParser($frontMatter, array(
+        (new FrontMatterParser($frontMatter, [
             'basename' => 'hello-world',
-        )))->parse();
+        ]))->parse();
 
         $this->assertEquals('/blog/hello-world/', $frontMatter['myVar']);
     }
 
     public function testSpecialKeyFileNameDefinedByParser()
     {
-        $frontMatter = array(
-            'myVar' => '/blog/%filename/'
-        );
+        $frontMatter = [
+            'myVar' => '/blog/%filename/',
+        ];
 
-        (new FrontMatterParser($frontMatter, array(
+        (new FrontMatterParser($frontMatter, [
             'filename' => 'hello-world.md',
-        )))->parse();
+        ]))->parse();
 
         $this->assertEquals('/blog/hello-world.md/', $frontMatter['myVar']);
     }
 
     public function testSpecialKeyTakesPrecedenceOverFrontMatter()
     {
-        $frontMatter = array(
-            'value' => 'foo'
-        );
+        $frontMatter = [
+            'value' => 'foo',
+        ];
 
-        (new FrontMatterParser($frontMatter, array(
-            'value' => 'bar'
-        )))->parse();
+        (new FrontMatterParser($frontMatter, [
+            'value' => 'bar',
+        ]))->parse();
 
         $this->assertEquals('bar', $frontMatter['value']);
     }

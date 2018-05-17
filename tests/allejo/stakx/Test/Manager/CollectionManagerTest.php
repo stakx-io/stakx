@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\Manager;
@@ -13,7 +13,6 @@ use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\CollectionManager;
-use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\Service;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
@@ -104,12 +103,12 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
         $this->createMultipleFrontMatterDocumentsOfType(ContentItem::class, [
             [
                 'filename' => 'dark-matter.md',
-                'frontmatter' => [ 'title' => 'Dark Matter' ],
+                'frontmatter' => ['title' => 'Dark Matter'],
             ],
             [
                 'filename' => 'sphere.md',
-                'frontmatter' => [ 'title' => 'Sphere' ],
-            ]
+                'frontmatter' => ['title' => 'Sphere'],
+            ],
         ]);
 
         $collections = [
@@ -131,7 +130,7 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
         //
 
         /** @var ContentItem $newItem */
-        $newItem = $this->createFrontMatterDocumentOfType(ContentItem::class, 'the-expanse.md', [ 'title' => 'The Expanse' ]);
+        $newItem = $this->createFrontMatterDocumentOfType(ContentItem::class, 'the-expanse.md', ['title' => 'The Expanse']);
         $pushedItem = $cm->createNewItem($newItem->getFile());
 
         $this->assertCount(3, $cm->getCollections()['Sci-Fi']);

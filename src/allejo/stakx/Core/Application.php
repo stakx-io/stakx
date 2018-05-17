@@ -1,15 +1,14 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Core;
 
 use allejo\stakx\Configuration;
 use allejo\stakx\DataTransformer\DataTransformer;
-use allejo\stakx\DependencyInjection\Compiler\DataTransformerPass;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\MarkupEngine\MarkupEngine;
 use allejo\stakx\Templating\Twig\Extension\TwigFilterInterface;
@@ -23,7 +22,6 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
 /**
  * The base application class for stakx.

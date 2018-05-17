@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig\Extension;
@@ -11,11 +11,11 @@ class ZipFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke(array $array1, array $array2, $glue = '', $strict = false)
     {
-        $result = array();
+        $result = [];
         $arr1_length = count($array1);
         $arr2_length = count($array2);
 
-        for ($i = 0; $i < $arr1_length; $i++)
+        for ($i = 0; $i < $arr1_length; ++$i)
         {
             if ($i >= $arr2_length)
             {
@@ -61,6 +61,6 @@ class ZipFilter extends AbstractTwigExtension implements TwigFilterInterface
 
     private static function safe_get(array &$array, $key, $default = '')
     {
-        return (isset($array[$key]) ? (string)$array[$key] : $default);
+        return isset($array[$key]) ? (string)$array[$key] : $default;
     }
 }

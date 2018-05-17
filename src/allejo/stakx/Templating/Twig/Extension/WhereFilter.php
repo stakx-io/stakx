@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig\Extension;
@@ -40,7 +40,7 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
      */
     public function __invoke($array, $key, $comparison, $value)
     {
-        $results = array();
+        $results = [];
         $this->search_r($array, $key, $comparison, $value, $results);
 
         return $results;
@@ -159,22 +159,22 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
         switch ($comparison)
         {
             case '==':
-                return ($lhs === $rhs);
+                return $lhs === $rhs;
 
             case '!=':
-                return ($lhs !== $rhs);
+                return $lhs !== $rhs;
 
             case '>':
-                return ($lhs > $rhs);
+                return $lhs > $rhs;
 
             case '>=':
-                return ($lhs >= $rhs);
+                return $lhs >= $rhs;
 
             case '<':
-                return ($lhs < $rhs);
+                return $lhs < $rhs;
 
             case '<=':
-                return ($lhs <= $rhs);
+                return $lhs <= $rhs;
 
             case '~=':
                 return $this->contains($lhs, $rhs);

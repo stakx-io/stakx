@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig\Extension;
@@ -28,9 +28,9 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
 
     public static function get()
     {
-        return new \Twig_SimpleFunction('url', new self(), array(
+        return new \Twig_SimpleFunction('url', new self(), [
             'needs_environment' => true,
-        ));
+        ]);
     }
 
     private function getUrl($absolute)
@@ -85,12 +85,13 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
     }
 
     /**
-     * @link   https://stackoverflow.com/a/15575293
+     * @see   https://stackoverflow.com/a/15575293
+     *
      * @return string
      */
     private function buildPermalink()
     {
-        $paths = array();
+        $paths = [];
 
         foreach (func_get_args() as $arg)
         {
@@ -100,6 +101,6 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
             }
         }
 
-        return preg_replace('#(?<!:)/+#','/', join('/', $paths));
+        return preg_replace('#(?<!:)/+#', '/', join('/', $paths));
     }
 }

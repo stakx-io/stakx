@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Filesystem;
@@ -70,11 +70,11 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      * FileExplorer constructor.
      *
      * @param \RecursiveIterator $iterator
-     * @param string[] $excludes
-     * @param string[] $includes
-     * @param int|null $flags
+     * @param string[]           $excludes
+     * @param string[]           $includes
+     * @param int|null           $flags
      */
-    public function __construct(\RecursiveIterator $iterator, array $excludes = array(), array $includes = array(), $flags = null)
+    public function __construct(\RecursiveIterator $iterator, array $excludes = [], array $includes = [], $flags = null)
     {
         parent::__construct($iterator);
 
@@ -167,14 +167,14 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     /**
      * Create an instance of FileExplorer from a directory path as a string.
      *
-     * @param string   $folder The path to the folder we're scanning
+     * @param string   $folder   The path to the folder we're scanning
      * @param string[] $excludes
      * @param string[] $includes
      * @param int|null $flags
      *
      * @return FileExplorer
      */
-    public static function create($folder, $excludes = array(), $includes = array(), $flags = null)
+    public static function create($folder, $excludes = [], $includes = [], $flags = null)
     {
         $folder = File::realpath($folder);
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
@@ -195,7 +195,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     {
         if (!is_array($needle))
         {
-            $needle = array($needle);
+            $needle = [$needle];
         }
 
         foreach ($needle as $query)

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx;
@@ -18,11 +18,10 @@ use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\FilesystemPath;
+use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
-use allejo\stakx\Filesystem\Folder;
-use allejo\stakx\System\FilePath;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use allejo\stakx\Templating\TemplateErrorInterface;
 use allejo\stakx\Templating\TemplateInterface;
@@ -122,9 +121,9 @@ class Compiler
     }
 
     /**
-     * Check whether a given file path is used as a parent template by a PageView
+     * Check whether a given file path is used as a parent template by a PageView.
      *
-     * @param  string $filePath
+     * @param string $filePath
      *
      * @return bool
      */
@@ -134,7 +133,7 @@ class Compiler
     }
 
     /**
-     * Rebuild all of the PageViews that used a given template as a parent
+     * Rebuild all of the PageViews that used a given template as a parent.
      *
      * @param string $filePath The file path to the parent Twig template
      */
@@ -176,7 +175,7 @@ class Compiler
         }
     }
 
-    public function compileSome(array $filter = array())
+    public function compileSome(array $filter = [])
     {
         /** @var BasePageView $pageView */
         foreach ($this->pageViewsFlattened as &$pageView)
@@ -196,7 +195,7 @@ class Compiler
      *
      * @param string $filePath
      *
-     * @throws FileNotFoundException When the given file path isn't tracked by the Compiler.
+     * @throws FileNotFoundException when the given file path isn't tracked by the Compiler
      */
     public function compilePageViewFromPath($filePath)
     {
@@ -221,10 +220,10 @@ class Compiler
     public function compilePageView(BasePageView &$pageView)
     {
         $this->templateBridge->setGlobalVariable('__currentTemplate', $pageView->getAbsoluteFilePath());
-        $this->logger->debug('Compiling {type} PageView: {pageview}', array(
+        $this->logger->debug('Compiling {type} PageView: {pageview}', [
             'pageview' => $pageView->getRelativeFilePath(),
-            'type' => $pageView->getType()
-        ));
+            'type' => $pageView->getType(),
+        ]);
 
         try
         {
@@ -272,7 +271,7 @@ class Compiler
         $targetFile = $pageView->getTargetFile();
         $output = $this->renderStaticPageView($pageView);
 
-        $this->logger->notice('Writing file: {file}', array('file' => $targetFile));
+        $this->logger->notice('Writing file: {file}', ['file' => $targetFile]);
         $this->folder->writeFile($targetFile, $output);
     }
 
@@ -294,9 +293,9 @@ class Compiler
         {
             if ($contentItem->isDraft() && !Service::getParameter(BuildableCommand::USE_DRAFTS))
             {
-                $this->logger->debug('{file}: marked as a draft', array(
-                    'file' => $contentItem->getRelativeFilePath()
-                ));
+                $this->logger->debug('{file}: marked as a draft', [
+                    'file' => $contentItem->getRelativeFilePath(),
+                ]);
 
                 continue;
             }
@@ -304,7 +303,7 @@ class Compiler
             $targetFile = $contentItem->getTargetFile();
             $output = $this->renderDynamicPageView($template, $contentItem);
 
-            $this->logger->notice('Writing file: {file}', array('file' => $targetFile));
+            $this->logger->notice('Writing file: {file}', ['file' => $targetFile]);
             $this->folder->writeFile($targetFile, $output);
 
             $this->compileStandardRedirects($contentItem);
@@ -315,7 +314,7 @@ class Compiler
      * Write the compiled output for a repeater PageView.
      *
      * @param RepeaterPageView $pageView
-
+     *
      * @since 0.1.1
      *
      * @throws TemplateErrorInterface
@@ -356,7 +355,7 @@ class Compiler
         $targetFile = $contentItem->getTargetFile();
         $output = $this->renderDynamicPageView($template, $contentItem);
 
-        $this->logger->notice('Writing file: {file}', array('file' => $targetFile));
+        $this->logger->notice('Writing file: {file}', ['file' => $targetFile]);
         $this->folder->writeFile($targetFile, $output);
     }
 
@@ -405,7 +404,7 @@ class Compiler
         foreach ($pageView->getRepeaterRedirects() as $repeaterRedirect)
         {
             /**
-             * @var int           $index
+             * @var int
              * @var ExpandedValue $redirect
              */
             foreach ($repeaterRedirect as $index => $redirect)
@@ -447,9 +446,10 @@ class Compiler
         ]);
 
         return $template
-            ->render(array(
+            ->render([
                 'this' => $pageView->createJail(),
-            ));
+            ])
+        ;
     }
 
     /**
@@ -462,9 +462,10 @@ class Compiler
     private function renderDynamicPageView(TemplateInterface &$template, TemplateReadyDocument &$twigItem)
     {
         return $template
-            ->render(array(
+            ->render([
                 'this' => $twigItem->createJail(),
-            ));
+            ])
+        ;
     }
 
     /**
@@ -480,9 +481,10 @@ class Compiler
     {
         return $this
             ->createTwigTemplate($pageView)
-            ->render(array(
+            ->render([
                 'this' => $pageView->createJail(),
-            ));
+            ])
+        ;
     }
 
     /**

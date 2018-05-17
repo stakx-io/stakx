@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\MarkupEngine;
@@ -31,7 +31,7 @@ interface MarkupEngine
      *
      * @since 0.2.0
      *
-     * @return null|string If null, then no tag or filter will be registered.
+     * @return null|string if null, then no tag or filter will be registered
      */
     public function getTemplateTag();
 

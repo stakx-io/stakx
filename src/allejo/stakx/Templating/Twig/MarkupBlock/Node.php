@@ -1,12 +1,17 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Templating\Twig\MarkupBlock;
 
 /**
  * @author Gunnar Lium <gunnar@aptoma.com>
  * @author Joris Berthelot <joris@berthelot.tel>
  *
- * @link https://github.com/aptoma/twig-markdown/blob/master/src/Aptoma/Twig/Node/MarkdownNode.php
+ * @see https://github.com/aptoma/twig-markdown/blob/master/src/Aptoma/Twig/Node/MarkdownNode.php
  */
 class Node extends \Twig_Node
 {

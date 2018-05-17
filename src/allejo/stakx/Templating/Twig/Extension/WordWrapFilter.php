@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Templating\Twig\Extension;
 
 /**
@@ -7,13 +12,14 @@ namespace allejo\stakx\Templating\Twig\Extension;
  *
  * @copyright 2009 Fabien Potencier
  * @author Henrik Bjornskov <hb@peytz.dk>
+ *
  * @see https://github.com/twigphp/Twig-extensions
  */
 class WordWrapFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke(\Twig_Environment $env, $value, $length = 80, $separator = "\n", $preserve = false)
     {
-        $sentences = array();
+        $sentences = [];
 
         $previous = mb_regex_encoding();
         mb_regex_encoding($env->getCharset());

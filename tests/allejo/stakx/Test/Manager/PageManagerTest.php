@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\Manager;
@@ -30,7 +30,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $mock
             ->method('getPageViewFolders')
             ->willReturn([
-                $this->rootDir->url()
+                $this->rootDir->url(),
             ])
         ;
 
@@ -134,10 +134,10 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testPageViewsContentItems()
     {
-        $this->createFrontMatterDocumentOfType(DynamicPageView::class, 'dynamic.html.twig', array(
+        $this->createFrontMatterDocumentOfType(DynamicPageView::class, 'dynamic.html.twig', [
             'collection' => 'books',
             'permalink' => '/blog/%title/',
-        ));
+        ]);
 
         $collectionManager = $this->getCollectionManager();
         $pageManager = new PageManager(

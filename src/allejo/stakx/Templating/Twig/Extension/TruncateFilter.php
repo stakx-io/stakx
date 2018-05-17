@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig\Extension;
@@ -12,6 +12,7 @@ namespace allejo\stakx\Templating\Twig\Extension;
  *
  * @copyright 2009 Fabien Potencier
  * @author Henrik Bjornskov <hb@peytz.dk>
+ *
  * @see https://github.com/twigphp/Twig-extensions
  */
 class TruncateFilter extends AbstractTwigExtension implements TwigFilterInterface
@@ -23,7 +24,7 @@ class TruncateFilter extends AbstractTwigExtension implements TwigFilterInterfac
             if ($preserve)
             {
                 // If breakpoint is on the last word, return the value without separator.
-                if (false === ($breakpoint = mb_strpos($value, ' ', $length, $env->getCharset())))
+                if (($breakpoint = mb_strpos($value, ' ', $length, $env->getCharset())) === false)
                 {
                     return $value;
                 }

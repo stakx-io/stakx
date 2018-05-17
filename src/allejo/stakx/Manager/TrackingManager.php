@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
@@ -13,9 +13,9 @@ use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\ReadableDocument;
 use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Service;
-use allejo\stakx\Filesystem\FileExplorer;
 
 /**
  * Class TrackingManager.
@@ -152,7 +152,7 @@ abstract class TrackingManager extends BaseManager
      * Add a ReadableDocument to the tracker.
      *
      * @param ReadableDocument $trackedItem
-     * @param string|null       $namespace
+     * @param string|null      $namespace
      */
     protected function addObjectToTracker(ReadableDocument &$trackedItem, $namespace = null)
     {
@@ -172,7 +172,7 @@ abstract class TrackingManager extends BaseManager
      * Remove an entry from the tracked items array.
      *
      * @param ReadableDocument $trackedItem
-     * @param string|null       $namespace
+     * @param string|null      $namespace
      */
     protected function delObjectFromTracker(ReadableDocument &$trackedItem, $namespace = null)
     {
@@ -198,7 +198,7 @@ abstract class TrackingManager extends BaseManager
      * @param string $folderPath
      * @param array  $options
      */
-    protected function saveFolderDefinition($folderPath, array $options = array())
+    protected function saveFolderDefinition($folderPath, array $options = [])
     {
         $this->folderDefinitions[] = $folderPath;
         $this->folderDefinitionsOptions[(string)$folderPath] = $options;
@@ -210,7 +210,7 @@ abstract class TrackingManager extends BaseManager
      * @param string $filePath
      * @param array  $options
      */
-    protected function saveTrackerOptions($filePath, array $options = array())
+    protected function saveTrackerOptions($filePath, array $options = [])
     {
         $this->trackedItemsOptions[$filePath] = $options;
     }
@@ -237,7 +237,7 @@ abstract class TrackingManager extends BaseManager
      * @param array  $includes
      * @param array  $excludes
      */
-    protected function scanTrackableItems($path, array $options = array(), array $includes = array(), array $excludes = array())
+    protected function scanTrackableItems($path, array $options = [], array $includes = [], array $excludes = [])
     {
         $this->folderDefinitions[] = fs::getRelativePath($path);
 
@@ -267,14 +267,14 @@ abstract class TrackingManager extends BaseManager
      *
      * @return mixed|null
      */
-    abstract protected function handleTrackableItem(File $filePath, array $options = array());
+    abstract protected function handleTrackableItem(File $filePath, array $options = []);
 
     ///
     // Utility functions
     ///
 
     /**
-     * Return an array of JailedDocuments created from the tracked items
+     * Return an array of JailedDocuments created from the tracked items.
      *
      * @param array    $elements
      * @param \Closure $name
@@ -283,10 +283,10 @@ abstract class TrackingManager extends BaseManager
      */
     protected static function getJailedTrackedItems(array &$elements, \Closure $name = null)
     {
-        $jailItems = array();
+        $jailItems = [];
 
         /**
-         * @var string                           $key
+         * @var string
          * @var CollectableItem|ReadableDocument $item
          */
         foreach ($elements as &$item)

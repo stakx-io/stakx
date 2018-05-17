@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Filesystem;
@@ -192,9 +192,9 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
-     * Check whether a given file path is a symlink
+     * Check whether a given file path is a symlink.
      *
-     * @param  string $filePath
+     * @param string $filePath
      *
      * @return bool
      */
@@ -220,7 +220,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
 
     public function path($path)
     {
-        return (new FilesystemPath($path));
+        return new FilesystemPath($path);
     }
 
     public function getInternalResource($name)

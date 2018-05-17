@@ -1,37 +1,37 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\Templating\Twig\Extension;
 
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Templating\Twig\Extension\OrderFilter;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class OrderByFilterTest extends PHPUnit_Stakx_TestCase
 {
     public static function dataProvider()
     {
-        return array(
-            array(
-                array(
-                    array(
+        return [
+            [
+                [
+                    [
                         'name' => 'Order of Bacon',
                         'sort' => 30,
-                    ),
-                    array(
+                    ],
+                    [
                         'name' => 'Whee',
                         'sort' => 0,
-                    ),
-                    array(
+                    ],
+                    [
                         'name' => 'Side order of fries',
                         'sort' => 3,
-                    ),
-                ),
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
     }
 
     /**
@@ -43,20 +43,20 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'sort');
-        $expected = array(
-            array(
+        $expected = [
+            [
                 'name' => 'Whee',
                 'sort' => 0,
-            ),
-            array(
+            ],
+            [
                 'name' => 'Side order of fries',
                 'sort' => 3,
-            ),
-            array(
+            ],
+            [
                 'name' => 'Order of Bacon',
                 'sort' => 30,
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals($expected, $result);
     }
@@ -70,30 +70,30 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'sort', 'DESC');
-        $expected = array(
-            array(
+        $expected = [
+            [
                 'name' => 'Order of Bacon',
                 'sort' => 30,
-            ),
-            array(
+            ],
+            [
                 'name' => 'Side order of fries',
                 'sort' => 3,
-            ),
-            array(
+            ],
+            [
                 'name' => 'Whee',
                 'sort' => 0,
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals($expected, $result);
     }
 
     public static function keyProvider()
     {
-        return array(
-            array('page_count'),
-            array('publisher'),
-        );
+        return [
+            ['page_count'],
+            ['publisher'],
+        ];
     }
 
     /**

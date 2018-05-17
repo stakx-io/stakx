@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
@@ -38,7 +38,6 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
         if ($this->jailInstance === null)
         {
             $whiteListedFunctions = array_merge(self::$whiteListedFunctions, [
-
             ]);
 
             $jailedFunctions = [
@@ -100,7 +99,7 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
     public function jsonSerialize()
     {
         return array_merge($this->getFrontMatter(), [
-            'content'   => $this->getContent(),
+            'content' => $this->getContent(),
             'permalink' => $this->getPermalink(),
             'redirects' => $this->getRedirects(),
         ]);

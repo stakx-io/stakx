@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
@@ -52,7 +52,7 @@ interface PermalinkDocument
      *
      * For example, this function can take information from FrontMatter and build the permalink from there.
      *
-     * @param bool $force Permalinks are often cached internal; set to true to force the permalink to be rebuilt.
+     * @param bool $force permalinks are often cached internal; set to true to force the permalink to be rebuilt
      *
      * @return void
      */

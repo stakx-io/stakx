@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
@@ -116,7 +116,7 @@ class MenuManager extends BaseManager
             {
                 if (!isset($root[$name]))
                 {
-                    $root[$name]['children'] = array();
+                    $root[$name]['children'] = [];
                     $root = &$root[$name]['children'];
                 }
                 elseif (isset($root[$name]) && is_array($root[$name]))

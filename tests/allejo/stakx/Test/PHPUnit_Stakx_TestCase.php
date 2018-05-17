@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test;
@@ -12,7 +12,9 @@ use allejo\stakx\Configuration;
 use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
@@ -22,8 +24,6 @@ use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\MarkupEngine\PlainTextEngine;
 use allejo\stakx\MarkupEngine\RstEngine;
 use allejo\stakx\Service;
-use allejo\stakx\Filesystem\Filesystem;
-use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Templating\Twig\TwigExtension;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -140,7 +140,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      * @param string $filename
      * @param string $content
      *
-     * @return string The URL of the file on the virtual filesystem.
+     * @return string the URL of the file on the virtual filesystem
      */
     protected function createVirtualFile($filename, $content)
     {
@@ -236,13 +236,13 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      *
      * @deprecated
      *
-     * @param  string $filePath
+     * @param string $filePath
      *
      * @return File
      */
     protected function createFileObjectFromPath($filePath)
     {
-        return (new File($filePath));
+        return new File($filePath);
     }
 
     ///
@@ -409,7 +409,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      *
      * @return string
      */
-    protected function buildFrontMatterTemplate(array $frontMatter = array(), $body = 'Body text')
+    protected function buildFrontMatterTemplate(array $frontMatter = [], $body = 'Body text')
     {
         $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
 
@@ -428,12 +428,12 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
-        $cm->parseCollections(array(
-            array(
+        $cm->parseCollections([
+            [
                 'name' => 'books',
                 'folder' => 'tests/allejo/stakx/Test/assets/MyBookCollection/',
-            ),
-        ));
+            ],
+        ]);
 
         return (!$jailed) ? $cm->getCollections() : $cm->getJailedCollections();
     }

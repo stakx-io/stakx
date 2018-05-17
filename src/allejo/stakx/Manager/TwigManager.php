@@ -1,21 +1,20 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Configuration;
 use allejo\stakx\Engines\Markdown\TwigMarkdownEngine;
-use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Templating\Twig\TwigFileLoader;
+use allejo\stakx\Twig\FilesystemExtension;
 use allejo\stakx\Twig\TextExtension;
 use allejo\stakx\Twig\TwigExtension;
 use Aptoma\Twig\Extension\MarkdownExtension;
 use Twig_Environment;
-use Twig_Loader_Filesystem;
 
 class TwigManager extends BaseManager
 {
@@ -33,11 +32,11 @@ class TwigManager extends BaseManager
      * @param Configuration $configuration
      * @param mixed         $options
      */
-    public function configureTwig($configuration, $options = array())
+    public function configureTwig($configuration, $options = [])
     {
-        $loader = new TwigFileLoader(array(
+        $loader = new TwigFileLoader([
             getcwd(),
-        ));
+        ]);
         $theme = $configuration->getTheme();
         $mdEngine = new TwigMarkdownEngine();
 
@@ -50,18 +49,18 @@ class TwigManager extends BaseManager
             }
             catch (\Twig_Error_Loader $e)
             {
-                $this->output->error('The following theme could not be loaded: {theme}', array(
+                $this->output->error('The following theme could not be loaded: {theme}', [
                     'theme' => $theme,
-                ));
+                ]);
                 $this->output->error($e->getMessage());
             }
         }
 
-        self::$twig = new Twig_Environment($loader, array(
-            'autoescape'  => $configuration->getTwigAutoescape(),
+        self::$twig = new Twig_Environment($loader, [
+            'autoescape' => $configuration->getTwigAutoescape(),
             'auto_reload' => true,
-            'cache'       => $this->fs->absolutePath('.stakx-cache/twig'),
-        ));
+            'cache' => $this->fs->absolutePath('.stakx-cache/twig'),
+        ]);
 
         foreach ($options['globals'] as $global)
         {

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
@@ -34,7 +34,7 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     }
 
     /**
-     * Set the transformer used to convert the file contents into an array,
+     * Set the transformer used to convert the file contents into an array,.
      */
     public function setDataTransformer(DataTransformerManager $manager)
     {
@@ -48,10 +48,10 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     public function evaluateFrontMatter(array $variables = [], array $complexVariables = [])
     {
         $workspace = array_merge($this->data, $variables);
-        $parser = new FrontMatterParser($workspace, array(
+        $parser = new FrontMatterParser($workspace, [
             'filename' => $this->getFileName(),
             'basename' => $this->getBaseName(),
-        ));
+        ]);
         $parser->addComplexVariables($complexVariables);
         $parser->parse();
 
@@ -71,7 +71,7 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
         else
         {
             $this->permalink = $permalink;
-            $this->redirects = array();
+            $this->redirects = [];
         }
     }
 
@@ -80,7 +80,6 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
      */
     public function buildPermalink($force = false)
     {
-        return;
     }
 
     /**
@@ -118,10 +117,10 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
 
         $jailedFunctions = [
             'getPageView' => 'getJailedPageView',
-            'getDataset'  => 'getNamespace',
+            'getDataset' => 'getNamespace',
         ];
 
-        return (new JailedDocument($this, $whiteListedFunctions, $jailedFunctions));
+        return new JailedDocument($this, $whiteListedFunctions, $jailedFunctions);
     }
 
     ///

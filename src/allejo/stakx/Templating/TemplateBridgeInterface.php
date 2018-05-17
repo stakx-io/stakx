@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating;
@@ -32,7 +32,7 @@ interface TemplateBridgeInterface extends LoggerAwareInterface
     public function setProfiler($profiler);
 
     /**
-     * Get the output of this profiler that'll be written to the console.s
+     * Get the output of this profiler that'll be written to the console.
      *
      * @return string
      */
@@ -74,7 +74,7 @@ interface TemplateBridgeInterface extends LoggerAwareInterface
      *
      * @param string $templateContent
      *
-     * @throws TemplateErrorInterface When an error occurs while preparing/compiling a template for use.
+     * @throws TemplateErrorInterface when an error occurs while preparing/compiling a template for use
      *
      * @return TemplateInterface
      */

@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig\Extension;
@@ -20,8 +20,8 @@ class FileFunction extends AbstractFilesystemTwigExtension implements TwigFuncti
 
     public static function get()
     {
-        return new \Twig_SimpleFunction('file', new self(), array(
+        return new \Twig_SimpleFunction('file', new self(), [
             'needs_environment' => true,
-        ));
+        ]);
     }
 }

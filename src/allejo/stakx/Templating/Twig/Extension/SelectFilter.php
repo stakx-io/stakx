@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig\Extension;
@@ -11,7 +11,7 @@ class SelectFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke($array, $key, $flatten = true, $distinct = true, $ignore_null = true)
     {
-        $results = array();
+        $results = [];
 
         foreach ($array as $item)
         {
@@ -42,7 +42,7 @@ class SelectFilter extends AbstractTwigExtension implements TwigFilterInterface
 
             if ($distinct)
             {
-                $distinct = array();
+                $distinct = [];
 
                 foreach ($results as $key => $result)
                 {
@@ -63,8 +63,11 @@ class SelectFilter extends AbstractTwigExtension implements TwigFilterInterface
 
     private static function flatten(array $array)
     {
-        $return = array();
-        array_walk_recursive($array, function($a) use (&$return) { $return[] = $a; });
+        $return = [];
+        array_walk_recursive($array, function ($a) use (&$return) {
+            $return[] = $a;
+        });
+
         return $return;
     }
 }

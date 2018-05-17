@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx;
@@ -27,7 +27,7 @@ class Configuration implements LoggerAwareInterface
     const IMPORT_KEYWORD = 'import';
     const CACHE_FOLDER = '.stakx-cache';
 
-    private static $configImports = array();
+    private static $configImports = [];
 
     /**
      * A list of regular expressions or files directly related to stakx websites that should not be copied over to the
@@ -35,7 +35,7 @@ class Configuration implements LoggerAwareInterface
      *
      * @var array
      */
-    public static $stakxSourceFiles = array('/^_(?!themes).*/', '/.twig$/');
+    public static $stakxSourceFiles = ['/^_(?!themes).*/', '/.twig$/'];
 
     /**
      * An array representation of the main Yaml configuration.
@@ -68,7 +68,7 @@ class Configuration implements LoggerAwareInterface
      */
     public function __construct()
     {
-        $this->configuration = array();
+        $this->configuration = [];
     }
 
     ///
@@ -93,12 +93,12 @@ class Configuration implements LoggerAwareInterface
 
     public function hasDataItems()
     {
-        return ($this->getDataFolders() !== null || $this->getDataSets() !== null);
+        return $this->getDataFolders() !== null || $this->getDataSets() !== null;
     }
 
     public function hasCollections()
     {
-        return ($this->getCollectionsFolders() !== null);
+        return $this->getCollectionsFolders() !== null;
     }
 
     /**
@@ -266,18 +266,18 @@ class Configuration implements LoggerAwareInterface
         }
         catch (ParseException $e)
         {
-            $this->logger->error('{file}: parsing failed... {message}', array(
+            $this->logger->error('{file}: parsing failed... {message}', [
                 'message' => $e->getMessage(),
                 'file' => $configFile,
-            ));
+            ]);
             $this->logger->error('Using default configuration...');
         }
         catch (RecursiveConfigurationException $e)
         {
-            $this->logger->error("{file}: you can't recursively import a file that's already been imported: {import}", array(
+            $this->logger->error("{file}: you can't recursively import a file that's already been imported: {import}", [
                 'file' => $configFile,
                 'import' => $e->getRecursiveImport(),
-            ));
+            ]);
         }
 
         return [];
@@ -288,32 +288,32 @@ class Configuration implements LoggerAwareInterface
      */
     private function mergeDefaultConfiguration()
     {
-        $defaultConfig = array(
-            'baseurl'   => '',
-            'target'    => '_site',
-            'twig'      => array(
+        $defaultConfig = [
+            'baseurl' => '',
+            'target' => '_site',
+            'twig' => [
                 'autoescape' => false,
-            ),
-            'include'   => array(
+            ],
+            'include' => [
                 '.htaccess',
-            ),
-            'exclude'   => array(
+            ],
+            'exclude' => [
                 'node_modules/',
                 'stakx-theme.yml',
                 '/tmp___$/',
                 self::DEFAULT_NAME,
-            ),
-            'templates' => array(
+            ],
+            'templates' => [
                 'redirect' => false,
-            ),
-            'highlighter' => array(
+            ],
+            'highlighter' => [
                 'enabled' => true,
-                'languages' => array(),
-            ),
-            'build' => array(
-                'preserveCase' => false
-            ),
-        );
+                'languages' => [],
+            ],
+            'build' => [
+                'preserveCase' => false,
+            ],
+        ];
 
         $this->configuration = ArrayUtilities::array_merge_defaults($defaultConfig, $this->configuration, 'name');
     }
@@ -337,9 +337,9 @@ class Configuration implements LoggerAwareInterface
     {
         if (!isset($configuration[self::IMPORT_KEYWORD]))
         {
-            $this->logger->debug('{file}: does not import any other files', array(
+            $this->logger->debug('{file}: does not import any other files', [
                 'file' => $this->currentFile->getRelativeFilePath(),
-            ));
+            ]);
 
             return;
         }
@@ -368,10 +368,10 @@ class Configuration implements LoggerAwareInterface
     {
         if (!is_string($importDef))
         {
-            $this->logger->error('{file}: invalid import: {message}', array(
+            $this->logger->error('{file}: invalid import: {message}', [
                 'file' => $this->configFile->getRelativeFilePath(),
                 'message' => $importDef,
-            ));
+            ]);
 
             return;
         }
@@ -383,10 +383,10 @@ class Configuration implements LoggerAwareInterface
             return;
         }
 
-        $this->logger->debug('{file}: imports additional file: {import}', array(
+        $this->logger->debug('{file}: imports additional file: {import}', [
             'file' => $this->configFile->getRelativeFilePath(),
             'import' => $import->getRelativeFilePath(),
-        ));
+        ]);
 
         try
         {
@@ -395,17 +395,17 @@ class Configuration implements LoggerAwareInterface
         }
         catch (FileNotFoundException $e)
         {
-            $this->logger->warning('{file}: could not find file to import: {import}', array(
+            $this->logger->warning('{file}: could not find file to import: {import}', [
                 'file' => $this->configFile->getRelativeFilePath(),
                 'import' => $import,
-            ));
+            ]);
         }
     }
 
     /**
      * Check whether a given file path is a valid import.
      *
-     * @param  File $filePath
+     * @param File $filePath
      *
      * @return bool
      */
@@ -432,11 +432,11 @@ class Configuration implements LoggerAwareInterface
 
         if (!($noErrors = empty($errorMsg)))
         {
-            $this->logger->error("{file}: you can't import {message}: {import}", array(
+            $this->logger->error("{file}: you can't import {message}: {import}", [
                 'file' => $this->configFile->getRelativeFilePath(),
                 'message' => $errorMsg,
-                'import' => $filePath
-            ));
+                'import' => $filePath,
+            ]);
         }
 
         return $noErrors;
@@ -462,8 +462,8 @@ class Configuration implements LoggerAwareInterface
     /**
      * Merge the given array with existing configuration.
      *
-     * @param  array $importedConfig
-     * @param  array $existingConfig
+     * @param array $importedConfig
+     * @param array $existingConfig
      *
      * @return array
      */

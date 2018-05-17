@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\FrontMatter;
@@ -124,10 +124,10 @@ class FrontMatterParser
 
     /**
      * @param array $rawFrontMatter The array representation of a document's Front Matter
-     * @param array $specialKeys    Front Matter variables defined manually, which will override any values defined
-     *                              through Front Matter.
+     * @param array $specialKeys    front Matter variables defined manually, which will override any values defined
+     *                              through Front Matter
      */
-    public function __construct(array &$rawFrontMatter, array $specialKeys = array())
+    public function __construct(array &$rawFrontMatter, array $specialKeys = [])
     {
         $this->expansionUsed = false;
         $this->nestingLevel = 0;
@@ -247,7 +247,7 @@ class FrontMatterParser
         }
 
         --$this->nestingLevel;
-        $this->yamlKeys = array();
+        $this->yamlKeys = [];
     }
 
     /**
@@ -262,10 +262,10 @@ class FrontMatterParser
     {
         if (!is_array($fmStatement))
         {
-            $fmStatement = array($fmStatement);
+            $fmStatement = [$fmStatement];
         }
 
-        $wip = array();
+        $wip = [];
 
         foreach ($fmStatement as $statement)
         {
@@ -288,8 +288,8 @@ class FrontMatterParser
     /**
      * Convert a string or an array into an array of ExpandedValue objects created through "value expansion".
      *
-     * @param string $frontMatterKey The current hierarchy of the Front Matter keys being used
-     * @param string $expandableValue The Front Matter value that will be expanded
+     * @param string   $frontMatterKey     The current hierarchy of the Front Matter keys being used
+     * @param string   $expandableValue    The Front Matter value that will be expanded
      * @param string[] $arrayVariableNames The Front Matter variable names that reference arrays
      *
      * @throws YamlUnsupportedVariableException If a multidimensional array is given for value expansion
@@ -300,7 +300,7 @@ class FrontMatterParser
     {
         if (!is_array($expandableValue))
         {
-            $expandableValue = array($expandableValue);
+            $expandableValue = [$expandableValue];
         }
 
         $this->expansionUsed = true;
@@ -314,7 +314,7 @@ class FrontMatterParser
                 throw new YamlUnsupportedVariableException("Yaml array expansion is not supported with multidimensional arrays with `$variable` for key `$frontMatterKey`");
             }
 
-            $wip = array();
+            $wip = [];
 
             foreach ($expandableValue as &$statement)
             {
@@ -405,7 +405,7 @@ class FrontMatterParser
      * @param string $key     The FM key that is being currently evaluated (used solely for a helpful error message)
      * @param string $varName The variable name we're searching for without the `%`
      *
-     * @throws YamlVariableUndefinedException When variable is not defined.
+     * @throws YamlVariableUndefinedException when variable is not defined
      *
      * @return mixed
      */

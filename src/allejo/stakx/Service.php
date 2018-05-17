@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx;
@@ -19,13 +19,15 @@ abstract class Service
 
     public static function setParameter($key, $value)
     {
-        return (self::$parameters[$key] = $value);
+        return self::$parameters[$key] = $value;
     }
 
     public static function getWorkingDirectory()
     {
         if (!self::$workingDirectory)
+        {
             return getcwd();
+        }
 
         return self::$workingDirectory;
     }

@@ -1,14 +1,13 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
 
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Utilities\NullableArray;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
@@ -33,7 +32,7 @@ abstract class ReadableDocument
     /**
      * ReadableDocument Constructor.
      *
-     * @throws FileNotFoundException When the file given in the constructor does not exist or may not be accessible.
+     * @throws FileNotFoundException when the file given in the constructor does not exist or may not be accessible
      */
     public function __construct(File $file)
     {
@@ -162,7 +161,7 @@ abstract class ReadableDocument
     /**
      * Prepare the Document so it can handle the data that's about to be read in.
      *
-     * @return mixed Any information that will be passed to the readContents() method.
+     * @return mixed any information that will be passed to the readContents() method
      */
     protected function beforeReadContents()
     {
@@ -175,9 +174,9 @@ abstract class ReadableDocument
      * This method must **not** handle any parsing or processing of the file's content. That should be handled by the
      * `afterReadContents()` method.
      *
-     * @param mixed $mixed Any information returned from the beforeReadContents() method.
+     * @param mixed $mixed any information returned from the beforeReadContents() method
      *
-     * @throws \RuntimeException When the file cannot be read.
+     * @throws \RuntimeException when the file cannot be read
      *
      * @return mixed
      */
@@ -186,13 +185,17 @@ abstract class ReadableDocument
     /**
      * After the Document's content has been read, process the it and handle any parsing that's needed.
      *
-     * @param mixed $mixed Any information returned from the readContents() method.
+     * @param mixed $mixed any information returned from the readContents() method
      */
-    protected function afterReadContents($mixed) {}
+    protected function afterReadContents($mixed)
+    {
+    }
 
     /**
      * Functionality that needs to take place before this document is considered "compiled," meaning everything has been
      * processed, configured, and built.
      */
-    protected function beforeCompile() {}
+    protected function beforeCompile()
+    {
+    }
 }

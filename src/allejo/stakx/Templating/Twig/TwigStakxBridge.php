@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig;
@@ -54,7 +54,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
             throw new TwigError($e);
         }
 
-        return (new TwigTemplate($template));
+        return new TwigTemplate($template);
     }
 
     /**
@@ -66,7 +66,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
         //     tests/allejo/stakx/Test/FrontMatter/FrontMatterDocumentTest.php
 
         $regex = "/{[{%].*?(?:$namespace)(?:\.|\[['\"])?([^_][^\W]+)?(?:\.|['\"]\])?[^_=]*?[%}]}/";
-        $results = array();
+        $results = [];
 
         preg_match_all($regex, $bodyContent, $results);
 
@@ -79,7 +79,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
     public function getTemplateImportDependencies($bodyContent)
     {
         $regex = "/{%\s?(?:import|from|include)\s?['\"](.+)['\"].+/";
-        $results = array();
+        $results = [];
 
         preg_match_all($regex, $bodyContent, $results);
 
@@ -96,7 +96,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
      */
     public function hasProfiler()
     {
-        return ($this->profiler !== null);
+        return $this->profiler !== null;
     }
 
     /**

@@ -1,46 +1,46 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\Templating\Twig\Extension;
 
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Templating\Twig\Extension\GroupByFilter;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class GroupByFilterTests extends PHPUnit_Stakx_TestCase
 {
     public function testGroupByFilter()
     {
-        $original = array(
-            'a' => array('id' => 20, 'name' => 'chimpanzee'),
-            'b' => array('id' => 40, 'name' => 'meeting'),
-            'c' => array('id' => 20, 'name' => 'dynasty'),
-            'd' => array('id' => 50, 'name' => 'chocolate'),
-            'e' => array('id' => 10, 'name' => 'bananas'),
-            'f' => array('id' => 50, 'name' => 'fantasy'),
-            'g' => array('id' => 50, 'name' => 'football'),
-        );
+        $original = [
+            'a' => ['id' => 20, 'name' => 'chimpanzee'],
+            'b' => ['id' => 40, 'name' => 'meeting'],
+            'c' => ['id' => 20, 'name' => 'dynasty'],
+            'd' => ['id' => 50, 'name' => 'chocolate'],
+            'e' => ['id' => 10, 'name' => 'bananas'],
+            'f' => ['id' => 50, 'name' => 'fantasy'],
+            'g' => ['id' => 50, 'name' => 'football'],
+        ];
 
-        $expected = array(
-            '10' => array(
-                'e' => array('id' => 10, 'name' => 'bananas'),
-            ),
-            '20' => array(
-                'a' => array('id' => 20, 'name' => 'chimpanzee'),
-                'c' => array('id' => 20, 'name' => 'dynasty'),
-            ),
-            '40' => array(
-                'b' => array('id' => 40, 'name' => 'meeting'),
-            ),
-            '50' => array(
-                'd' => array('id' => 50, 'name' => 'chocolate'),
-                'f' => array('id' => 50, 'name' => 'fantasy'),
-                'g' => array('id' => 50, 'name' => 'football'),
-            ),
-        );
+        $expected = [
+            '10' => [
+                'e' => ['id' => 10, 'name' => 'bananas'],
+            ],
+            '20' => [
+                'a' => ['id' => 20, 'name' => 'chimpanzee'],
+                'c' => ['id' => 20, 'name' => 'dynasty'],
+            ],
+            '40' => [
+                'b' => ['id' => 40, 'name' => 'meeting'],
+            ],
+            '50' => [
+                'd' => ['id' => 50, 'name' => 'chocolate'],
+                'f' => ['id' => 50, 'name' => 'fantasy'],
+                'g' => ['id' => 50, 'name' => 'football'],
+            ],
+        ];
 
         $gbFilter = new GroupByFilter();
         $grouped = $gbFilter($original, 'id');
