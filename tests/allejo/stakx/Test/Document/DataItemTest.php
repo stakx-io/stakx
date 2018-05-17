@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\Document;
@@ -47,29 +47,29 @@ LINE;
         $jailItem = $dataItem->createJail();
 
         $this->assertEquals('my-sample-JSON', $dataItem->getBasename());
-        $this->assertEquals(array(1, 2, 3), $dataItem['array']);
+        $this->assertEquals([1, 2, 3], $dataItem['array']);
         $this->assertTrue($dataItem['boolean']);
         $this->assertNull($dataItem['null']);
         $this->assertEquals(123, $dataItem['number']);
         $this->assertEquals('Hello World', $dataItem['string']);
 
-        foreach (array('array', 'boolean', 'null', 'number', 'string') as $key)
+        foreach (['array', 'boolean', 'null', 'number', 'string'] as $key)
         {
             $this->assertEquals($dataItem[$key], $jailItem[$key]);
         }
 
-        $this->assertEquals(array(
-            'array' => array(1, 2, 3),
+        $this->assertEquals([
+            'array' => [1, 2, 3],
             'boolean' => true,
             'null' => null,
             'number' => 123,
-            'object' => array(
+            'object' => [
                 'a' => 'b',
                 'c' => 'd',
                 'e' => 'f',
-            ),
+            ],
             'string' => 'Hello World',
-        ), $dataItem->getContent());
+        ], $dataItem->getContent());
     }
 
     public function testCsvAsDataItem()
@@ -90,18 +90,18 @@ LINE;
         $this->assertEquals('csv', $jailItem->getExtension());
         $this->assertEquals($dataItem->getExtension(), $jailItem->getExtension());
 
-        $this->assertEquals(array(
-            array(
+        $this->assertEquals([
+            [
                 'id' => 1,
                 'name' => 'John Doe',
                 'gender' => 'M',
-            ),
-            array(
+            ],
+            [
                 'id' => 2,
                 'name' => 'Jane Doe',
                 'gender' => 'F',
-            ),
-        ), $dataItem->getContent());
+            ],
+        ], $dataItem->getContent());
     }
 
     public function testYamlAsDataItem()
@@ -125,15 +125,15 @@ LINE;
 
         $tz = new \DateTimeZone('UTC');
 
-        $this->assertEquals(array(
+        $this->assertEquals([
             'month' => 'January',
-            'events' => array(
+            'events' => [
                 new \DateTime('2017-01-01', $tz),
                 new \DateTime('2017-01-18', $tz),
                 new \DateTime('2017-01-19', $tz),
                 new \DateTime('2017-01-30', $tz),
-            ),
-        ), $dataItem->getContent());
+            ],
+        ], $dataItem->getContent());
     }
 
     public function testXmlAsDataItem()
@@ -150,12 +150,12 @@ LINE;
         $dataItem = $this->createDocumentOfType(DataItem::class, 'my-data.xml', $xmlFile);
         $dataItem->setDataTransformer($this->getDataTransformerManager());
 
-        $this->assertEquals(array(
+        $this->assertEquals([
             'to' => 'Tove',
             'from' => 'Jani',
             'heading' => 'Reminder',
-            'body' => "Don't forget me this weekend!"
-        ), $dataItem->getContent());
+            'body' => "Don't forget me this weekend!",
+        ], $dataItem->getContent());
     }
 
     public function testDataItemDoesNotExist()

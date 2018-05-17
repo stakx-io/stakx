@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig\Extension;
@@ -17,7 +18,7 @@ class TableOfContentsFilter extends AbstractTwigExtension implements TwigFilterI
      * @param int         $hMin  The heading minimum that'll be included
      * @param int         $hMax  The heading maximum that'll be included
      *
-     * @link https://git.io/vdnEM Modified from @mattfarina's implementation
+     * @see https://git.io/vdnEM Modified from @mattfarina's implementation
      *
      * @return string
      */
@@ -26,6 +27,7 @@ class TableOfContentsFilter extends AbstractTwigExtension implements TwigFilterI
         if (!function_exists('simplexml_load_string'))
         {
             trigger_error('XML support is not available with the current PHP installation.', E_USER_WARNING);
+
             return '';
         }
 
@@ -36,7 +38,7 @@ class TableOfContentsFilter extends AbstractTwigExtension implements TwigFilterI
         $curr = $last = 0;
 
         /**
-         * @var int         $index
+         * @var int
          * @var \DOMElement $heading
          */
         foreach ($headings as $index => $heading)
@@ -99,6 +101,6 @@ class TableOfContentsFilter extends AbstractTwigExtension implements TwigFilterI
      */
     public static function get()
     {
-        return (new \Twig_SimpleFilter('toc', new self()));
+        return new \Twig_SimpleFilter('toc', new self());
     }
 }

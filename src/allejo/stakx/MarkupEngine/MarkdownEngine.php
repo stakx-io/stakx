@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\MarkupEngine;
@@ -77,7 +77,7 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngine
                 // Only return the block if Highlighter knew the language and how to handle it.
                 return $block;
             }
-                // Exception thrown when language not supported
+            // Exception thrown when language not supported
             catch (\DomainException $exception)
             {
                 trigger_error("An unsupported language ($language) was detected in a code block", E_USER_WARNING);

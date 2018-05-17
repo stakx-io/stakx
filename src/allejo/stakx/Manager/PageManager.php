@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
@@ -15,11 +15,10 @@ use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
-use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Event\PageViewsCompleted;
 use allejo\stakx\Exception\CollectionNotFoundException;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -45,8 +44,8 @@ class PageManager extends TrackingManager
     public function __construct(Configuration $configuration, CollectionManager $collectionManager, DataManager $dataManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
         $this->trackedItems = [
-            BasePageView::STATIC_TYPE   => [],
-            BasePageView::DYNAMIC_TYPE  => [],
+            BasePageView::STATIC_TYPE => [],
+            BasePageView::DYNAMIC_TYPE => [],
             BasePageView::REPEATER_TYPE => [],
         ];
         $this->staticPages = [];
@@ -135,7 +134,7 @@ class PageManager extends TrackingManager
      */
     public function getJailedStaticPageViews()
     {
-        $jailedObjects = array();
+        $jailedObjects = [];
 
         foreach ($this->staticPages as $key => $value)
         {
@@ -161,7 +160,7 @@ class PageManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function &handleTrackableItem(File $filePath, array $options = array())
+    protected function &handleTrackableItem(File $filePath, array $options = [])
     {
         $pageView = BasePageView::create($filePath, [
             'site' => $this->configuration->getConfiguration(),

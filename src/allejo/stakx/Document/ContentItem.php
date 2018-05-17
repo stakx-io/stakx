@@ -1,13 +1,12 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\Filesystem\File;
 use allejo\stakx\MarkupEngine\MarkupEngine;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\Templating\TemplateErrorInterface;
@@ -84,11 +83,11 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
         ]);
 
         $jailedFunctions = [
-            'getPageView'   => 'getJailedPageView',
+            'getPageView' => 'getJailedPageView',
             'getCollection' => 'getNamespace',
         ];
 
-        return (new JailedDocument($this, $whiteListedFunctions, $jailedFunctions));
+        return new JailedDocument($this, $whiteListedFunctions, $jailedFunctions);
     }
 
     /**
@@ -97,7 +96,7 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
     public function jsonSerialize()
     {
         return array_merge($this->getFrontMatter(), [
-            'content'   => $this->getContent(),
+            'content' => $this->getContent(),
             'permalink' => $this->getPermalink(),
             'redirects' => $this->getRedirects(),
         ]);

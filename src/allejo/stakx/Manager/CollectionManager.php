@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
@@ -48,6 +48,7 @@ class CollectionManager extends TrackingManager
         if (!$this->configuration->hasCollections())
         {
             $this->logger->notice('No Collections defined... Ignoring');
+
             return;
         }
 
@@ -138,7 +139,7 @@ class CollectionManager extends TrackingManager
             {
                 $this->logger->warning('The folder "{folder}" could not be found for the "{name}" collection', [
                     'folder' => $collection['folder'],
-                    'name'   => $collection['name'],
+                    'name' => $collection['name'],
                 ]);
 
                 continue;

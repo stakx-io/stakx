@@ -1,25 +1,25 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\test\Templating\Twig\Extension;
 
 use allejo\stakx\Document\ContentItem;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Templating\Twig\Extension\SelectFilter;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class SelectFilterTest extends PHPUnit_Stakx_TestCase
 {
     private function getDummyCollection()
     {
-        return $this->createMultipleFrontMatterDocumentsOfType(ContentItem::class, array(
-            array('frontmatter' => array('tags' => array('red', 'blue'))),
-            array('frontmatter' => array('tags' => array('red', 'green'))),
-            array('frontmatter' => array('tags' => array('green', 'blue', 'orange'))),
-        ));
+        return $this->createMultipleFrontMatterDocumentsOfType(ContentItem::class, [
+            ['frontmatter' => ['tags' => ['red', 'blue']]],
+            ['frontmatter' => ['tags' => ['red', 'green']]],
+            ['frontmatter' => ['tags' => ['green', 'blue', 'orange']]],
+        ]);
     }
 
     public function testSelectFilterWithDefaultSettings()
@@ -31,7 +31,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
 
         $this->assertCount(4, $results);
 
-        foreach (array('red', 'blue', 'green', 'orange') as $value)
+        foreach (['red', 'blue', 'green', 'orange'] as $value)
         {
             $this->assertContains($value, $results);
         }
@@ -44,7 +44,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $results = $filter($posts, 'tags', false);
 
         $this->assertCount(3, $results);
-        $this->assertContains(array('red', 'blue'), $results);
+        $this->assertContains(['red', 'blue'], $results);
     }
 
     public function testSelectFilterWithFlattenNoDistinct()
@@ -58,11 +58,11 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
 
     public function testSelectFilterWithMultidimensionalArray()
     {
-        $mdArray = array(
-            array('tags' => array('red', array('nested', 'color', 'blue'))),
-            array('tags' => array('green', 'orange')),
-            array('tags' => array('blue', 'purple')),
-        );
+        $mdArray = [
+            ['tags' => ['red', ['nested', 'color', 'blue']]],
+            ['tags' => ['green', 'orange']],
+            ['tags' => ['blue', 'purple']],
+        ];
         $filter = new SelectFilter();
         $results = $filter($mdArray, 'tags');
 
@@ -72,56 +72,56 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
 
     public function testSelectFilterWithNullValuesKeepsNull()
     {
-        $nullArray = array(
-            array('tags' => array('hello', 'beautiful')),
-            array('tags' => null),
-            array('cats' => '123'),
-            array('tags' => 'world'),
-        );
+        $nullArray = [
+            ['tags' => ['hello', 'beautiful']],
+            ['tags' => null],
+            ['cats' => '123'],
+            ['tags' => 'world'],
+        ];
         $filter = new SelectFilter();
         $results = $filter($nullArray, 'tags', true, true, false);
 
-        $this->assertEquals(array('hello', 'beautiful', null, 'world'), $results);
+        $this->assertEquals(['hello', 'beautiful', null, 'world'], $results);
     }
 
     public function testSelectFilterDropsNullValues()
     {
-        $nullArray = array(
-            array('tags' => array('hello', 'beautiful')),
-            array('tags' => null),
-            array('tags' => 'world'),
-        );
+        $nullArray = [
+            ['tags' => ['hello', 'beautiful']],
+            ['tags' => null],
+            ['tags' => 'world'],
+        ];
         $filter = new SelectFilter();
         $results = $filter($nullArray, 'tags');
 
-        $this->assertEquals(array('hello', 'beautiful', 'world'), $results);
+        $this->assertEquals(['hello', 'beautiful', 'world'], $results);
     }
 
     public function testSelectFilterKeepsDuplicateNull()
     {
-        $nullArray = array(
-            array('tags' => array('hello', 'beautiful')),
-            array('tags' => null),
-            array('tags' => null),
-            array('tags' => 'world'),
-        );
+        $nullArray = [
+            ['tags' => ['hello', 'beautiful']],
+            ['tags' => null],
+            ['tags' => null],
+            ['tags' => 'world'],
+        ];
         $filter = new SelectFilter();
         $results = $filter($nullArray, 'tags', true, false, false);
 
-        $this->assertEquals(array('hello', 'beautiful', null, null, 'world'), $results);
+        $this->assertEquals(['hello', 'beautiful', null, null, 'world'], $results);
     }
 
     public function testSelectFilterKeepsDistinctNull()
     {
-        $nullArray = array(
-            array('tags' => array('hello', 'beautiful')),
-            array('tags' => null),
-            array('tags' => null),
-            array('tags' => 'world'),
-        );
+        $nullArray = [
+            ['tags' => ['hello', 'beautiful']],
+            ['tags' => null],
+            ['tags' => null],
+            ['tags' => 'world'],
+        ];
         $filter = new SelectFilter();
         $results = $filter($nullArray, 'tags', true, true, false);
 
-        $this->assertEquals(array('hello', 'beautiful', null, 'world'), $results);
+        $this->assertEquals(['hello', 'beautiful', null, 'world'], $results);
     }
 }

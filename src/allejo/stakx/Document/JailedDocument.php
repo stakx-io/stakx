@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
@@ -26,11 +26,11 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
     /**
      * JailObject constructor.
      *
-     * @param TemplateReadyDocument $object The object that will be jailed.
-     * @param array $whiteListFunctions A list of function names that can be called.
-     * @param array $jailedFunctions    A list of functions that will be redirected to another function.
+     * @param TemplateReadyDocument $object             the object that will be jailed
+     * @param array                 $whiteListFunctions a list of function names that can be called
+     * @param array                 $jailedFunctions    a list of functions that will be redirected to another function
      */
-    public function __construct(TemplateReadyDocument &$object, array $whiteListFunctions, array $jailedFunctions = array())
+    public function __construct(TemplateReadyDocument &$object, array $whiteListFunctions, array $jailedFunctions = [])
     {
         $this->object = &$object;
         $this->whiteListFunctions = $whiteListFunctions;
@@ -48,13 +48,13 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
         // jailed version of the function call.
         if (array_key_exists($getFxnCall, $this->jailedFunctions))
         {
-            return call_user_func_array(array($this->object, $this->jailedFunctions[$getFxnCall]), $arguments);
+            return call_user_func_array([$this->object, $this->jailedFunctions[$getFxnCall]], $arguments);
         }
 
         // Otherwise, test to see if the function call is in our white list and call it
         if (in_array($getFxnCall, $this->whiteListFunctions))
         {
-            return call_user_func_array(array($this->object, $getFxnCall), $arguments);
+            return call_user_func_array([$this->object, $getFxnCall], $arguments);
         }
 
         throw new \BadMethodCallException();

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
@@ -88,7 +88,6 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
      */
     public function buildPermalink($force = false)
     {
-        return;
     }
 
     /**
@@ -96,7 +95,7 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
      */
     public function createJail()
     {
-        return (new JailedDocument($this, self::$whiteListedFunctions));
+        return new JailedDocument($this, self::$whiteListedFunctions);
     }
 
     /**

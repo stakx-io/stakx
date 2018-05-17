@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Templating\Twig\MarkupBlock;
 
 use Twig_Token;
@@ -8,7 +13,7 @@ use Twig_Token;
  * @author Gunnar Lium <gunnar@aptoma.com>
  * @author Joris Berthelot <joris@berthelot.tel>
  *
- * @link https://github.com/aptoma/twig-markdown/blob/master/src/Aptoma/Twig/TokenParser/MarkdownTokenParser.php
+ * @see https://github.com/aptoma/twig-markdown/blob/master/src/Aptoma/Twig/TokenParser/MarkdownTokenParser.php
  */
 class TokenParser extends \Twig_TokenParser
 {

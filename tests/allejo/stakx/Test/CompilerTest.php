@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test;
@@ -22,14 +22,14 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             [
                 'filename' => 'static.html.twig',
                 'frontmatter' => [
-                    'permalink' => 'toast.json'
+                    'permalink' => 'toast.json',
                 ],
                 'fileContents' => '{}',
                 'expectedFiles' => [
-                    '/toast.json'
+                    '/toast.json',
                 ],
                 'expectedBody' => [
-                    '{}'
+                    '{}',
                 ],
             ],
 
@@ -37,14 +37,14 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             [
                 'filename' => 'static.html.twig',
                 'frontmatter' => [
-                    'permalink' => 'toast.html'
+                    'permalink' => 'toast.html',
                 ],
                 'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/toast.html'
+                    '/toast.html',
                 ],
                 'expectedBody' => [
-                    'Page body'
+                    'Page body',
                 ],
             ],
 
@@ -52,14 +52,14 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             [
                 'filename' => 'static.html.twig',
                 'frontmatter' => [
-                    'permalink' => '/tester'
+                    'permalink' => '/tester',
                 ],
                 'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/tester'
+                    '/tester',
                 ],
                 'expectedBody' => [
-                    'Page body'
+                    'Page body',
                 ],
             ],
 
@@ -67,14 +67,14 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             [
                 'filename' => 'static.html.twig',
                 'frontmatter' => [
-                    'permalink' => '/tester/'
+                    'permalink' => '/tester/',
                 ],
                 'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/tester/index.html'
+                    '/tester/index.html',
                 ],
                 'expectedBody' => [
-                    'Page body'
+                    'Page body',
                 ],
             ],
 
@@ -82,14 +82,14 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             [
                 'filename' => 'static.html.twig',
                 'frontmatter' => [
-                    'permalink' => '/parent/child/toast.html'
+                    'permalink' => '/parent/child/toast.html',
                 ],
                 'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/parent/child/toast.html'
+                    '/parent/child/toast.html',
                 ],
                 'expectedBody' => [
-                    'Page body'
+                    'Page body',
                 ],
             ],
 
@@ -97,14 +97,14 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             [
                 'filename' => 'static.html.twig',
                 'frontmatter' => [
-                    'permalink' => '/parent/child/toast/'
+                    'permalink' => '/parent/child/toast/',
                 ],
                 'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/parent/child/toast/index.html'
+                    '/parent/child/toast/index.html',
                 ],
                 'expectedBody' => [
-                    'Page body'
+                    'Page body',
                 ],
             ],
 
@@ -114,8 +114,8 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
                 'frontmatter' => [
                     'permalink' => [
                         'toast.html',
-                        '/toast/'
-                    ]
+                        '/toast/',
+                    ],
                 ],
                 'fileContents' => 'Page body',
                 'expectedFiles' => [
@@ -250,6 +250,12 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
 
     /**
      * @dataProvider dataProvider_StaticAndRepeaterPageViews
+     *
+     * @param mixed $filename
+     * @param mixed $frontmatter
+     * @param mixed $fileContents
+     * @param mixed $expectedFiles
+     * @param mixed $expectedBody
      */
     public function testCompileStaticAndRepeaterPageViews($filename, $frontmatter, $fileContents, $expectedFiles, $expectedBody)
     {
@@ -268,7 +274,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             $this->getMockLogger()
         );
         $pageManager->parsePageViews([
-            $this->rootDir->getChild('_pages')->url()
+            $this->rootDir->getChild('_pages')->url(),
         ]);
 
         $twigBridge = TwigStakxBridgeFactory::createTwigEnvironment(

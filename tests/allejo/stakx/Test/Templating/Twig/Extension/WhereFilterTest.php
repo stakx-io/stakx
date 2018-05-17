@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\Templating\Twig\Extension;
@@ -10,8 +10,8 @@ namespace allejo\stakx\Test\Templating\Twig\Extension;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Service;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Templating\Twig\Extension\WhereFilter;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class WhereFilterTests extends PHPUnit_Stakx_TestCase
 {
@@ -23,70 +23,70 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
 
         Service::setParameter(BuildableCommand::USE_DRAFTS, true);
 
-        $this->dataset = array(
-            array(
+        $this->dataset = [
+            [
                 'name' => 'One Five',
                 'slug' => 'chimpanzee',
                 'cost' => 20,
-                'tags' => array('fun', 'monkey', 'banana'),
-            ),
-            array(
+                'tags' => ['fun', 'monkey', 'banana'],
+            ],
+            [
                 'name' => 'Two One',
                 'slug' => 'meeting',
                 'cost' => 40,
-                'tags' => array('fun', 'purple', 'red', 'Bacon'),
-            ),
-            array(
+                'tags' => ['fun', 'purple', 'red', 'Bacon'],
+            ],
+            [
                 'name' => 'Three Two',
                 'slug' => 'dynasty',
                 'cost' => 20,
-                'tags' => array('monkey', 'animal', 'zoo'),
-            ),
-            array(
+                'tags' => ['monkey', 'animal', 'zoo'],
+            ],
+            [
                 'name' => 'Four One',
                 'slug' => 'chocolate',
                 'cost' => 50,
-                'tags' => array('fruit', 'port', 'computer'),
-            ),
-            array(
+                'tags' => ['fruit', 'port', 'computer'],
+            ],
+            [
                 'name' => 'Five Five',
                 'slug' => 'bananas',
                 'cost' => 10,
-                'tags' => array('vegetable', 'purple', 'red', 'Bacon'),
-            ),
-            array(
+                'tags' => ['vegetable', 'purple', 'red', 'Bacon'],
+            ],
+            [
                 'name' => 'Six Three',
                 'slug' => 'fantasy',
                 'cost' => 50,
-                'tags' => array('fruit', 'orange', 'purple'),
-            ),
-        );
+                'tags' => ['fruit', 'orange', 'purple'],
+            ],
+        ];
     }
 
     public static function dataProvider()
     {
-        return array(
-            array('assertEquals', 'cost', '==', 50),
-            array('assertEquals', 'cost', '==', 20),
-            array('assertEquals', 'slug', '==', 'meeting'),
+        return [
+            ['assertEquals', 'cost', '==', 50],
+            ['assertEquals', 'cost', '==', 20],
+            ['assertEquals', 'slug', '==', 'meeting'],
 
             // Weakly typed comparisons should fail
-            array('assertNotEquals', 'cost', '==', '50'),
-            array('assertNotEquals', 'cost', '==', '20'),
-            array('assertNotEquals', 'cost', '!=', 10),
-            array('assertNotEquals', 'cost', '!=', 20),
-            array('assertNotEquals', 'slug', '!=', 'meeting'),
-            array('assertGreaterThan', 'cost', '>', 20),
-            array('assertGreaterThan', 'cost', '>', 50),
-            array('assertGreaterThanOrEqual', 'cost', '>=', 40),
-            array('assertGreaterThanOrEqual', 'cost', '>=', 50),
-            array('assertLessThan', 'cost', '<', 40),
-            array('assertLessThan', 'cost', '<', 10),
-            array('assertLessThanOrEqual', 'cost', '<=', 50),
-            array('assertLessThanOrEqual', 'cost', '<=', 30),
-            array('assertContains', 'tags', '~=', 'purple'),
-            array('assertContains', 'name', '~=', 'One'),
-        );
+            ['assertNotEquals', 'cost', '==', '50'],
+            ['assertNotEquals', 'cost', '==', '20'],
+            ['assertNotEquals', 'cost', '!=', 10],
+            ['assertNotEquals', 'cost', '!=', 20],
+            ['assertNotEquals', 'slug', '!=', 'meeting'],
+            ['assertGreaterThan', 'cost', '>', 20],
+            ['assertGreaterThan', 'cost', '>', 50],
+            ['assertGreaterThanOrEqual', 'cost', '>=', 40],
+            ['assertGreaterThanOrEqual', 'cost', '>=', 50],
+            ['assertLessThan', 'cost', '<', 40],
+            ['assertLessThan', 'cost', '<', 10],
+            ['assertLessThanOrEqual', 'cost', '<=', 50],
+            ['assertLessThanOrEqual', 'cost', '<=', 30],
+            ['assertContains', 'tags', '~=', 'purple'],
+            ['assertContains', 'name', '~=', 'One'],
+        ];
     }
 
     /**
@@ -102,7 +102,8 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
         $whereFilter = new WhereFilter();
         $filtered = $whereFilter($this->dataset, $key, $comparison, $value);
 
-        foreach ($filtered as $item) {
+        foreach ($filtered as $item)
+        {
             $this->$fxn($value, $item[$key]);
         }
     }

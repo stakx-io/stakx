@@ -1,16 +1,16 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Configuration;
 use allejo\stakx\DataTransformer\DataTransformerManager;
-use allejo\stakx\Exception\DependencyMissingException;
 use allejo\stakx\Document\DataItem;
+use allejo\stakx\Exception\DependencyMissingException;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
@@ -46,6 +46,7 @@ class DataManager extends TrackingManager
         if (!$this->configuration->hasDataItems())
         {
             $this->logger->notice('No DataItems or Datasets detected... Ignoring.');
+
             return;
         }
 
@@ -111,16 +112,16 @@ class DataManager extends TrackingManager
         /**
          * The information which each DataSet has from the configuration file.
          *
-         * $dataSet['name']   string The name of the collection
-         *         ['folder'] string The folder where this collection has its ContentItems
-         *
-         * @var array $dataSet
+         * @var array $dataSet = [
+         *   'name' => '(string) The name of the collection',
+         *   'folder' => '(string) The folder where this collection has its ContentItems'
+         * ]
          */
         foreach ($dataSets as $dataSet)
         {
-            $this->saveFolderDefinition($dataSet['folder'], array(
+            $this->saveFolderDefinition($dataSet['folder'], [
                 'namespace' => $dataSet['name'],
-            ));
+            ]);
             $this->scanTrackableItems(
                 fs::absolutePath($dataSet['folder']),
                 ['namespace' => $dataSet['name']]

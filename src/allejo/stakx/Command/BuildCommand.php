@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Command;
@@ -45,11 +45,11 @@ class BuildCommand extends BuildableCommand
         catch (FileAwareException $e)
         {
             $output->writeln(StrUtils::interpolate(
-                "Your website failed to build with the following error in file '{file}'{line}: {message}", array(
+                "Your website failed to build with the following error in file '{file}'{line}: {message}", [
                     'file' => $e->getPath(),
                     'line' => (($l = $e->getLineNumber()) >= 0) ? ' on line ' . $l : '',
-                    'message' => $e->getMessage()
-                )
+                    'message' => $e->getMessage(),
+                ]
             ));
         }
         catch (\Exception $e)

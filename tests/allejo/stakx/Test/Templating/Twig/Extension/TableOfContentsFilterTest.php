@@ -1,10 +1,15 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\test\Templating\Twig\Extension;
 
 use allejo\stakx\MarkupEngine\MarkdownEngine;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Templating\Twig\Extension\TableOfContentsFilter;
+use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
 {
@@ -29,7 +34,7 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
         <a href="#heading-2">Heading 2</a>
     </li>
 </ul>',
-                null, null, 1, 6
+                null, null, 1, 6,
             ],
             ['
 # Heading 1
@@ -54,7 +59,7 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
         </ul>
     </li>
 </ul>',
-                null, null, 1, 6
+                null, null, 1, 6,
             ],
             ['
 # Heading 1
@@ -79,7 +84,7 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
         </ul>
     </li>
 </ul>',
-                'my-toc-id', null, 1, 6
+                'my-toc-id', null, 1, 6,
             ],
             ['
 # Heading 1
@@ -98,7 +103,7 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
         <a href="#heading-2">Heading 2</a>
     </li>
 </ul>',
-                null, null, 1, 1
+                null, null, 1, 1,
             ],
             ['
 # Heading 1
@@ -120,7 +125,7 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
         <a href="#sub-heading-3">Sub heading 3</a>
     </li>
 </ul>',
-                null, null, 2, 6
+                null, null, 2, 6,
             ],
             ['
 # Heading 1
@@ -130,7 +135,7 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
         <a href="#heading-1">Heading 1</a>
     </li>
 </ul>',
-                null, 'toc-class', 1, 6
+                null, 'toc-class', 1, 6,
             ],
             ['
 # Heading 1
@@ -140,13 +145,20 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
         <a href="#heading-1">Heading 1</a>
     </li>
 </ul>',
-                'my-toc', 'toc-class', 1, 6
+                'my-toc', 'toc-class', 1, 6,
             ],
         ];
     }
 
     /**
      * @dataProvider dataProviderTOC
+     *
+     * @param mixed $markdown
+     * @param mixed $expectedHTML
+     * @param mixed $id
+     * @param mixed $class
+     * @param mixed $hMin
+     * @param mixed $hMax
      */
     public function testTableOfContentsFilter($markdown, $expectedHTML, $id, $class, $hMin, $hMax)
     {
@@ -168,9 +180,10 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * Remove indentation and new lines from HTML
+     * Remove indentation and new lines from HTML.
      *
-     * @param  string $html
+     * @param string $html
+     *
      * @return string
      */
     private function standardizeHTML($html)

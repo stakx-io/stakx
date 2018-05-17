@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
@@ -84,7 +84,8 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
         $redirectFile = vfsStream::newFile(sprintf('redirect_%s.html.twig', uniqid()));
         $redirectFile
             ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $body))
-            ->at(vfsStreamWrapper::getRoot());
+            ->at(vfsStreamWrapper::getRoot())
+        ;
 
         $file = new File($redirectFile->url());
 
@@ -102,11 +103,11 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
      */
     public static function createRedirect($redirectFrom, $redirectTo, $redirectTemplate = false)
     {
-        $frontMatter = array(
+        $frontMatter = [
             'permalink' => $redirectFrom,
-            'redirect'  => $redirectTo,
-            'menu'      => false,
-        );
+            'redirect' => $redirectTo,
+            'menu' => false,
+        ];
 
         $contentItemBody = fs::getInternalResource('redirect.html.twig');
 

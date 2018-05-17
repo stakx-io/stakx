@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig\Extension;
@@ -25,9 +25,9 @@ class FinderFunction extends AbstractFilesystemTwigExtension implements TwigFunc
 
     public static function get()
     {
-        return new \Twig_SimpleFunction('finder', new self(), array(
+        return new \Twig_SimpleFunction('finder', new self(), [
             'needs_environment' => true,
-        ));
+        ]);
     }
 
     public static function disableInSafeMode()

@@ -1,14 +1,14 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
 
 /**
- * An interface for any object that matches the following criteria:
+ * An interface for any object that matches the following criteria.
  *
  * - A document which may be represented by a unique permalink; not an object that stores the pattern of a permalink for
  *   its children.

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Utilities;
@@ -40,7 +40,7 @@ abstract class HtmlUtils
 
     private static function normalizeHTML($html)
     {
-        if (strpos($html, "<body>" === false) || strpos($html, "</body>") === false)
+        if (strpos($html, '<body>' === false) || strpos($html, '</body>') === false)
         {
             return sprintf('<body>%s</body>', $html);
         }

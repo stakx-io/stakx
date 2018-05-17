@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Filesystem;
 
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
@@ -103,7 +108,7 @@ final class FilesystemPath
             return file_exists($absPath) && is_dir($absPath);
         }
 
-        return (substr($absPath, -1, 1) == '/');
+        return substr($absPath, -1, 1) == '/';
     }
 
     /**
@@ -124,7 +129,7 @@ final class FilesystemPath
             return file_exists($absPath) && is_file($absPath);
         }
 
-        return (!$this->isDir($checkExistence));
+        return !$this->isDir($checkExistence);
     }
 
     /**

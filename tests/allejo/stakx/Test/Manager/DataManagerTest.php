@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\Manager;
@@ -41,16 +41,16 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
-        $dm->parseDataSets(array(array(
+        $dm->parseDataSets([[
             'name' => $dataSetName,
             'folder' => fs::appendPath(__DIR__, '../assets/MyDataSet'),
-        )));
+        ]]);
 
         $this->assertGreaterThan(0, $dm->getDataItems());
         $this->assertGreaterThan(0, $dm->getJailedDataItems());
 
         /**
-         * @var string $key
+         * @var string
          * @var DataItem[] $items
          */
         foreach ($dm->getDataItems() as $key => $items)
@@ -78,9 +78,9 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
-        $dm->parseDataItems(array(
-            fs::appendPath(__DIR__, '../assets/MyDataSet')
-        ));
+        $dm->parseDataItems([
+            fs::appendPath(__DIR__, '../assets/MyDataSet'),
+        ]);
 
         $this->assertGreaterThan(0, $dm->getDataItems());
         $this->assertGreaterThan(0, $dm->getJailedDataItems());

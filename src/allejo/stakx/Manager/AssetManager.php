@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Manager;
@@ -46,7 +46,7 @@ class AssetManager extends TrackingManager
         $this->logger = $logger;
     }
 
-    public function configureFinder($includes = array(), $excludes = array())
+    public function configureFinder($includes = [], $excludes = [])
     {
         $this->excludes = $excludes;
         $this->includes = $includes;
@@ -69,12 +69,12 @@ class AssetManager extends TrackingManager
     {
         $this->scanTrackableItems(
             Service::getWorkingDirectory(),
-            array(
+            [
                 'prefix' => '',
-            ),
+            ],
             $this->includes,
             array_merge(
-                array('_themes'),
+                ['_themes'],
                 $this->excludes
             )
         );
@@ -85,9 +85,9 @@ class AssetManager extends TrackingManager
      */
     public function refreshItem($filePath)
     {
-        return $this->handleTrackableItem($filePath, array(
-            'prefix' => ''
-        ));
+        return $this->handleTrackableItem($filePath, [
+            'prefix' => '',
+        ]);
     }
 
     /**
@@ -103,15 +103,15 @@ class AssetManager extends TrackingManager
      */
     public function createNewItem($filePath)
     {
-        return $this->handleTrackableItem($filePath, array(
+        return $this->handleTrackableItem($filePath, [
             'prefix' => '',
-        ));
+        ]);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem(File $file, array $options = array())
+    protected function handleTrackableItem(File $file, array $options = [])
     {
         if (!$file->exists())
         {
@@ -128,9 +128,9 @@ class AssetManager extends TrackingManager
             $this->saveTrackerOptions($file->getRelativeFilePath(), $options);
 
             $this->outputDirectory->copyFile($filePath, $siteTargetPath);
-            $this->logger->info('Copying file: {file}...', array(
+            $this->logger->info('Copying file: {file}...', [
                 'file' => $file->getRelativeFilePath(),
-            ));
+            ]);
         }
         catch (\Exception $e)
         {

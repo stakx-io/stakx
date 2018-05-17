@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Test\Utilities;
@@ -13,20 +13,20 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
 {
     public static function dataProviderMultidimensionalArrays()
     {
-        return array(
-            array(
-                array(1, 2, 3, 4, 5),
+        return [
+            [
+                [1, 2, 3, 4, 5],
                 false,
-            ),
-            array(
-                array(array('name' => 1), 2, 3),
+            ],
+            [
+                [['name' => 1], 2, 3],
                 true,
-            ),
-            array(
-                array(1, 2, 3, array(3.25, 3.5, 3.75), 4, 5),
+            ],
+            [
+                [1, 2, 3, [3.25, 3.5, 3.75], 4, 5],
                 true,
-            )
-        );
+            ],
+        ];
     }
 
     /**
@@ -42,62 +42,62 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
 
     public static function dataProviderIndexedTestArrays()
     {
-        return array(
-            array(
-                array(
-                    array('name' => 'idx1', 'value' => 1),
-                    array('name' => 'idx2', 'value' => 2),
-                    array('name' => 'idx3', 'value' => 3),
-                ),
+        return [
+            [
+                [
+                    ['name' => 'idx1', 'value' => 1],
+                    ['name' => 'idx2', 'value' => 2],
+                    ['name' => 'idx3', 'value' => 3],
+                ],
                 true,
                 'name',
-            ),
-            array(
-                array(
-                    array('name' => 3, 'value' => 1),
-                    array('name' => 4, 'value' => 2),
-                    array('name' => 5, 'value' => 3),
-                ),
+            ],
+            [
+                [
+                    ['name' => 3, 'value' => 1],
+                    ['name' => 4, 'value' => 2],
+                    ['name' => 5, 'value' => 3],
+                ],
                 true,
                 'name',
-            ),
-            array(
-                array(
-                    array('name' => array(1, 2, 3), 'value' => 1),
-                    array('name' => 'idx2', 'value' => 2),
-                    array('name' => 'idx3', 'value' => 3),
-                ),
+            ],
+            [
+                [
+                    ['name' => [1, 2, 3], 'value' => 1],
+                    ['name' => 'idx2', 'value' => 2],
+                    ['name' => 'idx3', 'value' => 3],
+                ],
                 true,
                 'name',
-            ),
-            array(
-                array(
-                    array('nested' => array('name' => 'idx1', 'value' => 1)),
-                    array('nested' => array('name' => 'idx2', 'value' => 2)),
-                    array('nested' => array('name' => 'idx3', 'value' => 3)),
-                ),
+            ],
+            [
+                [
+                    ['nested' => ['name' => 'idx1', 'value' => 1]],
+                    ['nested' => ['name' => 'idx2', 'value' => 2]],
+                    ['nested' => ['name' => 'idx3', 'value' => 3]],
+                ],
                 false,
                 'name',
-            ),
-            array(
-                array(
-                    array('toast' => 1),
-                    array('toast' => 2),
-                    array('toast' => 3),
-                ),
+            ],
+            [
+                [
+                    ['toast' => 1],
+                    ['toast' => 2],
+                    ['toast' => 3],
+                ],
                 false,
                 'name',
-            ),
-            array(
-                array(
-                    array(1, 2),
-                    array(3, 4),
-                    array(5, 6),
-                ),
+            ],
+            [
+                [
+                    [1, 2],
+                    [3, 4],
+                    [5, 6],
+                ],
                 false,
                 'name',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -114,46 +114,46 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
 
     public static function dataProviderIndexableArrays()
     {
-        return array(
-            array(
-                array(
-                    array('name' => 'idx1', 'value' => 1),
-                    array('name' => 'idx2', 'value' => 2),
-                    array('name' => 'idx3', 'value' => 3),
-                ),
-                array(
-                    'idx1' => array('name' => 'idx1', 'value' => 1),
-                    'idx2' => array('name' => 'idx2', 'value' => 2),
-                    'idx3' => array('name' => 'idx3', 'value' => 3),
-                ),
+        return [
+            [
+                [
+                    ['name' => 'idx1', 'value' => 1],
+                    ['name' => 'idx2', 'value' => 2],
+                    ['name' => 'idx3', 'value' => 3],
+                ],
+                [
+                    'idx1' => ['name' => 'idx1', 'value' => 1],
+                    'idx2' => ['name' => 'idx2', 'value' => 2],
+                    'idx3' => ['name' => 'idx3', 'value' => 3],
+                ],
                 'name',
-            ),
-            array(
-                array(
-                    array('name' => 3, 'value' => 1),
-                    array('name' => 4, 'value' => 2),
-                    array('name' => 5, 'value' => 3),
-                ),
-                array(
-                    3 => array('name' => 3, 'value' => 1),
-                    4 => array('name' => 4, 'value' => 2),
-                    5 => array('name' => 5, 'value' => 3),
-                ),
+            ],
+            [
+                [
+                    ['name' => 3, 'value' => 1],
+                    ['name' => 4, 'value' => 2],
+                    ['name' => 5, 'value' => 3],
+                ],
+                [
+                    3 => ['name' => 3, 'value' => 1],
+                    4 => ['name' => 4, 'value' => 2],
+                    5 => ['name' => 5, 'value' => 3],
+                ],
                 'name',
-            ),
-            array(
-                array(
-                    array('name' => array(1, 2, 3), 'value' => 1),
-                    array('name' => 'idx2', 'value' => 2),
-                    array('name' => 'idx3', 'value' => 3),
-                ),
-                array(
-                    'idx2' => array('name' => 'idx2', 'value' => 2),
-                    'idx3' => array('name' => 'idx3', 'value' => 3),
-                ),
+            ],
+            [
+                [
+                    ['name' => [1, 2, 3], 'value' => 1],
+                    ['name' => 'idx2', 'value' => 2],
+                    ['name' => 'idx3', 'value' => 3],
+                ],
+                [
+                    'idx2' => ['name' => 'idx2', 'value' => 2],
+                    'idx3' => ['name' => 'idx3', 'value' => 3],
+                ],
                 'name',
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -170,85 +170,85 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
 
     public static function dataProviderMergeDefaultsArrays()
     {
-        return array(
-            array(
-                array(
+        return [
+            [
+                [
                     'string' => 'overwrite',
                     'number' => 20,
                     'array1' => 'secret1',
                     'array2' => 'secret2',
-                ),
-                array(
+                ],
+                [
                     'string' => 'original',
                     'number' => 10,
                     'array1' => 'secret1',
-                ),
-                array(
+                ],
+                [
                     'string' => 'overwrite',
                     'number' => 20,
                     'array2' => 'secret2',
-                ),
-                'name'
-            ),
-            array(
-                array(
-                    'array' => array(1, 2, 3, 4, 5, 6),
-                ),
-                array(
-                    'array' => array(1, 2, 3),
-                ),
-                array(
-                    'array' => array(4, 5, 6),
-                ),
-                'name'
-            ),
-            array(
-                array(
+                ],
+                'name',
+            ],
+            [
+                [
+                    'array' => [1, 2, 3, 4, 5, 6],
+                ],
+                [
+                    'array' => [1, 2, 3],
+                ],
+                [
+                    'array' => [4, 5, 6],
+                ],
+                'name',
+            ],
+            [
+                [
                     'bool' => false,
-                    'index-me' => array(
-                        'idx1' => array(
-                            'name' => 'idx1',
-                            'value' => 1
-                        ),
-                        'idx2' => array(
-                            'name' => 'idx2',
-                            'value' => 2,
-                        ),
-                        'idx3' => array(
-                            'name' => 'idx3',
-                            'value' => 3,
-                        ),
-                    ),
-                ),
-                array(
-                    'bool' => true,
-                    'index-me' => array(
-                        array(
+                    'index-me' => [
+                        'idx1' => [
                             'name' => 'idx1',
                             'value' => 1,
-                        ),
-                        array(
-                            'name' => 'idx2',
-                            'value' => 100,
-                        ),
-                    )
-                ),
-                array(
-                    'bool' => false,
-                    'index-me' => array(
-                        array(
+                        ],
+                        'idx2' => [
                             'name' => 'idx2',
                             'value' => 2,
-                        ),
-                        array(
+                        ],
+                        'idx3' => [
                             'name' => 'idx3',
                             'value' => 3,
-                        ),
-                    ),
-                ),
-                'name'
-            ),
-        );
+                        ],
+                    ],
+                ],
+                [
+                    'bool' => true,
+                    'index-me' => [
+                        [
+                            'name' => 'idx1',
+                            'value' => 1,
+                        ],
+                        [
+                            'name' => 'idx2',
+                            'value' => 100,
+                        ],
+                    ],
+                ],
+                [
+                    'bool' => false,
+                    'index-me' => [
+                        [
+                            'name' => 'idx2',
+                            'value' => 2,
+                        ],
+                        [
+                            'name' => 'idx3',
+                            'value' => 3,
+                        ],
+                    ],
+                ],
+                'name',
+            ],
+        ];
     }
 
     /**
@@ -271,40 +271,40 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
 
     public function testAssociativeArraySplit()
     {
-        $array = array(
+        $array = [
             'index1' => 1,
             'index2' => 2,
             'index3' => 3,
-        );
-        $result = array(
-            array(
+        ];
+        $result = [
+            [
                 'index1' => 1,
                 'index2' => 2,
-            ),
-            array(
+            ],
+            [
                 'index3' => 3,
-            )
-        );
+            ],
+        ];
 
         $this->assertEquals($result, ArrayUtilities::associative_array_split('index2', $array));
     }
 
     public function testAssociativeArraySplitNotInclusive()
     {
-        $array = array(
+        $array = [
             'index1' => 1,
             'index2' => 2,
             'index3' => 3,
-        );
-        $result = array(
-            array(
+        ];
+        $result = [
+            [
                 'index1' => 1,
-            ),
-            array(
+            ],
+            [
                 'index2' => 2,
                 'index3' => 3,
-            )
-        );
+            ],
+        ];
 
         $this->assertEquals($result, ArrayUtilities::associative_array_split('index2', $array, false));
     }

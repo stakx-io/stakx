@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating\Twig\Extension;
@@ -16,6 +16,7 @@ class SummaryFilter extends AbstractTwigExtension implements TwigFilterInterface
         if (!extension_loaded('dom'))
         {
             @trigger_error('The DOM Extension is not loaded and is necessary for the "summary" Twig filter.', E_WARNING);
+
             return $value;
         }
 

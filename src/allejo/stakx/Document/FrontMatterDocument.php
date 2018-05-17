@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Document;
@@ -54,7 +54,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
      */
     public function getIterator()
     {
-        return (new \ArrayIterator($this->frontMatter));
+        return new \ArrayIterator($this->frontMatter);
     }
 
     /**
@@ -74,7 +74,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
      */
     public function isDraft()
     {
-        return (isset($this->frontMatter['draft']) && $this->frontMatter['draft'] === true);
+        return isset($this->frontMatter['draft']) && $this->frontMatter['draft'] === true;
     }
 
     ///
@@ -170,7 +170,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
             }
             else
             {
-                $this->rawFrontMatter = array();
+                $this->rawFrontMatter = [];
             }
         }
 
@@ -201,7 +201,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
     /**
      * Get the FrontMatter for this document.
      *
-     * @param bool $evaluateYaml Whether or not to evaluate any variables.
+     * @param bool $evaluateYaml whether or not to evaluate any variables
      *
      * @return array
      */
@@ -231,7 +231,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
      */
     final public function hasExpandedFrontMatter()
     {
-        return ($this->frontMatterParser !== null && $this->frontMatterParser->hasExpansion());
+        return $this->frontMatterParser !== null && $this->frontMatterParser->hasExpansion();
     }
 
     /**

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Templating;
@@ -22,7 +22,7 @@ interface TemplateInterface
     /**
      * Get the parent template this template is extending.
      *
-     * @return TemplateInterface|false Returns false when template is not extending anything.
+     * @return TemplateInterface|false returns false when template is not extending anything
      */
     public function getParentTemplate();
 

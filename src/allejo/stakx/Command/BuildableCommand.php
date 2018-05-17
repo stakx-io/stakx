@@ -1,16 +1,16 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Command;
 
 use allejo\stakx\Configuration;
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\Service;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Service;
 use allejo\stakx\Website;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -59,10 +59,10 @@ abstract class BuildableCommand extends ContainerAwareCommand
         $this->website = new Website($this->getContainer());
         $this->website->setConfLess($input->getOption(self::NO_CONF));
 
-        $flags = array(
+        $flags = [
             self::SAFE_MODE, self::NO_CONF, self::NO_CLEAN,
             self::USE_DRAFTS, self::USE_CACHE, self::BUILD_PROFILE,
-        );
+        ];
 
         foreach ($flags as $flag)
         {
@@ -95,7 +95,7 @@ abstract class BuildableCommand extends ContainerAwareCommand
     }
 
     /**
-     * Set a parameter to the Service singleton
+     * Set a parameter to the Service singleton.
      *
      * @param InputInterface $input
      * @param string         $param

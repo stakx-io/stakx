@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Filesystem;
@@ -29,7 +29,7 @@ final class File extends \SplFileInfo
     /**
      * File Constructor.
      *
-     * @param string $filePath An absolute file path or a path relative to the current working directory.
+     * @param string $filePath an absolute file path or a path relative to the current working directory
      *
      * @since 0.2.0
      */
@@ -69,8 +69,8 @@ final class File extends \SplFileInfo
     /**
      * Get the name of the file without an extension.
      *
-     * @param  null $suffix This value will be discarded and is only needed to be able to override the \SplFileInfo
-     *                      definition.
+     * @param null $suffix this value will be discarded and is only needed to be able to override the \SplFileInfo
+     *                     definition
      *
      * @since 0.2.0
      *
@@ -146,7 +146,7 @@ final class File extends \SplFileInfo
      *
      * @since 0.2.0
      *
-     * @throws \RuntimeException When the file could not be read.
+     * @throws \RuntimeException when the file could not be read
      *
      * @return string
      */

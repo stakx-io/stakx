@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Utilities;
@@ -42,7 +42,8 @@ class NullableArray implements \ArrayAccess
      */
     public function offsetSet($offset, $value)
     {
-        if ($offset === null) {
+        if ($offset === null)
+        {
             return;
         }
 
