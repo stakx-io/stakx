@@ -1,15 +1,12 @@
 <?php
 
 /**
- * @copyright 2017 Vladimir Jimenez
+ * @copyright 2018 Vladimir Jimenez
  * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\System;
+namespace allejo\stakx\Filesystem;
 
-use allejo\stakx\Exception\FileAccessDeniedException;
-use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Service;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -207,36 +204,6 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
-     * Only read a file's contents if it's within the current working directory
-     *
-     * @param  string $filePath
-     *
-     * @return bool|string
-     */
-    public function safeReadFile($filePath)
-    {
-        $absPath = File::realpath($this->absolutePath($filePath));
-
-        if (!$this->exists($absPath))
-        {
-            throw new FileNotFoundException(sprintf(
-                "The '%s' file could not be found or is outside the website working directory",
-                $filePath
-            ));
-        }
-
-        if (strpos($absPath, Service::getWorkingDirectory()) !== 0)
-        {
-            throw new FileAccessDeniedException(sprintf(
-                "The '%s' file is outside the website working directory",
-                $filePath
-            ));
-        }
-
-        return file_get_contents($absPath);
-    }
-
-    /**
      * Get the full path to the file without the extension.
      *
      * @param string $filename A file path
@@ -254,5 +221,12 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     public function path($path)
     {
         return (new FilesystemPath($path));
+    }
+
+    public function getInternalResource($name)
+    {
+        $path = new FilesystemPath(__DIR__ . '/../Resources/' . $name);
+
+        return file_get_contents($path);
     }
 }

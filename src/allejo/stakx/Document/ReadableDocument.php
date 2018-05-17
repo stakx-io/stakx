@@ -37,13 +37,6 @@ abstract class ReadableDocument
      */
     public function __construct(File $file)
     {
-        $filePath = (string)$file;
-
-        if (!fs::exists($filePath))
-        {
-            throw new FileNotFoundException(null, 0, null, $filePath);
-        }
-
         $this->metadata = new NullableArray();
         $this->file = $file;
 

@@ -8,7 +8,6 @@
 namespace allejo\stakx;
 
 use __;
-use allejo\stakx\Exception\FileAccessDeniedException;
 use allejo\stakx\Exception\RecursiveConfigurationException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Utilities\ArrayUtilities;
@@ -393,13 +392,6 @@ class Configuration implements LoggerAwareInterface
         {
             $importedConfig = $this->parseConfig($import);
             $configuration = $this->mergeImports($importedConfig, $configuration);
-        }
-        catch (FileAccessDeniedException $e)
-        {
-            $this->logger->warning('{file}: trying access file outside of project directory: {import}', array(
-                'file' => $this->configFile->getRelativeFilePath(),
-                'import' => $import,
-            ));
         }
         catch (FileNotFoundException $e)
         {

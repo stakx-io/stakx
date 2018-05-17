@@ -14,6 +14,7 @@ use allejo\stakx\DataTransformer\JsonTransformer;
 use allejo\stakx\DataTransformer\XmlTransformer;
 use allejo\stakx\DataTransformer\YamlTransformer;
 use allejo\stakx\Document\DataItem;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
@@ -42,7 +43,7 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
         );
         $dm->parseDataSets(array(array(
             'name' => $dataSetName,
-            'folder' => $this->fs->appendPath(__DIR__, '../assets/MyDataSet'),
+            'folder' => fs::appendPath(__DIR__, '../assets/MyDataSet'),
         )));
 
         $this->assertGreaterThan(0, $dm->getDataItems());
@@ -78,7 +79,7 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockLogger()
         );
         $dm->parseDataItems(array(
-            $this->fs->appendPath(__DIR__, '../assets/MyDataSet')
+            fs::appendPath(__DIR__, '../assets/MyDataSet')
         ));
 
         $this->assertGreaterThan(0, $dm->getDataItems());

@@ -9,13 +9,14 @@ namespace allejo\stakx\Test\Document;
 
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
 class JailedDocumentTests extends PHPUnit_Stakx_TestCase
 {
     public function getJailObject()
     {
-        $url = $this->fs->appendPath(__DIR__, '..', 'assets', 'PageViews', 'jail.html.twig');
+        $url = fs::appendPath(__DIR__, '..', 'assets', 'PageViews', 'jail.html.twig');
         $pageView = new StaticPageView($this->createFileObjectFromPath($url));
         $pageView->evaluateFrontMatter();
 

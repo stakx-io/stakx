@@ -188,7 +188,7 @@ class CollectionManager extends TrackingManager
 
         $this->logger->info('Loading ContentItem into "{name}" collection: {path}', [
             'name' => $collectionName,
-            'path' => fs::getRelativePath($filePath),
+            'path' => $filePath->getRelativeFilePath(),
         ]);
 
         return $contentItem;

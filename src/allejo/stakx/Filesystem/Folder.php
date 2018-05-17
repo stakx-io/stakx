@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Filesystem;
 
-use allejo\stakx\System\Filesystem;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
@@ -15,8 +15,6 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 final class Folder
 {
-    /** @var Filesystem */
-    private $fs;
     /** @var FilesystemPath */
     private $folder;
 
@@ -25,7 +23,6 @@ final class Folder
      */
     public function __construct($folderPath)
     {
-        $this->fs = new Filesystem();
         $this->folder = new FilesystemPath($folderPath);
 
         if (!$this->folder->isDir())
@@ -68,7 +65,7 @@ final class Folder
     {
         $targetPath = $this->folder->generatePath($targetPath);
 
-        $this->fs->copy($absolutePath, $targetPath, true);
+        fs::copy($absolutePath, $targetPath, true);
     }
 
     /**
@@ -84,7 +81,7 @@ final class Folder
     public function writeFile($relativePath, $content)
     {
         $targetFile = $this->folder->generatePath($relativePath);
-        $targetFolderPath = $this->fs->getFolderPath($targetFile);
+        $targetFolderPath = fs::getFolderPath($targetFile);
 
         if (!file_exists($targetFolderPath))
         {

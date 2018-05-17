@@ -8,14 +8,13 @@ namespace allejo\stakx\Templating\Twig;
 
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Configuration;
-use allejo\stakx\Engines\Markdown\TwigMarkdownEngine;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
-use allejo\stakx\System\Filesystem;
-use Aptoma\Twig\Extension\MarkdownExtension;
+use allejo\stakx\Filesystem\Filesystem;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig_Environment;
@@ -33,7 +32,6 @@ class TwigStakxBridgeFactory
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface $logger
     ) {
-        $fs = new Filesystem();
         $loader = new TwigFileLoader(array(
             Service::getWorkingDirectory(),
         ));
@@ -45,7 +43,7 @@ class TwigStakxBridgeFactory
         {
             try
             {
-                $loader->addPath($fs->absolutePath('_themes', $theme), 'theme');
+                $loader->addPath(fs::absolutePath('_themes', $theme), 'theme');
             }
             catch (\Twig_Error_Loader $e)
             {
@@ -59,7 +57,7 @@ class TwigStakxBridgeFactory
         $twig = new Twig_Environment($loader, array(
             'autoescape'  => $configuration->getTwigAutoescape(),
             'auto_reload' => true,
-            'cache'       => $fs->absolutePath('.stakx-cache/twig'),
+            'cache'       => fs::absolutePath('.stakx-cache/twig'),
         ));
 
         // We'll use this to access the current file in our Twig filters

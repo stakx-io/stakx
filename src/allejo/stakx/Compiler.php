@@ -17,6 +17,7 @@ use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
@@ -514,9 +515,9 @@ class Compiler
 
                 while ($parent !== false)
                 {
-                    // Replace the '@theme' namespace in Twig with the path to the theme folder and create a UnixFilePath object from the given path
+                    // Replace the '@theme' namespace in Twig with the path to the theme folder and create a FilesystemPath object from the given path
                     $path = str_replace('@theme', fs::appendPath(ThemeManager::THEME_FOLDER, $this->theme), $parent->getTemplateName());
-                    $path = new FilePath($path);
+                    $path = new FilesystemPath($path);
 
                     $this->templateDependencies[(string)$path][$pageView->getBasename()] = &$pageView;
 

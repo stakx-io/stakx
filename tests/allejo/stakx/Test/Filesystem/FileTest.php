@@ -71,18 +71,10 @@ class FileTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals($fileContent, $this->file->getContents());
     }
 
-    public function testNonExistentFileReturnsFalse()
-    {
-        $file = new File('non-existent');
-
-        $this->assertFalse($file->exists());
-    }
-
     public function testGetContentsThrowsErrorOnNonExistentFile()
     {
         $this->setExpectedExceptionRegExp(FileNotFoundException::class, '/.*"non-existent".*/');
 
-        $file = new File('non-existent');
-        $file->getContents();
+        new File('non-existent');
     }
 }
