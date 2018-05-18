@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use __;
 use Twig_Error_Syntax;
 
 /**
@@ -95,17 +96,22 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
      */
     private function compare($array, $key, $comparison, $value)
     {
+        // @TODO can I replace the $array/$key separate parameters with `__::get()`?
+        // @TODO right now, a call to `__::get()` will return null, so that would break the null comparisons
+        // @TODO maybe use `__::has()`?
         if ($this->compareNullValues($array, $key, $comparison, $value))
         {
             return true;
         }
 
-        if (!isset($array[$key]))
+        $lhsValue = __::get($array, $key);
+
+        if ($lhsValue === null)
         {
             return false;
         }
 
-        return $this->comparisonSymbol($array[$key], $comparison, $value);
+        return $this->comparisonSymbol($lhsValue, $comparison, $value);
     }
 
     /**
@@ -130,13 +136,13 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
             return false;
         }
 
-        if (!isset($array[$key]))
+        if (!__::has($array, $key))
         {
-            if ($comparison == '==' && is_null($value))
+            if ($comparison == '==' && $value === null)
             {
                 return true;
             }
-            if ($comparison == '!=' && !is_null($value))
+            if ($comparison == '!=' && $value !== null)
             {
                 return true;
             }

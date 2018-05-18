@@ -145,12 +145,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/maciejczyzewski/bottomline.git",
-                "reference": "f24b923afccec02be496130848996d6144af87a8"
+                "reference": "87c42c030944a2aa04b8e02794fe5d600a0346b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maciejczyzewski/bottomline/zipball/f24b923afccec02be496130848996d6144af87a8",
-                "reference": "f24b923afccec02be496130848996d6144af87a8",
+                "url": "https://api.github.com/repos/maciejczyzewski/bottomline/zipball/87c42c030944a2aa04b8e02794fe5d600a0346b9",
+                "reference": "87c42c030944a2aa04b8e02794fe5d600a0346b9",
                 "shasum": ""
             },
             "require": {
@@ -187,7 +187,7 @@
                 "library",
                 "utility"
             ],
-            "time": "2018-04-10 21:47:58"
+            "time": "2018-05-22 03:36:35"
         },
         {
             "name": "mikey179/vfsStream",

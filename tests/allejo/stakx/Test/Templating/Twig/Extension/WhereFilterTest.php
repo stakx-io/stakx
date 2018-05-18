@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Test\Templating\Twig\Extension;
 
+use __;
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Service;
@@ -29,6 +30,10 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
                 'slug' => 'chimpanzee',
                 'cost' => 20,
                 'tags' => ['fun', 'monkey', 'banana'],
+                'author' => [
+                    'fname' => 'John',
+                    'lname' => 'Doe',
+                ],
             ],
             [
                 'name' => 'Two One',
@@ -41,24 +46,40 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
                 'slug' => 'dynasty',
                 'cost' => 20,
                 'tags' => ['monkey', 'animal', 'zoo'],
+                'author' => [
+                    'fname' => 'Joseph',
+                    'lname' => 'Alan',
+                ],
             ],
             [
                 'name' => 'Four One',
                 'slug' => 'chocolate',
                 'cost' => 50,
                 'tags' => ['fruit', 'port', 'computer'],
+                'author' => [
+                    'fname' => 'John',
+                    'lname' => 'Doe',
+                ],
             ],
             [
                 'name' => 'Five Five',
                 'slug' => 'bananas',
                 'cost' => 10,
                 'tags' => ['vegetable', 'purple', 'red', 'Bacon'],
+                'author' => [
+                    'fname' => 'Jane',
+                    'lname' => 'Doe',
+                ],
             ],
             [
                 'name' => 'Six Three',
                 'slug' => 'fantasy',
                 'cost' => 50,
                 'tags' => ['fruit', 'orange', 'purple'],
+                'author' => [
+                    'fname' => 'John',
+                    'lname' => 'Doe',
+                ],
             ],
         ];
     }
@@ -69,6 +90,8 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
             ['assertEquals', 'cost', '==', 50],
             ['assertEquals', 'cost', '==', 20],
             ['assertEquals', 'slug', '==', 'meeting'],
+            ['assertEquals', 'author.fname', '==', 'John'],
+            ['assertEquals', 'author.lname', '==', 'Doe'],
 
             // Weakly typed comparisons should fail
             ['assertNotEquals', 'cost', '==', '50'],
@@ -104,7 +127,7 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
 
         foreach ($filtered as $item)
         {
-            $this->$fxn($value, $item[$key]);
+            $this->$fxn($value, __::get($item, $key));
         }
     }
 
