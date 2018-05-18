@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use __;
+
 class SelectFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke($array, $key, $flatten = true, $distinct = true, $ignore_null = true)
@@ -15,42 +17,22 @@ class SelectFilter extends AbstractTwigExtension implements TwigFilterInterface
 
         foreach ($array as $item)
         {
-            if (!is_array($item) && !($item instanceof \ArrayAccess))
-            {
-                continue;
-            }
-
-            if ($ignore_null)
-            {
-                if (isset($item[$key]))
-                {
-                    $results[] = $item[$key];
-                }
-            }
-            else
-            {
-                if (array_key_exists($key, $item) || ($item instanceof \ArrayAccess && $item->offsetExists($key)))
-                {
-                    $results[] = $item[$key];
-                }
-            }
+            $results[] = __::get($item, $key);
         }
 
         if ($flatten)
         {
-            $results = self::flatten($results);
+            $results = __::flatten($results);
 
             if ($distinct)
             {
-                $distinct = [];
-
-                foreach ($results as $key => $result)
-                {
-                    $distinct[$result] = true;
-                }
-
-                $results = array_keys($distinct);
+                $results = array_values(array_unique($results));
             }
+        }
+
+        if ($ignore_null)
+        {
+            $results = array_values(array_filter($results));
         }
 
         return $results;
@@ -59,15 +41,5 @@ class SelectFilter extends AbstractTwigExtension implements TwigFilterInterface
     public static function get()
     {
         return new \Twig_SimpleFilter('select', new self());
-    }
-
-    private static function flatten(array $array)
-    {
-        $return = [];
-        array_walk_recursive($array, function ($a) use (&$return) {
-            $return[] = $a;
-        });
-
-        return $return;
     }
 }
