@@ -124,4 +124,18 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
 
         $this->assertEquals(['hello', 'beautiful', null, 'world'], $results);
     }
+
+    public function testSelectFilterDotNotation()
+    {
+        $nestedArray = [
+            ['metadata' => ['tags' => ['php', 'programming']]],
+            ['metadata' => ['tags' => ['cooking']]],
+            ['metadata' => ''],
+            [],
+        ];
+        $filter = new SelectFilter();
+        $results = $filter($nestedArray, 'metadata.tags');
+
+        $this->assertEquals(['php', 'programming', 'cooking'], $results);
+    }
 }

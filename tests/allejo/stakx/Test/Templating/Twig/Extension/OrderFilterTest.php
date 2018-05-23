@@ -10,9 +10,9 @@ namespace allejo\stakx\Test\Templating\Twig\Extension;
 use allejo\stakx\Templating\Twig\Extension\OrderFilter;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 
-class OrderByFilterTest extends PHPUnit_Stakx_TestCase
+class OrderFilterTest extends PHPUnit_Stakx_TestCase
 {
-    public static function dataProvider()
+    public static function dataProvider_singleLevelArray()
     {
         return [
             [
@@ -35,7 +35,7 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProvider
+     * @dataProvider dataProvider_singleLevelArray
      *
      * @param array $dataset
      */
@@ -62,7 +62,7 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProvider
+     * @dataProvider dataProvider_singleLevelArray
      *
      * @param array $dataset
      */
@@ -82,6 +82,101 @@ class OrderByFilterTest extends PHPUnit_Stakx_TestCase
             [
                 'name' => 'Whee',
                 'sort' => 0,
+            ],
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public static function dataProvider_multiLevelArray()
+    {
+        return [
+            [
+                [
+                    [
+                        'name' => 'Order of Bacon',
+                        'metadata' => [
+                            'sort' => 30,
+                        ],
+                    ],
+                    [
+                        'name' => 'Whee',
+                        'metadata' => [
+                            'sort' => 0,
+                        ],
+                    ],
+                    [
+                        'name' => 'Side order of fries',
+                        'metadata' => [
+                            'sort' => 3,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataProvider_multiLevelArray
+     *
+     * @param array $dataset
+     */
+    public function testOrderFilterAscNestedArray($dataset)
+    {
+        $orderFilter = new OrderFilter();
+        $result = $orderFilter($dataset, 'metadata.sort');
+        $expected = [
+            [
+                'name' => 'Whee',
+                'metadata' => [
+                    'sort' => 0,
+                ],
+            ],
+            [
+                'name' => 'Side order of fries',
+                'metadata' => [
+                    'sort' => 3,
+                ],
+            ],
+            [
+                'name' => 'Order of Bacon',
+                'metadata' => [
+                    'sort' => 30,
+                ],
+            ],
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @dataProvider dataProvider_multiLevelArray
+     *
+     * @param array $dataset
+     */
+    public function testOrderFilterDescNestedArray($dataset)
+    {
+        $orderFilter = new OrderFilter();
+        $result = $orderFilter($dataset, 'metadata.sort', 'DESC');
+        $expected =
+        $expected = [
+            [
+                'name' => 'Order of Bacon',
+                'metadata' => [
+                    'sort' => 30,
+                ],
+            ],
+            [
+                'name' => 'Side order of fries',
+                'metadata' => [
+                    'sort' => 3,
+                ],
+            ],
+            [
+                'name' => 'Whee',
+                'metadata' => [
+                    'sort' => 0,
+                ],
             ],
         ];
 

@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use __;
+
 class OrderFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke($array, $key, $order = 'ASC')
@@ -17,17 +19,20 @@ class OrderFilter extends AbstractTwigExtension implements TwigFilterInterface
         }
 
         usort($array, function ($a, $b) use ($key, $order) {
-            if ($a[$key] == $b[$key])
+            $aValue = __::get($a, $key);
+            $bValue = __::get($b, $key);
+
+            if ($aValue == $bValue)
             {
                 return 0;
             }
 
             if (strtolower($order) === 'desc')
             {
-                return ($a[$key] < $b[$key]) ? 1 : -1;
+                return ($aValue < $bValue) ? 1 : -1;
             }
 
-            return ($a[$key] > $b[$key]) ? 1 : -1;
+            return ($aValue > $bValue) ? 1 : -1;
         });
 
         return $array;

@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use __;
+
 class GroupByFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke($array, $sortKey)
@@ -15,12 +17,12 @@ class GroupByFilter extends AbstractTwigExtension implements TwigFilterInterface
 
         foreach ($array as $key => $item)
         {
-            if (!isset($item[$sortKey]))
+            $groupBy = __::get($item, $sortKey);
+
+            if ($groupBy === null)
             {
                 continue;
             }
-
-            $groupBy = $item[$sortKey];
 
             if (is_bool($groupBy))
             {
