@@ -7,6 +7,14 @@ services:
   allejo\stakx\Website:
     class: 'allejo\stakx\Website'
 
+  allejo\stakx\AssetEngine\:
+    resource: '../../AssetEngine/*'
+
+  allejo\stakx\AssetEngine\AssetEngineManager:
+    calls:
+      - method: addAssetEngines
+        arguments: [!tagged stakx.asset_engine]
+
   allejo\stakx\DataTransformer\:
     resource: '../../DataTransformer/*'
 
