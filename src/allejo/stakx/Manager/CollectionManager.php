@@ -10,6 +10,8 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\Event\CollectionDefinitionAdded;
+use allejo\stakx\Event\CollectionItemAdded;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
@@ -145,6 +147,9 @@ class CollectionManager extends TrackingManager
                 continue;
             }
 
+            $event = new CollectionDefinitionAdded($collection['name'], $collection['folder']);
+            $this->eventDispatcher->dispatch(CollectionDefinitionAdded::NAME, $event);
+
             $this->saveFolderDefinition($collection['folder'], $collection);
             $this->scanTrackableItems($collectionFolder, [
                 'namespace' => $collection['name'],
@@ -191,6 +196,9 @@ class CollectionManager extends TrackingManager
             'name' => $collectionName,
             'path' => $filePath->getRelativeFilePath(),
         ]);
+
+        $event = new CollectionItemAdded($contentItem);
+        $this->eventDispatcher->dispatch(CollectionItemAdded::NAME, $event);
 
         return $contentItem;
     }

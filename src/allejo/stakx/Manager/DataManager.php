@@ -10,6 +10,9 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Configuration;
 use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\Document\DataItem;
+use allejo\stakx\Event\DataItemAdded;
+use allejo\stakx\Event\DataItemFolderAdded;
+use allejo\stakx\Event\DatasetDefinitionAdded;
 use allejo\stakx\Exception\DependencyMissingException;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
 use allejo\stakx\Filesystem\File;
@@ -90,6 +93,9 @@ class DataManager extends TrackingManager
 
         foreach ($folders as $folder)
         {
+            $event = new DataItemFolderAdded($folder);
+            $this->eventDispatcher->dispatch(DataItemFolderAdded::NAME, $event);
+
             $this->saveFolderDefinition($folder);
             $this->scanTrackableItems(fs::absolutePath($folder));
         }
@@ -119,6 +125,9 @@ class DataManager extends TrackingManager
          */
         foreach ($dataSets as $dataSet)
         {
+            $event = new DatasetDefinitionAdded($dataSet['name'], $dataSet['folder']);
+            $this->eventDispatcher->dispatch(DatasetDefinitionAdded::NAME, $event);
+
             $this->saveFolderDefinition($dataSet['folder'], [
                 'namespace' => $dataSet['name'],
             ]);
@@ -141,6 +150,9 @@ class DataManager extends TrackingManager
             $dataItem = new DataItem($filePath);
             $dataItem->setDataTransformer($this->dataTransformerManager);
             $dataItem->setNamespace($namespace);
+
+            $event = new DataItemAdded($dataItem);
+            $this->eventDispatcher->dispatch(DataItemAdded::NAME, $event);
 
             $this->addObjectToTracker($dataItem, $namespace);
             $this->saveTrackerOptions($dataItem->getRelativeFilePath(), $options);

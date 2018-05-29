@@ -15,6 +15,8 @@ use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Event\PageViewAdded;
+use allejo\stakx\Event\PageViewDefinitionAdded;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
@@ -82,6 +84,9 @@ class PageManager extends TrackingManager
                 $this->logger->warning("The '$pageViewFolderName' folder could not be found");
                 continue;
             }
+
+            $event = new PageViewDefinitionAdded($pageViewFolderName);
+            $this->eventDispatcher->dispatch(PageViewDefinitionAdded::NAME, $event);
 
             $this->scanTrackableItems($pageViewFolderPath, [
                 'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES,
@@ -184,6 +189,9 @@ class PageManager extends TrackingManager
             default:
                 break;
         }
+
+        $event = new PageViewAdded($pageView);
+        $this->eventDispatcher->dispatch(PageViewAdded::NAME, $event);
 
         $this->addObjectToTracker($pageView, $namespace);
 
