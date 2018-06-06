@@ -15,6 +15,8 @@ use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Document\TemplateReadyDocument;
+use allejo\stakx\Event\CompileProcessPostRenderPageView;
+use allejo\stakx\Event\CompileProcessPreRenderPageView;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\FilesystemPath;
@@ -440,16 +442,27 @@ class Compiler
      */
     private function renderRepeaterPageView(TemplateInterface &$template, RepeaterPageView &$pageView, ExpandedValue &$expandedValue)
     {
+        $defaultContext = [
+            'this' => $pageView->createJail(),
+        ];
+
         $pageView->evaluateFrontMatter([
             'permalink' => $expandedValue->getEvaluated(),
             'iterators' => $expandedValue->getIterators(),
         ]);
 
-        return $template
-            ->render([
-                'this' => $pageView->createJail(),
-            ])
+        $preEvent = new CompileProcessPreRenderPageView(BasePageView::REPEATER_TYPE);
+        $this->eventDispatcher->dispatch(CompileProcessPreRenderPageView::NAME, $preEvent);
+
+        $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
+        $output = $template
+            ->render($context)
         ;
+
+        $postEvent = new CompileProcessPostRenderPageView(BasePageView::REPEATER_TYPE, $output);
+        $this->eventDispatcher->dispatch(CompileProcessPostRenderPageView::NAME, $postEvent);
+
+        return $postEvent->getCompiledOutput();
     }
 
     /**
@@ -461,11 +474,22 @@ class Compiler
      */
     private function renderDynamicPageView(TemplateInterface &$template, TemplateReadyDocument &$twigItem)
     {
-        return $template
-            ->render([
-                'this' => $twigItem->createJail(),
-            ])
+        $defaultContext = [
+            'this' => $twigItem->createJail(),
+        ];
+
+        $preEvent = new CompileProcessPreRenderPageView(BasePageView::DYNAMIC_TYPE);
+        $this->eventDispatcher->dispatch(CompileProcessPreRenderPageView::NAME, $preEvent);
+
+        $content = array_merge($preEvent->getCustomVariables(), $defaultContext);
+        $output = $template
+            ->render($content)
         ;
+
+        $postEvent = new CompileProcessPostRenderPageView(BasePageView::DYNAMIC_TYPE, $output);
+        $this->eventDispatcher->dispatch(CompileProcessPostRenderPageView::NAME, $postEvent);
+
+        return $postEvent->getCompiledOutput();
     }
 
     /**
@@ -479,12 +503,23 @@ class Compiler
      */
     private function renderStaticPageView(StaticPageView &$pageView)
     {
-        return $this
+        $defaultContext = [
+            'this' => $pageView->createJail(),
+        ];
+
+        $preEvent = new CompileProcessPreRenderPageView(BasePageView::STATIC_TYPE);
+        $this->eventDispatcher->dispatch(CompileProcessPreRenderPageView::NAME, $preEvent);
+
+        $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
+        $output = $this
             ->createTwigTemplate($pageView)
-            ->render([
-                'this' => $pageView->createJail(),
-            ])
+            ->render($context)
         ;
+
+        $postEvent = new CompileProcessPostRenderPageView(BasePageView::STATIC_TYPE, $output);
+        $this->eventDispatcher->dispatch(CompileProcessPostRenderPageView::NAME, $postEvent);
+
+        return $postEvent->getCompiledOutput();
     }
 
     /**
