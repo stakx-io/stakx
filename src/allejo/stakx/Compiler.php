@@ -17,6 +17,7 @@ use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Event\CompileProcessPostRenderPageView;
 use allejo\stakx\Event\CompileProcessPreRenderPageView;
+use allejo\stakx\Event\CompileProcessTemplateCreation;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\FilesystemPath;
@@ -539,28 +540,8 @@ class Compiler
 
             $this->templateMapping[$template->getTemplateName()] = $pageView->getRelativeFilePath();
 
-            if (Service::getParameter(BuildableCommand::WATCHING))
-            {
-                // Keep track of import dependencies
-                foreach ($pageView->getImportDependencies() as $dependency)
-                {
-                    $this->importDependencies[$dependency][$pageView->getBasename()] = &$pageView;
-                }
-
-                // Keep track of Twig extends'
-                $parent = $template->getParentTemplate();
-
-                while ($parent !== false)
-                {
-                    // Replace the '@theme' namespace in Twig with the path to the theme folder and create a FilesystemPath object from the given path
-                    $path = str_replace('@theme', fs::appendPath(ThemeManager::THEME_FOLDER, $this->theme), $parent->getTemplateName());
-                    $path = new FilesystemPath($path);
-
-                    $this->templateDependencies[(string)$path][$pageView->getBasename()] = &$pageView;
-
-                    $parent = $parent->getParentTemplate();
-                }
-            }
+            $event = new CompileProcessTemplateCreation($pageView, $template, $this->theme);
+            $this->eventDispatcher->dispatch(CompileProcessTemplateCreation::NAME, $event);
 
             return $template;
         }
