@@ -263,7 +263,7 @@ class PageManager extends TrackingManager
             $item->evaluateFrontMatter($frontMatter, [
                 'site' => $this->configuration->getConfiguration(),
             ]);
-            $item->setParentPageView($pageView);
+            $item->saveParentPageView($pageView);
             $item->buildPermalink(true);
 
             $pageView->addCollectableItem($item);

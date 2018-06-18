@@ -32,27 +32,20 @@ interface CollectableItem
     public function setNamespace($namespace);
 
     /**
-     * Get the PageView that renders this document.
+     * Get the parent DynamicPageViews that this Collectable Item belongs to.
      *
-     * @return DynamicPageView
+     * @return DynamicPageView[]
      */
-    public function &getParentPageView();
+    public function &getParentPageViews();
 
     /**
-     * Get a jailed version of the parent PageView.
-     *
-     * @return JailedDocument
-     */
-    public function getJailedPageView();
-
-    /**
-     * Set the PageView that is tasked with generating the page for this item.
+     * Save a reference to the parent DynamicPageView this Collectable Item belongs to.
      *
      * @param DynamicPageView $pageView
      *
      * @return void
      */
-    public function setParentPageView(DynamicPageView &$pageView);
+    public function saveParentPageView(DynamicPageView &$pageView);
 
     /**
      * Evaluate the FrontMatter in this object by merging a custom array of data.
