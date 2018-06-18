@@ -3,7 +3,7 @@
     "chmod": "0755",
     "directories": [
         "src",
-        "vendor/stakx/highlight.php/Highlight/languages"
+        "vendor/scrivo/highlight.php/Highlight/languages"
     ],
     "files": [
         "LICENSE.md"
