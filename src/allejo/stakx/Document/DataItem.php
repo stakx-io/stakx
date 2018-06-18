@@ -116,7 +116,6 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
         ]);
 
         $jailedFunctions = [
-            'getPageView' => 'getJailedPageView',
             'getDataset' => 'getNamespace',
         ];
 

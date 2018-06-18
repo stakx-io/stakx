@@ -83,7 +83,6 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
         ]);
 
         $jailedFunctions = [
-            'getPageView' => 'getJailedPageView',
             'getCollection' => 'getNamespace',
         ];
 
