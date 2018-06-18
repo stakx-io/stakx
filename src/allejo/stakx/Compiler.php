@@ -194,23 +194,6 @@ class Compiler
     }
 
     /**
-     * Compile an individual PageView from a given path.
-     *
-     * @param string $filePath
-     *
-     * @throws FileNotFoundException when the given file path isn't tracked by the Compiler
-     */
-    public function compilePageViewFromPath($filePath)
-    {
-        if (!isset($this->pageViewsFlattened[$filePath]))
-        {
-            throw new FileNotFoundException(sprintf('The "%s" PageView is not being tracked by this compiler.', $filePath));
-        }
-
-        $this->compilePageView($this->pageViewsFlattened[$filePath]);
-    }
-
-    /**
      * Compile an individual PageView item.
      *
      * This function will take care of determining *how* to treat the PageView and write the compiled output to a the
@@ -238,12 +221,12 @@ class Compiler
                     break;
 
                 case BasePageView::DYNAMIC_TYPE:
-                    $this->compileDynamicPageViews($pageView);
+                    $this->compileDynamicPageView($pageView);
                     $this->compileStandardRedirects($pageView);
                     break;
 
                 case BasePageView::REPEATER_TYPE:
-                    $this->compileRepeaterPageViews($pageView);
+                    $this->compileRepeaterPageView($pageView);
                     $this->compileExpandedRedirects($pageView);
                     break;
             }
@@ -271,11 +254,11 @@ class Compiler
     {
         $pageView->compile();
 
-        $targetFile = $pageView->getTargetFile();
-        $output = $this->renderStaticPageView($pageView);
-
-        $this->logger->notice('Writing file: {file}', ['file' => $targetFile]);
-        $this->folder->writeFile($targetFile, $output);
+        $this->writeToFilesystem(
+            $pageView->getTargetFile(),
+            $this->renderStaticPageView($pageView),
+            BasePageView::STATIC_TYPE
+        );
     }
 
     /**
@@ -287,7 +270,7 @@ class Compiler
      *
      * @throws TemplateErrorInterface
      */
-    private function compileDynamicPageViews(DynamicPageView &$pageView)
+    private function compileDynamicPageView(DynamicPageView &$pageView)
     {
         $contentItems = $pageView->getCollectableItems();
         $template = $this->createTwigTemplate($pageView);
@@ -303,11 +286,11 @@ class Compiler
                 continue;
             }
 
-            $targetFile = $contentItem->getTargetFile();
-            $output = $this->renderDynamicPageView($template, $contentItem);
-
-            $this->logger->notice('Writing file: {file}', ['file' => $targetFile]);
-            $this->folder->writeFile($targetFile, $output);
+            $this->writeToFilesystem(
+                $contentItem->getTargetFile(),
+                $this->renderDynamicPageView($template, $contentItem),
+                BasePageView::DYNAMIC_TYPE
+            );
 
             $this->compileStandardRedirects($contentItem);
         }
@@ -322,7 +305,7 @@ class Compiler
      *
      * @throws TemplateErrorInterface
      */
-    private function compileRepeaterPageViews(RepeaterPageView &$pageView)
+    private function compileRepeaterPageView(RepeaterPageView &$pageView)
     {
         $pageView->rewindPermalink();
 
@@ -332,12 +315,29 @@ class Compiler
         foreach ($permalinks as $permalink)
         {
             $pageView->bumpPermalink();
-            $targetFile = $pageView->getTargetFile();
-            $output = $this->renderRepeaterPageView($template, $pageView, $permalink);
 
-            $this->logger->notice('Writing repeater file: {file}', ['file' => $targetFile]);
-            $this->folder->writeFile($targetFile, $output);
+            $this->writeToFilesystem(
+                $pageView->getTargetFile(),
+                $this->renderRepeaterPageView($template, $pageView, $permalink),
+                BasePageView::REPEATER_TYPE
+            );
         }
+    }
+
+    /**
+     * Write the given $output to the $targetFile as a $fileType PageView.
+     *
+     * @param string $targetFile
+     * @param string $output
+     * @param string $fileType
+     */
+    private function writeToFilesystem($targetFile, $output, $fileType)
+    {
+        $this->logger->notice('Writing {type} PageView file: {file}', [
+            'type' => $fileType,
+            'file' => $targetFile,
+        ]);
+        $this->folder->writeFile($targetFile, $output);
     }
 
     /**
