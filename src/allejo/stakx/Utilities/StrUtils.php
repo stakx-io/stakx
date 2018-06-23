@@ -35,4 +35,29 @@ abstract class StrUtils
         // interpolate replacement values into the message and return
         return strtr($message, $replace);
     }
+
+    /**
+     * Check if an object can be casted into a string.
+     *
+     * @param mixed $mixed
+     *
+     * @link https://stackoverflow.com/a/5496674
+     *
+     * @return bool
+     */
+    public static function canBeCastedToString($mixed)
+    {
+        if (is_string($mixed))
+        {
+            return true;
+        }
+
+        return (
+            (!is_array($mixed)) &&
+            (
+                (!is_object($mixed) && settype($mixed, 'string') !== false) ||
+                (is_object($mixed) && method_exists($mixed, '__toString'))
+            )
+        );
+    }
 }

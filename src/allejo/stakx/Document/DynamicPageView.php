@@ -38,7 +38,7 @@ class DynamicPageView extends BasePageView
     public function addCollectableItem(CollectableItem &$collectable)
     {
         $this->collectableItems[$collectable->getRelativeFilePath()] = &$collectable;
-        $collectable->setParentPageView($this);
+        $collectable->saveParentPageView($this);
     }
 
     /**
@@ -47,6 +47,35 @@ class DynamicPageView extends BasePageView
     public function delCollectableItem(CollectableItem &$collectableItem)
     {
         unset($this->collectableItems[$collectableItem->getRelativeFilePath()]);
+    }
+
+    /**
+     * Get the Collectable Item based on its relative file path.
+     *
+     * @param string $relativeFilePath
+     *
+     * @return CollectableItem|TemplateReadyDocument|ReadableDocument|null
+     */
+    public function &getCollectableItem($relativeFilePath)
+    {
+        if (!$this->hasCollectableItem($relativeFilePath))
+        {
+            return null;
+        }
+
+        return $this->collectableItems[$relativeFilePath];
+    }
+
+    /**
+     * Check whether or not this DynamicPageView manages a Collectable Item based on its relative path.
+     *
+     * @param string $relativeFilePath
+     *
+     * @return bool
+     */
+    public function hasCollectableItem($relativeFilePath)
+    {
+        return isset($this->collectableItems[$relativeFilePath]);
     }
 
     /**

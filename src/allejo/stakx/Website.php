@@ -9,6 +9,7 @@ namespace allejo\stakx;
 
 use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Core\StakxLogger;
+use allejo\stakx\Event\BuildProcessComplete;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
@@ -26,6 +27,7 @@ use Kwf\FileWatcher\Event\Modify;
 use Kwf\FileWatcher\Event\Move;
 use Kwf\FileWatcher\Watcher;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Website
 {
@@ -169,6 +171,10 @@ class Website
         $this->am->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
         $this->am->setFolder($this->outputDirectory);
         $this->am->copyFiles();
+
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->container->get('event_dispatcher');
+        $dispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
     }
 
     public function watch()

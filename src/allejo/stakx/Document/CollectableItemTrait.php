@@ -8,16 +8,15 @@
 namespace allejo\stakx\Document;
 
 /**
- * This interface defines what an object needs in order for a dynamic PageView to treat it as an item of a group of
- * files.
+ * This trait implements the methods required by the `CollectableItem` interface.
  */
 trait CollectableItemTrait
 {
     /** @var string */
     protected $namespace;
 
-    /** @var DynamicPageView */
-    protected $pageView;
+    /** @var DynamicPageView[] */
+    protected $parentPageViews;
 
     /**
      * {@inheritdoc}
@@ -38,24 +37,16 @@ trait CollectableItemTrait
     /**
      * {@inheritdoc}
      */
-    public function &getParentPageView()
+    public function &getParentPageViews()
     {
-        return $this->pageView;
+        return $this->parentPageViews;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getJailedPageView()
+    public function saveParentPageView(DynamicPageView &$pageView)
     {
-        return $this->pageView->createJail();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setParentPageView(DynamicPageView &$pageView)
-    {
-        $this->pageView = &$pageView;
+        $this->parentPageViews[] = &$pageView;
     }
 }

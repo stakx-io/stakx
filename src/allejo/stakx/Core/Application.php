@@ -22,6 +22,7 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
 /**
  * The base application class for stakx.
@@ -157,6 +158,9 @@ class Application extends BaseApplication
     private function buildContainer($cachePath, array $containerOptions)
     {
         $container = new ContainerBuilder();
+        $container
+            ->addCompilerPass(new RegisterListenersPass())
+        ;
 
         foreach ($containerOptions['parameters'] as $key => $value)
         {
