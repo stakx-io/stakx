@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\MarkupEngine;
 
-use allejo\stakx\Configuration;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;

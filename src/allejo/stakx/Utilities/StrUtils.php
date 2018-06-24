@@ -41,7 +41,7 @@ abstract class StrUtils
      *
      * @param mixed $mixed
      *
-     * @link https://stackoverflow.com/a/5496674
+     * @see https://stackoverflow.com/a/5496674
      *
      * @return bool
      */
@@ -52,12 +52,12 @@ abstract class StrUtils
             return true;
         }
 
-        return (
+        return
             (!is_array($mixed)) &&
             (
                 (!is_object($mixed) && settype($mixed, 'string') !== false) ||
                 (is_object($mixed) && method_exists($mixed, '__toString'))
             )
-        );
+        ;
     }
 }

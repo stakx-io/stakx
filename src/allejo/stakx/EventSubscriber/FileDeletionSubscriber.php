@@ -2,14 +2,14 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\EventSubscriber;
 
 use allejo\stakx\Compiler;
-use allejo\stakx\Logger;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Logger;
 use Kwf\FileWatcher\Event\Delete as DeleteEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -36,7 +36,7 @@ class FileDeletionSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            DeleteEvent::NAME => 'onFileDeletion'
+            DeleteEvent::NAME => 'onFileDeletion',
         ];
     }
 }

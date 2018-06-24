@@ -2,12 +2,11 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\EventSubscriber;
 
-use allejo\stakx\Command\BuildCommand;
 use allejo\stakx\Event\CollectionDefinitionAdded;
 use allejo\stakx\Event\CollectionItemAdded;
 use allejo\stakx\Event\CompileProcessTemplateCreation;
@@ -20,7 +19,6 @@ use allejo\stakx\FileMapper;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Manager\ThemeManager;
-use allejo\stakx\Service;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class WatchSubscriber implements EventSubscriberInterface

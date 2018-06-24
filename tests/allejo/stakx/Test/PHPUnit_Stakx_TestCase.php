@@ -7,14 +7,13 @@
 
 namespace allejo\stakx\Test;
 
-use allejo\stakx\Command\BuildCommand;
 use allejo\stakx\Configuration;
-use allejo\stakx\Logger;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Logger;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;

@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\Test\Manager;
 
-use allejo\stakx\Command\BuildCommand;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Filesystem\File;

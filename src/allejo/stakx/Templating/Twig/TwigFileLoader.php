@@ -7,9 +7,6 @@
 
 namespace allejo\stakx\Templating\Twig;
 
-use allejo\stakx\Command\BuildCommand;
-use allejo\stakx\Service;
-
 class TwigFileLoader extends \Twig_Loader_Filesystem
 {
     public function getCacheKey($name)

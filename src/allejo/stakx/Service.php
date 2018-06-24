@@ -15,7 +15,7 @@ abstract class Service
 
     public static function hasRunTimeFlag($status)
     {
-        return (self::$runTimeStatus & $status);
+        return self::$runTimeStatus & $status;
     }
 
     public static function setRuntimeFlag($status)

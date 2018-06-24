@@ -8,7 +8,6 @@
 namespace allejo\stakx\Test\Templating\Twig\Extension;
 
 use __;
-use allejo\stakx\Command\BuildCommand;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;

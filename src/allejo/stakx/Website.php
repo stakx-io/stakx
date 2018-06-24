@@ -23,7 +23,7 @@ class Website implements ContainerAwareInterface
     /**
      * Compile the website.
      *
-     * @return True if the website built successfully.
+     * @return true if the website built successfully
      */
     public function build()
     {

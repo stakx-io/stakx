@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Command\BuildCommand;
 use allejo\stakx\Document\CollectableItem;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\ReadableDocument;

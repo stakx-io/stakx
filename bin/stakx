@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-require(__DIR__ . "/../vendor/autoload.php");
+require __DIR__ . '/../vendor/autoload.php';
 
 use allejo\stakx\Application;
 use allejo\stakx\Command\BuildCommand;
@@ -20,6 +20,6 @@ try
 }
 catch (\Exception $e)
 {
-    echo sprintf("An uncaught exception occurred while running %s.", $application->getName());
-    echo sprintf("  %s", $e->getMessage());
+    echo sprintf('An uncaught exception occurred while running %s.', $application->getName());
+    echo sprintf('  %s', $e->getMessage());
 }

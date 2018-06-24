@@ -2,14 +2,14 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\EventSubscriber;
 
 use allejo\stakx\Compiler;
-use allejo\stakx\Logger;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Logger;
 use Kwf\FileWatcher\Event\Modify as ModifyEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -33,7 +33,7 @@ class FileModificationSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ModifyEvent::NAME => 'onFileModification'
+            ModifyEvent::NAME => 'onFileModification',
         ];
     }
 }

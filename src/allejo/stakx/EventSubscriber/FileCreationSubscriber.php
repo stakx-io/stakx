@@ -8,9 +8,9 @@
 namespace allejo\stakx\EventSubscriber;
 
 use allejo\stakx\Compiler;
-use allejo\stakx\Logger;
 use allejo\stakx\FileMapper;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Logger;
 use Kwf\FileWatcher\Event\Create as CreateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
