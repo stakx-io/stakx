@@ -8,7 +8,7 @@
 namespace allejo\stakx\EventSubscriber;
 
 use allejo\stakx\Compiler;
-use allejo\stakx\Core\StakxLogger;
+use allejo\stakx\Logger;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use Kwf\FileWatcher\Event\Modify as ModifyEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -18,7 +18,7 @@ class FileModificationSubscriber implements EventSubscriberInterface
     private $compiler;
     private $logger;
 
-    public function __construct(Compiler $compiler, StakxLogger $logger)
+    public function __construct(Compiler $compiler, Logger $logger)
     {
         $this->compiler = $compiler;
         $this->logger = $logger;

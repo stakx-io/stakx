@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Command\BuildableCommand;
+use allejo\stakx\Command\BuildCommand;
 use allejo\stakx\Document\CollectableItem;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\ReadableDocument;
@@ -15,6 +15,7 @@ use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 
 /**
@@ -293,7 +294,7 @@ abstract class TrackingManager extends BaseManager
         {
             if ($item instanceof TemplateReadyDocument)
             {
-                if (!Service::getParameter(BuildableCommand::USE_DRAFTS) && $item->isDraft())
+                if (!Service::hasRunTimeFlag(RuntimeStatus::USING_DRAFTS) && $item->isDraft())
                 {
                     continue;
                 }

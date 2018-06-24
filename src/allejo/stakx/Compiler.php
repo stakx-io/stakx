@@ -7,9 +7,7 @@
 
 namespace allejo\stakx;
 
-use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\BasePageView;
-use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Document\RepeaterPageView;
@@ -19,18 +17,14 @@ use allejo\stakx\Event\CompileProcessPostRenderPageView;
 use allejo\stakx\Event\CompileProcessPreRenderPageView;
 use allejo\stakx\Event\CompileProcessTemplateCreation;
 use allejo\stakx\Exception\FileAwareException;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\PageManager;
-use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use allejo\stakx\Templating\TemplateErrorInterface;
 use allejo\stakx\Templating\TemplateInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
  * This class takes care of rendering the Twig body of PageViews with the respective information and it also takes care
@@ -209,7 +203,7 @@ class Compiler
 
         foreach ($contentItems as &$contentItem)
         {
-            if ($contentItem->isDraft() && !Service::getParameter(BuildableCommand::USE_DRAFTS))
+            if ($contentItem->isDraft() && !Service::hasRunTimeFlag(RuntimeStatus::USING_DRAFTS))
             {
                 $this->logger->debug('{file}: marked as a draft', [
                     'file' => $contentItem->getRelativeFilePath(),

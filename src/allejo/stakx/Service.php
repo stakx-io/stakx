@@ -10,16 +10,22 @@ namespace allejo\stakx;
 abstract class Service
 {
     protected static $workingDirectory;
+    protected static $runTimeStatus;
     protected static $parameters;
 
-    public static function getParameter($key)
+    public static function hasRunTimeFlag($status)
     {
-        return self::$parameters[$key];
+        return (self::$runTimeStatus & $status);
     }
 
-    public static function setParameter($key, $value)
+    public static function setRuntimeFlag($status)
     {
-        return self::$parameters[$key] = $value;
+        self::$runTimeStatus |= $status;
+    }
+
+    public static function resetRuntimeFlags()
+    {
+        self::$runTimeStatus = 0;
     }
 
     public static function getWorkingDirectory()

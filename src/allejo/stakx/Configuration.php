@@ -483,6 +483,9 @@ class Configuration implements LoggerAwareInterface
             $this->configuration['exclude'][] = $this->getTargetFolder();
         }
 
-        Service::setParameter('build.preserveCase', $this->configuration['build']['preserveCase']);
+        if ($this->configuration['build']['preserveCase'])
+        {
+            Service::setRuntimeFlag(RuntimeStatus::COMPILER_PRESERVE_CASE);
+        }
     }
 }

@@ -8,20 +8,18 @@
 namespace allejo\stakx\Command;
 
 use allejo\stakx\Configuration;
+use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
+use allejo\stakx\Utilities\StrUtils;
 use allejo\stakx\Website;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class BuildableCommand.
- *
- * This abstract class handles configuring the website object
- */
-abstract class BuildableCommand extends ContainerAwareCommand
+class BuildCommand extends ContainerAwareCommand
 {
     const NO_CONF = 'no-conf';
     const NO_CLEAN = 'no-clean';
@@ -42,9 +40,10 @@ abstract class BuildableCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
+        $this->addOption(self::NO_CONF, 'l', InputOption::VALUE_NONE, 'Build a stakx website without a configuration file');
+
         $this->addOption('conf', 'c', InputOption::VALUE_REQUIRED, 'The configuration file to be used', Configuration::DEFAULT_NAME);
         $this->addOption(self::SAFE_MODE, 's', InputOption::VALUE_NONE, 'Disable file system access from Twig');
-        $this->addOption(self::NO_CONF, 'l', InputOption::VALUE_NONE, 'Build a stakx website without a configuration file');
         $this->addOption(self::NO_CLEAN, 'x', InputOption::VALUE_NONE, "Don't clean the _site before recompiling the website");
         $this->addOption(self::USE_DRAFTS, 'd', InputOption::VALUE_NONE, 'Publish all ContentItems marked as drafts');
         $this->addOption(self::USE_CACHE, null, InputOption::VALUE_NONE, 'Use the existing cache folder for building the website');
@@ -59,23 +58,14 @@ abstract class BuildableCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->website = new Website($this->getContainer());
-        $this->website->setConfLess($input->getOption(self::NO_CONF));
-
-        $flags = [
-            self::SAFE_MODE, self::NO_CONF, self::NO_CLEAN,
-            self::USE_DRAFTS, self::USE_CACHE, self::BUILD_PROFILE,
-        ];
-
-        foreach ($flags as $flag)
-        {
-            $this->setServiceParameter($input, $flag);
-        }
-
-        $this->configureConfigurationFile($input);
+        $this->handleDeprecations($input, $output);
 
         try
         {
+            $this->website = new Website($this->getContainer());
+            $this->setRunTimeOptions($input);
+            $this->configureConfigurationFile($input);
+
             $this->website->build();
 
             $output->writeln(sprintf('Your site built successfully! It can be found at: %s',
@@ -104,36 +94,57 @@ abstract class BuildableCommand extends ContainerAwareCommand
         return 1;
     }
 
+    /**
+     * @param InputInterface $input
+     *
+     * @throws \Exception
+     */
     private function configureConfigurationFile(InputInterface $input)
     {
+        $confFilePath = $input->getOption('conf');
+        $siteRoot = fs::getFolderPath(realpath($confFilePath));
+        Service::setWorkingDirectory($siteRoot);
+
+        $configFile = new File($confFilePath);
+
         /** @var Configuration $conf */
         $conf = $this->getContainer()->get(Configuration::class);
+        $conf->parse($configFile);
+    }
 
-        if (Service::getParameter(self::NO_CONF))
+    private function setRunTimeOptions(InputInterface $input)
+    {
+        if ($input->getOption(self::NO_CLEAN))
         {
-            Service::setWorkingDirectory(getcwd());
-            $conf->parse();
+            Service::setRuntimeFlag(RuntimeStatus::BOOT_WITHOUT_CLEAN);
         }
-        else
+
+        if ($input->getOption(self::USE_DRAFTS))
         {
-            $confFilePath = $input->getOption('conf');
-            $siteRoot = fs::getFolderPath(realpath($confFilePath));
-            Service::setWorkingDirectory($siteRoot);
+            Service::setRuntimeFlag(RuntimeStatus::USING_DRAFTS);
+        }
 
-            $configFile = new File($confFilePath);
+        if ($input->getOption(self::USE_CACHE))
+        {
+            Service::setRuntimeFlag(RuntimeStatus::USING_CACHE);
+        }
 
-            $conf->parse($configFile);
+        if ($input->getOption(self::SAFE_MODE))
+        {
+            Service::setRuntimeFlag(RuntimeStatus::IN_SAFE_MODE);
+        }
+
+        if ($input->getOption(self::BUILD_PROFILE))
+        {
+            Service::setRuntimeFlag(RuntimeStatus::IN_PROFILE_MODE);
         }
     }
 
-    /**
-     * Set a parameter to the Service singleton.
-     *
-     * @param InputInterface $input
-     * @param string         $param
-     */
-    private function setServiceParameter(InputInterface &$input, $param)
+    private function handleDeprecations(InputInterface $input, OutputInterface $output)
     {
-        Service::setParameter($param, $input->getOption($param));
+        if ($input->hasOption(self::NO_CONF))
+        {
+            $output->writeln('Deprecation: The --no-conf option is no longer supported. You must have a configuration file.');
+        }
     }
 }

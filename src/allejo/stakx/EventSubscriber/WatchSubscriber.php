@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\EventSubscriber;
 
-use allejo\stakx\Command\BuildableCommand;
+use allejo\stakx\Command\BuildCommand;
 use allejo\stakx\Event\CollectionDefinitionAdded;
 use allejo\stakx\Event\CollectionItemAdded;
 use allejo\stakx\Event\CompileProcessTemplateCreation;

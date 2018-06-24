@@ -8,7 +8,7 @@
 namespace allejo\stakx\EventSubscriber;
 
 use allejo\stakx\Compiler;
-use allejo\stakx\Core\StakxLogger;
+use allejo\stakx\Logger;
 use allejo\stakx\FileMapper;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use Kwf\FileWatcher\Event\Create as CreateEvent;
@@ -20,7 +20,7 @@ class FileCreationSubscriber implements EventSubscriberInterface
     private $compiler;
     private $logger;
 
-    public function __construct(Compiler $compiler, FileMapper $fileMapper, StakxLogger $logger)
+    public function __construct(Compiler $compiler, FileMapper $fileMapper, Logger $logger)
     {
         $this->fileMapper = $fileMapper;
         $this->compiler = $compiler;
