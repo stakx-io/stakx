@@ -249,6 +249,8 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
         {
             // The second parameter for this parser must match the $specialFrontMatter structure
             $this->frontMatterParser = new FrontMatterParser($yaml, [
+                'basename' => $this->getBasename(),
+                'filename' => $this->getFilename(),
                 'filePath' => $this->getRelativeFilePath(),
             ]);
             $this->frontMatterParser->addComplexVariables($complexVariables);

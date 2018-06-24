@@ -416,7 +416,7 @@ class FrontMatterParser
 
         if ($isPrimitive)
         {
-            $variableVal = ArrayUtilities::array_safe_get($this->frontMatter, $varName);
+            $variableVal = __::get($this->frontMatter, $varName);
         }
         else
         {
