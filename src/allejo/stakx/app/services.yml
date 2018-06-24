@@ -4,10 +4,6 @@ services:
     autoconfigure: true
     public: true
 
-  allejo\stakx\Command\:
-    resource: '../Command/*'
-    tags: ['stakx.command']
-
   allejo\stakx\DataTransformer\:
     resource: '../DataTransformer/*'
 

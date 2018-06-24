@@ -7,7 +7,6 @@
 
 namespace allejo\stakx;
 
-use allejo\stakx\Command\CommandInterface;
 use allejo\stakx\DataTransformer\DataTransformer;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\MarkupEngine\MarkupEngine;
@@ -196,25 +195,8 @@ class Application extends BaseApplication
 
         $container->compile();
 
-        $this->registerCommands($container);
-
         $dumper = new PhpDumper($container);
         file_put_contents($cachePath, $dumper->dump());
-    }
-
-    /**
-     * Register our commands.
-     *
-     * @param ContainerBuilder $container
-     */
-    private function registerCommands(ContainerBuilder $container)
-    {
-        $commands = $container->findTaggedServiceIds(CommandInterface::NAME);
-
-        foreach ($commands as $name => $value)
-        {
-            $this->add(new $name);
-        }
     }
 
     /**

@@ -4,8 +4,15 @@
 require(__DIR__ . "/../vendor/autoload.php");
 
 use allejo\stakx\Application;
+use allejo\stakx\Command\BuildCommand;
+use Symfony\Component\Console\CommandLoader\FactoryCommandLoader;
+
+$commandLoader = new FactoryCommandLoader([
+    'build' => function () { return new BuildCommand(); }
+]);
 
 $application = new Application('stakx', '@package_version@');
+$application->setCommandLoader($commandLoader);
 
 try
 {
