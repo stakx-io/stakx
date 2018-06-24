@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class BuildCommand extends ContainerAwareCommand
+class BuildCommand extends ContainerAwareCommand implements CommandInterface
 {
     const NO_CONF = 'no-conf';
     const NO_CLEAN = 'no-clean';

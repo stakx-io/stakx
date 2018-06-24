@@ -3,9 +3,16 @@
 
 require(__DIR__ . "/../vendor/autoload.php");
 
-use allejo\stakx\Command\BuildCommand;
 use allejo\stakx\Application;
 
 $application = new Application('stakx', '@package_version@');
-$application->add(new BuildCommand());
-$application->run();
+
+try
+{
+    $application->run();
+}
+catch (\Exception $e)
+{
+    echo sprintf("An uncaught exception occurred while running %s.", $application->getName());
+    echo sprintf("  %s", $e->getMessage());
+}

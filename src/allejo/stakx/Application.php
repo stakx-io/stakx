@@ -7,7 +7,7 @@
 
 namespace allejo\stakx;
 
-use allejo\stakx\Configuration;
+use allejo\stakx\Command\CommandInterface;
 use allejo\stakx\DataTransformer\DataTransformer;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\MarkupEngine\MarkupEngine;
@@ -133,6 +133,8 @@ class Application extends BaseApplication
      * Load the cached application container or build a new one.
      *
      * @param array $containerOptions
+     *
+     * @throws \Exception
      */
     private function loadContainer(array $containerOptions)
     {
@@ -154,6 +156,8 @@ class Application extends BaseApplication
      *
      * @param string $cachePath
      * @param array  $containerOptions
+     *
+     * @throws \Exception
      */
     private function buildContainer($cachePath, array $containerOptions)
     {
@@ -191,9 +195,26 @@ class Application extends BaseApplication
         ;
 
         $container->compile();
-        $dumper = new PhpDumper($container);
 
+        $this->registerCommands($container);
+
+        $dumper = new PhpDumper($container);
         file_put_contents($cachePath, $dumper->dump());
+    }
+
+    /**
+     * Register our commands.
+     *
+     * @param ContainerBuilder $container
+     */
+    private function registerCommands(ContainerBuilder $container)
+    {
+        $commands = $container->findTaggedServiceIds(CommandInterface::NAME);
+
+        foreach ($commands as $name => $value)
+        {
+            $this->add(new $name);
+        }
     }
 
     /**
