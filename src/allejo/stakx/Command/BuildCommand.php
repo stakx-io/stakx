@@ -142,9 +142,9 @@ class BuildCommand extends ContainerAwareCommand
 
     private function handleDeprecations(InputInterface $input, OutputInterface $output)
     {
-        if ($input->hasOption(self::NO_CONF))
+        if ($input->getOption(self::NO_CONF))
         {
-            $output->writeln('Deprecation: The --no-conf option is no longer supported. You must have a configuration file.');
+            $output->writeln('Deprecation: The "--no-conf" option is no longer supported. You must have a configuration file.');
         }
     }
 }
