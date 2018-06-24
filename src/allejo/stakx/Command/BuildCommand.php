@@ -29,12 +29,6 @@ class BuildCommand extends ContainerAwareCommand
     const SAFE_MODE = 'safe';
     const BUILD_PROFILE = 'profile';
 
-    /** @var Configuration */
-    protected $configuration;
-
-    /** @var Website */
-    protected $website;
-
     /**
      * {@inheritdoc}
      */
@@ -62,14 +56,15 @@ class BuildCommand extends ContainerAwareCommand
 
         try
         {
-            $this->website = new Website($this->getContainer());
             $this->setRunTimeOptions($input);
             $this->configureConfigurationFile($input);
 
-            $this->website->build();
+            $website = new Website();
+            $website->setContainer($this->getContainer());
+            $website->build();
 
             $output->writeln(sprintf('Your site built successfully! It can be found at: %s',
-                $this->website->getConfiguration()->getTargetFolder() . DIRECTORY_SEPARATOR
+                $website->getConfiguration()->getTargetFolder() . DIRECTORY_SEPARATOR
             ));
 
             return 0;

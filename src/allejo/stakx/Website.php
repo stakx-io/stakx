@@ -7,65 +7,18 @@
 
 namespace allejo\stakx;
 
-use allejo\stakx\Command\BuildCommand;
-use allejo\stakx\Logger;
 use allejo\stakx\Event\BuildProcessComplete;
-use allejo\stakx\Exception\FileAwareException;
-use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Manager\AssetManager;
-use allejo\stakx\Manager\CollectionManager;
-use allejo\stakx\Manager\DataManager;
-use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
-use allejo\stakx\Manager\TwigManager;
 use Highlight\Highlighter;
-use Kwf\FileWatcher\Event\AbstractEvent;
-use Kwf\FileWatcher\Event\Create;
-use Kwf\FileWatcher\Event\Modify;
-use Kwf\FileWatcher\Event\Move;
-use Kwf\FileWatcher\Watcher;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class Website
+class Website implements ContainerAwareInterface
 {
-    /**
-     * The location of where the compiled website will be written to.
-     *
-     * @var Folder
-     */
-    private $outputDirectory;
-
-    /**
-     * @var Logger
-     */
-    private $output;
-
-    /**
-     * @var AssetManager
-     */
-    private $am;
-
-    /**
-     * @var ThemeManager
-     */
-    private $tm;
-
-    /** @var Compiler */
-    private $compiler;
-
-    private $container;
-
-    /**
-     * Constructor.
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-        $this->output = $container->get('logger');
-    }
+    use ContainerAwareTrait;
 
     /**
      * Compile the website.
@@ -89,18 +42,18 @@ class Website
         $this->configureHighlighter();
 
         // Our output directory
-        $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
-        $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
+        $outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
+        $outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
         $templateEngine = $this->container->get('templating');
 
         // Compile everything
         $theme = $this->getConfiguration()->getTheme();
 
-        $this->compiler = $this->container->get('compiler');
-        $this->compiler->setTargetFolder($this->outputDirectory);
-        $this->compiler->setThemeName($theme);
-        $this->compiler->compileAll();
+        $compiler = $this->container->get('compiler');
+        $compiler->setTargetFolder($outputDirectory);
+        $compiler->setThemeName($theme);
+        $compiler->compileAll();
 
         if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE))
         {
@@ -110,7 +63,7 @@ class Website
             }
             else
             {
-                $profilerText = $templateEngine->getProfilerOutput($this->compiler);
+                $profilerText = $templateEngine->getProfilerOutput($compiler);
                 $logger->writeln($profilerText);
             }
         }
@@ -122,30 +75,30 @@ class Website
             $this->getConfiguration()->getExcludes()
         );
 
+        $eventDispatcher = $this->container->get('event_dispatcher');
+
         //
         // Theme Management
         //
-        if (!is_null($theme))
+        if ($theme !== null)
         {
             $logger->notice("Looking for '${theme}' theme...");
 
-            $this->tm = new ThemeManager($theme, $this->container->get('event_dispatcher'), $this->container->get('logger'));
-            $this->tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
-            $this->tm->setFolder($this->outputDirectory);
-            $this->tm->copyFiles();
+            $tm = new ThemeManager($theme, $eventDispatcher, $logger);
+            $tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
+            $tm->setFolder($outputDirectory);
+            $tm->copyFiles();
         }
 
         //
         // Static file management
         //
-        $this->am = $this->container->get(AssetManager::class);
-        $this->am->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
-        $this->am->setFolder($this->outputDirectory);
-        $this->am->copyFiles();
+        $am = $this->container->get(AssetManager::class);
+        $am->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
+        $am->setFolder($outputDirectory);
+        $am->copyFiles();
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->container->get('event_dispatcher');
-        $dispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
+        $eventDispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
     }
 
     /**
@@ -189,6 +142,8 @@ class Website
             return;
         }
 
+        $logger = $this->container->get('logger');
+
         Service::setRuntimeFlag(RuntimeStatus::USING_HIGHLIGHTER);
 
         foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
@@ -197,14 +152,14 @@ class Website
 
             if (!fs::exists($fullPath))
             {
-                $this->output->warning('The following language definition could not be found: {lang}', [
+                $logger->warning('The following language definition could not be found: {lang}', [
                     'lang' => $path,
                 ]);
                 continue;
             }
 
             Highlighter::registerLanguage($lang, $fullPath);
-            $this->output->debug('Loading custom language {lang} from {path}...', [
+            $logger->debug('Loading custom language {lang} from {path}...', [
                 'lang' => $lang,
                 'path' => $path,
             ]);
