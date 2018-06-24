@@ -7,8 +7,8 @@
 
 namespace allejo\stakx;
 
-use allejo\stakx\Command\BuildableCommand;
-use allejo\stakx\Core\StakxLogger;
+use allejo\stakx\Command\BuildCommand;
+use allejo\stakx\Logger;
 use allejo\stakx\Event\BuildProcessComplete;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\FileExplorer;
@@ -39,14 +39,7 @@ class Website
     private $outputDirectory;
 
     /**
-     * When set to true, the Stakx website will be built without a configuration file.
-     *
-     * @var bool
-     */
-    private $confLess;
-
-    /**
-     * @var StakxLogger
+     * @var Logger
      */
     private $output;
 
@@ -131,7 +124,7 @@ class Website
         $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
 
-        if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
+        if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE))
         {
             if (!$templateEngine->hasProfiler())
             {
@@ -434,12 +427,14 @@ class Website
      */
     private function configureHighlighter()
     {
-        $enabled = Service::setParameter(Configuration::HIGHLIGHTER_ENABLED, $this->getConfiguration()->isHighlighterEnabled());
+        $enabled = $this->getConfiguration()->isHighlighterEnabled();
 
         if (!$enabled)
         {
             return;
         }
+
+        Service::setRuntimeFlag(RuntimeStatus::USING_HIGHLIGHTER);
 
         foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
         {

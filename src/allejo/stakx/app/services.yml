@@ -61,7 +61,7 @@ services:
     class: Symfony\Component\Console\Output\ConsoleOutput
 
   logger:
-    class: allejo\stakx\Core\StakxLogger
+    class: allejo\stakx\Logger
     arguments:
       - '@output'
 

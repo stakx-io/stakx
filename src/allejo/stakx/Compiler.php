@@ -45,21 +45,6 @@ class Compiler
     /** @var string|false */
     private $redirectTemplate;
 
-    /** @var BasePageView[][] */
-    private $importDependencies;
-
-    /**
-     * Any time a PageView extends another template, that relationship is stored in this array. This is necessary so
-     * when watching a website, we can rebuild the necessary PageViews when these base templates change.
-     *
-     * ```
-     * array['_layouts/base.html.twig'] = &PageView;
-     * ```
-     *
-     * @var TemplateInterface[]
-     */
-    private $templateDependencies;
-
     /**
      * All of the PageViews handled by this Compiler instance indexed by their file paths relative to the site root.
      *
@@ -118,36 +103,6 @@ class Compiler
     // Twig parent templates
     ///
 
-    public function isImportDependency($filePath)
-    {
-        return isset($this->importDependencies[$filePath]);
-    }
-
-    /**
-     * Check whether a given file path is used as a parent template by a PageView.
-     *
-     * @param string $filePath
-     *
-     * @return bool
-     */
-    public function isParentTemplate($filePath)
-    {
-        return isset($this->templateDependencies[$filePath]);
-    }
-
-    /**
-     * Rebuild all of the PageViews that used a given template as a parent.
-     *
-     * @param string $filePath The file path to the parent Twig template
-     */
-    public function refreshParent($filePath)
-    {
-        foreach ($this->templateDependencies[$filePath] as &$parentTemplate)
-        {
-            $this->compilePageView($parentTemplate);
-        }
-    }
-
     public function getTemplateMappings()
     {
         return $this->templateMapping;
@@ -167,29 +122,6 @@ class Compiler
         foreach ($this->pageViewsFlattened as &$pageView)
         {
             $this->compilePageView($pageView);
-        }
-    }
-
-    public function compileImportDependencies($filePath)
-    {
-        foreach ($this->importDependencies[$filePath] as &$dependent)
-        {
-            $this->compilePageView($dependent);
-        }
-    }
-
-    public function compileSome(array $filter = [])
-    {
-        /** @var BasePageView $pageView */
-        foreach ($this->pageViewsFlattened as &$pageView)
-        {
-            $ns = $filter['namespace'];
-
-            if ($pageView->hasDependencyOnCollection($ns, $filter['dependency']) ||
-                $pageView->hasDependencyOnCollection($ns, null)
-            ) {
-                $this->compilePageView($pageView);
-            }
         }
     }
 
@@ -337,28 +269,6 @@ class Compiler
             'type' => $fileType,
             'file' => $targetFile,
         ]);
-        $this->folder->writeFile($targetFile, $output);
-    }
-
-    /**
-     * @deprecated
-     *
-     * @todo This function needs to be rewritten or removed. Something
-     *
-     * @param ContentItem $contentItem
-     */
-    public function compileContentItem(ContentItem &$contentItem)
-    {
-        $pageView = &$contentItem->getPageView();
-        $template = $this->createTwigTemplate($pageView);
-
-        $this->templateBridge->setGlobalVariable('__currentTemplate', $pageView->getAbsoluteFilePath());
-        $contentItem->evaluateFrontMatter($pageView->getFrontMatter(false));
-
-        $targetFile = $contentItem->getTargetFile();
-        $output = $this->renderDynamicPageView($template, $contentItem);
-
-        $this->logger->notice('Writing file: {file}', ['file' => $targetFile]);
         $this->folder->writeFile($targetFile, $output);
     }
 

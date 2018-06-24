@@ -1,15 +1,11 @@
 <?php
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Core;
+namespace allejo\stakx;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\InvalidArgumentException;
@@ -26,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @see    http://www.php-fig.org/psr/psr-3/
  * @see    https://github.com/symfony/console/blob/master/Logger/ConsoleLogger.php
  */
-class StakxLogger extends AbstractLogger
+class Logger extends AbstractLogger
 {
     const INFO = 'info';
     const ERROR = 'error';

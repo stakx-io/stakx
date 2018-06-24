@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Command;
 
-use allejo\stakx\Core\Application;
+use allejo\stakx\Application;
 use Symfony\Component\Console\Command\Command;
 
 abstract class ContainerAwareCommand extends Command

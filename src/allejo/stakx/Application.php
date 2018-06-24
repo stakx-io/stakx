@@ -2,10 +2,10 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Core;
+namespace allejo\stakx;
 
 use allejo\stakx\Configuration;
 use allejo\stakx\DataTransformer\DataTransformer;
@@ -46,7 +46,7 @@ class Application extends BaseApplication
 
         $this->loadContainer([
             'parameters' => [
-                'root_dir' => __DIR__ . '/../',
+                'root_dir' => __DIR__,
             ],
         ]);
 
@@ -167,7 +167,7 @@ class Application extends BaseApplication
             $container->setParameter($key, $value);
         }
 
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../app/'));
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/app/'));
         $loader->load('services.yml');
 
         $container

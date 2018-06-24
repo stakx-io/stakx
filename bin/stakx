@@ -4,10 +4,8 @@
 require(__DIR__ . "/../vendor/autoload.php");
 
 use allejo\stakx\Command\BuildCommand;
-use allejo\stakx\Command\WatchCommand;
-use allejo\stakx\Core\Application;
+use allejo\stakx\Application;
 
 $application = new Application('stakx', '@package_version@');
 $application->add(new BuildCommand());
-$application->add(new WatchCommand());
 $application->run();
