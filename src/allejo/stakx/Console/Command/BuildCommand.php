@@ -59,8 +59,7 @@ class BuildCommand extends ContainerAwareCommand
             $this->setRunTimeOptions($input);
             $this->configureConfigurationFile($input);
 
-            $website = new Website();
-            $website->setContainer($this->getContainer());
+            $website = $this->getContainer()->get(Website::class);
             $website->build();
 
             $output->writeln(sprintf('Your site built successfully! It can be found at: %s',

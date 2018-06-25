@@ -12,13 +12,34 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\ThemeManager;
+use allejo\stakx\Templating\TemplateBridgeInterface;
 use Highlight\Highlighter;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class Website implements ContainerAwareInterface
+class Website
 {
-    use ContainerAwareTrait;
+    private $configuration;
+    private $logger;
+    private $templateBridge;
+    private $compiler;
+    private $assetManager;
+    private $eventDispatcher;
+
+    public function __construct(
+        Compiler $compiler,
+        Configuration $configuration,
+        AssetManager $assetManager,
+        TemplateBridgeInterface $templateBridge,
+        EventDispatcherInterface $eventDispatcher,
+        Logger $logger
+    ) {
+        $this->configuration = $configuration;
+        $this->logger = $logger;
+        $this->templateBridge = $templateBridge;
+        $this->compiler = $compiler;
+        $this->assetManager = $assetManager;
+        $this->eventDispatcher = $eventDispatcher;
+    }
 
     /**
      * Compile the website.
@@ -27,12 +48,9 @@ class Website implements ContainerAwareInterface
      */
     public function build()
     {
-        $logger = $this->container->get('logger');
-        $conf = $this->container->get(Configuration::class);
-
-        if (empty($conf->getPageViewFolders()))
+        if (empty($this->getConfiguration()->getPageViewFolders()))
         {
-            $logger->error('No PageViews were configured for this site. Check the `pageviews` key in your _config.yml.');
+            $this->logger->error('No PageViews were configured for this site. Check the `pageviews` key in your _config.yml.');
 
             return false;
         }
@@ -45,26 +63,23 @@ class Website implements ContainerAwareInterface
         $outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
         $outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
-        $templateEngine = $this->container->get('templating');
-
         // Compile everything
         $theme = $this->getConfiguration()->getTheme();
 
-        $compiler = $this->container->get('compiler');
-        $compiler->setTargetFolder($outputDirectory);
-        $compiler->setThemeName($theme);
-        $compiler->compileAll();
+        $this->compiler->setTargetFolder($outputDirectory);
+        $this->compiler->setThemeName($theme);
+        $this->compiler->compileAll();
 
         if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE))
         {
-            if (!$templateEngine->hasProfiler())
+            if (!$this->templateBridge->hasProfiler())
             {
-                $logger->writeln('This template engine currently does not support a profiler.');
+                $this->logger->writeln('This template engine currently does not support a profiler.');
             }
             else
             {
-                $profilerText = $templateEngine->getProfilerOutput($compiler);
-                $logger->writeln($profilerText);
+                $profilerText = $this->templateBridge->getProfilerOutput($this->compiler);
+                $this->logger->writeln($profilerText);
             }
         }
 
@@ -75,16 +90,14 @@ class Website implements ContainerAwareInterface
             $this->getConfiguration()->getExcludes()
         );
 
-        $eventDispatcher = $this->container->get('event_dispatcher');
-
         //
         // Theme Management
         //
         if ($theme !== null)
         {
-            $logger->notice("Looking for '${theme}' theme...");
+            $this->logger->notice("Looking for '${theme}' theme...");
 
-            $tm = new ThemeManager($theme, $eventDispatcher, $logger);
+            $tm = new ThemeManager($theme, $this->eventDispatcher, $this->logger);
             $tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
             $tm->setFolder($outputDirectory);
             $tm->copyFiles();
@@ -93,12 +106,11 @@ class Website implements ContainerAwareInterface
         //
         // Static file management
         //
-        $am = $this->container->get(AssetManager::class);
-        $am->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
-        $am->setFolder($outputDirectory);
-        $am->copyFiles();
+        $this->assetManager->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
+        $this->assetManager->setFolder($outputDirectory);
+        $this->assetManager->copyFiles();
 
-        $eventDispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
+        $this->eventDispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
     }
 
     /**
@@ -106,7 +118,7 @@ class Website implements ContainerAwareInterface
      */
     public function getConfiguration()
     {
-        return $this->container->get(Configuration::class);
+        return $this->configuration;
     }
 
     /**
@@ -142,8 +154,6 @@ class Website implements ContainerAwareInterface
             return;
         }
 
-        $logger = $this->container->get('logger');
-
         Service::setRuntimeFlag(RuntimeStatus::USING_HIGHLIGHTER);
 
         foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
@@ -152,14 +162,14 @@ class Website implements ContainerAwareInterface
 
             if (!fs::exists($fullPath))
             {
-                $logger->warning('The following language definition could not be found: {lang}', [
+                $this->logger->warning('The following language definition could not be found: {lang}', [
                     'lang' => $path,
                 ]);
                 continue;
             }
 
             Highlighter::registerLanguage($lang, $fullPath);
-            $logger->debug('Loading custom language {lang} from {path}...', [
+            $this->logger->debug('Loading custom language {lang} from {path}...', [
                 'lang' => $lang,
                 'path' => $path,
             ]);
