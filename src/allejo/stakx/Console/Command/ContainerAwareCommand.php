@@ -5,9 +5,9 @@
  * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Command;
+namespace allejo\stakx\Console\Command;
 
-use allejo\stakx\Application;
+use allejo\stakx\Console\Application;
 use Symfony\Component\Console\Command\Command;
 
 abstract class ContainerAwareCommand extends Command

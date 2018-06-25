@@ -5,8 +5,10 @@
  * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx;
+namespace allejo\stakx\Console;
 
+use allejo\stakx\Configuration;
+use allejo\stakx\Console\Command\BuildCommand;
 use allejo\stakx\DataTransformer\DataTransformer;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\MarkupEngine\MarkupEngine;
@@ -57,6 +59,18 @@ class Application extends BaseApplication
         }
 
         return parent::run($input, $output);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDefaultCommands()
+    {
+        $commands = parent::getDefaultCommands();
+
+        $commands[] = new BuildCommand();
+
+        return $commands;
     }
 
     ///
@@ -170,7 +184,7 @@ class Application extends BaseApplication
             $container->setParameter($key, $value);
         }
 
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/app/'));
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../app/'));
         $loader->load('services.yml');
 
         $container

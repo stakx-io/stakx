@@ -5,7 +5,7 @@
  * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\Command;
+namespace allejo\stakx\Console\Command;
 
 use allejo\stakx\Configuration;
 use allejo\stakx\Exception\FileAwareException;
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class BuildCommand extends ContainerAwareCommand implements CommandInterface
+class BuildCommand extends ContainerAwareCommand
 {
     const NO_CONF = 'no-conf';
     const NO_CLEAN = 'no-clean';
