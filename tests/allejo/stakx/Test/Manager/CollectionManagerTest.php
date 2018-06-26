@@ -42,7 +42,13 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
             ])
         ;
 
-        $this->cm = new CollectionManager($this->getMockMarkupEngineManager(), $conf, $this->getMockEventDistpatcher(), $this->getMockLogger());
+        $this->cm = new CollectionManager(
+            $this->getMockMarkupEngineManager(),
+            $conf,
+            $this->getMockTemplateBridge(),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
         $this->cm->compileManager();
     }
 
@@ -58,7 +64,13 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
         /** @var Configuration $conf */
         $conf = $this->getMock(Configuration::class);
 
-        $cm = new CollectionManager($this->getMockMarkupEngineManager(), $conf, $this->getMockEventDistpatcher(), $this->getMockLogger());
+        $cm = new CollectionManager(
+            $this->getMockMarkupEngineManager(),
+            $conf,
+            $this->getMockTemplateBridge(),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
         $cm->parseCollections([]);
 
         $this->assertEmpty($cm->getCollections());
@@ -120,7 +132,13 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
 
         /** @var Configuration $conf */
         $conf = $this->getMock(Configuration::class);
-        $cm = new CollectionManager($this->getMockMarkupEngineManager(), $conf, $this->getMockEventDistpatcher(), $this->getMockLogger());
+        $cm = new CollectionManager(
+            $this->getMockMarkupEngineManager(),
+            $conf,
+            $this->getMockTemplateBridge(),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
 
         $cm->parseCollections($collections);
         $this->assertCount(2, $cm->getCollections()['Sci-Fi']);

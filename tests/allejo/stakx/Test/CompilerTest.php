@@ -279,12 +279,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
 
         $twigBridge = TwigStakxBridgeFactory::createTwigEnvironment(
             $this->getMockConfiguration(),
-            $this->getMockCollectionManager(),
-            $this->getMockDataManager(),
-            $pageManager,
-            $this->getMockMenuManager(),
             $this->getMockTwigExtension(),
-            $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
 
@@ -293,6 +288,9 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         $compiler = new Compiler(
             $twigBridge,
             $this->getMockConfiguration(),
+            $this->getMockCollectionManager(),
+            $this->getMockDataManager(),
+            $this->getMockMenuManager(),
             $pageManager,
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()

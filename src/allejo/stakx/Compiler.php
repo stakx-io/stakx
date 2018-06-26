@@ -19,6 +19,9 @@ use allejo\stakx\Event\CompileProcessTemplateCreation;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\FrontMatter\ExpandedValue;
+use allejo\stakx\Manager\CollectionManager;
+use allejo\stakx\Manager\DataManager;
+use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use allejo\stakx\Templating\TemplateErrorInterface;
@@ -64,8 +67,16 @@ class Compiler
     private $eventDispatcher;
     private $configuration;
 
-    public function __construct(TemplateBridgeInterface $templateBridge, Configuration $configuration, PageManager $pageManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
-    {
+    public function __construct(
+        TemplateBridgeInterface $templateBridge,
+        Configuration $configuration,
+        CollectionManager $collectionManager,
+        DataManager $dataManager,
+        MenuManager $menuManager,
+        PageManager $pageManager,
+        EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger
+    ) {
         $this->templateBridge = $templateBridge;
         $this->theme = '';
         $this->pageManager = $pageManager;
@@ -75,6 +86,13 @@ class Compiler
 
         $this->pageViewsFlattened = &$pageManager->getPageViewsFlattened();
         $this->redirectTemplate = $this->configuration->getRedirectTemplate();
+
+        // Global variables maintained by stakx
+        $this->templateBridge->setGlobalVariable('site', $configuration->getConfiguration());
+        $this->templateBridge->setGlobalVariable('data', $dataManager->getJailedDataItems());
+        $this->templateBridge->setGlobalVariable('collections', $collectionManager->getJailedCollections());
+        $this->templateBridge->setGlobalVariable('menu', $menuManager->getSiteMenu());
+        $this->templateBridge->setGlobalVariable('pages', $pageManager->getJailedStaticPageViews());
     }
 
     /**
@@ -386,9 +404,9 @@ class Compiler
         $preEvent = new CompileProcessPreRenderPageView(BasePageView::DYNAMIC_TYPE);
         $this->eventDispatcher->dispatch(CompileProcessPreRenderPageView::NAME, $preEvent);
 
-        $content = array_merge($preEvent->getCustomVariables(), $defaultContext);
+        $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $template
-            ->render($content)
+            ->render($context)
         ;
 
         $postEvent = new CompileProcessPostRenderPageView(BasePageView::DYNAMIC_TYPE, $output);

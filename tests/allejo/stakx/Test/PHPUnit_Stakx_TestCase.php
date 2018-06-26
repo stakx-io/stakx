@@ -25,6 +25,8 @@ use allejo\stakx\MarkupEngine\RstEngine;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use allejo\stakx\Templating\Twig\TwigExtension;
+use allejo\stakx\Templating\Twig\TwigStakxBridge;
+use allejo\stakx\Templating\Twig\TwigStakxBridgeFactory;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
@@ -333,6 +335,18 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return TwigStakxBridge
+     */
+    protected function getMockTemplateBridge()
+    {
+        return TwigStakxBridgeFactory::createTwigEnvironment(
+            $this->getMockConfiguration(),
+            $this->getMockTwigExtension(),
+            $this->getMockLogger()
+        );
+    }
+
+    /**
      * @return MarkupEngineManager
      */
     protected function getMockMarkupEngineManager()
@@ -422,6 +436,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $cm = new CollectionManager(
             $this->getMockMarkupEngineManager(),
             $this->getMock(Configuration::class),
+            $this->getMockTemplateBridge(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );

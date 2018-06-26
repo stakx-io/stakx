@@ -24,12 +24,7 @@ class TwigStakxBridgeFactory
 {
     public static function createTwigEnvironment(
         Configuration $configuration,
-        CollectionManager $collectionManager,
-        DataManager $dataManager,
-        PageManager $pageManager,
-        MenuManager $menuManager,
         TwigExtension $twigExtension,
-        EventDispatcherInterface $eventDispatcher,
         LoggerInterface $logger
     ) {
         $loader = new TwigFileLoader([
@@ -62,13 +57,6 @@ class TwigStakxBridgeFactory
 
         // We'll use this to access the current file in our Twig filters
         $twig->addGlobal('__currentTemplate', '');
-
-        // Global variables maintained by stakx
-        $twig->addGlobal('site', $configuration->getConfiguration());
-        $twig->addGlobal('data', $dataManager->getJailedDataItems());
-        $twig->addGlobal('collections', $collectionManager->getJailedCollections());
-        $twig->addGlobal('menu', $menuManager->getSiteMenu());
-        $twig->addGlobal('pages', $pageManager->getJailedStaticPageViews());
 
         $twig->addExtension($twigExtension);
 
