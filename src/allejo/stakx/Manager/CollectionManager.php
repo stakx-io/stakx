@@ -102,7 +102,9 @@ class CollectionManager extends TrackingManager
      */
     public function getJailedCollections()
     {
-        return self::getJailedTrackedItems($this->trackedItemsFlattened);
+        return self::getJailedTrackedItems($this->trackedItemsFlattened, function ($contentItem) {
+            return $contentItem['basename'];
+        });
     }
 
     /**
