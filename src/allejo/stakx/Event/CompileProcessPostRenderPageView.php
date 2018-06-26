@@ -2,7 +2,7 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
 namespace allejo\stakx\Event;
@@ -53,6 +53,7 @@ class CompileProcessPostRenderPageView extends Event
         if (StrUtils::canBeCastedToString($compiledOutput))
         {
             @trigger_error('CompileProcessPostRenderPageView :: Value cannot be set to something that cannot be cast into a string.', E_USER_WARNING);
+
             return;
         }
 

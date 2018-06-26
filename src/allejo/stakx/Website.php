@@ -7,140 +7,79 @@
 
 namespace allejo\stakx;
 
-use allejo\stakx\Command\BuildableCommand;
-use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Event\BuildProcessComplete;
-use allejo\stakx\Exception\FileAwareException;
-use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Manager\AssetManager;
-use allejo\stakx\Manager\CollectionManager;
-use allejo\stakx\Manager\DataManager;
-use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Manager\ThemeManager;
-use allejo\stakx\Manager\TwigManager;
+use allejo\stakx\Templating\TemplateBridgeInterface;
 use Highlight\Highlighter;
-use Kwf\FileWatcher\Event\AbstractEvent;
-use Kwf\FileWatcher\Event\Create;
-use Kwf\FileWatcher\Event\Modify;
-use Kwf\FileWatcher\Event\Move;
-use Kwf\FileWatcher\Watcher;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Website
 {
-    /**
-     * The location of where the compiled website will be written to.
-     *
-     * @var Folder
-     */
-    private $outputDirectory;
-
-    /**
-     * When set to true, the Stakx website will be built without a configuration file.
-     *
-     * @var bool
-     */
-    private $confLess;
-
-    /**
-     * @var StakxLogger
-     */
-    private $output;
-
-    /**
-     * @var AssetManager
-     */
-    private $am;
-
-    /**
-     * @var CollectionManager
-     */
-    private $cm;
-
-    /**
-     * @var DataManager
-     */
-    private $dm;
-
-    /**
-     * @var PageManager
-     */
-    private $pm;
-
-    /**
-     * @var ThemeManager
-     */
-    private $tm;
-
-    /** @var Compiler */
+    private $configuration;
+    private $logger;
+    private $templateBridge;
     private $compiler;
+    private $assetManager;
+    private $eventDispatcher;
 
-    /** @var array */
-    private $creationQueue;
-
-    private $container;
-
-    /**
-     * Constructor.
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-
-        $this->creationQueue = [];
-        $this->output = $container->get('logger');
+    public function __construct(
+        Compiler $compiler,
+        Configuration $configuration,
+        AssetManager $assetManager,
+        TemplateBridgeInterface $templateBridge,
+        EventDispatcherInterface $eventDispatcher,
+        Logger $logger
+    ) {
+        $this->configuration = $configuration;
+        $this->logger = $logger;
+        $this->templateBridge = $templateBridge;
+        $this->compiler = $compiler;
+        $this->assetManager = $assetManager;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
      * Compile the website.
      *
-     * @param bool $tracking Whether or not to keep track of files as they're compiled to save time in 'watch'
+     * @return true if the website built successfully
      */
-    public function build($tracking = false)
+    public function build()
     {
-        $logger = $this->container->get('logger');
-        $conf = $this->container->get(Configuration::class);
-
-        if (empty($conf->getPageViewFolders()))
+        if (empty($this->getConfiguration()->getPageViewFolders()))
         {
-            $logger->error('No PageViews were configured for this site. Check the `pageviews` key in your _config.yml.');
+            $this->logger->error('No PageViews were configured for this site. Check the `pageviews` key in your _config.yml.');
 
             return false;
         }
-
-        Service::setParameter(BuildableCommand::WATCHING, $tracking);
 
         // Configure the environment
         $this->createFolderStructure();
         $this->configureHighlighter();
 
         // Our output directory
-        $this->outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
-        $this->outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
-
-        $templateEngine = $this->container->get('templating');
+        $outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
+        $outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
         // Compile everything
         $theme = $this->getConfiguration()->getTheme();
 
-        $this->compiler = $this->container->get('compiler');
-        $this->compiler->setTargetFolder($this->outputDirectory);
+        $this->compiler->setTargetFolder($outputDirectory);
         $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
 
-        if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
+        if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE))
         {
-            if (!$templateEngine->hasProfiler())
+            if (!$this->templateBridge->hasProfiler())
             {
-                $logger->writeln('This template engine currently does not support a profiler.');
+                $this->logger->writeln('This template engine currently does not support a profiler.');
             }
             else
             {
-                $profilerText = $templateEngine->getProfilerOutput($this->compiler);
-                $logger->writeln($profilerText);
+                $profilerText = $this->templateBridge->getProfilerOutput($this->compiler);
+                $this->logger->writeln($profilerText);
             }
         }
 
@@ -154,97 +93,24 @@ class Website
         //
         // Theme Management
         //
-        if (!is_null($theme))
+        if ($theme !== null)
         {
-            $logger->notice("Looking for '${theme}' theme...");
+            $this->logger->notice("Looking for '${theme}' theme...");
 
-            $this->tm = new ThemeManager($theme, $this->container->get('event_dispatcher'), $this->container->get('logger'));
-            $this->tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
-            $this->tm->setFolder($this->outputDirectory);
-            $this->tm->copyFiles();
+            $tm = new ThemeManager($theme, $this->eventDispatcher, $this->logger);
+            $tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
+            $tm->setFolder($outputDirectory);
+            $tm->copyFiles();
         }
 
         //
         // Static file management
         //
-        $this->am = $this->container->get(AssetManager::class);
-        $this->am->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
-        $this->am->setFolder($this->outputDirectory);
-        $this->am->copyFiles();
+        $this->assetManager->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
+        $this->assetManager->setFolder($outputDirectory);
+        $this->assetManager->copyFiles();
 
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->container->get('event_dispatcher');
-        $dispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
-    }
-
-    public function watch()
-    {
-        $this->output->writeln('Building website...');
-        $this->build(true);
-        $this->output->writeln(sprintf('Watching %s', getcwd()));
-
-        $exclusions = array_merge($this->getConfiguration()->getExcludes(), [
-            $this->getConfiguration()->getTargetFolder(),
-        ]);
-        $fileExplorer = FileExplorer::create(
-            getcwd(), $exclusions, $this->getConfiguration()->getIncludes()
-        );
-
-        $newWatcher = Watcher::create(getcwd());
-        $newWatcher
-            ->setLogger($this->output)
-            ->setEventDispatcher($this->container->get('event_dispatcher'))
-            ->setExcludePatterns(array_merge(
-                $exclusions, FileExplorer::$vcsPatterns, [Configuration::CACHE_FOLDER]
-            ))
-            ->setIterator($fileExplorer->getExplorer())
-//            ->addListener(Create::NAME, function ($e) { $this->watchListenerFunction($e); })
-//            ->addListener(Modify::NAME, function ($e) { $this->watchListenerFunction($e); })
-//            ->addListener(Move::NAME,   function ($e) { $this->watchListenerFunction($e); })
-        ;
-
-        $this->output->writeln('Watch started successfully');
-
-        $newWatcher->start();
-    }
-
-    private function watchListenerFunction(AbstractEvent $event)
-    {
-        $filePath = fs::getRelativePath($event->filename);
-
-        try
-        {
-            switch ($event::getEventName())
-            {
-                case Create::NAME:
-                    $this->creationWatcher($filePath);
-                    break;
-
-                case Modify::NAME:
-                    $this->modificationWatcher($filePath);
-                    break;
-
-                case Move::NAME:
-                    $newFile = fs::getRelativePath($event->destFilename);
-
-                    $this->deletionWatcher($filePath);
-                    $this->creationWatcher($newFile);
-                    break;
-            }
-        }
-        catch (FileAwareException $e)
-        {
-            $this->output->writeln(sprintf("Your website failed to build with the following error in file '%s': %s",
-                $e->getPath(),
-                $e->getMessage()
-            ));
-        }
-        catch (\Exception $e)
-        {
-            $this->output->writeln(sprintf('Your website failed to build with the following error: %s',
-                $e->getMessage()
-            ));
-        }
+        $this->eventDispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
     }
 
     /**
@@ -252,160 +118,7 @@ class Website
      */
     public function getConfiguration()
     {
-        return $this->container->get(Configuration::class);
-    }
-
-    /**
-     * Get whether or not the website is being built in Configuration-less mode.
-     *
-     * @return bool True when being built with no configuration file
-     */
-    public function isConfLess()
-    {
-        return $this->confLess;
-    }
-
-    /**
-     * Set whether or not the website should be built with a configuration.
-     *
-     * @param bool $status True when a website should be built without a configuration
-     */
-    public function setConfLess($status)
-    {
-        $this->confLess = $status;
-    }
-
-    /**
-     * @param string $filePath
-     * @param mixed  $newlyCreate
-     */
-    private function creationWatcher($filePath, $newlyCreate = true)
-    {
-        if ($newlyCreate)
-        {
-            $this->output->writeln(sprintf('File creation detected: %s', $filePath));
-        }
-
-        if ($this->pm->shouldBeTracked($filePath))
-        {
-            try
-            {
-                $pageView = $this->pm->createNewItem($filePath);
-
-                $this->compiler->compilePageView($pageView);
-
-                unset($this->creationQueue[$filePath]);
-            }
-            catch (\Exception $e)
-            {
-                $this->creationQueue[$filePath] = true;
-            }
-        }
-        elseif ($this->cm->shouldBeTracked($filePath))
-        {
-            try
-            {
-                $contentItem = $this->cm->createNewItem($filePath);
-                TwigManager::getInstance()->addGlobal('collections', $this->cm->getCollections());
-
-                $this->pm->trackNewContentItem($contentItem);
-                $this->compiler->compileContentItem($contentItem);
-                $this->compiler->compileSome([
-                    'namespace' => 'collections',
-                    'dependency' => $contentItem->getNamespace(),
-                ]);
-
-                unset($this->creationQueue[$filePath]);
-            }
-            catch (\Exception $e)
-            {
-                $this->creationQueue[$filePath] = true;
-            }
-        }
-        elseif ($this->dm->shouldBeTracked($filePath))
-        {
-            $change = $this->dm->createNewItem($filePath);
-            TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
-
-            $this->compiler->compileSome([
-                'namespace' => 'data',
-                'dependency' => $change,
-            ]);
-        }
-        elseif (!is_null($this->tm) && $this->tm->shouldBeTracked($filePath))
-        {
-            $this->tm->createNewItem($filePath);
-        }
-        elseif ($this->am->shouldBeTracked($filePath))
-        {
-            $this->am->createNewItem($filePath);
-        }
-    }
-
-    /**
-     * @param string $filePath
-     */
-    private function modificationWatcher($filePath)
-    {
-        $this->container->get('logger')->writeln(sprintf('File change detected: %s', $filePath));
-
-        if (isset($this->creationQueue[$filePath]))
-        {
-            $this->creationWatcher($filePath, false);
-        }
-        elseif ($this->compiler->isParentTemplate($filePath))
-        {
-            TwigManager::getInstance()->clearTemplateCache();
-            $this->compiler->refreshParent($filePath);
-        }
-        elseif ($this->compiler->isImportDependency($filePath))
-        {
-            TwigManager::getInstance()->clearTemplateCache();
-            $this->compiler->compileImportDependencies($filePath);
-        }
-        elseif ($this->pm->isTracked($filePath))
-        {
-            $change = $this->pm->refreshItem($filePath);
-
-            TwigManager::getInstance()->clearTemplateCache();
-            $this->compiler->compilePageView($change);
-        }
-        elseif ($this->cm->isTracked($filePath))
-        {
-            $contentItem = &$this->cm->getContentItem($filePath);
-            $contentItem->readContent();
-
-            $this->compiler->compileContentItem($contentItem);
-            $this->compiler->compileSome([
-                'namespace' => 'collections',
-                'dependency' => $contentItem->getNamespace(),
-            ]);
-        }
-        elseif ($this->dm->isTracked($filePath))
-        {
-            $change = $this->dm->refreshItem($filePath);
-            TwigManager::getInstance()->addGlobal('data', $this->dm->getDataItems());
-
-            $this->compiler->compileSome([
-                'namespace' => 'data',
-                'dependency' => $change,
-            ]);
-        }
-        elseif (!is_null($this->tm) && $this->tm->isTracked($filePath))
-        {
-            $this->tm->refreshItem($filePath);
-        }
-        elseif ($this->am->isTracked($filePath))
-        {
-            $this->am->refreshItem($filePath);
-        }
-    }
-
-    /**
-     * @param string $filePath
-     */
-    private function deletionWatcher($filePath)
-    {
+        return $this->configuration;
     }
 
     /**
@@ -415,12 +128,12 @@ class Website
     {
         $targetDir = fs::absolutePath($this->getConfiguration()->getTargetFolder());
 
-        if (!Service::getParameter(BuildableCommand::NO_CLEAN))
+        if (!Service::hasRunTimeFlag(RuntimeStatus::BOOT_WITHOUT_CLEAN))
         {
             fs::remove($targetDir);
         }
 
-        if (!Service::getParameter(BuildableCommand::USE_CACHE))
+        if (!Service::hasRunTimeFlag(RuntimeStatus::USING_CACHE))
         {
             fs::remove(fs::absolutePath(Configuration::CACHE_FOLDER, 'twig'));
             fs::mkdir(fs::absolutePath(fs::appendPath(Configuration::CACHE_FOLDER, 'twig')));
@@ -434,12 +147,14 @@ class Website
      */
     private function configureHighlighter()
     {
-        $enabled = Service::setParameter(Configuration::HIGHLIGHTER_ENABLED, $this->getConfiguration()->isHighlighterEnabled());
+        $enabled = $this->getConfiguration()->isHighlighterEnabled();
 
         if (!$enabled)
         {
             return;
         }
+
+        Service::setRuntimeFlag(RuntimeStatus::USING_HIGHLIGHTER);
 
         foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
         {
@@ -447,14 +162,14 @@ class Website
 
             if (!fs::exists($fullPath))
             {
-                $this->output->warning('The following language definition could not be found: {lang}', [
+                $this->logger->warning('The following language definition could not be found: {lang}', [
                     'lang' => $path,
                 ]);
                 continue;
             }
 
             Highlighter::registerLanguage($lang, $fullPath);
-            $this->output->debug('Loading custom language {lang} from {path}...', [
+            $this->logger->debug('Loading custom language {lang} from {path}...', [
                 'lang' => $lang,
                 'path' => $path,
             ]);

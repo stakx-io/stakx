@@ -7,17 +7,17 @@
 
 namespace allejo\stakx\Test\Manager;
 
-use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\CollectionManager;
+use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
 
-class CollectionManagerTests extends PHPUnit_Stakx_TestCase
+class CollectionManagerTest extends PHPUnit_Stakx_TestCase
 {
     /** @var CollectionManager */
     private $cm;
@@ -31,7 +31,7 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
         $conf
             ->method('hasCollections')
             ->willReturn(true)
-            ;
+        ;
         $conf
             ->method('getCollectionsFolders')
             ->willReturn([
@@ -42,7 +42,13 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
             ])
         ;
 
-        $this->cm = new CollectionManager($this->getMockMarkupEngineManager(), $conf, $this->getMockEventDistpatcher(), $this->getMockLogger());
+        $this->cm = new CollectionManager(
+            $this->getMockMarkupEngineManager(),
+            $conf,
+            $this->getMockTemplateBridge(),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
         $this->cm->compileManager();
     }
 
@@ -58,7 +64,13 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
         /** @var Configuration $conf */
         $conf = $this->getMock(Configuration::class);
 
-        $cm = new CollectionManager($this->getMockMarkupEngineManager(), $conf, $this->getMockEventDistpatcher(), $this->getMockLogger());
+        $cm = new CollectionManager(
+            $this->getMockMarkupEngineManager(),
+            $conf,
+            $this->getMockTemplateBridge(),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
         $cm->parseCollections([]);
 
         $this->assertEmpty($cm->getCollections());
@@ -91,7 +103,7 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
     {
         $withoutDrafts = count($this->cm->getJailedCollections()['My Books']);
 
-        Service::setParameter(BuildableCommand::USE_DRAFTS, true);
+        Service::setRuntimeFlag(RuntimeStatus::USING_DRAFTS);
 
         $withDrafts = count($this->cm->getJailedCollections()['My Books']);
 
@@ -120,7 +132,13 @@ class CollectionManagerTests extends PHPUnit_Stakx_TestCase
 
         /** @var Configuration $conf */
         $conf = $this->getMock(Configuration::class);
-        $cm = new CollectionManager($this->getMockMarkupEngineManager(), $conf, $this->getMockEventDistpatcher(), $this->getMockLogger());
+        $cm = new CollectionManager(
+            $this->getMockMarkupEngineManager(),
+            $conf,
+            $this->getMockTemplateBridge(),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
 
         $cm->parseCollections($collections);
         $this->assertCount(2, $cm->getCollections()['Sci-Fi']);

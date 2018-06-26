@@ -12,8 +12,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "allejo\\stakx\\": "src/allejo/stakx/",
-      "Gregwar\\RST\\": "src/Gregwar/RST/"
+      "allejo\\stakx\\": "src/allejo/stakx/"
     }
   },
   "autoload-dev": {

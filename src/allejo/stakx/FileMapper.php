@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx;
 
 use allejo\stakx\Document\ContentItem;
@@ -82,7 +87,7 @@ class FileMapper
                 return self::REPEATER_PAGEVIEW;
         }
 
-        if ($file->getExtension() === "twig")
+        if ($file->getExtension() === 'twig')
         {
             return self::TWIG_INCLUDE;
         }

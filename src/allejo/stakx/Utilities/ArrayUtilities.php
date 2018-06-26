@@ -10,25 +10,6 @@ namespace allejo\stakx\Utilities;
 abstract class ArrayUtilities
 {
     /**
-     * Safely get a value from an array even if the key doesn't exist.
-     *
-     * @param array  $array   The array we're searching
-     * @param string $key     The key we'll be fetching
-     * @param mixed  $default The value returned when the key is not found
-     *
-     * @return mixed|null
-     */
-    public static function array_safe_get(array $array, $key, $default = null)
-    {
-        if (isset($array[$key]))
-        {
-            return $array[$key];
-        }
-
-        return $default;
-    }
-
-    /**
      * @param array $array
      *
      * @return bool

@@ -42,7 +42,13 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
      */
     private function getCollectionManager()
     {
-        $cm = new CollectionManager($this->getMockMarkupEngineManager(), $this->getMockConfiguration(), $this->getMockEventDistpatcher(), $this->getMockLogger());
+        $cm = new CollectionManager(
+            $this->getMockMarkupEngineManager(),
+            $this->getMockConfiguration(),
+            $this->getMockTemplateBridge(),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
         $cm->parseCollections([
             [
                 'name' => 'books',

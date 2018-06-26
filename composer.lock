@@ -145,12 +145,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/maciejczyzewski/bottomline.git",
-                "reference": "87c42c030944a2aa04b8e02794fe5d600a0346b9"
+                "reference": "4ca0cd7cc6dec76b9f6fd011dd2e63ebc462719e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maciejczyzewski/bottomline/zipball/87c42c030944a2aa04b8e02794fe5d600a0346b9",
-                "reference": "87c42c030944a2aa04b8e02794fe5d600a0346b9",
+                "url": "https://api.github.com/repos/maciejczyzewski/bottomline/zipball/4ca0cd7cc6dec76b9f6fd011dd2e63ebc462719e",
+                "reference": "4ca0cd7cc6dec76b9f6fd011dd2e63ebc462719e",
                 "shasum": ""
             },
             "require": {
@@ -158,6 +158,11 @@
                 "php": ">=5.4.0"
             },
             "require-dev": {
+                "doctrine/instantiator": "~1.0.5",
+                "erusev/parsedown": "^1.7",
+                "friendsofphp/php-cs-fixer": "^2.11",
+                "nikic/php-parser": "^2.0||^3.0",
+                "phpdocumentor/reflection-docblock": "^2.0||^3.1",
                 "phpunit/phpunit": "^4.8"
             },
             "type": "library",
@@ -187,7 +192,7 @@
                 "library",
                 "utility"
             ],
-            "time": "2018-05-22 03:36:35"
+            "time": "2018-05-30 23:29:57"
         },
         {
             "name": "mikey179/vfsStream",

@@ -7,13 +7,13 @@
 
 namespace allejo\stakx\Templating\Twig;
 
-use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Configuration;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
+use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -24,12 +24,7 @@ class TwigStakxBridgeFactory
 {
     public static function createTwigEnvironment(
         Configuration $configuration,
-        CollectionManager $collectionManager,
-        DataManager $dataManager,
-        PageManager $pageManager,
-        MenuManager $menuManager,
         TwigExtension $twigExtension,
-        EventDispatcherInterface $eventDispatcher,
         LoggerInterface $logger
     ) {
         $loader = new TwigFileLoader([
@@ -63,18 +58,11 @@ class TwigStakxBridgeFactory
         // We'll use this to access the current file in our Twig filters
         $twig->addGlobal('__currentTemplate', '');
 
-        // Global variables maintained by stakx
-        $twig->addGlobal('site', $configuration->getConfiguration());
-        $twig->addGlobal('data', $dataManager->getJailedDataItems());
-        $twig->addGlobal('collections', $collectionManager->getJailedCollections());
-        $twig->addGlobal('menu', $menuManager->getSiteMenu());
-        $twig->addGlobal('pages', $pageManager->getJailedStaticPageViews());
-
         $twig->addExtension($twigExtension);
 
         $profiler = null;
 
-        if (Service::getParameter(BuildableCommand::BUILD_PROFILE))
+        if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE))
         {
             $profiler = new \Twig_Profiler_Profile();
             $twig->addExtension(new \Twig_Extension_Profiler($profiler));

@@ -7,14 +7,13 @@
 
 namespace allejo\stakx\Test;
 
-use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Configuration;
-use allejo\stakx\Core\StakxLogger;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Logger;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
@@ -23,8 +22,11 @@ use allejo\stakx\MarkupEngine\MarkdownEngine;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\MarkupEngine\PlainTextEngine;
 use allejo\stakx\MarkupEngine\RstEngine;
+use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use allejo\stakx\Templating\Twig\TwigExtension;
+use allejo\stakx\Templating\Twig\TwigStakxBridge;
+use allejo\stakx\Templating\Twig\TwigStakxBridgeFactory;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
@@ -49,13 +51,10 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $this->dummyFile = vfsStream::newFile('stakx.html.twig');
         $this->rootDir = vfsStream::setup();
 
+        Service::resetRuntimeFlags();
+
         Service::setWorkingDirectory(null);
-        Service::setParameter(BuildableCommand::USE_DRAFTS, false);
-        Service::setParameter(BuildableCommand::WATCHING, false);
-        Service::setParameter(BuildableCommand::SAFE_MODE, false);
-        Service::setParameter(BuildableCommand::BUILD_PROFILE, false);
-        Service::setParameter(Configuration::HIGHLIGHTER_ENABLED, true);
-        Service::setParameter('build.preserveCase', false);
+        Service::setRuntimeFlag(RuntimeStatus::USING_HIGHLIGHTER);
 
         // Inspect the VFS as an array
         // vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure();
@@ -336,6 +335,18 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return TwigStakxBridge
+     */
+    protected function getMockTemplateBridge()
+    {
+        return TwigStakxBridgeFactory::createTwigEnvironment(
+            $this->getMockConfiguration(),
+            $this->getMockTwigExtension(),
+            $this->getMockLogger()
+        );
+    }
+
+    /**
      * @return MarkupEngineManager
      */
     protected function getMockMarkupEngineManager()
@@ -376,12 +387,12 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     /**
      * Get a real logger instance that will save output to the console.
      *
-     * @return StakxLogger
+     * @return Logger
      */
     protected function getReadableLogger()
     {
         stream_filter_register('intercept', StreamInterceptor::class);
-        $stakxLogger = new StakxLogger(new ConsoleOutput());
+        $stakxLogger = new Logger(new ConsoleOutput());
         stream_filter_append($stakxLogger->getOutputInterface()->getStream(), 'intercept');
 
         return $stakxLogger;
@@ -425,6 +436,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $cm = new CollectionManager(
             $this->getMockMarkupEngineManager(),
             $this->getMock(Configuration::class),
+            $this->getMockTemplateBridge(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );

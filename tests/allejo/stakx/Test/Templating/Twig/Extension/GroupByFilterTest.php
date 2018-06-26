@@ -47,6 +47,7 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
 
         $this->assertEquals($expected, $grouped);
     }
+
     public function testGroupByFilterDotNotation()
     {
         $original = [

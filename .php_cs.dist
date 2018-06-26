@@ -1,11 +1,11 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
+    ->in('bin')
     ->in('src')
     ->in('tests')
     ->notName('CodeNode.php')
-    ->notName('StakxLogger.php')
-    ->notName('TextExtension.php')
+    ->notName('Logger.php')
 ;
 
 return PhpCsFixer\Config::create()

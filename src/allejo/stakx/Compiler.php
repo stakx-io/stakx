@@ -7,9 +7,7 @@
 
 namespace allejo\stakx;
 
-use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\Document\BasePageView;
-use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Document\RepeaterPageView;
@@ -19,18 +17,17 @@ use allejo\stakx\Event\CompileProcessPostRenderPageView;
 use allejo\stakx\Event\CompileProcessPreRenderPageView;
 use allejo\stakx\Event\CompileProcessTemplateCreation;
 use allejo\stakx\Exception\FileAwareException;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\FrontMatter\ExpandedValue;
+use allejo\stakx\Manager\CollectionManager;
+use allejo\stakx\Manager\DataManager;
+use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
-use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use allejo\stakx\Templating\TemplateErrorInterface;
 use allejo\stakx\Templating\TemplateInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
  * This class takes care of rendering the Twig body of PageViews with the respective information and it also takes care
@@ -44,21 +41,6 @@ class Compiler
 {
     /** @var string|false */
     private $redirectTemplate;
-
-    /** @var BasePageView[][] */
-    private $importDependencies;
-
-    /**
-     * Any time a PageView extends another template, that relationship is stored in this array. This is necessary so
-     * when watching a website, we can rebuild the necessary PageViews when these base templates change.
-     *
-     * ```
-     * array['_layouts/base.html.twig'] = &PageView;
-     * ```
-     *
-     * @var TemplateInterface[]
-     */
-    private $templateDependencies;
 
     /**
      * All of the PageViews handled by this Compiler instance indexed by their file paths relative to the site root.
@@ -85,8 +67,16 @@ class Compiler
     private $eventDispatcher;
     private $configuration;
 
-    public function __construct(TemplateBridgeInterface $templateBridge, Configuration $configuration, PageManager $pageManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
-    {
+    public function __construct(
+        TemplateBridgeInterface $templateBridge,
+        Configuration $configuration,
+        CollectionManager $collectionManager,
+        DataManager $dataManager,
+        MenuManager $menuManager,
+        PageManager $pageManager,
+        EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger
+    ) {
         $this->templateBridge = $templateBridge;
         $this->theme = '';
         $this->pageManager = $pageManager;
@@ -96,6 +86,13 @@ class Compiler
 
         $this->pageViewsFlattened = &$pageManager->getPageViewsFlattened();
         $this->redirectTemplate = $this->configuration->getRedirectTemplate();
+
+        // Global variables maintained by stakx
+        $this->templateBridge->setGlobalVariable('site', $configuration->getConfiguration());
+        $this->templateBridge->setGlobalVariable('data', $dataManager->getJailedDataItems());
+        $this->templateBridge->setGlobalVariable('collections', $collectionManager->getJailedCollections());
+        $this->templateBridge->setGlobalVariable('menu', $menuManager->getSiteMenu());
+        $this->templateBridge->setGlobalVariable('pages', $pageManager->getJailedStaticPageViews());
     }
 
     /**
@@ -118,36 +115,6 @@ class Compiler
     // Twig parent templates
     ///
 
-    public function isImportDependency($filePath)
-    {
-        return isset($this->importDependencies[$filePath]);
-    }
-
-    /**
-     * Check whether a given file path is used as a parent template by a PageView.
-     *
-     * @param string $filePath
-     *
-     * @return bool
-     */
-    public function isParentTemplate($filePath)
-    {
-        return isset($this->templateDependencies[$filePath]);
-    }
-
-    /**
-     * Rebuild all of the PageViews that used a given template as a parent.
-     *
-     * @param string $filePath The file path to the parent Twig template
-     */
-    public function refreshParent($filePath)
-    {
-        foreach ($this->templateDependencies[$filePath] as &$parentTemplate)
-        {
-            $this->compilePageView($parentTemplate);
-        }
-    }
-
     public function getTemplateMappings()
     {
         return $this->templateMapping;
@@ -167,29 +134,6 @@ class Compiler
         foreach ($this->pageViewsFlattened as &$pageView)
         {
             $this->compilePageView($pageView);
-        }
-    }
-
-    public function compileImportDependencies($filePath)
-    {
-        foreach ($this->importDependencies[$filePath] as &$dependent)
-        {
-            $this->compilePageView($dependent);
-        }
-    }
-
-    public function compileSome(array $filter = [])
-    {
-        /** @var BasePageView $pageView */
-        foreach ($this->pageViewsFlattened as &$pageView)
-        {
-            $ns = $filter['namespace'];
-
-            if ($pageView->hasDependencyOnCollection($ns, $filter['dependency']) ||
-                $pageView->hasDependencyOnCollection($ns, null)
-            ) {
-                $this->compilePageView($pageView);
-            }
         }
     }
 
@@ -277,7 +221,7 @@ class Compiler
 
         foreach ($contentItems as &$contentItem)
         {
-            if ($contentItem->isDraft() && !Service::getParameter(BuildableCommand::USE_DRAFTS))
+            if ($contentItem->isDraft() && !Service::hasRunTimeFlag(RuntimeStatus::USING_DRAFTS))
             {
                 $this->logger->debug('{file}: marked as a draft', [
                     'file' => $contentItem->getRelativeFilePath(),
@@ -337,28 +281,6 @@ class Compiler
             'type' => $fileType,
             'file' => $targetFile,
         ]);
-        $this->folder->writeFile($targetFile, $output);
-    }
-
-    /**
-     * @deprecated
-     *
-     * @todo This function needs to be rewritten or removed. Something
-     *
-     * @param ContentItem $contentItem
-     */
-    public function compileContentItem(ContentItem &$contentItem)
-    {
-        $pageView = &$contentItem->getPageView();
-        $template = $this->createTwigTemplate($pageView);
-
-        $this->templateBridge->setGlobalVariable('__currentTemplate', $pageView->getAbsoluteFilePath());
-        $contentItem->evaluateFrontMatter($pageView->getFrontMatter(false));
-
-        $targetFile = $contentItem->getTargetFile();
-        $output = $this->renderDynamicPageView($template, $contentItem);
-
-        $this->logger->notice('Writing file: {file}', ['file' => $targetFile]);
         $this->folder->writeFile($targetFile, $output);
     }
 
@@ -482,9 +404,9 @@ class Compiler
         $preEvent = new CompileProcessPreRenderPageView(BasePageView::DYNAMIC_TYPE);
         $this->eventDispatcher->dispatch(CompileProcessPreRenderPageView::NAME, $preEvent);
 
-        $content = array_merge($preEvent->getCustomVariables(), $defaultContext);
+        $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $template
-            ->render($content)
+            ->render($context)
         ;
 
         $postEvent = new CompileProcessPostRenderPageView(BasePageView::DYNAMIC_TYPE, $output);

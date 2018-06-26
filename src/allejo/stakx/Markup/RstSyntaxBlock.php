@@ -8,6 +8,7 @@
 namespace allejo\stakx\Markup;
 
 use Gregwar\RST\Directives\CodeBlock;
+use Gregwar\RST\HTML\Nodes\CodeNode;
 use Gregwar\RST\Parser;
 use Highlight\Highlighter;
 
@@ -15,11 +16,22 @@ class RstSyntaxBlock extends CodeBlock
 {
     public function process(Parser $parser, $node, $variable, $data, array $options)
     {
+        /** @var CodeNode $node */
+
         parent::process($parser, $node, $variable, $data, $options);
 
-        $highlighter = new Highlighter();
-        $highlighted = $highlighter->highlight($node->getLanguage(), $node->getValue());
+        try
+        {
+            $highlighter = new Highlighter();
+            $highlighted = $highlighter->highlight($node->getLanguage(), $node->getValue());
 
-        $node->setValue($highlighted->value);
+            $nodeOutput = sprintf('<pre><code class="hljs language-%s">%s</code></pre>', $node->getLanguage(), $highlighted->value);
+
+            $node->setRaw(true);
+            $node->setValue($nodeOutput);
+        }
+        catch (\Exception $e)
+        {
+        }
     }
 }

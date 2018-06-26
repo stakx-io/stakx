@@ -4,8 +4,11 @@ services:
     autoconfigure: true
     public: true
 
+  allejo\stakx\Website:
+    class: 'allejo\stakx\Website'
+
   allejo\stakx\DataTransformer\:
-    resource: '../DataTransformer/*'
+    resource: '../../DataTransformer/*'
 
   allejo\stakx\DataTransformer\DataTransformerManager:
     calls:
@@ -13,7 +16,7 @@ services:
         arguments: [!tagged stakx.data_transformer]
 
   allejo\stakx\MarkupEngine\:
-    resource: '../MarkupEngine/*'
+    resource: '../../MarkupEngine/*'
 
   allejo\stakx\MarkupEngine\MarkupEngineManager:
     calls:
@@ -21,8 +24,7 @@ services:
         arguments: [!tagged stakx.markup_engine]
 
   allejo\stakx\Manager\:
-    resource: '../Manager/*'
-    exclude: '../Manager/{Twig}Manager'
+    resource: '../../Manager/*'
     calls:
       - { method: 'compileManager', arguments: [] }
 
@@ -35,12 +37,12 @@ services:
       - { method: 'setLogger', arguments: ['@logger'] }
 
   allejo\stakx\EventSubscriber\:
-    resource: '../EventSubscriber/*'
+    resource: '../../EventSubscriber/*'
     tags:
       - { name: 'kernel.event_subscriber' }
 
   allejo\stakx\Templating\Twig\Extension\:
-    resource: '../Templating/Twig/Extension/*'
+    resource: '../../Templating/Twig/Extension/*'
 
   allejo\stakx\Templating\Twig\TwigExtension:
     calls:
@@ -61,7 +63,7 @@ services:
     class: Symfony\Component\Console\Output\ConsoleOutput
 
   logger:
-    class: allejo\stakx\Core\StakxLogger
+    class: allejo\stakx\Logger
     arguments:
       - '@output'
 

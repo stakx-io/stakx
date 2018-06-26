@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig;
 
-use allejo\stakx\Command\BuildableCommand;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
+use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use allejo\stakx\Templating\Twig\Extension\AbstractTwigExtension;
 use allejo\stakx\Templating\Twig\Extension\TwigFilterInterface;
@@ -48,7 +48,7 @@ class TwigExtension extends \Twig_Extension
         /** @var AbstractTwigExtension|TwigFilterInterface $filter */
         foreach ($filters as $filter)
         {
-            if (Service::getParameter(BuildableCommand::SAFE_MODE) && $filter::disableInSafeMode())
+            if (Service::hasRunTimeFlag(RuntimeStatus::IN_SAFE_MODE) && $filter::disableInSafeMode())
             {
                 continue;
             }
@@ -62,7 +62,7 @@ class TwigExtension extends \Twig_Extension
         /** @var AbstractTwigExtension|TwigFunctionInterface $fxn */
         foreach ($functions as $fxn)
         {
-            if (Service::getParameter(BuildableCommand::SAFE_MODE) && $fxn::disableInSafeMode())
+            if (Service::hasRunTimeFlag(RuntimeStatus::IN_SAFE_MODE) && $fxn::disableInSafeMode())
             {
                 continue;
             }

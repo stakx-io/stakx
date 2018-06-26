@@ -8,6 +8,7 @@
 namespace allejo\stakx\Document;
 
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 
 trait PermalinkDocumentTrait
@@ -132,7 +133,7 @@ trait PermalinkDocumentTrait
         $permalink = preg_replace('/^[^0-9a-zA-Z-_]*/', '', $permalink);
 
         // Convert permalinks to lower case
-        if (!Service::getParameter('build.preserveCase'))
+        if (!Service::hasRunTimeFlag(RuntimeStatus::COMPILER_PRESERVE_CASE))
         {
             $permalink = mb_strtolower($permalink, 'UTF-8');
         }
