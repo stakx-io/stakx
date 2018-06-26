@@ -130,3 +130,4 @@ _site
 .travis/phar-deploy.pem
 .php_cs.cache
 .php-version
+src/allejo/stakx/Console/Container.php

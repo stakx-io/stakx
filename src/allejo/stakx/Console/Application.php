@@ -7,23 +7,12 @@
 
 namespace allejo\stakx\Console;
 
-use allejo\stakx\Configuration;
 use allejo\stakx\Console\Command\BuildCommand;
-use allejo\stakx\DataTransformer\DataTransformer;
-use allejo\stakx\Filesystem\FilesystemPath;
-use allejo\stakx\MarkupEngine\MarkupEngine;
-use allejo\stakx\Templating\Twig\Extension\TwigFilterInterface;
-use allejo\stakx\Templating\Twig\Extension\TwigFunctionInterface;
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
 /**
  * The base application class for stakx.
@@ -47,7 +36,7 @@ class Application extends BaseApplication
 
         $this->loadContainer([
             'parameters' => [
-                'root_dir' => __DIR__,
+                'root_dir' => __DIR__ . '/../',
             ],
         ]);
 
@@ -151,78 +140,10 @@ class Application extends BaseApplication
      */
     private function loadContainer(array $containerOptions)
     {
-        $cachedContainerPath = new FilesystemPath(getcwd() . '/' . Configuration::CACHE_FOLDER . '/container-cache.php');
+        $builder = new ContainerBuilder($containerOptions);
 
-        if (!$this->useCache() || !file_exists($cachedContainerPath))
-        {
-            $this->makeCacheDir();
-            $this->buildContainer($cachedContainerPath, $containerOptions);
-        }
-
-        require $cachedContainerPath;
+        require $builder->build();
 
         $this->container = new \ProjectServiceContainer();
-    }
-
-    /**
-     * Build and compile the application container.
-     *
-     * @param string $cachePath
-     * @param array  $containerOptions
-     *
-     * @throws \Exception
-     */
-    private function buildContainer($cachePath, array $containerOptions)
-    {
-        $container = new ContainerBuilder();
-        $container
-            ->addCompilerPass(new RegisterListenersPass())
-        ;
-
-        foreach ($containerOptions['parameters'] as $key => $value)
-        {
-            $container->setParameter($key, $value);
-        }
-
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../app/'));
-        $loader->load('services.yml');
-
-        $container
-            ->registerForAutoconfiguration(DataTransformer::class)
-            ->addTag(DataTransformer::CONTAINER_TAG)
-        ;
-
-        $container
-            ->registerForAutoconfiguration(MarkupEngine::class)
-            ->addTag(MarkupEngine::CONTAINER_TAG)
-        ;
-
-        $container
-            ->registerForAutoconfiguration(TwigFilterInterface::class)
-            ->addTag(TwigFilterInterface::CONTAINER_TAG)
-        ;
-
-        $container
-            ->registerForAutoconfiguration(TwigFunctionInterface::class)
-            ->addTag(TwigFunctionInterface::CONTAINER_TAG)
-        ;
-
-        $container->compile();
-
-        $dumper = new PhpDumper($container);
-        file_put_contents($cachePath, $dumper->dump());
-    }
-
-    /**
-     * Create a cache directory if it doesn't exist.
-     */
-    private function makeCacheDir()
-    {
-        $cachedFolder = new FilesystemPath(getcwd() . '/' . Configuration::CACHE_FOLDER);
-
-        if (!file_exists($cachedFolder))
-        {
-            mkdir($cachedFolder);
-        }
     }
 }
