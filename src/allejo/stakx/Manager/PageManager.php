@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\AssetEngine\AssetEngine;
+use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\ContentItem;
@@ -35,6 +37,7 @@ class PageManager extends TrackingManager
     /** @var StaticPageView[] A place to store a reference to static PageViews with titles. */
     private $staticPages;
     private $configuration;
+    private $assetEngineManager;
     private $collectionManager;
     private $dataManager;
     private $eventDispatcher;
@@ -43,8 +46,14 @@ class PageManager extends TrackingManager
     /**
      * PageManager constructor.
      */
-    public function __construct(Configuration $configuration, CollectionManager $collectionManager, DataManager $dataManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
-    {
+    public function __construct(
+        Configuration $configuration,
+        AssetEngineManager $assetEngineManager,
+        CollectionManager $collectionManager,
+        DataManager $dataManager,
+        EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger
+    ) {
         $this->trackedItems = [
             BasePageView::STATIC_TYPE => [],
             BasePageView::DYNAMIC_TYPE => [],
@@ -52,6 +61,7 @@ class PageManager extends TrackingManager
         ];
         $this->staticPages = [];
         $this->configuration = $configuration;
+        $this->assetEngineManager = $assetEngineManager;
         $this->collectionManager = $collectionManager;
         $this->dataManager = $dataManager;
         $this->eventDispatcher = $eventDispatcher;
@@ -63,7 +73,44 @@ class PageManager extends TrackingManager
      */
     public function compileManager()
     {
+        $this->parseAssetPageViews();
         $this->parsePageViews($this->configuration->getPageViewFolders());
+    }
+
+    public function parseAssetPageViews()
+    {
+        /**
+         * @var string      $folder
+         * @var AssetEngine $engine
+         */
+        foreach ($this->assetEngineManager->getFoldersToWatch() as $folder => $engine)
+        {
+            $assetFolder = fs::absolutePath($folder);
+
+            if (!fs::exists($assetFolder))
+            {
+                continue;
+            }
+
+            $extensions = [];
+
+            foreach ($engine->getExtensions() as $extension)
+            {
+                $extensions[] = "/.{$extension}.twig$/";
+            }
+
+            $explorer = FileExplorer::create($assetFolder, [], $extensions, FileExplorer::IGNORE_DIRECTORIES);
+
+            foreach ($explorer as $file)
+            {
+                $assetPageView = new StaticPageView($file);
+                $compiled = $engine->parse($assetPageView->getContent());
+                $assetPageView->setContent($compiled);
+
+                $this->handleTrackableStaticPageView($assetPageView);
+                $this->addObjectToTracker($assetPageView, $assetPageView->getType());
+            }
+        }
     }
 
     /**

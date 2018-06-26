@@ -86,6 +86,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageManager = new PageManager(
             $this->getMockConfiguration(),
+            $this->getMockAssetEngineManager(),
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockEventDistpatcher(),
@@ -106,6 +107,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageManager = new PageManager(
             $this->getMockConfiguration(),
+            $this->getMockAssetEngineManager(),
             $this->getCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockEventDistpatcher(),
@@ -130,6 +132,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageManager = new PageManager(
             $this->getMockConfiguration(),
+            $this->getMockAssetEngineManager(),
             $this->getCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockEventDistpatcher(),
@@ -148,6 +151,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $collectionManager = $this->getCollectionManager();
         $pageManager = new PageManager(
             $this->getMockConfiguration(),
+            $this->getMockAssetEngineManager(),
             $collectionManager,
             $this->getMockDataManager(),
             $this->getMockEventDistpatcher(),
@@ -168,6 +172,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageManager = new PageManager(
             $this->getMockConfiguration(),
+            $this->getMockAssetEngineManager(),
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockEventDistpatcher(),
@@ -190,6 +195,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageManager = new PageManager(
             $this->getMockConfiguration(),
+            $this->getMockAssetEngineManager(),
             $this->getCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockEventDistpatcher(),
@@ -225,6 +231,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
         $pageManager = new PageManager(
             $conf,
+            $this->getMockAssetEngineManager(),
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockEventDistpatcher(),

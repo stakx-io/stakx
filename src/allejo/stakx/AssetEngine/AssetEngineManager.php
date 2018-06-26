@@ -13,6 +13,8 @@ use allejo\stakx\Exception\UnsupportedAssetEngineException;
 class AssetEngineManager
 {
     private $enginesByExtension = [];
+    private $foldersToWatch = [];
+    private $engines;
 
     public function addAssetEngines(/* iterable */ $assetEngines)
     {
@@ -25,19 +27,15 @@ class AssetEngineManager
     public function addAssetEngine(AssetEngine $assetEngine)
     {
         $extensions = $assetEngine->getExtensions();
-        $primaryExt = __::first($extensions);
 
-        foreach ($extensions as $k => $extension)
+        $e = $this->engines[] = $assetEngine;
+
+        foreach ($extensions as $extension)
         {
-            if ($k === 0)
-            {
-                $this->enginesByExtension[$extension] = $assetEngine;
-            }
-            else
-            {
-                $this->enginesByExtension[$extension] = &$this->enginesByExtension[$primaryExt];
-            }
+            $this->enginesByExtension[$extension] = $e;
         }
+
+        $this->foldersToWatch[$assetEngine->getFolder()] = $e;
     }
 
     public function getEngineByExtension($extension)
@@ -48,5 +46,10 @@ class AssetEngineManager
         }
 
         throw new UnsupportedAssetEngineException($extension, 'There is no support to handle this asset type.');
+    }
+
+    public function getFoldersToWatch()
+    {
+        return $this->foldersToWatch;
     }
 }

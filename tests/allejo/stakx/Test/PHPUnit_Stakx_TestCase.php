@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Test;
 
+use allejo\stakx\AssetEngine\AssetEngine;
+use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
@@ -247,6 +249,14 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     ///
     // Mock Objects
     ///
+
+    /**
+     * @return AssetEngineManager|\PHPUnit_Framework_MockObject_MockBuilder
+     */
+    protected function getMockAssetEngineManager()
+    {
+        return new AssetEngineManager();
+    }
 
     /**
      * @return Configuration|\PHPUnit_Framework_MockObject_MockObject

@@ -56,6 +56,16 @@ abstract class ReadableDocument
     }
 
     /**
+     * Manually set the contents of this document.
+     *
+     * @param string $content
+     */
+    public function setContent($content)
+    {
+        $this->bodyContent = $content;
+    }
+
+    /**
      * @return string
      */
     public function getIndexName()

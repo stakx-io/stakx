@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\AssetEngine;
 
+use __;
+use allejo\stakx\Service;
 use Leafo\ScssPhp\Compiler;
 use Leafo\ScssPhp\Formatter\Compact;
 use Leafo\ScssPhp\Formatter\Crunched;
@@ -23,6 +25,7 @@ class SassEngine implements AssetEngine
         $this->compiler = new Compiler();
         $this->options = $options;
 
+        $this->configureImportPath();
         $this->configureOutputStyle();
         $this->configureSourceMap();
     }
@@ -55,9 +58,16 @@ class SassEngine implements AssetEngine
         return $this->compiler->compile($content);
     }
 
+    private function configureImportPath()
+    {
+        $this->compiler->setImportPaths(Service::getWorkingDirectory() . '/_sass/');
+    }
+
     private function configureOutputStyle()
     {
-        switch ($this->options['style'])
+        $style = __::get($this->options, 'style', 'compressed');
+
+        switch ($style)
         {
             case 'nested':
                 $this->compiler->setFormatter(Nested::class);
@@ -79,7 +89,7 @@ class SassEngine implements AssetEngine
 
     private function configureSourceMap()
     {
-        $sourcemap = $this->options['sourcemap'];
+        $sourcemap = __::get($this->options, 'sourcemap');
 
         if ($sourcemap === false || $sourcemap === null) {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_NONE);

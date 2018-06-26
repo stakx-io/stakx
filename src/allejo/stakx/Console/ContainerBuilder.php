@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Console;
 
+use allejo\stakx\AssetEngine\AssetEngine;
 use allejo\stakx\DataTransformer\DataTransformer;
 use allejo\stakx\MarkupEngine\MarkupEngine;
 use allejo\stakx\Templating\Twig\Extension\TwigFilterInterface;
@@ -57,6 +58,11 @@ class ContainerBuilder
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/app/'));
         $loader->load('services.yml');
+
+        $container
+            ->registerForAutoconfiguration(AssetEngine::class)
+            ->addTag(AssetEngine::CONTAINER_TAG)
+        ;
 
         $container
             ->registerForAutoconfiguration(DataTransformer::class)
