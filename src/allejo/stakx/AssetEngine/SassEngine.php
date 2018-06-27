@@ -18,16 +18,11 @@ use Leafo\ScssPhp\Formatter\Nested;
 class SassEngine implements AssetEngine
 {
     private $compiler;
-    private $options;
+    private $options = [];
 
-    public function __construct(array $options = [])
+    public function __construct()
     {
         $this->compiler = new Compiler();
-        $this->options = $options;
-
-        $this->configureImportPath();
-        $this->configureOutputStyle();
-        $this->configureSourceMap();
     }
 
     public function getConfigurationNamespace()
@@ -56,6 +51,15 @@ class SassEngine implements AssetEngine
     public function parse($content)
     {
         return $this->compiler->compile($content);
+    }
+
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+
+        $this->configureImportPath();
+        $this->configureOutputStyle();
+        $this->configureSourceMap();
     }
 
     private function configureImportPath()

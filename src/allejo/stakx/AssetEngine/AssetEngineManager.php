@@ -38,6 +38,11 @@ class AssetEngineManager
         $this->foldersToWatch[$assetEngine->getFolder()] = $e;
     }
 
+    public function getEngines()
+    {
+        return $this->engines;
+    }
+
     public function getEngineByExtension($extension)
     {
         if (isset($this->enginesByExtension[$extension]))

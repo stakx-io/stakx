@@ -7,9 +7,11 @@
 
 namespace allejo\stakx\EventSubscriber;
 
+use __\__;
 use allejo\stakx\AssetEngine\AssetEngine;
 use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
@@ -22,6 +24,20 @@ class AssetEngineSubscriber implements EventSubscriberInterface
     public function __construct(AssetEngineManager $assetEngineManager)
     {
         $this->assetEngineManager = $assetEngineManager;
+    }
+
+    public function processConfigurationSettings(ConfigurationParseComplete $event)
+    {
+        $configuration = $event->getConfiguration()->getConfiguration();
+
+        /** @var AssetEngine $engine */
+        foreach ($this->assetEngineManager->getEngines() as $engine)
+        {
+            $defaults = __::get($configuration, $engine->getConfigurationNamespace(), []);
+            $options = array_merge($engine->getDefaultConfiguration(), $defaults);
+
+            $engine->setOptions($options);
+        }
     }
 
     public function processAssetEnginePageView(PageManagerPostProcess $event)
@@ -62,6 +78,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
+            ConfigurationParseComplete::NAME => 'processConfigurationSettings',
             PageManagerPostProcess::NAME => 'processAssetEnginePageView',
         ];
     }

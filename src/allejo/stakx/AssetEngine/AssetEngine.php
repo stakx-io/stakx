@@ -56,4 +56,15 @@ interface AssetEngine
      * @return string
      */
     public function parse($content);
+
+    /**
+     * Set custom options used internally by this AssetEngine.
+     *
+     * @param array $options
+     *
+     * @since 0.2.0
+     *
+     * @return void
+     */
+    public function setOptions(array $options);
 }
