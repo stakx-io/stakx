@@ -122,6 +122,9 @@ class PageManager extends TrackingManager
      */
     public function parsePageViews(array $pageViewFolders)
     {
+        $preEvent = new PageManagerPreProcess($this);
+        $this->eventDispatcher->dispatch(PageManagerPreProcess::NAME, $preEvent);
+
         foreach ($pageViewFolders as $pageViewFolderName)
         {
             $pageViewFolderPath = fs::absolutePath($pageViewFolderName);
@@ -139,6 +142,9 @@ class PageManager extends TrackingManager
                 'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES,
             ], ['/.html$/', '/.twig$/']);
         }
+
+        $postEvent = new PageManagerPostProcess($this);
+        $this->eventDispatcher->dispatch(PageManagerPostProcess::NAME, $postEvent);
     }
 
     /**
