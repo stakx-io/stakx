@@ -15,15 +15,18 @@ use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AssetEngineSubscriber implements EventSubscriberInterface
 {
     private $assetEngineManager;
+    private $logger;
 
-    public function __construct(AssetEngineManager $assetEngineManager)
+    public function __construct(AssetEngineManager $assetEngineManager, LoggerInterface $logger)
     {
         $this->assetEngineManager = $assetEngineManager;
+        $this->logger = $logger;
     }
 
     public function processConfigurationSettings(ConfigurationParseComplete $event)
@@ -70,7 +73,17 @@ class AssetEngineSubscriber implements EventSubscriberInterface
                 $compiled = $engine->parse($assetPageView->getContent());
                 $assetPageView->setContent($compiled);
 
-                $event->getPageManager()->trackNewPageView($assetPageView);
+                try
+                {
+                    $event->getPageManager()->trackNewPageView($assetPageView);
+                }
+                catch (\Exception $e)
+                {
+                    $this->logger->error('An exception occurred while creating a Static PageView for an AssetEngine');
+                    $this->logger->error('  {message}', [
+                        $e->getMessage(),
+                    ]);
+                }
             }
         }
     }
