@@ -27,7 +27,7 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
         parent::setUp();
 
         /** @var Configuration|MockObject $conf */
-        $conf = $this->getMock(Configuration::class);
+        $conf = $this->getMockConfiguration();
         $conf
             ->method('hasCollections')
             ->willReturn(true)
@@ -62,7 +62,7 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
     public function testCollectionEmpty()
     {
         /** @var Configuration $conf */
-        $conf = $this->getMock(Configuration::class);
+        $conf = $this->getMockConfiguration();
 
         $cm = new CollectionManager(
             $this->getMockMarkupEngineManager(),
@@ -131,7 +131,7 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
         ];
 
         /** @var Configuration $conf */
-        $conf = $this->getMock(Configuration::class);
+        $conf = $this->getMockConfiguration();
         $cm = new CollectionManager(
             $this->getMockMarkupEngineManager(),
             $conf,

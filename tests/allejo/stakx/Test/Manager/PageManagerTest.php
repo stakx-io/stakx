@@ -26,7 +26,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
      */
     protected function getMockConfiguration()
     {
-        $mock = $this->getMock(Configuration::class);
+        $mock = parent::getMockConfiguration();
         $mock
             ->method('getPageViewFolders')
             ->willReturn([
@@ -217,7 +217,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
     public function testWarningThrownWhenPageViewFolderNotFound()
     {
         /** @var Configuration|MockObject $conf */
-        $conf = $this->getMock(Configuration::class);
+        $conf = parent::getMockConfiguration();
         $conf
             ->method('getPageViewFolders')
             ->willReturn(['non-existent'])
