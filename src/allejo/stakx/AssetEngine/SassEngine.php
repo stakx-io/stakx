@@ -71,24 +71,7 @@ class SassEngine implements AssetEngineInterface
     {
         $style = __::get($this->options, 'style', 'compressed');
 
-        switch ($style)
-        {
-            case 'nested':
-                $this->compiler->setFormatter(Nested::class);
-                break;
-
-            case 'expanded':
-                $this->compiler->setFormatter(Expanded::class);
-                break;
-
-            case 'compact':
-                $this->compiler->setFormatter(Compact::class);
-                break;
-
-            case 'compressed':
-            default:
-                $this->compiler->setFormatter(Crunched::class);
-        }
+        $this->compiler->setFormatter(self::stringToFormatter($style));
     }
 
     private function configureSourceMap()
@@ -104,8 +87,26 @@ class SassEngine implements AssetEngineInterface
         else {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_FILE);
             $this->compiler->setSourceMapOptions([
-                'sourceMapWriteTo' => $sourcemap
+                'sourceMapRootpath' => Service::getWorkingDirectory(),
             ]);
         }
+    }
+
+    public static function stringToFormatter($format)
+    {
+        if ($format == 'nested')
+        {
+            return Nested::class;
+        }
+        elseif ($format == 'expanded')
+        {
+            return Expanded::class;
+        }
+        elseif ($format == 'compact')
+        {
+            return Compact::class;
+        }
+
+        return Crunched::class;
     }
 }
