@@ -268,7 +268,6 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
 
         $pageManager = new PageManager(
             $this->getMockConfiguration(),
-            $this->getMockAssetEngineManager(),
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockEventDistpatcher(),

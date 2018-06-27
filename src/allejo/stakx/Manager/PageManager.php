@@ -7,8 +7,6 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\AssetEngine\AssetEngine;
-use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\ContentItem;
@@ -17,6 +15,8 @@ use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Event\PageManagerPostProcess;
+use allejo\stakx\Event\PageManagerPreProcess;
 use allejo\stakx\Event\PageViewAdded;
 use allejo\stakx\Event\PageViewDefinitionAdded;
 use allejo\stakx\Exception\CollectionNotFoundException;
@@ -37,7 +37,6 @@ class PageManager extends TrackingManager
     /** @var StaticPageView[] A place to store a reference to static PageViews with titles. */
     private $staticPages;
     private $configuration;
-    private $assetEngineManager;
     private $collectionManager;
     private $dataManager;
     private $eventDispatcher;
@@ -48,7 +47,6 @@ class PageManager extends TrackingManager
      */
     public function __construct(
         Configuration $configuration,
-        AssetEngineManager $assetEngineManager,
         CollectionManager $collectionManager,
         DataManager $dataManager,
         EventDispatcherInterface $eventDispatcher,
@@ -61,7 +59,6 @@ class PageManager extends TrackingManager
         ];
         $this->staticPages = [];
         $this->configuration = $configuration;
-        $this->assetEngineManager = $assetEngineManager;
         $this->collectionManager = $collectionManager;
         $this->dataManager = $dataManager;
         $this->eventDispatcher = $eventDispatcher;
@@ -73,44 +70,7 @@ class PageManager extends TrackingManager
      */
     public function compileManager()
     {
-        $this->parseAssetPageViews();
         $this->parsePageViews($this->configuration->getPageViewFolders());
-    }
-
-    public function parseAssetPageViews()
-    {
-        /**
-         * @var string      $folder
-         * @var AssetEngine $engine
-         */
-        foreach ($this->assetEngineManager->getFoldersToWatch() as $folder => $engine)
-        {
-            $assetFolder = fs::absolutePath($folder);
-
-            if (!fs::exists($assetFolder))
-            {
-                continue;
-            }
-
-            $extensions = [];
-
-            foreach ($engine->getExtensions() as $extension)
-            {
-                $extensions[] = "/.{$extension}.twig$/";
-            }
-
-            $explorer = FileExplorer::create($assetFolder, [], $extensions, FileExplorer::IGNORE_DIRECTORIES);
-
-            foreach ($explorer as $file)
-            {
-                $assetPageView = new StaticPageView($file);
-                $compiled = $engine->parse($assetPageView->getContent());
-                $assetPageView->setContent($compiled);
-
-                $this->handleTrackableStaticPageView($assetPageView);
-                $this->addObjectToTracker($assetPageView, $assetPageView->getType());
-            }
-        }
     }
 
     /**
@@ -203,26 +163,18 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * Add a new ContentItem to the respective parent PageView of the ContentItem.
+     * Add a PageView for this PageManager to track.
      *
-     * @param ContentItem $contentItem
+     * @param BasePageView|StaticPageView|DynamicPageView|RepeaterPageView $pageView
      *
-     * @since 0.1.0
+     * @throws \LogicException When a PageView is treated as the wrong type
+     * @throws CollectionNotFoundException When the collection specified in a Dynamic PageView isn't found
+     * @throws \Exception The permalink could not be built correctly
+     *
+     * @since 0.2.0
      */
-    public function trackNewContentItem(&$contentItem)
+    public function trackNewPageView(BasePageView $pageView)
     {
-        $collection = $contentItem->getNamespace();
-        $this->trackedItems[BasePageView::DYNAMIC_TYPE][$collection]->addCollectableItem($contentItem);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function &handleTrackableItem(File $filePath, array $options = [])
-    {
-        $pageView = BasePageView::create($filePath, [
-            'site' => $this->configuration->getConfiguration(),
-        ]);
         $namespace = $pageView->getType();
 
         switch ($namespace)
@@ -247,6 +199,31 @@ class PageManager extends TrackingManager
         $this->eventDispatcher->dispatch(PageViewAdded::NAME, $event);
 
         $this->addObjectToTracker($pageView, $namespace);
+    }
+
+    /**
+     * Add a new ContentItem to the respective parent PageView of the ContentItem.
+     *
+     * @param ContentItem $contentItem
+     *
+     * @since 0.1.0
+     */
+    public function trackNewContentItem(&$contentItem)
+    {
+        $collection = $contentItem->getNamespace();
+        $this->trackedItems[BasePageView::DYNAMIC_TYPE][$collection]->addCollectableItem($contentItem);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function &handleTrackableItem(File $filePath, array $options = [])
+    {
+        $pageView = BasePageView::create($filePath, [
+            'site' => $this->configuration->getConfiguration(),
+        ]);
+
+        $this->trackNewPageView($pageView);
 
         return $pageView;
     }
@@ -279,7 +256,9 @@ class PageManager extends TrackingManager
      *
      * @since 0.1.0
      *
-     * @throws \Exception
+     * @throws \LogicException An invalid PageView has been given as a Dynamic PageView
+     * @throws CollectionNotFoundException When a collection or dataset specified in a Dynamic PageView doesn't exist
+     * @throws \Exception When the permalink for the given PageView hasn't been set
      */
     private function handleTrackableDynamicPageView(&$pageView)
     {
@@ -300,7 +279,7 @@ class PageManager extends TrackingManager
 
         if ($dataSource === null)
         {
-            throw new \Exception('Invalid Dynamic PageView defined');
+            throw new \LogicException('Invalid Dynamic PageView defined');
         }
 
         $collection = $frontMatter[$namespace];
