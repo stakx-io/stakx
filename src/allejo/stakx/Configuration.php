@@ -8,21 +8,20 @@
 namespace allejo\stakx;
 
 use __;
+use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Exception\RecursiveConfigurationException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Utilities\ArrayUtilities;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-class Configuration implements LoggerAwareInterface
+class Configuration
 {
-    use LoggerAwareTrait;
-
-    const HIGHLIGHTER_ENABLED = 'highlighter-enabled';
-
     const DEFAULT_NAME = '_config.yml';
     const IMPORT_KEYWORD = 'import';
     const CACHE_FOLDER = '.stakx-cache';
@@ -42,7 +41,7 @@ class Configuration implements LoggerAwareInterface
      *
      * @var array
      */
-    private $configuration;
+    private $configuration = [];
 
     /**
      * The master configuration file for the current build.
@@ -63,12 +62,16 @@ class Configuration implements LoggerAwareInterface
      */
     private $currentFile;
 
+    private $eventDispatcher;
+    private $logger;
+
     /**
      * Configuration constructor.
      */
-    public function __construct()
+    public function __construct(EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
-        $this->configuration = [];
+        $this->eventDispatcher = $eventDispatcher;
+        $this->logger = $logger;
     }
 
     ///
@@ -225,6 +228,9 @@ class Configuration implements LoggerAwareInterface
         $this->handleDeprecations();
 
         self::$configImports = [];
+
+        $event = new ConfigurationParseComplete($this);
+        $this->eventDispatcher->dispatch(ConfigurationParseComplete::NAME, $event);
     }
 
     /**
