@@ -8,7 +8,7 @@
 namespace allejo\stakx\EventSubscriber;
 
 use __\__;
-use allejo\stakx\AssetEngine\AssetEngine;
+use allejo\stakx\AssetEngine\AssetEngineInterface;
 use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Event\ConfigurationParseComplete;
@@ -30,7 +30,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
     {
         $configuration = $event->getConfiguration()->getConfiguration();
 
-        /** @var AssetEngine $engine */
+        /** @var AssetEngineInterface $engine */
         foreach ($this->assetEngineManager->getEngines() as $engine)
         {
             $defaults = __::get($configuration, $engine->getConfigurationNamespace(), []);
@@ -43,8 +43,8 @@ class AssetEngineSubscriber implements EventSubscriberInterface
     public function processAssetEnginePageView(PageManagerPostProcess $event)
     {
         /**
-         * @var string      $folder
-         * @var AssetEngine $engine
+         * @var string               $folder
+         * @var AssetEngineInterface $engine
          */
         foreach ($this->assetEngineManager->getFoldersToWatch() as $folder => $engine)
         {

@@ -11,7 +11,7 @@ use allejo\stakx\Markup\RstSyntaxBlock;
 use allejo\stakx\Service;
 use Gregwar\RST\Parser;
 
-class RstEngine extends Parser implements MarkupEngine
+class RstEngine extends Parser implements MarkupEngineInterface
 {
     public function __construct($environment = null, $kernel = null)
     {

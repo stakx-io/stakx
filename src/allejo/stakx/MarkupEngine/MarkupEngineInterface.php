@@ -13,7 +13,7 @@ namespace allejo\stakx\MarkupEngine;
  *
  * @since 0.2.0
  */
-interface MarkupEngine
+interface MarkupEngineInterface
 {
     const CONTAINER_TAG = 'stakx.markup_engine';
 

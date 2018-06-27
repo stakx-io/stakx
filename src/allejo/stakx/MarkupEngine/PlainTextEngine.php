@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\MarkupEngine;
 
-class PlainTextEngine implements MarkupEngine
+class PlainTextEngine implements MarkupEngineInterface
 {
     /**
      * {@inheritdoc}

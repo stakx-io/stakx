@@ -15,7 +15,7 @@ use Leafo\ScssPhp\Formatter\Crunched;
 use Leafo\ScssPhp\Formatter\Expanded;
 use Leafo\ScssPhp\Formatter\Nested;
 
-class SassEngine implements AssetEngine
+class SassEngine implements AssetEngineInterface
 {
     private $compiler;
     private $options = [];

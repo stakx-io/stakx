@@ -10,7 +10,7 @@ namespace allejo\stakx\DataTransformer;
 /**
  * The definition for transforming data formats supported in DataItems.
  */
-interface DataTransformer
+interface DataTransformerInterface
 {
     const CONTAINER_TAG = 'stakx.data_transformer';
 

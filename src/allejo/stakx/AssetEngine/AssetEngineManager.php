@@ -24,7 +24,7 @@ class AssetEngineManager
         }
     }
 
-    public function addAssetEngine(AssetEngine $assetEngine)
+    public function addAssetEngine(AssetEngineInterface $assetEngine)
     {
         $extensions = $assetEngine->getExtensions();
 

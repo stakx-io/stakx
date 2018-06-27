@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Test;
 
-use allejo\stakx\AssetEngine\AssetEngine;
+use allejo\stakx\AssetEngine\AssetEngineInterface;
 use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\FrontMatterDocument;

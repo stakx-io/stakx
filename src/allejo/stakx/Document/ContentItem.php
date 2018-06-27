@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\MarkupEngine\MarkupEngine;
+use allejo\stakx\MarkupEngine\MarkupEngineInterface;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\Templating\TemplateErrorInterface;
 
@@ -16,7 +16,7 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
     use CollectableItemTrait;
     use TemplateEngineDependent;
 
-    /** @var MarkupEngine */
+    /** @var MarkupEngineInterface */
     private $markupEngine;
 
     public function setMarkupEngine(MarkupEngineManager $manager)

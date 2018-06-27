@@ -10,7 +10,7 @@ namespace allejo\stakx\AssetEngine;
 /**
  * @since 0.2.0
  */
-interface AssetEngine
+interface AssetEngineInterface
 {
     const CONTAINER_TAG = 'stakx.asset_engine';
 
