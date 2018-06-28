@@ -69,6 +69,9 @@ class SassEngine implements AssetEngineInterface
     public function parse($content, array $options = [])
     {
         $sourceMapTargetPath = null;
+        $sourceMapOptions = [
+            'sourceMapBasepath' => Service::getWorkingDirectory(),
+        ];
 
         if ($this->fileSourceMap)
         {
@@ -83,14 +86,14 @@ class SassEngine implements AssetEngineInterface
             );
             $sourceMapFilename = fs::getFilename($pageView->getTargetFile()) . '.map';
 
-            $this->compiler->setSourceMapOptions([
+            $sourceMapOptions = array_merge($sourceMapOptions, [
                 'sourceMapFilename' => $sourceMapFilename,
                 'sourceMapURL' => $pageView->getPermalink() . '.map',
                 'sourceMapWriteTo' => $sourceMapTargetPath,
-                'sourceMapBasepath' => Service::getWorkingDirectory(),
             ]);
         }
 
+        $this->compiler->setSourceMapOptions($sourceMapOptions);
         $sass = $this->compiler->compile($content);
 
         // Due to how our Sass Compiler is designed, the Source Map is automatically written to the given location. This

@@ -10,10 +10,16 @@ namespace allejo\stakx\Test\AssetEngine;
 use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\AssetEngine\SassEngine;
 use allejo\stakx\Configuration;
+use allejo\stakx\Document\BasePageView;
+use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Event\ConfigurationParseComplete;
+use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\EventSubscriber\AssetEngineSubscriber;
+use allejo\stakx\Manager\PageManager;
+use allejo\stakx\Service;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use Leafo\ScssPhp\Compiler as SassCompiler;
+use org\bovigo\vfs\vfsStream;
 
 class SassEngineTest extends PHPUnit_Stakx_TestCase
 {
@@ -23,12 +29,51 @@ class SassEngineTest extends PHPUnit_Stakx_TestCase
     /** @var AssetEngineManager */
     private $manager;
 
+    private $sass = <<<'SASS'
+// A comment
+$color: red;
+
+.text-#{$color} {
+    color: $color;
+}
+SASS;
+
     public function setUp()
     {
-        $this->sassEngine = new SassEngine($this->getMockConfiguration());
-        $this->manager = new AssetEngineManager();
+        parent::setUp();
 
+        $this->sassEngine = new SassEngine($this->getMockConfiguration());
+
+        $this->manager = new AssetEngineManager();
         $this->manager->addAssetEngine($this->sassEngine);
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return Configuration|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private function mockConfigurationGenerator(array $options)
+    {
+        $settings = [
+            'scss' => $options
+        ];
+
+        /** @var Configuration|\PHPUnit_Framework_MockObject_MockObject $config */
+        $config = $this->getMockBuilder(Configuration::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $config
+            ->method('getConfiguration')
+            ->willReturn($settings)
+        ;
+        $config
+            ->method('getTargetFolder')
+            ->willReturn('_site')
+        ;
+
+        return $config;
     }
 
     public static function dataProvider_outputStyles()
@@ -48,30 +93,9 @@ class SassEngineTest extends PHPUnit_Stakx_TestCase
      */
     public function testSassOutputStyleFromConfiguration($outputFormat)
     {
-        $sass = <<<'SASS'
-// A comment
-$color: red;
-
-.text-#{$color} {
-    color: $color;
-}
-SASS;
-
-        $settings = [
-            'scss' => [
-                'style' => $outputFormat,
-            ],
-        ];
-
-        /** @var Configuration|\PHPUnit_Framework_MockObject_MockObject $config */
-        $config = $this->getMockBuilder(Configuration::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-        $config
-            ->method('getConfiguration')
-            ->willReturn($settings)
-        ;
+        $config = $this->mockConfigurationGenerator([
+            'style' => $outputFormat,
+        ]);
 
         $event = new ConfigurationParseComplete($config);
         $subscriber = new AssetEngineSubscriber($this->manager, $this->getMockLogger());
@@ -82,6 +106,93 @@ SASS;
         $expectedEngine->setFormatter(SassEngine::stringToFormatter($outputFormat));
 
         $this->assertNotEquals($expectedEngine, $actualEngine);
-        $this->assertEquals($expectedEngine->compile($sass), $actualEngine->parse($sass));
+        $this->assertEquals($expectedEngine->compile($this->sass), $actualEngine->parse($this->sass));
+    }
+
+    public function testSassDisabledSourceMap()
+    {
+        $config = $this->mockConfigurationGenerator([
+            'sourcemap' => false,
+        ]);
+
+        $event = new ConfigurationParseComplete($config);
+        $subscriber = new AssetEngineSubscriber($this->manager, $this->getMockLogger());
+        $subscriber->processConfigurationSettings($event);
+
+        $actualEngine = $this->manager->getEngineByExtension('scss');
+        $contents = $actualEngine->parse($this->sass);
+
+        $this->assertNotContains('/*# sourceMappingURL=data:application/json', $contents);
+    }
+
+    public function testSassInlineSourceMap()
+    {
+        $config = $this->mockConfigurationGenerator([
+            'sourcemap' => 'inline',
+        ]);
+
+        $event = new ConfigurationParseComplete($config);
+        $subscriber = new AssetEngineSubscriber($this->manager, $this->getMockLogger());
+        $subscriber->processConfigurationSettings($event);
+
+        $actualEngine = $this->manager->getEngineByExtension('scss');
+        $contents = $actualEngine->parse($this->sass);
+
+        $this->assertContains('/*# sourceMappingURL=data:application/json', $contents);
+    }
+
+    public function testSassExternalSourceMap()
+    {
+        Service::setWorkingDirectory($this->rootDir->url());
+        vfsStream::create([
+            '_sass' => [
+                'styles.scss.twig' => $this->buildFrontMatterTemplate(['permalink' => '/styles.css'], $this->sass)
+            ],
+            '_site' => [],
+        ], $this->rootDir);
+
+        $config = $this->mockConfigurationGenerator([
+            'sourcemap' => true,
+        ]);
+
+        $sassEngine = new SassEngine($config);
+        $this->manager->addAssetEngine($sassEngine);
+
+        $pageManager = new PageManager(
+            $config,
+            $this->getMockCollectionManager(),
+            $this->getMockDataManager(),
+            $this->getMockEventDistpatcher(),
+            $this->getMockLogger()
+        );
+
+        $subscriber = new AssetEngineSubscriber($this->manager, $this->getMockLogger());
+
+        $configEvent = new ConfigurationParseComplete($config);
+        $subscriber->processConfigurationSettings($configEvent);
+
+        $pageManagerEvent = new PageManagerPostProcess($pageManager);
+        $subscriber->processAssetEnginePageView($pageManagerEvent);
+
+        $this->manager->getEngineByExtension('scss');
+
+        $sourceMapPath = 'root/_site/styles.css.map';
+        $this->assertNotEmpty(file_get_contents(vfsStream::url($sourceMapPath)));
+        $this->assertFileExists(vfsStream::url($sourceMapPath));
+
+        $sassPageViewExists = false;
+        $pageViews = &$pageManager->getPageViews();
+
+        /** @var StaticPageView $pageView */
+        foreach ($pageViews[BasePageView::STATIC_TYPE] as $pageView)
+        {
+            if ($pageView->getFilename() === 'styles.scss.twig')
+            {
+                $sassPageViewExists = true;
+                break;
+            }
+        }
+
+        $this->assertTrue($sassPageViewExists);
     }
 }
