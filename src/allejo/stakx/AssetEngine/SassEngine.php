@@ -8,6 +8,12 @@
 namespace allejo\stakx\AssetEngine;
 
 use __;
+use allejo\stakx\Configuration;
+use allejo\stakx\Document\BasePageView;
+use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use Leafo\ScssPhp\Compiler;
 use Leafo\ScssPhp\Formatter\Compact;
@@ -17,11 +23,15 @@ use Leafo\ScssPhp\Formatter\Nested;
 
 class SassEngine implements AssetEngineInterface
 {
+    private $fileSourceMap = false;
+    private $configuration;
+    private $pageManager;
     private $compiler;
     private $options = [];
 
-    public function __construct()
+    public function __construct(Configuration $configuration)
     {
+        $this->configuration = $configuration;
         $this->compiler = new Compiler();
     }
 
@@ -48,9 +58,60 @@ class SassEngine implements AssetEngineInterface
         return ['scss'];
     }
 
-    public function parse($content)
+    /**
+     * @param string $content
+     * @param $options = [
+     *     'pageview' => new StaticPageView()
+     * ]
+     *
+     * @return string
+     */
+    public function parse($content, array $options = [])
     {
-        return $this->compiler->compile($content);
+        $sourceMapTargetPath = null;
+
+        if ($this->fileSourceMap)
+        {
+            /** @var StaticPageView $pageView */
+            $pageView = $options['pageview'];
+
+            // Always put our source map next to the respective CSS file
+            $sourceMapTargetPath = fs::appendPath(
+                Service::getWorkingDirectory(),
+                $this->configuration->getTargetFolder(),
+                $pageView->getTargetFile() . '.map'
+            );
+            $sourceMapFilename = fs::getFilename($pageView->getTargetFile()) . '.map';
+
+            $this->compiler->setSourceMapOptions([
+                'sourceMapFilename' => $sourceMapFilename,
+                'sourceMapURL' => $pageView->getPermalink() . '.map',
+                'sourceMapWriteTo' => $sourceMapTargetPath,
+                'sourceMapBasepath' => Service::getWorkingDirectory(),
+            ]);
+        }
+
+        $sass = $this->compiler->compile($content);
+
+        // Due to how our Sass Compiler is designed, the Source Map is automatically written to the given location. This
+        // write happens *before* the stakx compiler writes out files, so if we write the source map to _site/, then it'll
+        // be deleted when _site/ is cleaned.
+        //
+        // This is a workaround by creating a virtual file to store the source map contents, which will be written out by
+        // the stakx compiler.
+        if ($this->fileSourceMap)
+        {
+            $sourceMap = new File($sourceMapTargetPath);
+            $sourceMapContents = $sourceMap->getContents();
+
+            $sourceMapPageView = BasePageView::createVirtual([
+                'permalink' => $pageView->getPermalink() . '.map',
+            ], $sourceMapContents);
+
+            $this->pageManager->trackNewPageView($sourceMapPageView);
+        }
+
+        return $sass;
     }
 
     public function setOptions(array $options)
@@ -60,6 +121,11 @@ class SassEngine implements AssetEngineInterface
         $this->configureImportPath();
         $this->configureOutputStyle();
         $this->configureSourceMap();
+    }
+
+    public function setPageManager(PageManager $pageManager)
+    {
+        $this->pageManager = $pageManager;
     }
 
     private function configureImportPath()
@@ -76,19 +142,17 @@ class SassEngine implements AssetEngineInterface
 
     private function configureSourceMap()
     {
-        $sourcemap = __::get($this->options, 'sourcemap');
+        $sourceMap = __::get($this->options, 'sourcemap');
 
-        if ($sourcemap === false || $sourcemap === null) {
-            $this->compiler->setSourceMap(Compiler::SOURCE_MAP_NONE);
-        }
-        elseif ($sourcemap === 'inline') {
+        if ($sourceMap === 'inline') {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_INLINE);
         }
-        else {
+        elseif ($sourceMap === true) {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_FILE);
-            $this->compiler->setSourceMapOptions([
-                'sourceMapRootpath' => Service::getWorkingDirectory(),
-            ]);
+            $this->fileSourceMap = true;
+        }
+        else {
+            $this->compiler->setSourceMap(Compiler::SOURCE_MAP_NONE);
         }
     }
 

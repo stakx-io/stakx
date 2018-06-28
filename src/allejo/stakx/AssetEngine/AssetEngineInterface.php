@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\AssetEngine;
 
+use allejo\stakx\Manager\PageManager;
+
 /**
  * @since 0.2.0
  */
@@ -50,12 +52,13 @@ interface AssetEngineInterface
 
     /**
      * @param string $content
+     * @param array  $options
      *
      * @since 0.2.0
      *
      * @return string
      */
-    public function parse($content);
+    public function parse($content, array $options = []);
 
     /**
      * Set custom options used internally by this AssetEngine.
@@ -67,4 +70,13 @@ interface AssetEngineInterface
      * @return void
      */
     public function setOptions(array $options);
+
+    /**
+     * Set the PageManager for this AssetEngine so it can be available if it's available.
+     *
+     * @param PageManager $pageManager
+     *
+     * @return void
+     */
+    public function setPageManager(PageManager $pageManager);
 }

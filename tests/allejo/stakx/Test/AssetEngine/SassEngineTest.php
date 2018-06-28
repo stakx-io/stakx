@@ -25,7 +25,7 @@ class SassEngineTest extends PHPUnit_Stakx_TestCase
 
     public function setUp()
     {
-        $this->sassEngine = new SassEngine();
+        $this->sassEngine = new SassEngine($this->getMockConfiguration());
         $this->manager = new AssetEngineManager();
 
         $this->manager->addAssetEngine($this->sassEngine);

@@ -58,6 +58,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
                 continue;
             }
 
+            $engine->setPageManager($event->getPageManager());
             $extensions = [];
 
             foreach ($engine->getExtensions() as $extension)
@@ -70,18 +71,21 @@ class AssetEngineSubscriber implements EventSubscriberInterface
             foreach ($explorer as $file)
             {
                 $assetPageView = new StaticPageView($file);
-                $compiled = $engine->parse($assetPageView->getContent());
-                $assetPageView->setContent($compiled);
 
                 try
                 {
                     $event->getPageManager()->trackNewPageView($assetPageView);
+
+                    $compiledSass = $engine->parse($assetPageView->getContent(), [
+                        'pageview' => $assetPageView,
+                    ]);
+                    $assetPageView->setContent($compiledSass);
                 }
                 catch (\Exception $e)
                 {
                     $this->logger->error('An exception occurred while creating a Static PageView for an AssetEngine');
                     $this->logger->error('  {message}', [
-                        $e->getMessage(),
+                        'message' => $e->getMessage(),
                     ]);
                 }
             }
