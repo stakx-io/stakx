@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\DataTransformer\DataTransformer;
+use allejo\stakx\DataTransformer\DataTransformerInterface;
 use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\FrontMatter\FrontMatterParser;
@@ -20,7 +20,7 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     /** @var array */
     protected $data;
 
-    /** @var DataTransformer */
+    /** @var DataTransformerInterface */
     protected $dataTransformer;
 
     /**

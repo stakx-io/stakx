@@ -33,3 +33,7 @@ highlighter:
     bzw: _languages/bzw.json
 
 debug: true
+
+scss:
+  style: compressed
+  sourcemap: false

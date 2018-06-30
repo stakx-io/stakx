@@ -29,13 +29,10 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
 
         Service::setWorkingDirectory('vfs://root');
 
-        $output = $this->getMockLogger();
-        $this->sampleConfig = new Configuration();
-        $this->sampleConfig->setLogger($output);
+        $this->sampleConfig = new Configuration($this->getMockEventDistpatcher(), $this->getMockLogger());
         $this->sampleConfig->parse(new File($file));
 
-        $this->defaultConfig = new Configuration();
-        $this->defaultConfig->setLogger($output);
+        $this->defaultConfig = new Configuration($this->getMockEventDistpatcher(), $this->getMockLogger());
         $this->defaultConfig->parse();
 
         $this->createAssetFolder('ConfigurationTestAssets');
@@ -141,11 +138,9 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
 
     public function testInvalidConfigurationFails()
     {
-        $output = $this->getReadableLogger();
         $configPath = $this->createVirtualFile('_config.yml', "foo: bar\nfoo baz");
 
-        $config = new Configuration();
-        $config->setLogger($output);
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
         $config->parse(new File($configPath));
 
         $this->assertStringContains('parsing failed...', StreamInterceptor::$output);
@@ -279,8 +274,7 @@ value_one: 1
 
         $masterConfig = $files[0];
 
-        $config = new Configuration();
-        $config->setLogger($this->getMockLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getMockLogger());
         $config->parse(new File($masterConfig));
         $result = $config->getConfiguration();
 
@@ -301,8 +295,7 @@ value_one: 1
             ],
         ]);
 
-        $config = new Configuration();
-        $config->setLogger($this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
         $this->assertContains("can't import a directory", StreamInterceptor::$output);
@@ -312,8 +305,7 @@ value_one: 1
     {
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - _config.yml");
 
-        $config = new Configuration();
-        $config->setLogger($this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
         $this->assertContains("can't import yourself", StreamInterceptor::$output);
@@ -324,8 +316,7 @@ value_one: 1
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - my_xml.xml");
         $this->createVirtualFile('my_xml.xml', '<root></root>');
 
-        $config = new Configuration();
-        $config->setLogger($this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
         $this->assertContains('a non-YAML configuration', StreamInterceptor::$output);
@@ -342,8 +333,7 @@ value_one: 1
             $this->fs->appendPath($this->assetFolder, 'my_sym.yml')
         );
 
-        $config = new Configuration();
-        $config->setLogger($this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
         $this->assertContains('a symbolically linked file', StreamInterceptor::$output);
@@ -353,8 +343,7 @@ value_one: 1
     {
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - fake_file.yml");
 
-        $config = new Configuration();
-        $config->setLogger($this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
         $this->assertContains('could not find file to import', StreamInterceptor::$output);
@@ -366,8 +355,7 @@ value_one: 1
         $this->createVirtualFile('parent.yml', "import:\n  - child.yml\nparent_value: 2");
         $this->createVirtualFile('child.yml', 'child_value: 3');
 
-        $config = new Configuration();
-        $config->setLogger($this->getMockLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getMockLogger());
         $config->parse(new File($masterConfig));
         $result = $config->getConfiguration();
 
@@ -381,8 +369,7 @@ value_one: 1
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - _second.yml");
         $this->createVirtualFile('_second.yml', "import:\n  - _config.yml");
 
-        $config = new Configuration();
-        $config->setLogger($this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
         $this->assertContains("can't recursively import a file", StreamInterceptor::$output);
@@ -406,8 +393,7 @@ value_one: 1
     {
         $configPath = $this->createVirtualFile('config.yml', $invalidImportArray);
 
-        $config = new Configuration();
-        $config->setLogger($this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
         $config->parse(new File($configPath));
 
         $this->assertContains('invalid import:', StreamInterceptor::$output);
@@ -431,8 +417,7 @@ value_one: 1
     {
         $configPath = $this->createVirtualFile('config.yml', $invalidImport);
 
-        $config = new Configuration();
-        $config->setLogger($this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
         $config->parse(new File($configPath));
 
         $this->assertContains('the reserved "import" keyword can only be an array', StreamInterceptor::$output);

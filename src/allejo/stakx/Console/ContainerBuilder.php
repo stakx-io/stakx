@@ -7,8 +7,9 @@
 
 namespace allejo\stakx\Console;
 
-use allejo\stakx\DataTransformer\DataTransformer;
-use allejo\stakx\MarkupEngine\MarkupEngine;
+use allejo\stakx\AssetEngine\AssetEngineInterface;
+use allejo\stakx\DataTransformer\DataTransformerInterface;
+use allejo\stakx\MarkupEngine\MarkupEngineInterface;
 use allejo\stakx\Templating\Twig\Extension\TwigFilterInterface;
 use allejo\stakx\Templating\Twig\Extension\TwigFunctionInterface;
 use Symfony\Component\Config\FileLocator;
@@ -59,13 +60,18 @@ class ContainerBuilder
         $loader->load('services.yml');
 
         $container
-            ->registerForAutoconfiguration(DataTransformer::class)
-            ->addTag(DataTransformer::CONTAINER_TAG)
+            ->registerForAutoconfiguration(AssetEngineInterface::class)
+            ->addTag(AssetEngineInterface::CONTAINER_TAG)
         ;
 
         $container
-            ->registerForAutoconfiguration(MarkupEngine::class)
-            ->addTag(MarkupEngine::CONTAINER_TAG)
+            ->registerForAutoconfiguration(DataTransformerInterface::class)
+            ->addTag(DataTransformerInterface::CONTAINER_TAG)
+        ;
+
+        $container
+            ->registerForAutoconfiguration(MarkupEngineInterface::class)
+            ->addTag(MarkupEngineInterface::CONTAINER_TAG)
         ;
 
         $container

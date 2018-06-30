@@ -23,7 +23,7 @@ class MarkupEngineManager
         }
     }
 
-    public function addMarkupEngine(MarkupEngine $markupEngine)
+    public function addMarkupEngine(MarkupEngineInterface $markupEngine)
     {
         $extensions = $markupEngine->getExtensions();
         $primaryExt = __::first($extensions);

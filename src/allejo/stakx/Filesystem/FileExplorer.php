@@ -30,6 +30,11 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     const ALLOW_DOT_FILES = 0x2;
 
     /**
+     * A bitwise flag to have FileExplorer ignore any directories.
+     */
+    const IGNORE_DIRECTORIES = 0x4;
+
+    /**
      * A list of common version control folders to ignore.
      *
      * The following folders should be ignored explicitly by the end user. Their usage isn't as popular so adding more
@@ -154,6 +159,10 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
         {
             return false;
         }
+        if (($this->flags & self::IGNORE_DIRECTORIES) && $this->current()->isDir())
+        {
+            return false;
+        }
 
         if (!($this->flags & self::ALLOW_DOT_FILES) &&
             preg_match('#(^|\\\\|\/)\..+(\\\\|\/|$)#', $filePath) === 1)
@@ -212,17 +221,5 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
         }
 
         return false;
-    }
-
-    /**
-     * Strip the current working directory from an absolute path.
-     *
-     * @param string $path An absolute path
-     *
-     * @return string
-     */
-    private static function getRelativePath($path)
-    {
-        return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $path);
     }
 }

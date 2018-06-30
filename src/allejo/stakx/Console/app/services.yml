@@ -4,8 +4,19 @@ services:
     autoconfigure: true
     public: true
 
+  allejo\stakx\Configuration:
+    class: 'allejo\stakx\Configuration'
+
   allejo\stakx\Website:
     class: 'allejo\stakx\Website'
+
+  allejo\stakx\AssetEngine\:
+    resource: '../../AssetEngine/*'
+
+  allejo\stakx\AssetEngine\AssetEngineManager:
+    calls:
+      - method: addAssetEngines
+        arguments: [!tagged stakx.asset_engine]
 
   allejo\stakx\DataTransformer\:
     resource: '../../DataTransformer/*'
@@ -31,10 +42,6 @@ services:
   allejo\stakx\Manager\ThemeManager:
     arguments:
       - null
-
-  allejo\stakx\Configuration:
-    calls:
-      - { method: 'setLogger', arguments: ['@logger'] }
 
   allejo\stakx\EventSubscriber\:
     resource: '../../EventSubscriber/*'

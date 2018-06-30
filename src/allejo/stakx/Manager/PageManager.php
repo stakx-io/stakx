@@ -15,6 +15,8 @@ use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Event\PageManagerPostProcess;
+use allejo\stakx\Event\PageManagerPreProcess;
 use allejo\stakx\Event\PageViewAdded;
 use allejo\stakx\Event\PageViewDefinitionAdded;
 use allejo\stakx\Exception\CollectionNotFoundException;
@@ -43,8 +45,13 @@ class PageManager extends TrackingManager
     /**
      * PageManager constructor.
      */
-    public function __construct(Configuration $configuration, CollectionManager $collectionManager, DataManager $dataManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
-    {
+    public function __construct(
+        Configuration $configuration,
+        CollectionManager $collectionManager,
+        DataManager $dataManager,
+        EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger
+    ) {
         $this->trackedItems = [
             BasePageView::STATIC_TYPE => [],
             BasePageView::DYNAMIC_TYPE => [],
@@ -75,6 +82,9 @@ class PageManager extends TrackingManager
      */
     public function parsePageViews(array $pageViewFolders)
     {
+        $preEvent = new PageManagerPreProcess($this);
+        $this->eventDispatcher->dispatch(PageManagerPreProcess::NAME, $preEvent);
+
         foreach ($pageViewFolders as $pageViewFolderName)
         {
             $pageViewFolderPath = fs::absolutePath($pageViewFolderName);
@@ -92,6 +102,9 @@ class PageManager extends TrackingManager
                 'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES,
             ], ['/.html$/', '/.twig$/']);
         }
+
+        $postEvent = new PageManagerPostProcess($this);
+        $this->eventDispatcher->dispatch(PageManagerPostProcess::NAME, $postEvent);
     }
 
     /**
@@ -150,26 +163,18 @@ class PageManager extends TrackingManager
     }
 
     /**
-     * Add a new ContentItem to the respective parent PageView of the ContentItem.
+     * Add a PageView for this PageManager to track.
      *
-     * @param ContentItem $contentItem
+     * @param BasePageView|StaticPageView|DynamicPageView|RepeaterPageView $pageView
      *
-     * @since 0.1.0
+     * @throws \LogicException When a PageView is treated as the wrong type
+     * @throws CollectionNotFoundException When the collection specified in a Dynamic PageView isn't found
+     * @throws \Exception The permalink could not be built correctly
+     *
+     * @since 0.2.0
      */
-    public function trackNewContentItem(&$contentItem)
+    public function trackNewPageView(BasePageView $pageView)
     {
-        $collection = $contentItem->getNamespace();
-        $this->trackedItems[BasePageView::DYNAMIC_TYPE][$collection]->addCollectableItem($contentItem);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function &handleTrackableItem(File $filePath, array $options = [])
-    {
-        $pageView = BasePageView::create($filePath, [
-            'site' => $this->configuration->getConfiguration(),
-        ]);
         $namespace = $pageView->getType();
 
         switch ($namespace)
@@ -194,6 +199,31 @@ class PageManager extends TrackingManager
         $this->eventDispatcher->dispatch(PageViewAdded::NAME, $event);
 
         $this->addObjectToTracker($pageView, $namespace);
+    }
+
+    /**
+     * Add a new ContentItem to the respective parent PageView of the ContentItem.
+     *
+     * @param ContentItem $contentItem
+     *
+     * @since 0.1.0
+     */
+    public function trackNewContentItem(&$contentItem)
+    {
+        $collection = $contentItem->getNamespace();
+        $this->trackedItems[BasePageView::DYNAMIC_TYPE][$collection]->addCollectableItem($contentItem);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function &handleTrackableItem(File $filePath, array $options = [])
+    {
+        $pageView = BasePageView::create($filePath, [
+            'site' => $this->configuration->getConfiguration(),
+        ]);
+
+        $this->trackNewPageView($pageView);
 
         return $pageView;
     }
@@ -226,7 +256,9 @@ class PageManager extends TrackingManager
      *
      * @since 0.1.0
      *
-     * @throws \Exception
+     * @throws \LogicException An invalid PageView has been given as a Dynamic PageView
+     * @throws CollectionNotFoundException When a collection or dataset specified in a Dynamic PageView doesn't exist
+     * @throws \Exception When the permalink for the given PageView hasn't been set
      */
     private function handleTrackableDynamicPageView(&$pageView)
     {
@@ -247,7 +279,7 @@ class PageManager extends TrackingManager
 
         if ($dataSource === null)
         {
-            throw new \Exception('Invalid Dynamic PageView defined');
+            throw new \LogicException('Invalid Dynamic PageView defined');
         }
 
         $collection = $frontMatter[$namespace];

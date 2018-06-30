@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Test;
 
+use allejo\stakx\AssetEngine\AssetEngineInterface;
+use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
@@ -249,6 +251,14 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     ///
 
     /**
+     * @return AssetEngineManager|\PHPUnit_Framework_MockObject_MockBuilder
+     */
+    protected function getMockAssetEngineManager()
+    {
+        return new AssetEngineManager();
+    }
+
+    /**
      * @return Configuration|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getMockConfiguration()
@@ -367,7 +377,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     /**
      * Get a mock EventDispatcher.
      *
-     * @return EventDispatcherInterface
+     * @return EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getMockEventDistpatcher()
     {
@@ -377,7 +387,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     /**
      * Get a mock logger.
      *
-     * @return LoggerInterface
+     * @return LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getMockLogger()
     {
@@ -435,7 +445,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     {
         $cm = new CollectionManager(
             $this->getMockMarkupEngineManager(),
-            $this->getMock(Configuration::class),
+            $this->getMockConfiguration(),
             $this->getMockTemplateBridge(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()

@@ -9,7 +9,7 @@ namespace allejo\stakx\DataTransformer;
 
 use Symfony\Component\Yaml\Yaml;
 
-class YamlTransformer implements DataTransformer
+class YamlTransformer implements DataTransformerInterface
 {
     /**
      * {@inheritdoc}

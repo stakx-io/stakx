@@ -37,7 +37,7 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
 
         $dm = new DataManager(
             $this->getDataTransformerManager(),
-            $this->getMock(Configuration::class),
+            $this->getMockConfiguration(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
@@ -74,7 +74,7 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
     {
         $dm = new DataManager(
             $this->getDataTransformerManager(),
-            $this->getMock(Configuration::class),
+            $this->getMockConfiguration(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );

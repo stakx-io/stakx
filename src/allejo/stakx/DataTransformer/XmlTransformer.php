@@ -9,7 +9,7 @@ namespace allejo\stakx\DataTransformer;
 
 use allejo\stakx\Exception\DependencyMissingException;
 
-class XmlTransformer implements DataTransformer
+class XmlTransformer implements DataTransformerInterface
 {
     /**
      * {@inheritdoc}

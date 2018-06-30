@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ */
+
+namespace allejo\stakx\AssetEngine;
+
+use allejo\stakx\Manager\PageManager;
+
+/**
+ * @since 0.2.0
+ */
+interface AssetEngineInterface
+{
+    const CONTAINER_TAG = 'stakx.asset_engine';
+
+    /**
+     * The section name in a site's `_config.yml` where this engine can be configured.
+     *
+     * @return string
+     */
+    public function getConfigurationNamespace();
+
+    /**
+     * The default configuration for this engine.
+     *
+     * @return array
+     */
+    public function getDefaultConfiguration();
+
+    /**
+     * The dedicated folder this asset engine will work in.
+     *
+     * @since 0.2.0
+     *
+     * @return string
+     */
+    public function getFolder();
+
+    /**
+     * The extension this asset engine will be dedicated to.
+     *
+     * These extensions will automatically have a `.twig` appended to them.
+     *
+     * @since 0.2.0
+     *
+     * @return string[]
+     */
+    public function getExtensions();
+
+    /**
+     * @param string $content
+     * @param array  $options
+     *
+     * @since 0.2.0
+     *
+     * @return string
+     */
+    public function parse($content, array $options = []);
+
+    /**
+     * Set custom options used internally by this AssetEngine.
+     *
+     * @param array $options
+     *
+     * @since 0.2.0
+     *
+     * @return void
+     */
+    public function setOptions(array $options);
+
+    /**
+     * Set the PageManager for this AssetEngine so it can be available if it's available.
+     *
+     * @param PageManager $pageManager
+     *
+     * @return void
+     */
+    public function setPageManager(PageManager $pageManager);
+}

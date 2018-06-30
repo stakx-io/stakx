@@ -11,7 +11,7 @@ use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
 
-class MarkdownEngine extends \ParsedownExtra implements MarkupEngine
+class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 {
     protected $highlighter;
 
