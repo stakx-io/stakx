@@ -1,21 +1,29 @@
-## HEAD
+## 0.2.0 Alpha 1
 
-A major release with the description yet to be determined.
+The first alpha tag of the next major release of stakx with a rebuilt core, Scss support, and Twig improvements.
 
 **Deprecations**
+
+- The `watch` command has been removed
+- The `--no-conf` flag has been removed; all sites now need a configuration file
 
 **New**
 
 - FrontMatter now has "complex variables," meaning you can inject variables from your site's configuration file into any FM block
+- The `select`, `order`, `where`, and `group` Twig filters have support for dot notation to access nested data in arrays
+- Make use Symfony's Event Dispatcher throughout our core to dispatch events for core and possibly third-party plugins
+- Add Scss and source map support in a `_sass` folder
 
 **Change**
 
 - The "working directory" of websites is now relative to the given configuration file
+- Dynamic PageViews are no longer accessible through Twig
 
 **Fixes**
 
 - Twig files through `{% include %}` are now treated as dependencies for the watch functionality
 - The `summary` and `toc` Twig filters now better support HTML5 and are more robust
+- The `basename` and `filename` variables are available in FrontMatter
 
 **Development**
 
@@ -29,6 +37,8 @@ A major release with the description yet to be determined.
 - Twig filters and functions are now handled through the container
 - Improved cross-platform support for file paths used internally
 - Markup engines have been abstracted out into interfaces and separate classes
+- Standardized filesystem reads and writes throughout core
+- The internal `Service` singleton uses bitwise flags instead of an array of arbitrary keys
 
 ## 0.1.3 "Pacifist Tasmanian Devil"
 

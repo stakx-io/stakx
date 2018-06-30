@@ -1,16 +1,15 @@
-# stakx
+<p align="center"><img alt="stakx logo" src=".github/brand.png"></p>
 
 [![*nix build Status](https://img.shields.io/travis/stakx-io/stakx.svg)](https://travis-ci.org/stakx-io/stakx)
 [![Windows build status](https://ci.appveyor.com/api/projects/status/0otqsetd0079jipd?svg=true)](https://ci.appveyor.com/project/allejo/stakx)
-[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/stakx-io/stakx.svg?maxAge=7200)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/stakx-io/stakx.svg?maxAge=7200)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
-[![Dependency Status](https://img.shields.io/versioneye/d/user/projects/57b8ba4e090d4d0039befe69.svg?maxAge=7200)](https://www.versioneye.com/user/projects/57b8ba4e090d4d0039befe69)
+[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/stakx-io/stakx.svg)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/stakx-io/stakx.svg)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
 
-stakx is a static website generator built in PHP as a powerful alternative to Jekyll or Sculpin. If you have PHP installed on your computer, download stakx from our Releases and run it! There is no need to download dependencies (`bundle install` or `composer install`) like other tools, everything is bundled in a single executable that just works.
+stakx is a static website generator built in PHP inspired by Jekyll and Sculpin. Unlike its alternatives, stakx is distributed as a single executable so you don't need to worry about silly `bundle install` or `composer install` commands to build your website.
 
 ## Philosophy
 
-stakx's philosophy is to be treated as a model-view-controller (MVC) setup where stakx itself is the controller, Twig makes up the views, and your content makes up the models. Keeping this mind, writing websites with stakx will allow for a lot of truly reusable code for you to use on multiple websites or share with the community.
+stakx's philosophy is to be treated as a model-view-controller (MVC) setup where stakx itself is the controller, Twig makes up the views, and your content makes up the models. Following this philosophy will allow you to have truly reusable content making migration to and from stakx a breeze.
 
 ## Building the Sample Project
 
@@ -37,4 +36,4 @@ php ../bin/stakx build
 
 ## License
 
-See the [LICENSE](https://github.com/stakx-io/stakx/blob/master/LICENSE.md) file.
+[MIT](./LICENSE.md)
