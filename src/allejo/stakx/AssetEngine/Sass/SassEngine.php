@@ -2,16 +2,16 @@
 
 /**
  * @copyright 2018 Vladimir Jimenez
- * @license   https://github.com/allejo/stakx/blob/master/LICENSE.md MIT
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\AssetEngine;
+namespace allejo\stakx\AssetEngine\Sass;
 
 use __;
+use allejo\stakx\AssetEngine\AssetEngineInterface;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
-use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
@@ -25,6 +25,7 @@ class SassEngine implements AssetEngineInterface
 {
     private $fileSourceMap = false;
     private $configuration;
+    /** @var PageManager */
     private $pageManager;
     private $compiler;
     private $options = [];
@@ -68,51 +69,41 @@ class SassEngine implements AssetEngineInterface
      */
     public function parse($content, array $options = [])
     {
-        $sourceMapTargetPath = null;
         $sourceMapOptions = [
             'sourceMapBasepath' => Service::getWorkingDirectory(),
         ];
 
-        if ($this->fileSourceMap)
+        // We don't need to write the source map to a file
+        if (!$this->fileSourceMap)
         {
-            /** @var StaticPageView $pageView */
-            $pageView = $options['pageview'];
+            $this->compiler->setSourceMapOptions($sourceMapOptions);
 
-            // Always put our source map next to the respective CSS file
-            $sourceMapTargetPath = fs::appendPath(
-                Service::getWorkingDirectory(),
-                $this->configuration->getTargetFolder(),
-                $pageView->getTargetFile() . '.map'
-            );
-            $sourceMapFilename = fs::getFilename($pageView->getTargetFile()) . '.map';
-
-            $sourceMapOptions = array_merge($sourceMapOptions, [
-                'sourceMapFilename' => $sourceMapFilename,
-                'sourceMapURL' => $pageView->getPermalink() . '.map',
-                'sourceMapWriteTo' => $sourceMapTargetPath,
-            ]);
+            return $this->compiler->compile($content);
         }
 
-        $this->compiler->setSourceMapOptions($sourceMapOptions);
+        /** @var StaticPageView $pageView */
+        $pageView = $options['pageview'];
+
+        // Always put our source map next to the respective CSS file
+        $sourceMapTargetPath = $this->getSourceMapTargetFile($pageView);
+        $sourceMapFilename = fs::getFilename($sourceMapTargetPath);
+
+        $sourceMapOptions = array_merge($sourceMapOptions, [
+            'sourceMapFilename' => $sourceMapFilename,
+            'sourceMapURL' => $pageView->getPermalink() . '.map',
+            'sourceMapWriteTo' => $sourceMapTargetPath,
+        ]);
+
+        $sourceMapGenerator = new SourceMapGenerator($sourceMapOptions);
+        $this->compiler->setSourceMap($sourceMapGenerator);
+
         $sass = $this->compiler->compile($content);
 
-        // Due to how our Sass Compiler is designed, the Source Map is automatically written to the given location. This
-        // write happens *before* the stakx compiler writes out files, so if we write the source map to _site/, then it'll
-        // be deleted when _site/ is cleaned.
-        //
-        // This is a workaround by creating a virtual file to store the source map contents, which will be written out by
-        // the stakx compiler.
-        if ($this->fileSourceMap)
-        {
-            $sourceMap = new File($sourceMapTargetPath);
-            $sourceMapContents = $sourceMap->getContents();
+        $sourceMapPageView = BasePageView::createVirtual([
+            'permalink' => $pageView->getPermalink() . '.map',
+        ], $sourceMapGenerator->getSourceMapContents());
 
-            $sourceMapPageView = BasePageView::createVirtual([
-                'permalink' => $pageView->getPermalink() . '.map',
-            ], $sourceMapContents);
-
-            $this->pageManager->trackNewPageView($sourceMapPageView);
-        }
+        $this->pageManager->trackNewPageView($sourceMapPageView);
 
         return $sass;
     }
@@ -157,6 +148,14 @@ class SassEngine implements AssetEngineInterface
         else {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_NONE);
         }
+    }
+
+    private function getSourceMapTargetFile(StaticPageView $pageView)
+    {
+        return fs::absolutePath(
+            $this->configuration->getTargetFolder(),
+            $pageView->getTargetFile() . '.map'
+        );
     }
 
     public static function stringToFormatter($format)

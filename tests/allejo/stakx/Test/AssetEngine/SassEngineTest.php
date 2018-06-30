@@ -8,13 +8,14 @@
 namespace allejo\stakx\Test\AssetEngine;
 
 use allejo\stakx\AssetEngine\AssetEngineManager;
-use allejo\stakx\AssetEngine\SassEngine;
+use allejo\stakx\AssetEngine\Sass\SassEngine;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\EventSubscriber\AssetEngineSubscriber;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
@@ -148,7 +149,6 @@ SASS;
             '_sass' => [
                 'styles.scss.twig' => $this->buildFrontMatterTemplate(['permalink' => '/styles.css'], $this->sass)
             ],
-            '_site' => [],
         ], $this->rootDir);
 
         $config = $this->mockConfigurationGenerator([
@@ -174,25 +174,22 @@ SASS;
         $pageManagerEvent = new PageManagerPostProcess($pageManager);
         $subscriber->processAssetEnginePageView($pageManagerEvent);
 
-        $this->manager->getEngineByExtension('scss');
-
-        $sourceMapPath = 'root/_site/styles.css.map';
-        $this->assertNotEmpty(file_get_contents(vfsStream::url($sourceMapPath)));
-        $this->assertFileExists(vfsStream::url($sourceMapPath));
-
-        $sassPageViewExists = false;
         $pageViews = &$pageManager->getPageViews();
+
+        $expectedFiles = ['styles.css', 'styles.css.map'];
+        $actualFileCount = 0;
 
         /** @var StaticPageView $pageView */
         foreach ($pageViews[BasePageView::STATIC_TYPE] as $pageView)
         {
-            if ($pageView->getFilename() === 'styles.scss.twig')
+            $filename = fs::getFilename($pageView->getTargetFile());
+
+            if (in_array($filename, $expectedFiles))
             {
-                $sassPageViewExists = true;
-                break;
+                $actualFileCount++;
             }
         }
 
-        $this->assertTrue($sassPageViewExists);
+        $this->assertEquals(count($expectedFiles), $actualFileCount);
     }
 }

@@ -76,10 +76,10 @@ class AssetEngineSubscriber implements EventSubscriberInterface
                 {
                     $event->getPageManager()->trackNewPageView($assetPageView);
 
-                    $compiledSass = $engine->parse($assetPageView->getContent(), [
+                    $compiledOutput = $engine->parse($assetPageView->getContent(), [
                         'pageview' => $assetPageView,
                     ]);
-                    $assetPageView->setContent($compiledSass);
+                    $assetPageView->setContent($compiledOutput);
                 }
                 catch (\Exception $e)
                 {
