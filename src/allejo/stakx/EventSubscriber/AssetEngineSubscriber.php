@@ -66,7 +66,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
                 $extensions[] = "/.{$extension}.twig$/";
             }
 
-            $explorer = FileExplorer::create($assetFolder, [], $extensions, FileExplorer::IGNORE_DIRECTORIES);
+            $explorer = FileExplorer::create($assetFolder, [], $extensions, FileExplorer::INCLUDE_ONLY_FILES | FileExplorer::IGNORE_DIRECTORIES);
 
             foreach ($explorer as $file)
             {
