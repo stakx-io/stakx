@@ -1,3 +1,9 @@
+## HEAD
+
+**Fixes**
+
+- Nested folders inside of `_sass` no longer throw errors
+
 ## 0.2.0 Alpha 1
 
 The first alpha tag of the next major release of stakx with a rebuilt core, Scss support, and Twig improvements.
