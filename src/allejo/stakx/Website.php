@@ -18,12 +18,12 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Website
 {
-    private $configuration;
-    private $logger;
-    private $templateBridge;
-    private $compiler;
-    private $assetManager;
     private $eventDispatcher;
+    private $templateBridge;
+    private $configuration;
+    private $assetManager;
+    private $compiler;
+    private $logger;
 
     public function __construct(
         Compiler $compiler,
@@ -33,12 +33,17 @@ class Website
         EventDispatcherInterface $eventDispatcher,
         Logger $logger
     ) {
-        $this->configuration = $configuration;
-        $this->logger = $logger;
-        $this->templateBridge = $templateBridge;
-        $this->compiler = $compiler;
-        $this->assetManager = $assetManager;
         $this->eventDispatcher = $eventDispatcher;
+        $this->templateBridge = $templateBridge;
+        $this->configuration = $configuration;
+        $this->assetManager = $assetManager;
+        $this->compiler = $compiler;
+        $this->logger = $logger;
+    }
+
+    public function getCompiler()
+    {
+        return $this->compiler;
     }
 
     /**
