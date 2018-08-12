@@ -2,11 +2,11 @@
 
 namespace allejo\stakx\Console\Command;
 
-use allejo\stakx\PageViewRouter;
+use allejo\stakx\Server\PageViewRouter;
+use allejo\stakx\Server\RouteDispatcher;
 use allejo\stakx\Website;
 use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\Factory;
-use React\Http\Response;
 use React\Http\Server;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -38,18 +38,20 @@ class ServeCommand extends BuildCommand
             $router = $this->getContainer()->get(PageViewRouter::class);
 
             $loop = Factory::create();
-            $server = new Server(function (ServerRequestInterface $request) use ($router, $website) {
-                $path = $request->getUri()->getPath();
-                $method = $request->getMethod();
+            $dispatcher = RouteDispatcher::create($router, $website->getCompiler());
 
-                $pageView = $router->getRoute($path);
+            $server = new Server(function (ServerRequestInterface $request) use ($dispatcher) {
+                $routeInfo = $dispatcher->dispatch($request->getMethod(), $request->getUri()->getPath());
 
-                if ($method !== 'GET' || $pageView === null)
+                switch ($routeInfo[0])
                 {
-                    return new Response(404, ['Content-Type' => 'text/plain'], 'URL not found');
-                }
+                    case \FastRoute\Dispatcher::FOUND:
+                        $params = isset($routeInfo[2]) ? $routeInfo[2] : [];
+                        return $routeInfo[1]($request, ...array_values($params));
 
-                return new Response(200, ['Content-Type' => 'text/html'], $website->getCompiler()->compilePageView($pageView));
+                    default:
+                        return RouteDispatcher::return404();
+                }
             });
 
             $socket = new \React\Socket\Server('0.0.0.0:8000', $loop);

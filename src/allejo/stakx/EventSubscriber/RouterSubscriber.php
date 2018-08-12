@@ -3,7 +3,7 @@
 namespace allejo\stakx\EventSubscriber;
 
 use allejo\stakx\Event\PageViewAdded;
-use allejo\stakx\PageViewRouter;
+use allejo\stakx\Server\PageViewRouter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RouterSubscriber implements EventSubscriberInterface

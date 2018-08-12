@@ -7,9 +7,6 @@ services:
   allejo\stakx\Configuration:
     class: 'allejo\stakx\Configuration'
 
-  allejo\stakx\PageViewRouter:
-    class: 'allejo\stakx\PageViewRouter'
-
   allejo\stakx\Website:
     class: 'allejo\stakx\Website'
 
@@ -50,6 +47,9 @@ services:
     resource: '../../EventSubscriber/*'
     tags:
       - { name: 'kernel.event_subscriber' }
+
+  allejo\stakx\Server\:
+    resource: '../../Server/*'
 
   allejo\stakx\Templating\Twig\Extension\:
     resource: '../../Templating/Twig/Extension/*'

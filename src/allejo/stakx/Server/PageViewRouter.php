@@ -1,6 +1,6 @@
 <?php
 
-namespace allejo\stakx;
+namespace allejo\stakx\Server;
 
 use __\__;
 use allejo\stakx\Document\BasePageView;
@@ -70,5 +70,19 @@ class PageViewRouter
     public function getRoutes()
     {
         return array_keys($this->mapping);
+    }
+
+    public function &getRouteMapping()
+    {
+        return $this->mapping;
+    }
+
+    public static function extractUrlParameters($permalink)
+    {
+        $matches = [];
+
+        preg_match_all(FrontMatterParser::ANY_VARIABLE, $permalink, $matches);
+
+        return $matches[1];
     }
 }
