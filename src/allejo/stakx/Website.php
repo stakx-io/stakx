@@ -39,6 +39,8 @@ class Website
         $this->assetManager = $assetManager;
         $this->compiler = $compiler;
         $this->logger = $logger;
+
+        Service::setOption('theme', $this->getConfiguration()->getTheme());
     }
 
     public function getCompiler()
