@@ -32,12 +32,20 @@ final class File extends \SplFileInfo
      * @param string $filePath an absolute file path or a path relative to the current working directory
      *
      * @since 0.2.0
+     *
+     * @throws FileNotFoundException
      */
     public function __construct($filePath)
     {
         $this->rawPath = $filePath;
+        $realPath = self::realpath($filePath);
 
-        parent::__construct(self::realpath($filePath));
+        if ($realPath === false)
+        {
+            throw $this->buildNotFoundException();
+        }
+
+        parent::__construct($realPath);
 
         $this->relativePath = str_replace(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR, '', $this->getAbsolutePath());
 
@@ -170,6 +178,8 @@ final class File extends \SplFileInfo
 
     /**
      * Check if a file is safe to read.
+     *
+     * @throws FileNotFoundException
      */
     private function isSafeToRead()
     {
