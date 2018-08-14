@@ -10,6 +10,7 @@ use allejo\stakx\Document\ReadableDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Document\TemplateReadyDocument;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use FastRoute\RouteCollector;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
@@ -17,29 +18,10 @@ use React\Http\Response;
 class RouteDispatcher
 {
     /**
-     * Return a 200 HTML Response.
-     *
-     * This is just a utility function available.
-     *
-     * @param string $content
-     *
-     * @return Response
+     * @internal
      */
-    public static function return200($content)
+    private function __construct()
     {
-        return new Response(200, ['Content-Type' => 'text/html'], $content);
-    }
-
-    /**
-     * Return a 404 Response.
-     *
-     * This is just a utility function available.
-     *
-     * @return Response
-     */
-    public static function return404()
-    {
-        return new Response(404, ['Content-Type' => 'text/plain'], '404: Page not found');
     }
 
     /**
@@ -50,12 +32,17 @@ class RouteDispatcher
      *
      * @return \Closure
      */
-    private static function staticPageViewController(StaticPageView $pageView, Compiler $compiler)
+    private function staticPageViewController(StaticPageView $pageView, Compiler $compiler)
     {
         return function () use ($pageView, $compiler) {
             $pageView->readContent();
+            $mimeType = MimeDetector::getMimeType(fs::getExtension($pageView->getTargetFile()));
 
-            return self::return200($compiler->renderStaticPageView($pageView));
+            return new Response(
+                200,
+                ['Content-Type' => $mimeType],
+                $compiler->renderStaticPageView($pageView)
+            );
         };
     }
 
@@ -67,42 +54,21 @@ class RouteDispatcher
      *
      * @return \Closure
      */
-    private static function dynamicPageViewController(DynamicPageView $pageView, Compiler $compiler)
+    private function dynamicPageViewController(DynamicPageView $pageView, Compiler $compiler)
     {
         return function (ServerRequestInterface $request) use ($pageView, $compiler) {
             $contentItem = self::getContentItem($pageView, $request->getUri()->getPath());
 
             if ($contentItem === null)
             {
-                return self::return404();
+                return DevServer::return404();
             }
 
             $pageView->readContent();
             $contentItem->readContent();
 
-            return self::return200($compiler->renderDynamicPageView($pageView, $contentItem));
+            return DevServer::return200($compiler->renderDynamicPageView($pageView, $contentItem));
         };
-    }
-
-    /**
-     * Find a ContentItem from a Dynamic PageView or null if it doesn't exist.
-     *
-     * @param DynamicPageView $pageView
-     * @param                 $permalink
-     *
-     * @return CollectableItem|ReadableDocument|TemplateReadyDocument|null
-     */
-    private static function getContentItem(DynamicPageView $pageView, $permalink)
-    {
-        foreach ($pageView->getCollectableItems() as $collectableItem)
-        {
-            if ($collectableItem['permalink'] === $permalink)
-            {
-                return $collectableItem;
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -113,15 +79,15 @@ class RouteDispatcher
      *
      * @return \Closure
      */
-    private static function createController(BasePageView $pageView, Compiler $compiler)
+    private function createController(BasePageView $pageView, Compiler $compiler)
     {
         switch ($pageView->getType())
         {
             case BasePageView::STATIC_TYPE:
-                return self::staticPageViewController($pageView, $compiler);
+                return $this->staticPageViewController($pageView, $compiler);
 
             case BasePageView::DYNAMIC_TYPE:
-                return self::dynamicPageViewController($pageView, $compiler);
+                return $this->dynamicPageViewController($pageView, $compiler);
 
             default:
                 return function () {
@@ -143,10 +109,33 @@ class RouteDispatcher
     public static function create(PageViewRouter $router, Compiler $compiler)
     {
         return \FastRoute\simpleDispatcher(function (RouteCollector $r) use ($router, $compiler) {
+            $dispatcher = new RouteDispatcher();
+
             foreach ($router->getRouteMapping() as $route => $pageView)
             {
-                $r->get($route, self::createController($pageView, $compiler));
+                $r->get($route, $dispatcher->createController($pageView, $compiler));
             }
         });
+    }
+
+    /**
+     * Find a ContentItem from a Dynamic PageView or null if it doesn't exist.
+     *
+     * @param DynamicPageView $pageView
+     * @param                 $permalink
+     *
+     * @return CollectableItem|ReadableDocument|TemplateReadyDocument|null
+     */
+    private static function getContentItem(DynamicPageView $pageView, $permalink)
+    {
+        foreach ($pageView->getCollectableItems() as $collectableItem)
+        {
+            if ($collectableItem['permalink'] === $permalink)
+            {
+                return $collectableItem;
+            }
+        }
+
+        return null;
     }
 }
