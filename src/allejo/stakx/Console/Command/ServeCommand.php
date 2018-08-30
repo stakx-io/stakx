@@ -7,6 +7,7 @@ use allejo\stakx\Server\PageViewRouter;
 use allejo\stakx\Website;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ServeCommand extends BuildCommand
@@ -20,6 +21,9 @@ class ServeCommand extends BuildCommand
 
         $this->setName('serve');
         $this->setDescription('Start a web server serving the stakx website');
+
+        $this->addOption('port', 'p', InputOption::VALUE_REQUIRED, 'The port the local development server will be listening on', 8000);
+        $this->addOption('bind', null, InputOption::VALUE_REQUIRED, 'The IP the local development server will bind to', '0.0.0.0');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -36,7 +40,10 @@ class ServeCommand extends BuildCommand
             $router = $this->getContainer()->get(PageViewRouter::class);
 
             $loop = Factory::create();
-            $socket = new \React\Socket\Server('0.0.0.0:8000', $loop);
+            $socket = new \React\Socket\Server(
+                $input->getOption('bind') . ':' . $input->getOption('port'),
+                $loop
+            );
 
             $server = DevServer::create($router, $website->getCompiler());
             $server->listen($socket);
