@@ -159,6 +159,16 @@ abstract class ReadableDocument
     }
 
     /**
+     * Gets the last modified time.
+     *
+     * @return int The last modified time for the file, in a Unix timestamp
+     */
+    final public function getLastModified()
+    {
+        return $this->file->getLastModified();
+    }
+
+    /**
      * Read the contents of this file and handle all of the necessary processing/setup for this document.
      */
     final public function readContent()

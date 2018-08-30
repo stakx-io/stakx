@@ -150,6 +150,16 @@ final class File extends \SplFileInfo
     }
 
     /**
+     * Gets the last modified time.
+     *
+     * @return int The last modified time for the file, in a Unix timestamp
+     */
+    public function getLastModified()
+    {
+        return $this->getMTime();
+    }
+
+    /**
      * Get the contents of this file.
      *
      * @since 0.2.0

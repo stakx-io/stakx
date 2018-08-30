@@ -17,6 +17,8 @@ use React\Http\Response;
 
 class RouteDispatcher
 {
+    private $lastModified = [];
+
     /**
      * @internal
      */
@@ -35,7 +37,10 @@ class RouteDispatcher
     private function staticPageViewController(StaticPageView $pageView, Compiler $compiler)
     {
         return function () use ($pageView, $compiler) {
-            $pageView->readContent();
+            if ($this->hasBeenTouched($pageView)) {
+                $pageView->readContent();
+            }
+
             $mimeType = MimeDetector::getMimeType(fs::getExtension($pageView->getTargetFile()));
 
             return new Response(
@@ -64,8 +69,14 @@ class RouteDispatcher
                 return DevServer::return404();
             }
 
-            $pageView->readContent();
-            $contentItem->readContent();
+            if ($this->hasBeenTouched($pageView))
+            {
+                $pageView->readContent();
+            }
+            if ($this->hasBeenTouched($contentItem))
+            {
+                $contentItem->readContent();
+            }
 
             return DevServer::return200($compiler->renderDynamicPageView($pageView, $contentItem));
         };
@@ -96,6 +107,26 @@ class RouteDispatcher
                     return new Response(501, ['Content-Type' => 'text/plain'], $errMsg);
                 };
         }
+    }
+
+    /**
+     * Check to see if a file has been touched since we last read it.
+     *
+     * @param ReadableDocument $document
+     *
+     * @return bool True if the file has been modified since it was last accessed
+     */
+    private function hasBeenTouched(ReadableDocument $document)
+    {
+        $rPath = $document->getRelativeFilePath();
+
+        if (!isset($this->lastModified[$rPath]))
+        {
+            $this->lastModified[$rPath] = $document->getLastModified();
+            return true;
+        }
+
+        return ($document->getLastModified() > $this->lastModified[$rPath]);
     }
 
     /**
