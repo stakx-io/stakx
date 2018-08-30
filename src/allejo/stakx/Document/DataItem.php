@@ -163,7 +163,18 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
      */
     public function offsetGet($offset)
     {
-        return $this->data[$offset];
+        $fxnCall = 'get' . ucfirst($offset);
+
+        if (in_array($fxnCall, FrontMatterDocument::$whiteListedFunctions) && method_exists($this, $fxnCall))
+        {
+            return call_user_func_array([$this, $fxnCall], []);
+        }
+
+        if (isset($this->data[$offset])) {
+            return $this->data[$offset];
+        }
+
+        return null;
     }
 
     /**
