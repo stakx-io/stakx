@@ -41,6 +41,8 @@ class Website
         $this->logger = $logger;
 
         Service::setOption('theme', $this->getConfiguration()->getTheme());
+
+        $this->configureHighlighter();
     }
 
     public function getCompiler()
@@ -64,7 +66,6 @@ class Website
 
         // Configure the environment
         $this->createFolderStructure();
-        $this->configureHighlighter();
 
         // Our output directory
         $outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
