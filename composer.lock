@@ -4,23 +4,24 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c4db8ff9fb4dc678d818b8dfdc7c62a0",
+    "content-hash": "b4e7602632fc51e9a0f61872a2b7d1ca",
     "packages": [
         {
             "name": "erusev/parsedown",
-            "version": "1.6.4",
+            "version": "1.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erusev/parsedown.git",
-                "reference": "fbe3fe878f4fe69048bb8a52783a09802004f548"
+                "reference": "92e9c27ba0e74b8b028b111d1b6f956a15c01fc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown/zipball/fbe3fe878f4fe69048bb8a52783a09802004f548",
-                "reference": "fbe3fe878f4fe69048bb8a52783a09802004f548",
+                "url": "https://api.github.com/repos/erusev/parsedown/zipball/92e9c27ba0e74b8b028b111d1b6f956a15c01fc1",
+                "reference": "92e9c27ba0e74b8b028b111d1b6f956a15c01fc1",
                 "shasum": ""
             },
             "require": {
+                "ext-mbstring": "*",
                 "php": ">=5.3.0"
             },
             "require-dev": {
@@ -49,7 +50,7 @@
                 "markdown",
                 "parser"
             ],
-            "time": "2017-11-14T20:44:03+00:00"
+            "time": "2018-03-08T01:11:30+00:00"
         },
         {
             "name": "erusev/parsedown-extra",
@@ -390,16 +391,16 @@
         },
         {
             "name": "scrivo/highlight.php",
-            "version": "v9.12.0.2",
+            "version": "v9.12.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scrivo/highlight.php.git",
-                "reference": "186ad7df8c02f0cbe5e8dd13f98a8b2778b2b608"
+                "reference": "0db45267df6b3bbae224ff86445d6407629e8b96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scrivo/highlight.php/zipball/186ad7df8c02f0cbe5e8dd13f98a8b2778b2b608",
-                "reference": "186ad7df8c02f0cbe5e8dd13f98a8b2778b2b608",
+                "url": "https://api.github.com/repos/scrivo/highlight.php/zipball/0db45267df6b3bbae224ff86445d6407629e8b96",
+                "reference": "0db45267df6b3bbae224ff86445d6407629e8b96",
                 "shasum": ""
             },
             "require-dev": {
@@ -441,7 +442,7 @@
                 "highlight.php",
                 "syntax"
             ],
-            "time": "2018-02-19T02:38:14+00:00"
+            "time": "2018-08-24T15:45:27+00:00"
         },
         {
             "name": "symfony/config",
