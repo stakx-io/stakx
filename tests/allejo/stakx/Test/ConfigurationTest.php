@@ -107,7 +107,7 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
 
     public function testSampleConfigGetTargetFolder()
     {
-        $this->assertEquals('_bacon', $this->sampleConfig->getTargetFolder());
+        $this->assertEquals('_bacon/', $this->sampleConfig->getTargetFolder());
     }
 
     public function testSampleConfigGetCollectionsFolders()
@@ -133,7 +133,7 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
 
     public function testDefaultConfigTargetUrl()
     {
-        $this->assertEquals('_site', $this->defaultConfig->getTargetFolder());
+        $this->assertEquals('_site/', $this->defaultConfig->getTargetFolder());
     }
 
     public function testInvalidConfigurationFails()

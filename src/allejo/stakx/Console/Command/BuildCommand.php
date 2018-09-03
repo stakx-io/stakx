@@ -63,7 +63,7 @@ class BuildCommand extends ContainerAwareCommand
             $website->build();
 
             $output->writeln(sprintf('Your site built successfully! It can be found at: %s',
-                $website->getConfiguration()->getTargetFolder() . DIRECTORY_SEPARATOR
+                $website->getConfiguration()->getTargetFolder()
             ));
 
             return 0;
