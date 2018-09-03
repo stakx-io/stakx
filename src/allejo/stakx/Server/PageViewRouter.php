@@ -11,12 +11,23 @@ use allejo\stakx\FrontMatter\FrontMatterParser;
 
 class PageViewRouter
 {
-    private $mapping;
     private $redirects;
+    private $baseUrl;
+    private $mapping;
 
     public function __construct()
     {
         $this->mapping = [];
+    }
+
+    public function getBaseUrl()
+    {
+        return $this->baseUrl;
+    }
+
+    public function setBaseUrl($baseUrl)
+    {
+        $this->baseUrl = $baseUrl;
     }
 
     /**

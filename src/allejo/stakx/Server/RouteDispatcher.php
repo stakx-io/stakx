@@ -17,6 +17,7 @@ use React\Http\Response;
 
 class RouteDispatcher
 {
+    private static $baseUrl = '';
     private $lastModified = [];
 
     /**
@@ -62,7 +63,7 @@ class RouteDispatcher
     private function dynamicPageViewController(DynamicPageView $pageView, Compiler $compiler)
     {
         return function (ServerRequestInterface $request) use ($pageView, $compiler) {
-            $contentItem = self::getContentItem($pageView, $request->getUri()->getPath());
+            $contentItem = self::getContentItem($pageView, self::normalizeUrl($request->getUri()->getPath()));
 
             if ($contentItem === null)
             {
@@ -139,6 +140,8 @@ class RouteDispatcher
      */
     public static function create(PageViewRouter $router, Compiler $compiler)
     {
+        self::$baseUrl = $router->getBaseUrl();
+
         return \FastRoute\simpleDispatcher(function (RouteCollector $r) use ($router, $compiler) {
             $dispatcher = new RouteDispatcher();
 
@@ -147,6 +150,11 @@ class RouteDispatcher
                 $r->get($route, $dispatcher->createController($pageView, $compiler));
             }
         });
+    }
+
+    public static function normalizeUrl($url)
+    {
+        return str_replace(self::$baseUrl, '/', $url);
     }
 
     /**

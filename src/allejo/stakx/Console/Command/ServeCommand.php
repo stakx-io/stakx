@@ -38,6 +38,7 @@ class ServeCommand extends BuildCommand
 
             /** @var PageViewRouter $router */
             $router = $this->getContainer()->get(PageViewRouter::class);
+            $router->setBaseUrl($website->getConfiguration()->getBaseUrl());
 
             $loop = Factory::create();
             $socket = new \React\Socket\Server(

@@ -43,9 +43,9 @@ class DevServer
     {
         $dispatcher = RouteDispatcher::create($router, $compiler);
 
-        return new Server(function (ServerRequestInterface $request) use ($dispatcher) {
+        return new Server(function (ServerRequestInterface $request) use ($router, $dispatcher) {
             $httpMethod = $request->getMethod();
-            $urlPath = $request->getUri()->getPath();
+            $urlPath = RouteDispatcher::normalizeUrl($request->getUri()->getPath());
 
             if ($httpMethod !== 'GET')
             {
