@@ -55,9 +55,6 @@ class TwigStakxBridgeFactory
             'cache' => fs::absolutePath('.stakx-cache/twig'),
         ]);
 
-        // We'll use this to access the current file in our Twig filters
-        $twig->addGlobal('__currentTemplate', '');
-
         $twig->addExtension($twigExtension);
 
         $profiler = null;

@@ -11,6 +11,7 @@ use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Service;
 use FastRoute\RouteCollector;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
@@ -38,6 +39,8 @@ class RouteDispatcher
     private function staticPageViewController(StaticPageView $pageView, Compiler $compiler)
     {
         return function () use ($pageView, $compiler) {
+            Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
+
             if ($this->hasBeenTouched($pageView)) {
                 $pageView->readContent();
             }
@@ -63,6 +66,8 @@ class RouteDispatcher
     private function dynamicPageViewController(DynamicPageView $pageView, Compiler $compiler)
     {
         return function (ServerRequestInterface $request) use ($pageView, $compiler) {
+            Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
+
             $contentItem = self::getContentItem($pageView, self::normalizeUrl($request->getUri()->getPath()));
 
             if ($contentItem === null)

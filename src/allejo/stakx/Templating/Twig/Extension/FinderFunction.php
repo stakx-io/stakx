@@ -9,13 +9,12 @@ namespace allejo\stakx\Templating\Twig\Extension;
 
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use Symfony\Component\Finder\Finder;
-use Twig_Environment;
 
 class FinderFunction extends AbstractFilesystemTwigExtension implements TwigFunctionInterface
 {
-    public function __invoke(Twig_Environment $env, $folderLocation)
+    public function __invoke($folderLocation)
     {
-        parent::__invoke($env, $folderLocation);
+        parent::__invoke($folderLocation);
 
         $finder = new Finder();
         $finder->in(fs::absolutePath($folderLocation));
@@ -25,9 +24,7 @@ class FinderFunction extends AbstractFilesystemTwigExtension implements TwigFunc
 
     public static function get()
     {
-        return new \Twig_SimpleFunction('finder', new self(), [
-            'needs_environment' => true,
-        ]);
+        return new \Twig_SimpleFunction('finder', new self());
     }
 
     public static function disableInSafeMode()

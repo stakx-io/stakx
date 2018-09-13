@@ -192,7 +192,7 @@ class Compiler
      */
     public function compilePageView(BasePageView &$pageView)
     {
-        $this->templateBridge->setGlobalVariable('__currentTemplate', $pageView->getAbsoluteFilePath());
+        Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
         $this->logger->debug('Compiling {type} PageView: {pageview}', [
             'pageview' => $pageView->getRelativeFilePath(),
             'type' => $pageView->getType(),
