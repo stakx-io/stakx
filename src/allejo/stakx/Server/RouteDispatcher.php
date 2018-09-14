@@ -89,6 +89,34 @@ class RouteDispatcher
     }
 
     /**
+     * Build a controller for handling a Repeater PageView's URL.
+     *
+     * @param RepeaterPageView $pageView
+     * @param Compiler         $compiler
+     *
+     * @return \Closure
+     */
+    private function repeaterPageViewController(RepeaterPageView $pageView, Compiler $compiler)
+    {
+        return function (ServerRequestInterface $request) use ($pageView, $compiler) {
+            $permalinks = $pageView->getRepeaterPermalinks();
+            $url = self::normalizeUrl($request->getUri()->getPath());
+
+            foreach ($permalinks as $permalink)
+            {
+                if ($permalink->getEvaluated() === $url)
+                {
+                    return DevServer::return200(
+                        $compiler->renderRepeaterPageView($pageView, $permalink)
+                    );
+                }
+            }
+
+            return DevServer::return404();
+        };
+    }
+
+    /**
      * Return the appropriate controller based on a PageView's type.
      *
      * @param BasePageView|DynamicPageView|RepeaterPageView|StaticPageView $pageView
@@ -105,6 +133,9 @@ class RouteDispatcher
 
             case BasePageView::DYNAMIC_TYPE:
                 return $this->dynamicPageViewController($pageView, $compiler);
+
+            case BasePageView::REPEATER_TYPE:
+                return $this->repeaterPageViewController($pageView, $compiler);
 
             default:
                 return function () {

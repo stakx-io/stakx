@@ -48,13 +48,24 @@ class PageViewRouter
                 break;
 
             case BasePageView::DYNAMIC_TYPE:
-            case BasePageView::REPEATER_TYPE:
                 $rawFM = $pageView->getRawFrontMatter();
                 $permalinkFM = \__::get($rawFM, 'permalink');
 
                 $permalink = is_array($permalinkFM) ? $permalinkFM[0] : $permalinkFM;
                 $permalink = preg_replace(FrontMatterParser::VARIABLE_DEF, '{$1}', $permalink);
+
+                $this->mapping[$permalink] = $pageView;
+                break;
+
+            case BasePageView::REPEATER_TYPE:
+                $rawFM = $pageView->getRawFrontMatter();
+                $permalinkFM = \__::get($rawFM, 'permalink');
+
+                $permalink = is_array($permalinkFM) ? $permalinkFM[0] : $permalinkFM;
                 $permalink = preg_replace(FrontMatterParser::ARRAY_DEF, '{$1}', $permalink);
+
+                // Replace `.` in complex FM variables because they don't work in routes
+                $permalink = preg_replace('/\./', '_', $permalink);
 
                 $this->mapping[$permalink] = $pageView;
                 break;

@@ -163,6 +163,23 @@ class Compiler
         return $this->buildDynamicPageViewHTML($template, $contentItem);
     }
 
+    /**
+     * Get the HTML for a Repeater PageView.
+     *
+     * @param RepeaterPageView $pageView
+     * @param ExpandedValue    $expandedValue
+     *
+     * @throws TemplateErrorInterface
+     *
+     * @return string
+     */
+    public function renderRepeaterPageView(RepeaterPageView $pageView, ExpandedValue $expandedValue)
+    {
+        $template = $this->createTwigTemplate($pageView);
+
+        return $this->buildRepeaterPageViewHTML($template, $pageView, $expandedValue);
+    }
+
     ///
     // IO Functionality
     ///
