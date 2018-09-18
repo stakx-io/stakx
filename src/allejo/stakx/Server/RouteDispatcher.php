@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\Server;
 
 use allejo\stakx\Compiler;
@@ -41,7 +46,8 @@ class RouteDispatcher
         return function () use ($pageView, $compiler) {
             Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
 
-            if ($this->hasBeenTouched($pageView)) {
+            if ($this->hasBeenTouched($pageView))
+            {
                 $pageView->readContent();
             }
 
@@ -120,7 +126,7 @@ class RouteDispatcher
      * Return the appropriate controller based on a PageView's type.
      *
      * @param BasePageView|DynamicPageView|RepeaterPageView|StaticPageView $pageView
-     * @param Compiler     $compiler
+     * @param Compiler                                                     $compiler
      *
      * @return \Closure
      */
@@ -160,10 +166,11 @@ class RouteDispatcher
         if (!isset($this->lastModified[$rPath]))
         {
             $this->lastModified[$rPath] = $document->getLastModified();
+
             return true;
         }
 
-        return ($document->getLastModified() > $this->lastModified[$rPath]);
+        return $document->getLastModified() > $this->lastModified[$rPath];
     }
 
     /**

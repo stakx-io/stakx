@@ -9,14 +9,9 @@ namespace allejo\stakx\Templating\Twig;
 
 use allejo\stakx\Configuration;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Manager\CollectionManager;
-use allejo\stakx\Manager\DataManager;
-use allejo\stakx\Manager\MenuManager;
-use allejo\stakx\Manager\PageManager;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig_Environment;
 use Twig_Extension_Debug;
 

@@ -8,7 +8,6 @@
 namespace allejo\stakx;
 
 use allejo\stakx\Document\BasePageView;
-use allejo\stakx\Document\CollectableItem;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PermalinkDocument;
@@ -134,7 +133,7 @@ class Compiler
      *
      * @throws TemplateErrorInterface
      *
-     * @return string The HTML for a Static PageView.
+     * @return string the HTML for a Static PageView
      */
     public function renderStaticPageView(StaticPageView $pageView)
     {

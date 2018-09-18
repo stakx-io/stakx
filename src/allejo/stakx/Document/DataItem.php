@@ -170,7 +170,8 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
             return call_user_func_array([$this, $fxnCall], []);
         }
 
-        if (isset($this->data[$offset])) {
+        if (isset($this->data[$offset]))
+        {
             return $this->data[$offset];
         }
 

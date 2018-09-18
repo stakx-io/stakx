@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\EventSubscriber;
 
 use allejo\stakx\Event\PageViewAdded;
@@ -26,7 +31,7 @@ class RouterSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            PageViewAdded::NAME => 'registerPageView'
+            PageViewAdded::NAME => 'registerPageView',
         ];
     }
 }

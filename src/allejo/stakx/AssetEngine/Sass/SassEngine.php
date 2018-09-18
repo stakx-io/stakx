@@ -138,14 +138,17 @@ class SassEngine implements AssetEngineInterface
     {
         $sourceMap = __::get($this->options, 'sourcemap');
 
-        if ($sourceMap === 'inline') {
+        if ($sourceMap === 'inline')
+        {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_INLINE);
         }
-        elseif ($sourceMap === true) {
+        elseif ($sourceMap === true)
+        {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_FILE);
             $this->fileSourceMap = true;
         }
-        else {
+        else
+        {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_NONE);
         }
     }

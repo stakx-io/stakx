@@ -167,9 +167,9 @@ class PageManager extends TrackingManager
      *
      * @param BasePageView|StaticPageView|DynamicPageView|RepeaterPageView $pageView
      *
-     * @throws \LogicException When a PageView is treated as the wrong type
+     * @throws \LogicException             When a PageView is treated as the wrong type
      * @throws CollectionNotFoundException When the collection specified in a Dynamic PageView isn't found
-     * @throws \Exception The permalink could not be built correctly
+     * @throws \Exception                  The permalink could not be built correctly
      *
      * @since 0.2.0
      */
@@ -256,9 +256,9 @@ class PageManager extends TrackingManager
      *
      * @since 0.1.0
      *
-     * @throws \LogicException An invalid PageView has been given as a Dynamic PageView
+     * @throws \LogicException             An invalid PageView has been given as a Dynamic PageView
      * @throws CollectionNotFoundException When a collection or dataset specified in a Dynamic PageView doesn't exist
-     * @throws \Exception When the permalink for the given PageView hasn't been set
+     * @throws \Exception                  When the permalink for the given PageView hasn't been set
      */
     private function handleTrackableDynamicPageView(&$pageView)
     {
