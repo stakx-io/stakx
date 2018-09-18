@@ -16,6 +16,7 @@ use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Service;
 use FastRoute\RouteCollector;
 use Psr\Http\Message\ServerRequestInterface;
@@ -74,7 +75,7 @@ class RouteDispatcher
         return function (ServerRequestInterface $request) use ($pageView, $compiler) {
             Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
 
-            $contentItem = self::getContentItem($pageView, self::normalizeUrl($request->getUri()->getPath()));
+            $contentItem = self::getContentItem($pageView, $request->getUri()->getPath());
 
             if ($contentItem === null)
             {
@@ -85,6 +86,7 @@ class RouteDispatcher
             {
                 $pageView->readContent();
             }
+
             if ($this->hasBeenTouched($contentItem))
             {
                 $contentItem->readContent();
@@ -105,20 +107,21 @@ class RouteDispatcher
     private function repeaterPageViewController(RepeaterPageView $pageView, Compiler $compiler)
     {
         return function (ServerRequestInterface $request) use ($pageView, $compiler) {
-            $permalinks = $pageView->getRepeaterPermalinks();
-            $url = self::normalizeUrl($request->getUri()->getPath());
+            Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
 
-            foreach ($permalinks as $permalink)
+            $expandedValue = self::getExpandedValue($pageView, $request->getUri()->getPath());
+
+            if ($expandedValue === null)
             {
-                if ($permalink->getEvaluated() === $url)
-                {
-                    return DevServer::return200(
-                        $compiler->renderRepeaterPageView($pageView, $permalink)
-                    );
-                }
+                return DevServer::return404();
             }
 
-            return DevServer::return404();
+            if ($this->hasBeenTouched($pageView))
+            {
+                $pageView->readContent();
+            }
+
+            return DevServer::return200($compiler->renderRepeaterPageView($pageView, $expandedValue));
         };
     }
 
@@ -195,6 +198,16 @@ class RouteDispatcher
         });
     }
 
+    /**
+     * Normalize a given URL.
+     *
+     * A normalized URL is one with `baseurl` stripped away from it. This is necessary because all permalinks in stakx
+     * are handled without the base so it's necessary to be able to reference correct correct permalinks.
+     *
+     * @param string $url
+     *
+     * @return mixed
+     */
     public static function normalizeUrl($url)
     {
         return str_replace(self::$baseUrl, '/', $url);
@@ -210,11 +223,37 @@ class RouteDispatcher
      */
     private static function getContentItem(DynamicPageView $pageView, $permalink)
     {
+        $permalink = self::normalizeUrl($permalink);
+
         foreach ($pageView->getCollectableItems() as $collectableItem)
         {
             if ($collectableItem['permalink'] === $permalink)
             {
                 return $collectableItem;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Find the ExpandedValue from a Repeater PageView or null if it doesn't exist.
+     *
+     * @param RepeaterPageView $pageView
+     * @param                  $permalink
+     *
+     * @return ExpandedValue|null
+     */
+    private static function getExpandedValue(RepeaterPageView $pageView, $permalink)
+    {
+        $url = self::normalizeUrl($permalink);
+        $repeaterPermalinks = $pageView->getRepeaterPermalinks();
+
+        foreach ($repeaterPermalinks as $expandedValue)
+        {
+            if ($expandedValue->getEvaluated() === $url)
+            {
+                return $expandedValue;
             }
         }
 
