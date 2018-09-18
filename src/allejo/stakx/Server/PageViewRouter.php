@@ -67,6 +67,7 @@ class PageViewRouter
                 $permalinkFM = \__::get($rawFM, 'permalink');
 
                 $permalink = is_array($permalinkFM) ? $permalinkFM[0] : $permalinkFM;
+                $permalink = preg_replace(FrontMatterParser::VARIABLE_DEF, '{$1}', $permalink);
                 $permalink = preg_replace(FrontMatterParser::ARRAY_DEF, '{$1}', $permalink);
 
                 // Replace `.` in complex FM variables because they don't work in routes
