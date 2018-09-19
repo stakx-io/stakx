@@ -3,6 +3,7 @@
 **New**
 
 - Add new `serve` command to take the place of the defunct `watch` command
+- Your `*.scss.twig` files now support the `@theme` directive to import partials relative to your theme's `_sass` folder
 
 **Fixes**
 

@@ -73,6 +73,8 @@ class SassEngine implements AssetEngineInterface
             'sourceMapBasepath' => Service::getWorkingDirectory(),
         ];
 
+        $this->handleThemeImports($content);
+
         // We don't need to write the source map to a file
         if (!$this->fileSourceMap)
         {
@@ -159,6 +161,15 @@ class SassEngine implements AssetEngineInterface
             $this->configuration->getTargetFolder(),
             $pageView->getTargetFile() . '.map'
         );
+    }
+
+    private function handleThemeImports(&$content)
+    {
+        if (($themeName = $this->configuration->getTheme()))
+        {
+            $themePath = "../_themes/${themeName}/_sass";
+            $content = preg_replace("/(@import ['\"])(@theme)(.+)/", "$1${themePath}$3", $content);
+        }
     }
 
     public static function stringToFormatter($format)
