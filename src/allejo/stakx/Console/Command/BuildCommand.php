@@ -53,17 +53,17 @@ class BuildCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->handleDeprecations($input, $output);
+        $this->setRunTimeOptions($input);
 
         try
         {
-            $this->setRunTimeOptions($input);
             $this->configureConfigurationFile($input);
 
             $website = $this->getContainer()->get(Website::class);
             $website->build();
 
             $output->writeln(sprintf('Your site built successfully! It can be found at: %s',
-                $website->getConfiguration()->getTargetFolder() . DIRECTORY_SEPARATOR
+                $website->getConfiguration()->getTargetFolder()
             ));
 
             return 0;
@@ -93,7 +93,7 @@ class BuildCommand extends ContainerAwareCommand
      *
      * @throws \Exception
      */
-    private function configureConfigurationFile(InputInterface $input)
+    protected function configureConfigurationFile(InputInterface $input)
     {
         $confFilePath = $input->getOption('conf');
         $siteRoot = fs::getFolderPath(realpath($confFilePath));
@@ -106,7 +106,7 @@ class BuildCommand extends ContainerAwareCommand
         $conf->parse($configFile);
     }
 
-    private function setRunTimeOptions(InputInterface $input)
+    protected function setRunTimeOptions(InputInterface $input)
     {
         if ($input->getOption(self::NO_CLEAN))
         {
@@ -134,7 +134,7 @@ class BuildCommand extends ContainerAwareCommand
         }
     }
 
-    private function handleDeprecations(InputInterface $input, OutputInterface $output)
+    protected function handleDeprecations(InputInterface $input, OutputInterface $output)
     {
         if ($input->getOption(self::NO_CONF))
         {

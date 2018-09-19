@@ -12,8 +12,6 @@ use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Exception\RecursiveConfigurationException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Utilities\ArrayUtilities;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -181,7 +179,10 @@ class Configuration
      */
     public function getTargetFolder()
     {
-        return __::get($this->configuration, 'target');
+        $target = __::get($this->configuration, 'target');
+        $target = preg_replace('#[/\\\\]+$#', '', $target);
+
+        return $target . '/';
     }
 
     /**
@@ -296,7 +297,7 @@ class Configuration
     {
         $defaultConfig = [
             'baseurl' => '',
-            'target' => '_site',
+            'target' => '_site/',
             'twig' => [
                 'autoescape' => false,
             ],

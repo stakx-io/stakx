@@ -58,6 +58,8 @@ use allejo\stakx\Utilities\ArrayUtilities;
  */
 class FrontMatterParser
 {
+    const ANY_VARIABLE = '/(?<!\\\\)%{?([a-zA-Z\.]+)}?/';
+
     /**
      * The RegEx used to identify Front Matter variables.
      */

@@ -8,6 +8,7 @@
 namespace allejo\stakx;
 
 use allejo\stakx\Document\BasePageView;
+use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Document\RepeaterPageView;
@@ -32,8 +33,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * This class takes care of rendering the Twig body of PageViews with the respective information and it also takes care
  * of writing the rendered Twig to the filesystem.
- *
- * @internal
  *
  * @since 0.1.1
  */
@@ -121,6 +120,66 @@ class Compiler
     }
 
     ///
+    // Rendering HTML Functionality
+    ///
+
+    /**
+     * Get the HTML for a Static PageView.
+     *
+     * This function just **renders** the HTML but does not write it to the filesystem. Use `compilePageView()` for that
+     * instead.
+     *
+     * @param StaticPageView $pageView
+     *
+     * @throws TemplateErrorInterface
+     *
+     * @return string the HTML for a Static PageView
+     */
+    public function renderStaticPageView(StaticPageView $pageView)
+    {
+        $pageView->compile();
+
+        return $this->buildStaticPageViewHTML($pageView);
+    }
+
+    /**
+     * Get the HTML for a Dynamic PageView and ContentItem.
+     *
+     * This function just **renders** the HTML but does not write it to the filesystem. Use `compileDynamicPageView()`
+     * for that instead.
+     *
+     * @param DynamicPageView       $pageView
+     * @param TemplateReadyDocument $contentItem
+     *
+     * @throws TemplateErrorInterface
+     *
+     * @return string
+     */
+    public function renderDynamicPageView(DynamicPageView $pageView, TemplateReadyDocument $contentItem)
+    {
+        $template = $this->createTwigTemplate($pageView);
+
+        return $this->buildDynamicPageViewHTML($template, $contentItem);
+    }
+
+    /**
+     * Get the HTML for a Repeater PageView.
+     *
+     * @param RepeaterPageView $pageView
+     * @param ExpandedValue    $expandedValue
+     *
+     * @throws TemplateErrorInterface
+     *
+     * @return string
+     */
+    public function renderRepeaterPageView(RepeaterPageView $pageView, ExpandedValue $expandedValue)
+    {
+        $template = $this->createTwigTemplate($pageView);
+
+        return $this->buildRepeaterPageViewHTML($template, $pageView, $expandedValue);
+    }
+
+    ///
     // IO Functionality
     ///
 
@@ -149,7 +208,7 @@ class Compiler
      */
     public function compilePageView(BasePageView &$pageView)
     {
-        $this->templateBridge->setGlobalVariable('__currentTemplate', $pageView->getAbsoluteFilePath());
+        Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
         $this->logger->debug('Compiling {type} PageView: {pageview}', [
             'pageview' => $pageView->getRelativeFilePath(),
             'type' => $pageView->getType(),
@@ -196,8 +255,6 @@ class Compiler
      */
     private function compileStaticPageView(StaticPageView &$pageView)
     {
-        $pageView->compile();
-
         $this->writeToFilesystem(
             $pageView->getTargetFile(),
             $this->renderStaticPageView($pageView),
@@ -232,7 +289,7 @@ class Compiler
 
             $this->writeToFilesystem(
                 $contentItem->getTargetFile(),
-                $this->renderDynamicPageView($template, $contentItem),
+                $this->buildDynamicPageViewHTML($template, $contentItem),
                 BasePageView::DYNAMIC_TYPE
             );
 
@@ -262,7 +319,7 @@ class Compiler
 
             $this->writeToFilesystem(
                 $pageView->getTargetFile(),
-                $this->renderRepeaterPageView($template, $pageView, $permalink),
+                $this->buildRepeaterPageViewHTML($template, $pageView, $permalink),
                 BasePageView::REPEATER_TYPE
             );
         }
@@ -363,7 +420,7 @@ class Compiler
      *
      * @return string
      */
-    private function renderRepeaterPageView(TemplateInterface &$template, RepeaterPageView &$pageView, ExpandedValue &$expandedValue)
+    private function buildRepeaterPageViewHTML(TemplateInterface &$template, RepeaterPageView &$pageView, ExpandedValue &$expandedValue)
     {
         $defaultContext = [
             'this' => $pageView->createJail(),
@@ -395,7 +452,7 @@ class Compiler
      *
      * @return string
      */
-    private function renderDynamicPageView(TemplateInterface &$template, TemplateReadyDocument &$twigItem)
+    private function buildDynamicPageViewHTML(TemplateInterface &$template, TemplateReadyDocument &$twigItem)
     {
         $defaultContext = [
             'this' => $twigItem->createJail(),
@@ -424,7 +481,7 @@ class Compiler
      *
      * @return string
      */
-    private function renderStaticPageView(StaticPageView &$pageView)
+    private function buildStaticPageViewHTML(StaticPageView &$pageView)
     {
         $defaultContext = [
             'this' => $pageView->createJail(),

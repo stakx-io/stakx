@@ -48,6 +48,9 @@ services:
     tags:
       - { name: 'kernel.event_subscriber' }
 
+  allejo\stakx\Server\:
+    resource: '../../Server/*'
+
   allejo\stakx\Templating\Twig\Extension\:
     resource: '../../Templating/Twig/Extension/*'
 

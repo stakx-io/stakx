@@ -11,7 +11,17 @@ abstract class Service
 {
     protected static $workingDirectory;
     protected static $runTimeStatus;
-    protected static $parameters;
+    protected static $options;
+
+    public static function setOption($key, $value)
+    {
+        self::$options[$key] = $value;
+    }
+
+    public static function getOption($key)
+    {
+        return isset(self::$options[$key]) ? self::$options[$key] : null;
+    }
 
     public static function hasRunTimeFlag($status)
     {

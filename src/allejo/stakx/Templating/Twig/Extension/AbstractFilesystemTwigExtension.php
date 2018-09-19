@@ -10,18 +10,15 @@ namespace allejo\stakx\Templating\Twig\Extension;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Service;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Twig_Environment;
 
 abstract class AbstractFilesystemTwigExtension extends AbstractTwigExtension
 {
-    protected $globs;
     protected $dir;
     protected $path;
 
-    public function __invoke(Twig_Environment $env, $location)
+    public function __invoke($location)
     {
-        $this->globs = $env->getGlobals();
-        $this->dir = fs::getFolderPath($this->globs['__currentTemplate']);
+        $this->dir = fs::getFolderPath(Service::getOption('currentTemplate'));
         $this->path = fs::appendPath($this->dir, $location);
 
         if (is_file($this->path))

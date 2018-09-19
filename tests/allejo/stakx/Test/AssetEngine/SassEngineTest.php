@@ -57,7 +57,7 @@ SASS;
     private function mockConfigurationGenerator(array $options)
     {
         $settings = [
-            'scss' => $options
+            'scss' => $options,
         ];
 
         /** @var Configuration|\PHPUnit_Framework_MockObject_MockObject $config */
@@ -147,7 +147,7 @@ SASS;
         Service::setWorkingDirectory($this->rootDir->url());
         vfsStream::create([
             '_sass' => [
-                'styles.scss.twig' => $this->buildFrontMatterTemplate(['permalink' => '/styles.css'], $this->sass)
+                'styles.scss.twig' => $this->buildFrontMatterTemplate(['permalink' => '/styles.css'], $this->sass),
             ],
         ], $this->rootDir);
 
@@ -186,7 +186,7 @@ SASS;
 
             if (in_array($filename, $expectedFiles))
             {
-                $actualFileCount++;
+                ++$actualFileCount;
             }
         }
 

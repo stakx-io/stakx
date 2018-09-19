@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\Test\Manager;
 
-use allejo\stakx\Configuration;
 use allejo\stakx\DataTransformer\CsvTransformer;
 use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\DataTransformer\JsonTransformer;

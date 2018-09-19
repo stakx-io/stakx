@@ -8,6 +8,7 @@
 namespace allejo\stakx\Console;
 
 use allejo\stakx\Console\Command\BuildCommand;
+use allejo\stakx\Console\Command\ServeCommand;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,6 +59,7 @@ class Application extends BaseApplication
         $commands = parent::getDefaultCommands();
 
         $commands[] = new BuildCommand();
+        $commands[] = new ServeCommand();
 
         return $commands;
     }

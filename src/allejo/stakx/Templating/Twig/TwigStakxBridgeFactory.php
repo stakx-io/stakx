@@ -9,14 +9,9 @@ namespace allejo\stakx\Templating\Twig;
 
 use allejo\stakx\Configuration;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Manager\CollectionManager;
-use allejo\stakx\Manager\DataManager;
-use allejo\stakx\Manager\MenuManager;
-use allejo\stakx\Manager\PageManager;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig_Environment;
 use Twig_Extension_Debug;
 
@@ -54,9 +49,6 @@ class TwigStakxBridgeFactory
             'auto_reload' => true,
             'cache' => fs::absolutePath('.stakx-cache/twig'),
         ]);
-
-        // We'll use this to access the current file in our Twig filters
-        $twig->addGlobal('__currentTemplate', '');
 
         $twig->addExtension($twigExtension);
 
