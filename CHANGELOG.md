@@ -1,5 +1,9 @@
 ## HEAD
 
+**New**
+
+- Add new `serve` command to take the place of the defunct `watch` command
+
 **Fixes**
 
 - Nested folders inside of `_sass` no longer throw errors
