@@ -101,6 +101,7 @@ class MimeDetector
         'xl' => 'application/excel',
         'eml' => 'message/rfc822',
         'json' => 'application/json',
+        'svg' => 'image/svg+xml',
     ];
 
     public static function getMimeType($extension)
