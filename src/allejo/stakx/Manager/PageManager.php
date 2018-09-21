@@ -36,6 +36,8 @@ class PageManager extends TrackingManager
 {
     /** @var StaticPageView[] A place to store a reference to static PageViews with titles. */
     private $staticPages;
+    /** @var RepeaterPageView[] A place to store a reference to repeater PageViews with titles. */
+    private $repeaterPages;
     private $configuration;
     private $collectionManager;
     private $dataManager;
@@ -58,6 +60,7 @@ class PageManager extends TrackingManager
             BasePageView::REPEATER_TYPE => [],
         ];
         $this->staticPages = [];
+        $this->repeaterPages = [];
         $this->configuration = $configuration;
         $this->collectionManager = $collectionManager;
         $this->dataManager = $dataManager;
@@ -157,6 +160,21 @@ class PageManager extends TrackingManager
         foreach ($this->staticPages as $key => $value)
         {
             $jailedObjects[$key] = $value->createJail();
+        }
+
+        return $jailedObjects;
+    }
+
+    /**
+     * Get the jailed version of repeater PageViews indexed by their title.
+     */
+    public function getJailedRepeaterPageViews()
+    {
+        $jailedObjects = [];
+
+        foreach ($this->repeaterPages as $key => $value)
+        {
+            $jailedObjects[$key]= $value->createJail();
         }
 
         return $jailedObjects;
@@ -315,5 +333,12 @@ class PageManager extends TrackingManager
             'site' => $this->configuration->getConfiguration(),
         ]);
         $pageView->configurePermalinks();
+
+        if (empty($pageView['title']))
+        {
+            return;
+        }
+
+        $this->repeaterPages[$pageView['title']] = &$pageView;
     }
 }

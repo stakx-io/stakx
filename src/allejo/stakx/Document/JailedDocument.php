@@ -42,7 +42,7 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
         // White listed functions will always be getter functions, so somehow get the name of a possible getter function
         // name.
         $lcName = lcfirst($name);
-        $getFxnCall = ($lcName[0] === 'g' && strpos($lcName, 'get') === 0) ? $lcName : sprintf('get%s', ucfirst($name));
+        $getFxnCall = ($lcName[0] === '_' || strpos($lcName, 'get') === 0) ? $lcName : sprintf('get%s', ucfirst($name));
 
         // Check if our function call is a jailed call, meaning the function should be mapped to special "jailed"
         // jailed version of the function call.
@@ -67,9 +67,9 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
      *
      * @return bool
      */
-    public function coreInstanceOf($class)
+    public function _coreInstanceOf($class)
     {
-        return is_subclass_of($this->object, $class);
+        return ($this->object instanceof $class) || is_subclass_of($this->object, $class);
     }
 
     ///
