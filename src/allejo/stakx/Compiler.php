@@ -65,6 +65,7 @@ class Compiler
     private $pageManager;
     private $eventDispatcher;
     private $configuration;
+    private $logger;
 
     public function __construct(
         TemplateBridgeInterface $templateBridge,
@@ -92,6 +93,7 @@ class Compiler
         $this->templateBridge->setGlobalVariable('collections', $collectionManager->getJailedCollections());
         $this->templateBridge->setGlobalVariable('menu', $menuManager->getSiteMenu());
         $this->templateBridge->setGlobalVariable('pages', $pageManager->getJailedStaticPageViews());
+        $this->templateBridge->setGlobalVariable('repeaters', $pageManager->getJailedRepeaterPageViews());
     }
 
     /**

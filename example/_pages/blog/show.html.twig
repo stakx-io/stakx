@@ -12,5 +12,12 @@ permalink: /blog/%year/%month/%day/%title/
         <section>
             {{ this.content }}
         </section>
+
+        <footer>
+            <span><i class="fa fa-tag"></i></span>
+            <a href="{{ url(repeaters['Blog Categories'], params = {
+                'site.categories': this.category
+            }) }}">{{ this.category | title }}</a>
+        </footer>
     </article>
 {% endblock %}

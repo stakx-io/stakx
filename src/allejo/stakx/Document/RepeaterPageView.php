@@ -32,6 +32,26 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
     }
 
     /**
+     * Get the permalink matching all the placeholders for a Repeater.
+     *
+     * @param array $where
+     *
+     * @return null|string
+     */
+    public function _getPermalinkWhere(array $where)
+    {
+        foreach ($this->permalinks as $expandedValue)
+        {
+            if ($expandedValue->getIterators() === $where)
+            {
+                return $expandedValue->getEvaluated();
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Get the expanded values for the permalinks to this PageView.
      *
      * @return ExpandedValue[]
@@ -95,7 +115,11 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
      */
     public function createJail()
     {
-        return new JailedDocument($this, self::$whiteListedFunctions);
+        $whitelist = array_merge(self::$whiteListedFunctions, [
+            '_getPermalinkWhere',
+        ]);
+
+        return new JailedDocument($this, $whitelist);
     }
 
     /**

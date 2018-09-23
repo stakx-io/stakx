@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use allejo\stakx\Document\JailedDocument;
+use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Service;
 use Twig_Environment;
 
@@ -14,14 +16,14 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
 {
     private $site;
 
-    public function __invoke(Twig_Environment $env, $assetPath, $absolute = false)
+    public function __invoke(Twig_Environment $env, $assetPath, $absolute = false, $params = [])
     {
         $globals = $env->getGlobals();
         $this->site = $globals['site'];
 
         $url = $this->getUrl($absolute);
         $baseURL = $this->getBaseUrl();
-        $permalink = $this->guessAssetPath($assetPath);
+        $permalink = $this->guessAssetPath($assetPath, $params);
 
         return $this->buildPermalink($url, $baseURL, $permalink);
     }
@@ -66,9 +68,14 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
         return $base;
     }
 
-    private function guessAssetPath($assetPath)
+    private function guessAssetPath($assetPath, $params)
     {
-        if (is_array($assetPath) || ($assetPath instanceof \ArrayAccess))
+        if ($assetPath instanceof JailedDocument && $assetPath->_coreInstanceOf(RepeaterPageView::class))
+        {
+            /** @var RepeaterPageView $assetPath */
+            return ($link = $assetPath->_getPermalinkWhere($params)) ? $link : '/';
+        }
+        elseif (is_array($assetPath) || ($assetPath instanceof \ArrayAccess))
         {
             return (isset($assetPath['permalink'])) ? $assetPath['permalink'] : '/';
         }
