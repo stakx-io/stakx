@@ -310,17 +310,13 @@ class Compiler
      */
     private function compileRepeaterPageView(RepeaterPageView &$pageView)
     {
-        $pageView->rewindPermalink();
-
         $template = $this->createTwigTemplate($pageView);
         $permalinks = $pageView->getRepeaterPermalinks();
 
         foreach ($permalinks as $permalink)
         {
-            $pageView->bumpPermalink();
-
             $this->writeToFilesystem(
-                $pageView->getTargetFile(),
+                $pageView->getTargetFile($permalink->getEvaluated()),
                 $this->buildRepeaterPageViewHTML($template, $pageView, $permalink),
                 BasePageView::REPEATER_TYPE
             );

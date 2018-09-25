@@ -12,9 +12,6 @@ use allejo\stakx\FrontMatter\ExpandedValue;
 
 class RepeaterPageView extends BasePageView implements TemplateReadyDocument
 {
-    /** @var \ArrayIterator An iterator for the permalinks used in order for this entity to be treated as a static PageView. */
-    private $permalinksIterator;
-
     /** @var ExpandedValue[] All of the expanded permalinks. */
     private $permalinks;
 
@@ -72,24 +69,6 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
     }
 
     /**
-     * When looping through permalinks in a RepeaterPageView, the permalink needs to be updated each time so that it may
-     * behave as a static PageView.
-     */
-    public function bumpPermalink()
-    {
-        $this->permalink = $this->permalinksIterator->current()->getEvaluated();
-        $this->permalinksIterator->next();
-    }
-
-    /**
-     * Rewind the permalink iterator to the beginning.
-     */
-    public function rewindPermalink()
-    {
-        $this->permalinksIterator->rewind();
-    }
-
-    /**
      * Configure permalinks from expanded values internally.
      */
     public function configurePermalinks()
@@ -99,8 +78,6 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
         $this->permalinks = $evaluated[0];
         array_shift($evaluated);
         $this->redirectLinks = $evaluated;
-
-        $this->permalinksIterator = new \ArrayIterator($this->permalinks);
     }
 
     /**

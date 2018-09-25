@@ -22,9 +22,12 @@ interface PermalinkDocument
     /**
      * Get the destination of where this Content Item would be written to when the website is compiled.
      *
+     * @param $permalink string|null Get the target file from a given permalink. When this is null, it will call the
+     *                               `permalink()` method.
+     *
      * @return string
      */
-    public function getTargetFile();
+    public function getTargetFile($permalink = null);
 
     /**
      * Get the permalink of this Content Item.

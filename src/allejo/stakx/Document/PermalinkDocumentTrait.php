@@ -32,9 +32,13 @@ trait PermalinkDocumentTrait
     /**
      * {@inheritdoc}
      */
-    final public function getTargetFile()
+    final public function getTargetFile($permalink = null)
     {
-        $permalink = $this->getPermalink();
+        if ($permalink === null)
+        {
+            $permalink = $this->getPermalink();
+        }
+
         $missingFile = (substr($permalink, -1) == '/');
         $permalink = str_replace('/', DIRECTORY_SEPARATOR, $permalink);
 
