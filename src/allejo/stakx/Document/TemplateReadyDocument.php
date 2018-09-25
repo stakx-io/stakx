@@ -39,9 +39,12 @@ interface TemplateReadyDocument extends \ArrayAccess, \IteratorAggregate, \JsonS
     /**
      * Get the file path that this document will be written to.
      *
+     * @param $permalink string|null Get the target file from a given permalink. When this is null, it will call the
+     *                               `permalink()` method.
+     *
      * @return string
      */
-    public function getTargetFile();
+    public function getTargetFile($permalink = null);
 
     /**
      * Get the parsed content of this document's body.
