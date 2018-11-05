@@ -99,6 +99,31 @@ abstract class ReadableDocument
     }
 
     /**
+     * Get the value stored under this key in the file's internal metadata only available to stakx.
+     *
+     * @param string $key
+     *
+     * @return mixed|null
+     */
+    final public function getMetadata($key)
+    {
+        return $this->metadata[$key];
+    }
+
+    /**
+     * Set a value in the file's internal metadata only available to stakx.
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return mixed
+     */
+    final public function setMetadata($key, $value)
+    {
+        return $this->metadata[$key] = $value;
+    }
+
+    /**
      * Get the original File object given to this document.
      *
      * @return File
