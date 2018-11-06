@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\MarkupEngine;
 
+use __;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
@@ -53,11 +54,7 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 
     private function slugifyHeader($Block)
     {
-        $id = strtolower($Block['element']['text']);
-        $id = str_replace(' ', '-', $id);
-        $id = preg_replace('/[^0-9a-zA-Z-_]/', '', $id);
-
-        return preg_replace('/-+/', '-', $id);
+        return __::slug($Block['element']['text']);
     }
 
     protected function blockFencedCodeComplete($block)
