@@ -23,6 +23,9 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
     /** @var TemplateReadyDocument */
     private $object;
 
+    /** @var array */
+    private $debugInfo;
+
     /**
      * JailObject constructor.
      *
@@ -35,6 +38,7 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
         $this->object = &$object;
         $this->whiteListFunctions = $whiteListFunctions;
         $this->jailedFunctions = $jailedFunctions;
+        $this->debugInfo = [];
     }
 
     public function __call($name, $arguments)
@@ -58,6 +62,37 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
         }
 
         throw new \BadMethodCallException();
+    }
+
+    public function __debugInfo()
+    {
+        if (!empty($this->debugInfo))
+        {
+            return $this->debugInfo;
+        }
+
+        if ($this->object instanceof FrontMatterDocument)
+        {
+            $this->debugInfo = $this->object->getFrontMatter(true);
+        }
+
+        foreach ($this->whiteListFunctions as $function)
+        {
+            $value = preg_replace('/^(get|is)/', '', $function);
+            $value = lcfirst($value);
+
+            try
+            {
+                $this->debugInfo[$value] = call_user_func([$this, $function]);
+            }
+            catch (\BadMethodCallException $e)
+            {
+                // Just throw away this information because there's no point in listing an accessible value in this
+                // object that doesn't actually exist.
+            }
+        }
+
+        return $this->debugInfo;
     }
 
     /**
