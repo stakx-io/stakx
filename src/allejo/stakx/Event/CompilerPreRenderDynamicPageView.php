@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\Event;
 
-use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\CollectableItem;
 use Symfony\Component\EventDispatcher\Event;
 

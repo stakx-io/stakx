@@ -10,7 +10,6 @@ namespace allejo\stakx\EventSubscriber;
 use __\__;
 use allejo\stakx\AssetEngine\AssetEngineInterface;
 use allejo\stakx\AssetEngine\AssetEngineManager;
-use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Event\CompilerPostRenderStaticPageView;
 use allejo\stakx\Event\ConfigurationParseComplete;
@@ -115,8 +114,8 @@ class AssetEngineSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ConfigurationParseComplete::NAME       => 'processConfigurationSettings',
-            PageManagerPostProcess::NAME           => 'processAssetEnginePageView',
+            ConfigurationParseComplete::NAME => 'processConfigurationSettings',
+            PageManagerPostProcess::NAME => 'processAssetEnginePageView',
             CompilerPostRenderStaticPageView::NAME => 'compileAssetEnginePageViews',
         ];
     }
