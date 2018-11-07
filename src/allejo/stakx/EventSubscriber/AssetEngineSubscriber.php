@@ -10,7 +10,9 @@ namespace allejo\stakx\EventSubscriber;
 use __\__;
 use allejo\stakx\AssetEngine\AssetEngineInterface;
 use allejo\stakx\AssetEngine\AssetEngineManager;
+use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Event\CompileProcessPostRenderStaticPageView;
 use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\Filesystem\FileExplorer;
@@ -21,11 +23,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class AssetEngineSubscriber implements EventSubscriberInterface
 {
     private $assetEngineManager;
+    private $assetPageViews;
     private $logger;
 
     public function __construct(AssetEngineManager $assetEngineManager, LoggerInterface $logger)
     {
         $this->assetEngineManager = $assetEngineManager;
+        $this->assetPageViews = [];
         $this->logger = $logger;
     }
 
@@ -75,11 +79,9 @@ class AssetEngineSubscriber implements EventSubscriberInterface
                 try
                 {
                     $event->getPageManager()->trackNewPageView($assetPageView);
-
-                    $compiledOutput = $engine->parse($assetPageView->getContent(), [
-                        'pageview' => $assetPageView,
-                    ]);
-                    $assetPageView->setContent($compiledOutput);
+                    $this->assetPageViews[$assetPageView->getRelativeFilePath()] = [
+                        'engine' => $engine,
+                    ];
                 }
                 catch (\Exception $e)
                 {
@@ -92,11 +94,30 @@ class AssetEngineSubscriber implements EventSubscriberInterface
         }
     }
 
+    public function compileAssetEnginePageViews(CompileProcessPostRenderStaticPageView $event)
+    {
+        $pageView = $event->getPageView();
+        $filePath = $pageView->getRelativeFilePath();
+
+        if (isset($this->assetPageViews[$filePath]))
+        {
+            /** @var AssetEngineInterface $engine */
+            $engine = $this->assetPageViews[$filePath]['engine'];
+
+            $output = $engine->parse($event->getCompiledOutput(), [
+                'pageview' => $pageView,
+            ]);
+
+            $event->setCompiledOutput($output);
+        }
+    }
+
     public static function getSubscribedEvents()
     {
         return [
-            ConfigurationParseComplete::NAME => 'processConfigurationSettings',
-            PageManagerPostProcess::NAME => 'processAssetEnginePageView',
+            ConfigurationParseComplete::NAME             => 'processConfigurationSettings',
+            PageManagerPostProcess::NAME                 => 'processAssetEnginePageView',
+            CompileProcessPostRenderStaticPageView::NAME => 'compileAssetEnginePageViews',
         ];
     }
 }
