@@ -12,7 +12,7 @@ use allejo\stakx\AssetEngine\AssetEngineInterface;
 use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
-use allejo\stakx\Event\CompileProcessPostRenderStaticPageView;
+use allejo\stakx\Event\CompilerPostRenderStaticPageView;
 use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\Filesystem\FileExplorer;
@@ -94,7 +94,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function compileAssetEnginePageViews(CompileProcessPostRenderStaticPageView $event)
+    public function compileAssetEnginePageViews(CompilerPostRenderStaticPageView $event)
     {
         $pageView = $event->getPageView();
         $filePath = $pageView->getRelativeFilePath();
@@ -115,9 +115,9 @@ class AssetEngineSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            ConfigurationParseComplete::NAME             => 'processConfigurationSettings',
-            PageManagerPostProcess::NAME                 => 'processAssetEnginePageView',
-            CompileProcessPostRenderStaticPageView::NAME => 'compileAssetEnginePageViews',
+            ConfigurationParseComplete::NAME       => 'processConfigurationSettings',
+            PageManagerPostProcess::NAME           => 'processAssetEnginePageView',
+            CompilerPostRenderStaticPageView::NAME => 'compileAssetEnginePageViews',
         ];
     }
 }

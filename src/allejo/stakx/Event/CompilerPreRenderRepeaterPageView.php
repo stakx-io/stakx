@@ -12,28 +12,23 @@ use allejo\stakx\FrontMatter\ExpandedValue;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * This event is triggered after a Repeater PageView is compiled and before it is written to a file. The compiled output
- * is accessible and can be modified before it is written out to a file.
+ * This event is fired before a Repeater PageView is rendered and allows you inject custom variables into the templates.
  *
  * @since 0.2.0
  */
-class CompileProcessPostRenderRepeaterPageView extends Event
+class CompilerPreRenderRepeaterPageView extends Event
 {
-    use CompileProcessPostRenderTrait;
+    use CompilerPreRenderTrait;
 
-    const NAME = 'compile.process.postrender_repeater_pageview';
+    const NAME = 'compiler.prerender.repeater_pageview';
 
     private $pageView;
     private $expandedValue;
 
-    /**
-     * @param string $compiledOutput
-     */
-    public function __construct(RepeaterPageView $pageView, ExpandedValue $expandedValue, $compiledOutput)
+    public function __construct(RepeaterPageView $pageView, ExpandedValue $expandedValue)
     {
         $this->pageView = $pageView;
         $this->expandedValue = $expandedValue;
-        $this->compiledOutput = $compiledOutput;
     }
 
     public function getPageView()

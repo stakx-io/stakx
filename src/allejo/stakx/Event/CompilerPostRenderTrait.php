@@ -4,7 +4,7 @@ namespace allejo\stakx\Event;
 
 use allejo\stakx\Utilities\StrUtils;
 
-trait CompileProcessPostRenderTrait
+trait CompilerPostRenderTrait
 {
     /** @var string */
     protected $compiledOutput;

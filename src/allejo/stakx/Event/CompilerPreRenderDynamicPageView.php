@@ -16,11 +16,11 @@ use Symfony\Component\EventDispatcher\Event;
  *
  * @since 0.2.0
  */
-class CompileProcessPreRenderDynamicPageView extends Event
+class CompilerPreRenderDynamicPageView extends Event
 {
-    use CompileProcessPreRenderTrait;
+    use CompilerPreRenderTrait;
 
-    const NAME = 'compile.process.prerender_dynamic_pageview';
+    const NAME = 'compiler.prerender.dynamic_pageview';
 
     private $collectableItem;
 

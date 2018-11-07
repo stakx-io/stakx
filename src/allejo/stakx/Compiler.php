@@ -14,13 +14,13 @@ use allejo\stakx\Document\PermalinkDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Document\TemplateReadyDocument;
-use allejo\stakx\Event\CompileProcessPostRenderDynamicPageView;
-use allejo\stakx\Event\CompileProcessPostRenderRepeaterPageView;
-use allejo\stakx\Event\CompileProcessPostRenderStaticPageView;
-use allejo\stakx\Event\CompileProcessPreRenderDynamicPageView;
-use allejo\stakx\Event\CompileProcessPreRenderRepeaterPageView;
-use allejo\stakx\Event\CompileProcessPreRenderStaticPageView;
-use allejo\stakx\Event\CompileProcessTemplateCreation;
+use allejo\stakx\Event\CompilerPostRenderDynamicPageView;
+use allejo\stakx\Event\CompilerPostRenderRepeaterPageView;
+use allejo\stakx\Event\CompilerPostRenderStaticPageView;
+use allejo\stakx\Event\CompilerPreRenderDynamicPageView;
+use allejo\stakx\Event\CompilerPreRenderRepeaterPageView;
+use allejo\stakx\Event\CompilerPreRenderStaticPageView;
+use allejo\stakx\Event\CompilerTemplateCreation;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\FrontMatter\ExpandedValue;
@@ -433,16 +433,16 @@ class Compiler
             'iterators' => $expandedValue->getIterators(),
         ]);
 
-        $preEvent = new CompileProcessPreRenderRepeaterPageView($pageView, $expandedValue);
-        $this->eventDispatcher->dispatch(CompileProcessPreRenderRepeaterPageView::NAME, $preEvent);
+        $preEvent = new CompilerPreRenderRepeaterPageView($pageView, $expandedValue);
+        $this->eventDispatcher->dispatch(CompilerPreRenderRepeaterPageView::NAME, $preEvent);
 
         $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $template
             ->render($context)
         ;
 
-        $postEvent = new CompileProcessPostRenderRepeaterPageView($pageView, $expandedValue, $output);
-        $this->eventDispatcher->dispatch(CompileProcessPostRenderRepeaterPageView::NAME, $postEvent);
+        $postEvent = new CompilerPostRenderRepeaterPageView($pageView, $expandedValue, $output);
+        $this->eventDispatcher->dispatch(CompilerPostRenderRepeaterPageView::NAME, $postEvent);
 
         return $postEvent->getCompiledOutput();
     }
@@ -462,16 +462,16 @@ class Compiler
             'this' => $twigItem->createJail(),
         ];
 
-        $preEvent = new CompileProcessPreRenderDynamicPageView($twigItem);
-        $this->eventDispatcher->dispatch(CompileProcessPreRenderDynamicPageView::NAME, $preEvent);
+        $preEvent = new CompilerPreRenderDynamicPageView($twigItem);
+        $this->eventDispatcher->dispatch(CompilerPreRenderDynamicPageView::NAME, $preEvent);
 
         $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $template
             ->render($context)
         ;
 
-        $postEvent = new CompileProcessPostRenderDynamicPageView($twigItem, $output);
-        $this->eventDispatcher->dispatch(CompileProcessPostRenderDynamicPageView::NAME, $postEvent);
+        $postEvent = new CompilerPostRenderDynamicPageView($twigItem, $output);
+        $this->eventDispatcher->dispatch(CompilerPostRenderDynamicPageView::NAME, $postEvent);
 
         return $postEvent->getCompiledOutput();
     }
@@ -491,8 +491,8 @@ class Compiler
             'this' => $pageView->createJail(),
         ];
 
-        $preEvent = new CompileProcessPreRenderStaticPageView($pageView);
-        $this->eventDispatcher->dispatch(CompileProcessPreRenderStaticPageView::NAME, $preEvent);
+        $preEvent = new CompilerPreRenderStaticPageView($pageView);
+        $this->eventDispatcher->dispatch(CompilerPreRenderStaticPageView::NAME, $preEvent);
 
         $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $this
@@ -500,8 +500,8 @@ class Compiler
             ->render($context)
         ;
 
-        $postEvent = new CompileProcessPostRenderStaticPageView($pageView, $output);
-        $this->eventDispatcher->dispatch(CompileProcessPostRenderStaticPageView::NAME, $postEvent);
+        $postEvent = new CompilerPostRenderStaticPageView($pageView, $output);
+        $this->eventDispatcher->dispatch(CompilerPostRenderStaticPageView::NAME, $postEvent);
 
         return $postEvent->getCompiledOutput();
     }
@@ -523,8 +523,8 @@ class Compiler
 
             $this->templateMapping[$template->getTemplateName()] = $pageView->getRelativeFilePath();
 
-            $event = new CompileProcessTemplateCreation($pageView, $template, $this->theme);
-            $this->eventDispatcher->dispatch(CompileProcessTemplateCreation::NAME, $event);
+            $event = new CompilerTemplateCreation($pageView, $template, $this->theme);
+            $this->eventDispatcher->dispatch(CompilerTemplateCreation::NAME, $event);
 
             return $template;
         }

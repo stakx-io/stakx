@@ -2,7 +2,7 @@
 
 namespace allejo\stakx\Event;
 
-trait CompileProcessPreRenderTrait
+trait CompilerPreRenderTrait
 {
     protected $customVariables = [];
 

@@ -16,9 +16,9 @@ use Symfony\Component\EventDispatcher\Event;
  *
  * @since 0.2.0
  */
-class CompileProcessTemplateCreation extends Event
+class CompilerTemplateCreation extends Event
 {
-    const NAME = 'compile.process.template_creation';
+    const NAME = 'compile.template_creation';
 
     private $pageView;
     private $template;
@@ -31,17 +31,11 @@ class CompileProcessTemplateCreation extends Event
         $this->theme = $theme;
     }
 
-    /**
-     * @return BasePageView
-     */
     public function getPageView()
     {
         return clone $this->pageView;
     }
 
-    /**
-     * @return TemplateInterface
-     */
     public function getTemplate()
     {
         return clone $this->template;

@@ -16,11 +16,11 @@ use Symfony\Component\EventDispatcher\Event;
  *
  * @since 0.2.0
  */
-class CompileProcessPostRenderStaticPageView extends Event
+class CompilerPostRenderStaticPageView extends Event
 {
-    use CompileProcessPostRenderTrait;
+    use CompilerPostRenderTrait;
 
-    const NAME = 'compile.process.postrender_static_pageview';
+    const NAME = 'compiler.postrender.static_pageview';
 
     private $pageView;
 
