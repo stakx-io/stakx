@@ -12,7 +12,7 @@ namespace allejo\stakx\Filesystem;
  *
  * This class is the macOS Finder or Windows Explorer equivalent for stakx. New instances of this class should only be
  * created through the `FileExplorer::create()` helper function. To access the file iterator from this instance, use
- * `FileExplorer::getExplorer()` to retrieve File objects.
+ * `FileExplorer::getFileIterator()` to retrieve File objects.
  *
  * @internal
  */
@@ -133,11 +133,11 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     }
 
     /**
-     * Get an Iterator with all of the files that have met the search requirements.
+     * Get an Iterator with all of the files (and *only* files) that have met the search requirements.
      *
      * @return \RecursiveIteratorIterator
      */
-    public function getExplorer()
+    public function getFileIterator()
     {
         return new \RecursiveIteratorIterator($this);
     }
