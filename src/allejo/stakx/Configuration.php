@@ -32,7 +32,7 @@ class Configuration
      *
      * @var array
      */
-    public static $stakxSourceFiles = ['/^_(?!themes).*/', '/.twig$/'];
+    public static $stakxSourceFiles = ['/^_(?!themes)/', '/.twig$/'];
 
     /**
      * An array representation of the main Yaml configuration.

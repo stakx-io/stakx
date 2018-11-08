@@ -33,7 +33,10 @@ class ThemeManager extends AssetManager
         $this->themeName = $themeName;
         $this->themeFile = fs::appendPath($this->themeFolder, self::THEME_DEFINITION_FILE);
         $this->themeData = [
-            'exclude' => [],
+            'exclude' => [
+                // Ignore underscore directories inside of our theme folder
+                sprintf("/_themes\/%s\/_/", $this->themeName)
+            ],
             'include' => [],
         ];
 
