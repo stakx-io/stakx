@@ -67,6 +67,8 @@ class AssetManager extends TrackingManager
      */
     public function copyFiles()
     {
+        $this->logger->notice('Copying asset files...');
+
         $this->scanTrackableItems(
             Service::getWorkingDirectory(),
             [

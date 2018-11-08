@@ -245,7 +245,7 @@ abstract class TrackingManager extends BaseManager
 
         $fileExplorerFlags = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
         $this->fileExplorer = FileExplorer::create($path, $excludes, $includes, $fileExplorerFlags);
-        $fileExplorer = $this->fileExplorer->getExplorer();
+        $fileExplorer = $this->fileExplorer->getFileIterator();
 
         foreach ($fileExplorer as $file)
         {
