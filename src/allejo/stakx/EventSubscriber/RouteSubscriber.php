@@ -8,14 +8,14 @@
 namespace allejo\stakx\EventSubscriber;
 
 use allejo\stakx\Event\PageViewAdded;
-use allejo\stakx\Server\PageViewRouter;
+use allejo\stakx\Server\RouteMapper;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class RouterSubscriber implements EventSubscriberInterface
+class RouteSubscriber implements EventSubscriberInterface
 {
     private $routerMapping;
 
-    public function __construct(PageViewRouter $routerMapping)
+    public function __construct(RouteMapper $routerMapping)
     {
         $this->routerMapping = $routerMapping;
     }

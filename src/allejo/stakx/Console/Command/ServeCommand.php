@@ -7,8 +7,8 @@
 
 namespace allejo\stakx\Console\Command;
 
-use allejo\stakx\Server\DevServer;
-use allejo\stakx\Server\PageViewRouter;
+use allejo\stakx\Server\WebServer;
+use allejo\stakx\Server\RouteMapper;
 use allejo\stakx\Website;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,8 +41,8 @@ class ServeCommand extends BuildCommand
             $this->configureConfigurationFile($input);
             $website = $this->getContainer()->get(Website::class);
 
-            /** @var PageViewRouter $router */
-            $router = $this->getContainer()->get(PageViewRouter::class);
+            /** @var RouteMapper $router */
+            $router = $this->getContainer()->get(RouteMapper::class);
             $router->setBaseUrl($website->getConfiguration()->getBaseUrl());
 
             $loop = Factory::create();
@@ -51,7 +51,7 @@ class ServeCommand extends BuildCommand
                 $loop
             );
 
-            $server = DevServer::create($router, $website->getCompiler());
+            $server = WebServer::create($router, $website->getCompiler());
             $server->listen($socket);
 
             $output->writeln('Listening on ' . str_replace('tcp:', 'http:', $socket->getAddress()));

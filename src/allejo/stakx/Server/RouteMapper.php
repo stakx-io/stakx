@@ -14,7 +14,7 @@ use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\FrontMatter\FrontMatterParser;
 
-class PageViewRouter
+class RouteMapper
 {
     private $redirects;
     private $baseUrl;
