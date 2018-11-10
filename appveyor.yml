@@ -38,9 +38,9 @@ init:
   - SET ANSICON=121x90 (121x90)
 
 install:
-  - cinst -y OpenSSL.Light
   - sc config wuauserv start= auto
   - net start wuauserv
+  - cinst -y OpenSSL.Light
   - ps: cinst -y php --allow-empty-checksums --version ((choco search php --exact --all-versions -r | select-string -pattern $Env:php_ver_target | Select-Object -first 1) -replace '[php|]',''); cmd.exe /c 'appveyor.bat'
   - refreshenv
   - cd C:\projects\stakx
