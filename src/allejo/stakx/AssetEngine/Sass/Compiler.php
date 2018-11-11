@@ -2,6 +2,8 @@
 
 namespace allejo\stakx\AssetEngine\Sass;
 
+use allejo\stakx\RuntimeStatus;
+use allejo\stakx\Service;
 use Leafo\ScssPhp\Compiler as BaseCompiler;
 
 /**
@@ -27,6 +29,13 @@ class Compiler extends BaseCompiler
      */
     protected function importFile($path, $out)
     {
+        if (!Service::hasRunTimeFlag(RuntimeStatus::IN_SERVE_MODE))
+        {
+            parent::importFile($path, $out);
+
+            return;
+        }
+
         $realPath = realpath($path);
 
         // If we've compiled our Sass once already, then the last modified time
