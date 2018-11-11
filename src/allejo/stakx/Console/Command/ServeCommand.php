@@ -7,8 +7,10 @@
 
 namespace allejo\stakx\Console\Command;
 
+use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Server\WebServer;
 use allejo\stakx\Server\RouteMapper;
+use allejo\stakx\Service;
 use allejo\stakx\Website;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,6 +37,8 @@ class ServeCommand extends BuildCommand
     {
         $this->handleDeprecations($input, $output);
         $this->setRunTimeOptions($input);
+
+        Service::setRuntimeFlag(RuntimeStatus::IN_SERVE_MODE);
 
         try
         {

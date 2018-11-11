@@ -15,6 +15,7 @@ abstract class RuntimeStatus
 
     const IN_SAFE_MODE = 4;
     const IN_PROFILE_MODE = 8;
+    const IN_SERVE_MODE = 128;
 
     const USING_CACHE = 16;
     const USING_DRAFTS = 32;
