@@ -37,12 +37,21 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
      * @param string               $comparison The actual comparison symbols being used
      * @param mixed                $value      The value we're searching for
      *
+     * @throws Twig_Error_Syntax
+     *
      * @return array
      */
     public function __invoke($array, $key, $comparison, $value)
     {
         $results = [];
-        $this->search_r($array, $key, $comparison, $value, $results);
+
+        foreach ($array as $item)
+        {
+            if ($this->compare($item, $key, $comparison, $value))
+            {
+                $results[] = $item;
+            }
+        }
 
         return $results;
     }
@@ -56,55 +65,25 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
     }
 
     /**
-     * Recursive searching calling our comparison.
-     *
-     * @param array|\ArrayAccess[] $array      The elements to filter through
-     * @param string               $key        The key value in an associative array or FrontMatter
-     * @param string               $comparison The actual comparison symbols being used
-     * @param string               $value      The value we're searching for
-     * @param array                $results    The reference to where to keep the filtered elements
-     */
-    private function search_r($array, $key, $comparison, $value, &$results)
-    {
-        if (!is_array($array) && !($array instanceof \ArrayAccess))
-        {
-            return;
-        }
-
-        if ($this->compare($array, $key, $comparison, $value))
-        {
-            $results[] = $array;
-        }
-
-        foreach ($array as $subarray)
-        {
-            $this->search_r($subarray, $key, $comparison, $value, $results);
-        }
-    }
-
-    /**
      * The logic for determining if an element matches the filter.
      *
-     * @param array|\ArrayAccess[] $array      The elements to filter through
-     * @param string               $key        The key value in an associative array or FrontMatter
-     * @param string               $comparison The actual comparison symbols being used
-     * @param string               $value      The value we're searching for
+     * @param mixed|\ArrayAccess $item       The elements to filter through
+     * @param string             $key        The key value in an associative array or FrontMatter
+     * @param string             $comparison The actual comparison symbol being used
+     * @param string             $value      The value we're searching for
      *
      * @throws Twig_Error_Syntax
      *
      * @return bool
      */
-    private function compare($array, $key, $comparison, $value)
+    private function compare($item, $key, $comparison, $value)
     {
-        // @TODO can I replace the $array/$key separate parameters with `__::get()`?
-        // @TODO right now, a call to `__::get()` will return null, so that would break the null comparisons
-        // @TODO maybe use `__::has()`?
-        if ($this->compareNullValues($array, $key, $comparison, $value))
+        if ($this->compareNullValues($item, $key, $comparison, $value))
         {
             return true;
         }
 
-        $lhsValue = __::get($array, $key);
+        $lhsValue = __::get($item, $key);
 
         if ($lhsValue === null)
         {
@@ -117,32 +96,27 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
     /**
      * If the comparison is == or !=, then special behavior is defined for null values.
      *
-     * @param array|\ArrayAccess[] $array      The elements to filter through
-     * @param string               $key        The key value in an associative array or FrontMatter
-     * @param string               $comparison The actual comparison symbols being used
-     * @param mixed                $value      The value we're searching for
+     * @param mixed|\ArrayAccess $item     The elements to filter through
+     * @param string             $key      The key value in an associative array or FrontMatter
+     * @param string             $operator The actual comparison symbol being used
+     * @param mixed              $value    The value we're searching for
      *
      * @return bool
      */
-    private function compareNullValues($array, $key, $comparison, $value)
+    private function compareNullValues($item, $key, $operator, $value)
     {
-        if ($comparison != '==' && $comparison != '!=')
+        if ($operator != '==' && $operator != '!=')
         {
             return false;
         }
 
-        if (!($array instanceof \ArrayAccess))
+        if (!__::has($item, $key))
         {
-            return false;
-        }
-
-        if (!__::has($array, $key))
-        {
-            if ($comparison == '==' && $value === null)
+            if ($operator == '==' && $value === null)
             {
                 return true;
             }
-            if ($comparison == '!=' && $value !== null)
+            if ($operator == '!=' && $value !== null)
             {
                 return true;
             }
