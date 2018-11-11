@@ -47,6 +47,8 @@ class Controller
         return function () use ($pageView, $compiler) {
             Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
 
+            $compiler->getTemplateBridge()->clearTemplateCache();
+
             if ($this->hasBeenTouched($pageView))
             {
                 $pageView->readContent();
@@ -74,6 +76,8 @@ class Controller
     {
         return function (ServerRequestInterface $request) use ($pageView, $compiler) {
             Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
+
+            $compiler->getTemplateBridge()->clearTemplateCache();
 
             $contentItem = self::getContentItem($pageView, $request->getUri()->getPath());
 
@@ -108,6 +112,8 @@ class Controller
     {
         return function (ServerRequestInterface $request) use ($pageView, $compiler) {
             Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
+
+            $compiler->getTemplateBridge()->clearTemplateCache();
 
             $expandedValue = self::getExpandedValue($pageView, $request->getUri()->getPath());
 

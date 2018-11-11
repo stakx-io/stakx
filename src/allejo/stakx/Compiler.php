@@ -120,6 +120,11 @@ class Compiler
     // Twig parent templates
     ///
 
+    public function getTemplateBridge()
+    {
+        return $this->templateBridge;
+    }
+
     public function getTemplateMappings()
     {
         return $this->templateMapping;
