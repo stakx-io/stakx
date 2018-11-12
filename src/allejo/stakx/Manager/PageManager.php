@@ -174,7 +174,7 @@ class PageManager extends TrackingManager
 
         foreach ($this->repeaterPages as $key => $value)
         {
-            $jailedObjects[$key]= $value->createJail();
+            $jailedObjects[$key] = $value->createJail();
         }
 
         return $jailedObjects;

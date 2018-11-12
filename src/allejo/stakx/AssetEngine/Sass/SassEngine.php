@@ -15,7 +15,6 @@ use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
-use Leafo\ScssPhp\Compiler;
 use Leafo\ScssPhp\Formatter\Compact;
 use Leafo\ScssPhp\Formatter\Crunched;
 use Leafo\ScssPhp\Formatter\Expanded;

@@ -12,6 +12,7 @@ use allejo\stakx\AssetEngine\Sass\SassEngine;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Event\CompilerPostRenderStaticPageView;
 use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\EventSubscriber\AssetEngineSubscriber;
@@ -175,6 +176,13 @@ SASS;
         $subscriber->processAssetEnginePageView($pageManagerEvent);
 
         $pageViews = &$pageManager->getPageViews();
+
+        // Dispatch the compiler event, which triggers the sourcemap to be written
+        foreach ($pageViews[BasePageView::STATIC_TYPE] as $pageView)
+        {
+            $compileEvent = new CompilerPostRenderStaticPageView($pageView, $this->sass);
+            $subscriber->compileAssetEnginePageViews($compileEvent);
+        }
 
         $expectedFiles = ['styles.css', 'styles.css.map'];
         $actualFileCount = 0;

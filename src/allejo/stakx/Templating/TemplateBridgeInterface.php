@@ -79,4 +79,11 @@ interface TemplateBridgeInterface extends LoggerAwareInterface
      * @return TemplateInterface
      */
     public function createTemplate($templateContent);
+
+    /**
+     * Clear the internal cache for template engine.
+     *
+     * @return void
+     */
+    public function clearTemplateCache();
 }

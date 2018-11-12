@@ -49,7 +49,7 @@ class AssetEngineManager
             return $this->enginesByExtension[$extension];
         }
 
-        throw new UnsupportedAssetEngineException($extension, 'There is no support to handle this asset type.');
+        throw new UnsupportedAssetEngineException($extension, "There is no support to handle the '${extension}' asset type.");
     }
 
     public function getFoldersToWatch()

@@ -22,7 +22,7 @@ use FastRoute\RouteCollector;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
 
-class RouteDispatcher
+class Controller
 {
     private static $baseUrl = '';
     private $lastModified = [];
@@ -42,10 +42,12 @@ class RouteDispatcher
      *
      * @return \Closure
      */
-    private function staticPageViewController(StaticPageView $pageView, Compiler $compiler)
+    private function staticPageViewAction(StaticPageView $pageView, Compiler $compiler)
     {
         return function () use ($pageView, $compiler) {
             Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
+
+            $compiler->getTemplateBridge()->clearTemplateCache();
 
             if ($this->hasBeenTouched($pageView))
             {
@@ -70,16 +72,18 @@ class RouteDispatcher
      *
      * @return \Closure
      */
-    private function dynamicPageViewController(DynamicPageView $pageView, Compiler $compiler)
+    private function dynamicPageViewAction(DynamicPageView $pageView, Compiler $compiler)
     {
         return function (ServerRequestInterface $request) use ($pageView, $compiler) {
             Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
+
+            $compiler->getTemplateBridge()->clearTemplateCache();
 
             $contentItem = self::getContentItem($pageView, $request->getUri()->getPath());
 
             if ($contentItem === null)
             {
-                return DevServer::return404();
+                return WebServer::return404();
             }
 
             if ($this->hasBeenTouched($pageView))
@@ -92,7 +96,7 @@ class RouteDispatcher
                 $contentItem->readContent();
             }
 
-            return DevServer::return200($compiler->renderDynamicPageView($pageView, $contentItem));
+            return WebServer::return200($compiler->renderDynamicPageView($pageView, $contentItem));
         };
     }
 
@@ -104,16 +108,18 @@ class RouteDispatcher
      *
      * @return \Closure
      */
-    private function repeaterPageViewController(RepeaterPageView $pageView, Compiler $compiler)
+    private function repeaterPageViewAction(RepeaterPageView $pageView, Compiler $compiler)
     {
         return function (ServerRequestInterface $request) use ($pageView, $compiler) {
             Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
+
+            $compiler->getTemplateBridge()->clearTemplateCache();
 
             $expandedValue = self::getExpandedValue($pageView, $request->getUri()->getPath());
 
             if ($expandedValue === null)
             {
-                return DevServer::return404();
+                return WebServer::return404();
             }
 
             if ($this->hasBeenTouched($pageView))
@@ -121,30 +127,30 @@ class RouteDispatcher
                 $pageView->readContent();
             }
 
-            return DevServer::return200($compiler->renderRepeaterPageView($pageView, $expandedValue));
+            return WebServer::return200($compiler->renderRepeaterPageView($pageView, $expandedValue));
         };
     }
 
     /**
-     * Return the appropriate controller based on a PageView's type.
+     * Return the appropriate action based on a PageView's type.
      *
      * @param BasePageView|DynamicPageView|RepeaterPageView|StaticPageView $pageView
      * @param Compiler                                                     $compiler
      *
      * @return \Closure
      */
-    private function createController(BasePageView $pageView, Compiler $compiler)
+    private function createAction(BasePageView $pageView, Compiler $compiler)
     {
         switch ($pageView->getType())
         {
             case BasePageView::STATIC_TYPE:
-                return $this->staticPageViewController($pageView, $compiler);
+                return $this->staticPageViewAction($pageView, $compiler);
 
             case BasePageView::DYNAMIC_TYPE:
-                return $this->dynamicPageViewController($pageView, $compiler);
+                return $this->dynamicPageViewAction($pageView, $compiler);
 
             case BasePageView::REPEATER_TYPE:
-                return $this->repeaterPageViewController($pageView, $compiler);
+                return $this->repeaterPageViewAction($pageView, $compiler);
 
             default:
                 return function () {
@@ -179,21 +185,21 @@ class RouteDispatcher
     /**
      * Create a FastRoute Dispatcher.
      *
-     * @param PageViewRouter $router
-     * @param Compiler       $compiler
+     * @param RouteMapper $router
+     * @param Compiler    $compiler
      *
      * @return \FastRoute\Dispatcher
      */
-    public static function create(PageViewRouter $router, Compiler $compiler)
+    public static function create(RouteMapper $router, Compiler $compiler)
     {
         self::$baseUrl = $router->getBaseUrl();
 
         return \FastRoute\simpleDispatcher(function (RouteCollector $r) use ($router, $compiler) {
-            $dispatcher = new RouteDispatcher();
+            $dispatcher = new Controller();
 
             foreach ($router->getRouteMapping() as $route => $pageView)
             {
-                $r->get($route, $dispatcher->createController($pageView, $compiler));
+                $r->get($route, $dispatcher->createAction($pageView, $compiler));
             }
         });
     }

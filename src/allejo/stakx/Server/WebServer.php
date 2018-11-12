@@ -17,7 +17,7 @@ use React\Http\Response;
 use React\Http\Server;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class DevServer
+class WebServer
 {
     /**
      * Return a 200 HTML Response.
@@ -49,18 +49,18 @@ class DevServer
     /**
      * Factory method for creating a React Server instance.
      *
-     * @param PageViewRouter $router
-     * @param Compiler       $compiler
+     * @param RouteMapper $router
+     * @param Compiler    $compiler
      *
      * @return Server
      */
-    public static function create(PageViewRouter $router, Compiler $compiler)
+    public static function create(RouteMapper $router, Compiler $compiler)
     {
-        $dispatcher = RouteDispatcher::create($router, $compiler);
+        $dispatcher = Controller::create($router, $compiler);
 
         return new Server(function (ServerRequestInterface $request) use ($router, $dispatcher) {
             $httpMethod = $request->getMethod();
-            $urlPath = RouteDispatcher::normalizeUrl($request->getUri()->getPath());
+            $urlPath = Controller::normalizeUrl($request->getUri()->getPath());
 
             // We're a static website, we should never support anything other than GET requests
             if ($httpMethod !== 'GET')
@@ -84,10 +84,10 @@ class DevServer
                         return $asset;
                     }
 
-                    return DevServer::return404();
+                    return WebServer::return404();
 
                 default:
-                    return DevServer::return404();
+                    return WebServer::return404();
             }
         });
     }
