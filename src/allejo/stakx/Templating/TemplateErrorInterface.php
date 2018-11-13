@@ -25,6 +25,11 @@ interface TemplateErrorInterface extends \Throwable
     public function setTemplateLine($lineNumber);
 
     /**
+     * @return string
+     */
+    public function getContent();
+
+    /**
      * @param string $content
      *
      * @return self
@@ -32,11 +37,21 @@ interface TemplateErrorInterface extends \Throwable
     public function setContent($content);
 
     /**
+     * @return string
+     */
+    public function getName();
+
+    /**
      * @param string $name
      *
      * @return self
      */
     public function setName($name);
+
+    /**
+     * @return string
+     */
+    public function getRelativeFilePath();
 
     /**
      * @param string $filePath

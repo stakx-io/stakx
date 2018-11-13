@@ -43,6 +43,14 @@ class TwigError extends \Exception implements TemplateErrorInterface
     /**
      * {@inheritdoc}
      */
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setContent($content)
     {
         $this->content = $content;
@@ -53,11 +61,27 @@ class TwigError extends \Exception implements TemplateErrorInterface
     /**
      * {@inheritdoc}
      */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setName($name)
     {
         $this->name = $name;
 
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getRelativeFilePath()
+    {
+        return $this->relativeFilePath;
     }
 
     /**

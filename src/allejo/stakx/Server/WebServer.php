@@ -8,6 +8,7 @@
 namespace allejo\stakx\Server;
 
 use allejo\stakx\Compiler;
+use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Service;
@@ -58,7 +59,7 @@ class WebServer
     {
         $dispatcher = Controller::create($router, $compiler);
 
-        return new Server(function (ServerRequestInterface $request) use ($router, $dispatcher) {
+        return new Server(function (ServerRequestInterface $request) use ($router, $dispatcher, $compiler) {
             $httpMethod = $request->getMethod();
             $urlPath = Controller::normalizeUrl($request->getUri()->getPath());
 
@@ -76,7 +77,15 @@ class WebServer
                 case Dispatcher::FOUND:
                     $urlPlaceholders = isset($routeInfo[2]) ? $routeInfo[2] : [];
 
-                    return $routeInfo[1]($request, ...array_values($urlPlaceholders));
+                    try {
+                        return $routeInfo[1]($request, ...array_values($urlPlaceholders));
+                    }
+                    catch (\Exception $e)
+                    {
+                        $response = ExceptionRenderer::render($e, $compiler);
+
+                        return new Response(500, ['Content-Type' => 'text/html'], $response);
+                    }
 
                 case Dispatcher::NOT_FOUND:
                     if (($asset = self::searchAsset($urlPath)) !== null)
