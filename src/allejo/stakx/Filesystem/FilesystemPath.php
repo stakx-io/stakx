@@ -23,6 +23,8 @@ final class FilesystemPath
     private $originalPath;
     /** @var bool */
     private $isWindows;
+    /** @var bool */
+    private $isVFS;
 
     /**
      * @param FilesystemPath|string $filePath
@@ -34,6 +36,7 @@ final class FilesystemPath
 
         $this->originalPath = $filePath;
         $this->isWindows = ($dirSep === '\\');
+        $this->isVFS = fs::isVFS($filePath);
 
         if ($this->isWindows)
         {
@@ -88,7 +91,7 @@ final class FilesystemPath
      */
     public function getAbsolutePath()
     {
-        if ($this->isWindows)
+        if (!$this->isVFS && $this->isWindows)
         {
             return str_replace('/', '\\', $this->absolutePath);
         }

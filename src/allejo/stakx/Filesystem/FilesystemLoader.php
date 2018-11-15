@@ -14,7 +14,9 @@ namespace allejo\stakx\Filesystem;
  * @method static \string getInternalResource(\string $file)      Get the contents of a stakx resource file.
  * @method static \string getFolderPath(\string $path)            Get the parent directory of a given file.
  * @method static \string getRelativePath(\string $path)          Strip the current working directory from an absolute path.
+ * @method static \bool isVFS(\string $path)                      Check whether a given path is on the virtual filesystem.
  * @method static FilesystemPath path(\string $path)              Build a cross-platform ready filesystem path.
+ * @method static \bool realpath(\string $path)                   A vfsStream friendly way of getting the realpath() of something.
  * @method static \string removeExtension(\string $path)          Get the full path to the file without the extension.
  */
 abstract class FilesystemLoader

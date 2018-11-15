@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Filesystem;
 
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
+
 /**
  * The core class to handle reading files from directories on the filesystem.
  *
@@ -185,7 +187,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public static function create($folder, $excludes = [], $includes = [], $flags = null)
     {
-        $folder = File::realpath($folder);
+        $folder = fs::realpath($folder);
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
 
         return new self($iterator, $excludes, $includes, $flags);

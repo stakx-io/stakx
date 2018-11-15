@@ -8,6 +8,7 @@
 namespace allejo\stakx\Filesystem;
 
 use allejo\stakx\Service;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
@@ -38,7 +39,7 @@ final class File extends \SplFileInfo
     public function __construct($filePath)
     {
         $this->rawPath = $filePath;
-        $realPath = self::realpath($filePath);
+        $realPath = fs::realpath($filePath);
 
         if ($realPath === false)
         {
@@ -193,7 +194,7 @@ final class File extends \SplFileInfo
      */
     private function isSafeToRead()
     {
-        if (self::isVFS($this->getAbsolutePath()))
+        if (fs::isVFS($this->getAbsolutePath()))
         {
             return;
         }
@@ -214,27 +215,4 @@ final class File extends \SplFileInfo
         );
     }
 
-    /**
-     * A vfsStream friendly way of getting the realpath() of something.
-     *
-     * @param string $path
-     *
-     * @return string
-     */
-    public static function realpath($path)
-    {
-        return self::isVFS($path) ? $path : realpath($path);
-    }
-
-    /**
-     * Check whether a given path is on the virtual filesystem.
-     *
-     * @param string $path
-     *
-     * @return bool
-     */
-    private static function isVFS($path)
-    {
-        return substr($path, 0, 6) == 'vfs://';
-    }
 }
