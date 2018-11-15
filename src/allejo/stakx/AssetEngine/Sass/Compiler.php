@@ -29,7 +29,10 @@ class Compiler extends BaseCompiler
      */
     protected function importFile($path, $out)
     {
-        if (!Service::hasRunTimeFlag(RuntimeStatus::IN_SERVE_MODE))
+        $serveMode = Service::hasRunTimeFlag(RuntimeStatus::IN_SERVE_MODE);
+        $cacheMode = Service::hasRunTimeFlag(RuntimeStatus::USING_CACHE);
+
+        if (!($serveMode || $cacheMode))
         {
             parent::importFile($path, $out);
 
