@@ -10,12 +10,17 @@ namespace allejo\stakx\EventSubscriber;
 use __\__;
 use allejo\stakx\AssetEngine\AssetEngineInterface;
 use allejo\stakx\AssetEngine\AssetEngineManager;
+use allejo\stakx\Configuration;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Event\CompilerPostRenderStaticPageView;
 use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\FilesystemPath;
+use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\RuntimeStatus;
+use allejo\stakx\Service;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -102,11 +107,18 @@ class AssetEngineSubscriber implements EventSubscriberInterface
         {
             /** @var AssetEngineInterface $engine */
             $engine = $this->assetPageViews[$filePath]['engine'];
+            $cacheDir = $this->buildCacheFolder($engine);
+
+            if (Service::hasRunTimeFlag(RuntimeStatus::USING_CACHE))
+            {
+                $engine->loadCache($cacheDir);
+            }
 
             $output = $engine->parse($event->getCompiledOutput(), [
                 'pageview' => $pageView,
             ]);
 
+            $engine->saveCache($cacheDir);
             $event->setCompiledOutput($output);
         }
     }
@@ -118,5 +130,21 @@ class AssetEngineSubscriber implements EventSubscriberInterface
             PageManagerPostProcess::NAME => 'processAssetEnginePageView',
             CompilerPostRenderStaticPageView::NAME => 'compileAssetEnginePageViews',
         ];
+    }
+
+    private function buildCacheFolder(AssetEngineInterface $engine)
+    {
+        $cacheDirPath = new FilesystemPath(Service::getWorkingDirectory() . '/');
+        $cacheDirPath
+            ->appendToPath(Configuration::CACHE_FOLDER . '/')
+            ->appendToPath(__::slug(strtolower($engine->getName())) . '/')
+        ;
+
+        fs::mkdir($cacheDirPath);
+
+        $cacheDir = new Folder($cacheDirPath);
+        $cacheDir->freeze();
+
+        return $cacheDir;
     }
 }

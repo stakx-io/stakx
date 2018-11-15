@@ -33,6 +33,11 @@ abstract class Service
         self::$runTimeStatus |= $status;
     }
 
+    public static function removeRuntimeFlag($status)
+    {
+        self::$runTimeStatus &= ~$status;
+    }
+
     public static function resetRuntimeFlags()
     {
         self::$runTimeStatus = 0;

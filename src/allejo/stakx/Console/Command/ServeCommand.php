@@ -8,8 +8,8 @@
 namespace allejo\stakx\Console\Command;
 
 use allejo\stakx\RuntimeStatus;
-use allejo\stakx\Server\WebServer;
 use allejo\stakx\Server\RouteMapper;
+use allejo\stakx\Server\WebServer;
 use allejo\stakx\Service;
 use allejo\stakx\Website;
 use React\EventLoop\Factory;

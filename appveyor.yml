@@ -22,6 +22,9 @@ environment:
     - dependencies: highest
       php_ver_target: 7.2
 
+matrix:
+  fast_finish: true
+
 branches:
   except:
     - gh-pages

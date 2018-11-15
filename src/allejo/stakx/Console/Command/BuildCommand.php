@@ -125,6 +125,9 @@ class BuildCommand extends ContainerAwareCommand
 
         if ($input->getOption(self::SAFE_MODE))
         {
+            // Caches could be maliciously manipulated so disable reading the cache in safe mode
+            Service::removeRuntimeFlag(RuntimeStatus::USING_CACHE);
+
             Service::setRuntimeFlag(RuntimeStatus::IN_SAFE_MODE);
         }
 

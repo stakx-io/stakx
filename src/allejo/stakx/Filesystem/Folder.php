@@ -15,6 +15,9 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 final class Folder
 {
+    /** @var bool */
+    private $frozen;
+
     /** @var FilesystemPath */
     private $folder;
 
@@ -23,6 +26,7 @@ final class Folder
      */
     public function __construct($folderPath)
     {
+        $this->frozen = false;
         $this->folder = new FilesystemPath($folderPath);
 
         if (!$this->folder->isDir())
@@ -37,14 +41,51 @@ final class Folder
     }
 
     /**
+     * Get the file path to this Folder in an OOP friendly way.
+     *
+     * @return FilesystemPath
+     */
+    public function getFilesystemPath()
+    {
+        return new FilesystemPath($this->__toString());
+    }
+
+    /**
+     * Set this Folder to a "frozen" state meaning its path can no longer be modified.
+     */
+    public function freeze()
+    {
+        $this->frozen = true;
+    }
+
+    /**
+     * Check whether or not this Folder's path has been frozen.
+     *
+     * @return bool
+     */
+    public function isFrozen()
+    {
+        return $this->frozen;
+    }
+
+    /**
      * Set a base folder that will be prefixed before all file writes and copies.
      *
      * @param string $folderName
      *
+     * @since 0.2.0 An \Exception is thrown when a frozen Folder is attempted to
+     *              be modified
      * @since 0.1.0
+     *
+     * @throws \Exception
      */
     public function setTargetDirectory($folderName)
     {
+        if ($this->isFrozen())
+        {
+            throw new \Exception('A frozen folder object cannot be modified.');
+        }
+
         if ($folderName === null || empty($folderName))
         {
             return;

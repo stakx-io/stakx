@@ -41,7 +41,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function clearTemplateCache()
     {

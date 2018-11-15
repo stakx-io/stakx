@@ -29,7 +29,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
         foreach ($explorer as $file)
         {
             $this->assertArrayHasKey($file->getFilename(), $filesystem);
-            $count++;
+            ++$count;
         }
 
         $this->assertEquals(count($filesystem), $count);

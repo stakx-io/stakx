@@ -13,6 +13,7 @@ use allejo\stakx\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use Leafo\ScssPhp\Formatter\Compact;
@@ -22,6 +23,8 @@ use Leafo\ScssPhp\Formatter\Nested;
 
 class SassEngine implements AssetEngineInterface
 {
+    const CACHE_FILE = 'sass_engine.cache';
+
     private $fileSourceMap = false;
     private $configuration;
     /** @var PageManager */
@@ -33,6 +36,11 @@ class SassEngine implements AssetEngineInterface
     {
         $this->configuration = $configuration;
         $this->compiler = new Compiler();
+    }
+
+    public function getName()
+    {
+        return 'Sass';
     }
 
     public function getConfigurationNamespace()
@@ -121,6 +129,35 @@ class SassEngine implements AssetEngineInterface
     public function setPageManager(PageManager $pageManager)
     {
         $this->pageManager = $pageManager;
+    }
+
+    public function loadCache(Folder $cacheDir)
+    {
+        $cachePath = $cacheDir
+            ->getFilesystemPath()
+            ->appendToPath(self::CACHE_FILE)
+        ;
+
+        if (fs::exists($cachePath))
+        {
+            list(
+                $this->compiler
+            ) = unserialize(file_get_contents($cachePath));
+        }
+    }
+
+    public function saveCache(Folder $cacheDir)
+    {
+        $cachePath = $cacheDir
+            ->getFilesystemPath()
+            ->appendToPath(self::CACHE_FILE)
+        ;
+
+        $cache = serialize([
+            $this->compiler,
+        ]);
+
+        file_put_contents($cachePath, $cache);
     }
 
     private function configureImportPath()

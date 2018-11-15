@@ -23,15 +23,20 @@ final class FilesystemPath
     private $originalPath;
     /** @var bool */
     private $isWindows;
+    /** @var bool */
+    private $isVFS;
 
     /**
-     * @param string $filePath
-     * @param string $dirSep
+     * @param FilesystemPath|string $filePath
+     * @param string                $dirSep
      */
     public function __construct($filePath, $dirSep = DIRECTORY_SEPARATOR)
     {
+        $filePath = (string)$filePath;
+
         $this->originalPath = $filePath;
         $this->isWindows = ($dirSep === '\\');
+        $this->isVFS = fs::isVFS($filePath);
 
         if ($this->isWindows)
         {
@@ -50,6 +55,8 @@ final class FilesystemPath
      * Append a path to a directory path.
      *
      * @param string $append The path to append
+     *
+     * @return self
      */
     public function appendToPath($append)
     {
@@ -59,6 +66,8 @@ final class FilesystemPath
         }
 
         $this->absolutePath = $this->buildPath($this->absolutePath, $this->unixifyPath($append));
+
+        return $this;
     }
 
     /**
@@ -82,7 +91,7 @@ final class FilesystemPath
      */
     public function getAbsolutePath()
     {
-        if ($this->isWindows)
+        if (!$this->isVFS && $this->isWindows)
         {
             return str_replace('/', '\\', $this->absolutePath);
         }

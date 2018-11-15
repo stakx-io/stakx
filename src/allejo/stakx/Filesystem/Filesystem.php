@@ -229,4 +229,28 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
 
         return file_get_contents($path);
     }
+
+    /**
+     * A vfsStream friendly way of getting the realpath() of something.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public function realpath($path)
+    {
+        return $this->isVFS($path) ? $path : realpath($path);
+    }
+
+    /**
+     * Check whether a given path is on the virtual filesystem.
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    public function isVFS($path)
+    {
+        return substr($path, 0, 6) == 'vfs://';
+    }
 }
