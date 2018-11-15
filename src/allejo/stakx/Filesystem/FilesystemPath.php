@@ -50,6 +50,8 @@ final class FilesystemPath
      * Append a path to a directory path.
      *
      * @param string $append The path to append
+     *
+     * @return self
      */
     public function appendToPath($append)
     {
@@ -59,6 +61,8 @@ final class FilesystemPath
         }
 
         $this->absolutePath = $this->buildPath($this->absolutePath, $this->unixifyPath($append));
+
+        return $this;
     }
 
     /**
