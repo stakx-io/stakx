@@ -1,3 +1,32 @@
+## HEAD
+
+**New**
+
+- The `url()` Twig filter can now link to Repeater PageViews ([#78](https://github.com/stakx-io/stakx/pull/78))
+- Twig now has a new global template called `repeaters` to access all of the Repeater PageViews; these PageViews are indexed based on the `title` FrontMatter value just like Static PageViews.
+- Added new `slug` Twig filter
+- The 500 error page in the `serve` command now shows more useful information about the exception that was thrown
+- Sass Asset Engine now caches the Sass AST it builds inside of `.stakx-cache/`. Using the `--use-cache` flag will enable stakx to read this cache and only rebuild the updated Sass ([#91](https://github.com/stakx-io/stakx/pull/91))
+
+**Changes**
+
+- Passing a `JailedDocument` into the Twig `dump()` filter will now output useful information; such as, all of the accessible FrontMatter and whitelisted methods.
+- Heading IDs inside of the markdown engine now use the same algorithm as the Twig `slug()` filter
+- Underscore folders inside of themes are now automatically ignored ([#87](https://github.com/stakx-io/stakx/pull/87))
+- The Sass compiler has been updated to better handle AST caching especially during `serve` and `--use-cache`
+- The `where()` Twig filter logic has been simplified and longer works recursively, which was "undefined behavior" to begin with
+
+**Fixes**
+
+- Feeding `JailedDocument`s into the Twig `dump()` filter will no longer cause an infinite loop
+- Sass is correctly updated and compiled during the `serve` command; you no longer need to restart the server to get your Sass to recompile ([#86](https://github.com/stakx-io/stakx/pull/86))
+
+**Development**
+
+- The `ReadableDocument` object now has support for getting and setting metadata available to stakx internals
+- The `serve` infrastructure has been refactored and has had a lot of renaming to have more intuitive names
+- CompileProcess events have been renamed and split up into separate events for each PageView type and now contain more useful information
+
 ## 0.2.0 Alpha 2
 
 **New**
