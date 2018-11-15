@@ -25,11 +25,13 @@ final class FilesystemPath
     private $isWindows;
 
     /**
-     * @param string $filePath
-     * @param string $dirSep
+     * @param FilesystemPath|string $filePath
+     * @param string                $dirSep
      */
     public function __construct($filePath, $dirSep = DIRECTORY_SEPARATOR)
     {
+        $filePath = (string)$filePath;
+
         $this->originalPath = $filePath;
         $this->isWindows = ($dirSep === '\\');
 
