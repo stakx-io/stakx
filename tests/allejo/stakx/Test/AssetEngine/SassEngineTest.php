@@ -147,6 +147,7 @@ SASS;
     {
         Service::setWorkingDirectory($this->rootDir->url());
         vfsStream::create([
+            '.stakx-cache' => [],
             '_sass' => [
                 'styles.scss.twig' => $this->buildFrontMatterTemplate(['permalink' => '/styles.css'], $this->sass),
             ],
