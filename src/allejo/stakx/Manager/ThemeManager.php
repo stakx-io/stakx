@@ -35,7 +35,7 @@ class ThemeManager extends AssetManager
         $this->themeData = [
             'exclude' => [
                 // Ignore underscore directories inside of our theme folder
-                sprintf("/_themes\/%s\/_/", $this->themeName)
+                sprintf("/_themes\/%s\/_/", $this->themeName),
             ],
             'include' => [],
         ];

@@ -18,7 +18,7 @@ class TwigFileLoader extends \Twig_Loader_Filesystem
 
         if (Service::hasRunTimeFlag(RuntimeStatus::IN_SERVE_MODE))
         {
-            return sprintf("%s_%s", $template, filemtime($template));
+            return sprintf('%s_%s', $template, filemtime($template));
         }
 
         return $template;

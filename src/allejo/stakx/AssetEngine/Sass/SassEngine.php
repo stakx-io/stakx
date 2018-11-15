@@ -15,7 +15,6 @@ use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Manager\PageManager;
-use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Leafo\ScssPhp\Formatter\Compact;
 use Leafo\ScssPhp\Formatter\Crunched;
@@ -155,7 +154,7 @@ class SassEngine implements AssetEngineInterface
         ;
 
         $cache = serialize([
-            $this->compiler
+            $this->compiler,
         ]);
 
         file_put_contents($cachePath, $cache);

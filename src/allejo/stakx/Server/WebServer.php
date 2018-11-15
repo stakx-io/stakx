@@ -8,7 +8,6 @@
 namespace allejo\stakx\Server;
 
 use allejo\stakx\Compiler;
-use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Service;
@@ -77,7 +76,8 @@ class WebServer
                 case Dispatcher::FOUND:
                     $urlPlaceholders = isset($routeInfo[2]) ? $routeInfo[2] : [];
 
-                    try {
+                    try
+                    {
                         return $routeInfo[1]($request, ...array_values($urlPlaceholders));
                     }
                     catch (\Exception $e)

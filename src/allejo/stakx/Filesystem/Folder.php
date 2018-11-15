@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 final class Folder
 {
-    /** @var boolean */
+    /** @var bool */
     private $frozen;
 
     /** @var FilesystemPath */

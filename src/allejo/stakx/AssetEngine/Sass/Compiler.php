@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\AssetEngine\Sass;
 
 use allejo\stakx\RuntimeStatus;
@@ -72,8 +77,10 @@ class Compiler extends BaseCompiler
      */
     public function clearImportCache($file = null)
     {
-        if ($file === null) {
+        if ($file === null)
+        {
             $this->importCache = [];
+
             return;
         }
 
