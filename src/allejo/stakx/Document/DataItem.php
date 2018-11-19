@@ -52,8 +52,9 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     {
         $this->frontMatter = array_merge($this->data, $variables);
         $parser = new FrontMatterParser($this->frontMatter, [
+            'basename' => $this->getBasename(),
             'filename' => $this->getFileName(),
-            'basename' => $this->getBaseName(),
+            'filePath' => $this->getRelativeFilePath(),
         ]);
         $parser->addComplexVariables($complexVariables);
         $parser->parse();
