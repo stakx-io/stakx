@@ -20,6 +20,8 @@
 
 - Feeding `JailedDocument`s into the Twig `dump()` filter will no longer cause an infinite loop
 - Sass is correctly updated and compiled during the `serve` command; you no longer need to restart the server to get your Sass to recompile ([#86](https://github.com/stakx-io/stakx/pull/86))
+- FrontMatter from Dynamic PageViews are now accessible through children DataItems ([#93](https://github.com/stakx-io/stakx/issues/93)); information from the DataItem will override PageView FrontMatter
+- DataItems part of Datasets now have the `filePath` variable to match ContentItems
 
 **Development**
 
