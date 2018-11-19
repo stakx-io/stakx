@@ -1,11 +1,14 @@
 ---
 permalink: /calendar/%basename/
 dataset: calendar
+title: %basename
 ---
 
 {% extends "_layouts/base.html.twig" %}
 
 {% block content %}
+    <p>Events for the month of {{ this.title | title }}</p>
+
     {% for date in this %}
         <article>
             <p><strong>{{ date.localName }}</strong></p>

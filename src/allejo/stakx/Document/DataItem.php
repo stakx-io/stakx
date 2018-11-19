@@ -17,11 +17,14 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     use CollectableItemTrait;
     use PermalinkDocumentTrait;
 
-    /** @var array */
-    protected $data;
-
     /** @var DataTransformerInterface */
     protected $dataTransformer;
+
+    /** @var array */
+    protected $frontMatter;
+
+    /** @var array */
+    protected $data;
 
     /**
      * DataItem constructor.
@@ -47,8 +50,8 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
      */
     public function evaluateFrontMatter(array $variables = [], array $complexVariables = [])
     {
-        $workspace = array_merge($this->data, $variables);
-        $parser = new FrontMatterParser($workspace, [
+        $this->frontMatter = array_merge($this->data, $variables);
+        $parser = new FrontMatterParser($this->frontMatter, [
             'filename' => $this->getFileName(),
             'basename' => $this->getBaseName(),
         ]);
@@ -60,7 +63,7 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
             throw new \LogicException('The permalink for this item has not been set.');
         }
 
-        $permalink = $workspace['permalink'];
+        $permalink = $this->frontMatter['permalink'];
 
         if (is_array($permalink))
         {
@@ -155,7 +158,7 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
      */
     public function offsetExists($offset)
     {
-        return isset($this->data[$offset]);
+        return isset($this->data[$offset]) || isset($this->frontMatter[$offset]);
     }
 
     /**
@@ -173,6 +176,11 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
         if (isset($this->data[$offset]))
         {
             return $this->data[$offset];
+        }
+
+        if (isset($this->frontMatter[$offset]))
+        {
+            return $this->frontMatter[$offset];
         }
 
         return null;
