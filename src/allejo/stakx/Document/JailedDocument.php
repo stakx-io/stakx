@@ -99,7 +99,7 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
     {
         @trigger_error("You're casting a JailedDocument into a string, did you really mean to do this?", E_USER_WARNING);
 
-        return serialize($this->__debugInfo());s
+        return serialize($this->__debugInfo());
     }
 
     /**
