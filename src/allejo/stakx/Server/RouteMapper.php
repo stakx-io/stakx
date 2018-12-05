@@ -102,6 +102,8 @@ class RouteMapper
 
     public function &getRouteMapping()
     {
+        ksort($this->mapping);
+
         return $this->mapping;
     }
 
