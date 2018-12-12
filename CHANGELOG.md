@@ -1,4 +1,4 @@
-## HEAD
+## 0.2.0 Beta 1
 
 **New**
 
@@ -7,6 +7,7 @@
 - Added new `slug` Twig filter
 - The 500 error page in the `serve` command now shows more useful information about the exception that was thrown
 - Sass Asset Engine now caches the Sass AST it builds inside of `.stakx-cache/`. Using the `--use-cache` flag will enable stakx to read this cache and only rebuild the updated Sass ([#91](https://github.com/stakx-io/stakx/pull/91))
+- The `url()` Twig filter can now handle external URLs without breaking them ([#95](https://github.com/stakx-io/stakx/pull/95))
 
 **Changes**
 
@@ -23,12 +24,14 @@
 - FrontMatter from Dynamic PageViews are now accessible through children DataItems ([#93](https://github.com/stakx-io/stakx/issues/93)); information from the DataItem will override PageView FrontMatter
 - DataItems part of Datasets now have the `filePath` variable to match ContentItems
 - Accidentally treating a `JailedDocument` as a string in Twig no longer crashes the compiler; it now throws a hidden warning instead
+- Fixed possible route shadowing caused by permalinks being registered in the wrong order
 
 **Development**
 
 - The `ReadableDocument` object now has support for getting and setting metadata available to stakx internals
 - The `serve` infrastructure has been refactored and has had a lot of renaming to have more intuitive names
 - CompileProcess events have been renamed and split up into separate events for each PageView type and now contain more useful information
+- highlight.php has been updated to use 9.13.1 language definitions
 
 ## 0.2.0 Alpha 2
 
