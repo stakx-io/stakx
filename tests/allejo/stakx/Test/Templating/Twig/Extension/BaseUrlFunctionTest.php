@@ -149,4 +149,25 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
 
         $this->assertEquals('/hello/', $url);
     }
+
+    public static function dataProviderExternalURLs()
+    {
+        return [
+            ['https://google.com'],
+            ['http://wololo.com'],
+            ['ftp://192.180.0.1'],
+            ['irc://freenode.net#stakx'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataProviderExternalURLs
+     */
+    public function testUrlFilterWithExternalUrl($url)
+    {
+        $filter = new BaseUrlFunction();
+        $result = $filter($this->twig_env, $url);
+
+        $this->assertEquals($result, $url);
+    }
 }

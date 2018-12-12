@@ -18,6 +18,11 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
 
     public function __invoke(Twig_Environment $env, $assetPath, $absolute = false, $params = [])
     {
+        if ($this->isExternalUrl($assetPath))
+        {
+            return $assetPath;
+        }
+
         $globals = $env->getGlobals();
         $this->site = $globals['site'];
 
@@ -89,6 +94,25 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
         }
 
         return $assetPath;
+    }
+
+    /**
+     * Match external URLs.
+     *
+     * If the string contains an `://`, then it's guessed to be an external URL.
+     *
+     * @param string|mixed $str
+     *
+     * @return bool True if the given string is guessed to be an external URL.
+     */
+    private function isExternalUrl($str)
+    {
+        if (!is_string($str))
+        {
+            return false;
+        }
+
+        return preg_match('#.+://.+#', $str) === 1;
     }
 
     /**
