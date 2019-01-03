@@ -53,6 +53,13 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     public static $vcsPatterns = ['.git', '.hg', '.svn', '_svn'];
 
     /**
+     * A custom callable that will be used in the `accept()` method. If null, the default matcher will be used.
+     *
+     * @var callable[]
+     */
+    private $matchers;
+
+    /**
      * A list of phrases to exclude from the search.
      *
      * @var string[]
@@ -77,17 +84,18 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      * FileExplorer constructor.
      *
      * @param \RecursiveIterator $iterator
-     * @param string[]           $excludes
-     * @param string[]           $includes
-     * @param int|null           $flags
+     * @param string[] $includes
+     * @param string[] $excludes
+     * @param int|null $flags
      */
-    public function __construct(\RecursiveIterator $iterator, array $excludes = [], array $includes = [], $flags = null)
+    public function __construct(\RecursiveIterator $iterator, array $includes = [], array $excludes = [], $flags = null)
     {
         parent::__construct($iterator);
 
         $this->excludes = array_merge(self::$vcsPatterns, $excludes);
         $this->includes = $includes;
         $this->flags = $flags;
+        $this->matchers = [];
     }
 
     /**
@@ -103,6 +111,20 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public function accept()
     {
+        if (!empty($this->matchers))
+        {
+            foreach ($this->matchers as $matcher)
+            {
+                $result = call_user_func($matcher, $this->current());
+
+                // If any custom matchers return false, let's exit immediately
+                if ($result === false)
+                {
+                    return false;
+                }
+            }
+        }
+
         $filePath = $this->current()->getRelativeFilePath();
 
         return $this->matchesPattern($filePath);
@@ -127,10 +149,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     public function getChildren()
     {
         return new self(
-            $this->getInnerIterator()->getChildren(),
-            $this->excludes,
-            $this->includes,
-            $this->flags
+            $this->getInnerIterator()->getChildren(), $this->includes, $this->excludes, $this->flags
         );
     }
 
@@ -176,21 +195,31 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     }
 
     /**
+     * Add a custom matcher that will be executed before the default matcher that uses file names and paths.
+     *
+     * @param callable $callable
+     */
+    public function addMatcher(callable $callable)
+    {
+        $this->matchers[] = $callable;
+    }
+
+    /**
      * Create an instance of FileExplorer from a directory path as a string.
      *
-     * @param string   $folder   The path to the folder we're scanning
-     * @param string[] $excludes
+     * @param string $folder The path to the folder we're scanning
      * @param string[] $includes
+     * @param string[] $excludes
      * @param int|null $flags
      *
      * @return FileExplorer
      */
-    public static function create($folder, $excludes = [], $includes = [], $flags = null)
+    public static function create($folder, $includes = [], $excludes = [], $flags = null)
     {
         $folder = fs::realpath($folder);
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
 
-        return new self($iterator, $excludes, $includes, $flags);
+        return new self($iterator, $includes, $excludes, $flags);
     }
 
     /**
