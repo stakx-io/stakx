@@ -8,7 +8,7 @@
 namespace allejo\stakx\Test;
 
 use allejo\stakx\Compiler;
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Templating\Twig\TwigStakxBridgeFactory;
 use org\bovigo\vfs\vfsStream;
@@ -283,7 +283,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             $this->getMockLogger()
         );
 
-        $folder = new Folder($this->rootDir->getChild('_site')->url());
+        $folder = new WritableFolder($this->rootDir->getChild('_site')->url());
 
         $compiler = new Compiler(
             $twigBridge,

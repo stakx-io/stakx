@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\AssetEngine;
 
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\PageManager;
 
 /**
@@ -107,13 +107,13 @@ interface AssetEngineInterface
      *
      * This function is only called when stakx is using the `--use-cache` flag.
      *
-     * @param Folder $cacheDir
+     * @param WritableFolder $cacheDir
      *
      * @since 0.2.0
      *
      * @return void
      */
-    public function loadCache(Folder $cacheDir);
+    public function loadCache(WritableFolder $cacheDir);
 
     /**
      * Perform any saving of caches after the parsing functionality has been
@@ -122,11 +122,11 @@ interface AssetEngineInterface
      * Any cache-able information should be serialize()'d and written to a file
      * in the given Folder.
      *
-     * @param Folder $cacheDir
+     * @param WritableFolder $cacheDir
      *
      * @since 0.2.0
      *
      * @return void
      */
-    public function saveCache(Folder $cacheDir);
+    public function saveCache(WritableFolder $cacheDir);
 }

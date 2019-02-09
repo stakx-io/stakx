@@ -13,7 +13,7 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 /**
  * A representation of a folder on a given filesystem.
  */
-final class Folder
+final class WritableFolder
 {
     /** @var bool */
     private $frozen;

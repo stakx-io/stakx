@@ -13,7 +13,7 @@ use allejo\stakx\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use ScssPhp\ScssPhp\Formatter\Compact;
@@ -131,7 +131,7 @@ class SassEngine implements AssetEngineInterface
         $this->pageManager = $pageManager;
     }
 
-    public function loadCache(Folder $cacheDir)
+    public function loadCache(WritableFolder $cacheDir)
     {
         $cachePath = $cacheDir
             ->getFilesystemPath()
@@ -146,7 +146,7 @@ class SassEngine implements AssetEngineInterface
         }
     }
 
-    public function saveCache(Folder $cacheDir)
+    public function saveCache(WritableFolder $cacheDir)
     {
         $cachePath = $cacheDir
             ->getFilesystemPath()
