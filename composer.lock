@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fec9382d038d32d1def0915d6573022e",
+    "content-hash": "b765047b8275c542282c5434445d9177",
     "packages": [
         {
             "name": "erusev/parsedown",
@@ -1015,16 +1015,16 @@
         },
         {
             "name": "scrivo/highlight.php",
-            "version": "v9.13.1.1",
+            "version": "v9.14.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scrivo/highlight.php.git",
-                "reference": "93834559fa181b6f34a3f639eaab5f9a9856ec99"
+                "reference": "4f76c8411a36a89b003e3919e216c81cef0b6cb7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scrivo/highlight.php/zipball/93834559fa181b6f34a3f639eaab5f9a9856ec99",
-                "reference": "93834559fa181b6f34a3f639eaab5f9a9856ec99",
+                "url": "https://api.github.com/repos/scrivo/highlight.php/zipball/4f76c8411a36a89b003e3919e216c81cef0b6cb7",
+                "reference": "4f76c8411a36a89b003e3919e216c81cef0b6cb7",
                 "shasum": ""
             },
             "require": {
@@ -1070,7 +1070,7 @@
                 "highlight.php",
                 "syntax"
             ],
-            "time": "2019-01-15T05:54:20+00:00"
+            "time": "2019-02-08T05:41:13+00:00"
         },
         {
             "name": "symfony/config",
@@ -2745,7 +2745,10 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "ext-dom": "*",
+        "ext-libxml": "*"
+    },
     "platform-dev": [],
     "platform-overrides": {
         "php": "5.5.9"
