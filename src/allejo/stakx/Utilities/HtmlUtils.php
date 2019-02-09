@@ -40,7 +40,7 @@ abstract class HtmlUtils
 
     private static function normalizeHTML($html)
     {
-        if (strpos($html, '<body>' === false) || strpos($html, '</body>') === false)
+        if (strpos($html, '<body>') === false || strpos($html, '</body>') === false)
         {
             return sprintf('<body>%s</body>', $html);
         }
