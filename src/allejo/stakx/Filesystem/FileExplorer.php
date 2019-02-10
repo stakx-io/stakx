@@ -207,6 +207,8 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     /**
      * Create an instance of FileExplorer from a directory path as a string.
      *
+     * @deprecated Use `FileExplorer::createFromDefinition()` instead.
+     *
      * @param string $folder The path to the folder we're scanning
      * @param string[] $includes
      * @param string[] $excludes
@@ -220,6 +222,16 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
 
         return new self($iterator, $includes, $excludes, $flags);
+    }
+
+    /**
+     * @param FileExplorerDefinition $definition
+     *
+     * @return FileExplorer
+     */
+    public static function createFromDefinition(FileExplorerDefinition $definition)
+    {
+        return self::create($definition->folder, $definition->includes, $definition->excludes, $definition->flags);
     }
 
     /**
