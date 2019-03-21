@@ -7,10 +7,12 @@
 
 namespace allejo\stakx\Console\Command;
 
+use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Server\RouteMapper;
 use allejo\stakx\Server\WebServer;
 use allejo\stakx\Service;
+use allejo\stakx\Utilities\StrUtils;
 use allejo\stakx\Website;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
@@ -62,9 +64,21 @@ class ServeCommand extends BuildCommand
 
             $loop->run();
         }
+        catch (FileAwareException $e)
+        {
+            $output->writeln(StrUtils::interpolate(
+                "Your website failed to build with the following error in file '{file}'{line}: {message}", [
+                    'file' => $e->getPath(),
+                    'line' => (($l = $e->getLineNumber()) >= 0) ? ' on line ' . $l : '',
+                    'message' => $e->getMessage(),
+                ]
+            ));
+        }
         catch (\Exception $e)
         {
-            $output->writeln($e->getMessage());
+            $output->writeln(sprintf('Your website failed to build with the following error: %s',
+                $e->getMessage()
+            ));
         }
     }
 }
