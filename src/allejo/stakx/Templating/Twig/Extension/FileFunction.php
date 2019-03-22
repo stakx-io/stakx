@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use Twig\TwigFunction;
+
 class FileFunction extends AbstractFilesystemTwigExtension implements TwigFunctionInterface
 {
     public function __invoke($filePath)
@@ -18,6 +20,6 @@ class FileFunction extends AbstractFilesystemTwigExtension implements TwigFuncti
 
     public static function get()
     {
-        return new \Twig_SimpleFunction('file', new self());
+        return new TwigFunction('file', new self());
     }
 }

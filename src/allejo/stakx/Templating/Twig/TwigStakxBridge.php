@@ -10,6 +10,8 @@ namespace allejo\stakx\Templating\Twig;
 use allejo\stakx\Compiler;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use Psr\Log\LoggerInterface;
+use Twig\Environment;
+use Twig\Error\Error;
 
 class TwigStakxBridge implements TemplateBridgeInterface
 {
@@ -19,7 +21,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /** @var \Twig_Profiler_Profile */
     private $profiler;
 
-    public function __construct(\Twig_Environment $twig)
+    public function __construct(Environment $twig)
     {
         $this->twig = $twig;
     }
@@ -57,7 +59,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
         {
             $template = $this->twig->createTemplate($templateContent);
         }
-        catch (\Twig_Error $e)
+        catch (Error $e)
         {
             throw new TwigError($e);
         }

@@ -8,6 +8,7 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use __;
+use Twig\TwigFilter;
 
 class GroupByFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
@@ -42,6 +43,6 @@ class GroupByFilter extends AbstractTwigExtension implements TwigFilterInterface
 
     public static function get()
     {
-        return new \Twig_SimpleFilter('group', new self());
+        return new TwigFilter('group', new self());
     }
 }

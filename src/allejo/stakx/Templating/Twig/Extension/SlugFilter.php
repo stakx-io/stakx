@@ -8,6 +8,7 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use __;
+use Twig\TwigFilter;
 
 class SlugFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
@@ -17,10 +18,10 @@ class SlugFilter extends AbstractTwigExtension implements TwigFilterInterface
     }
 
     /**
-     * @return \Twig_SimpleFilter
+     * @return TwigFilter
      */
     public static function get()
     {
-        return new \Twig_SimpleFilter('slug', new self());
+        return new TwigFilter('slug', new self());
     }
 }

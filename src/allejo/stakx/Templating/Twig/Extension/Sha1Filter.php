@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use Twig\TwigFilter;
+
 class Sha1Filter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke($str)
@@ -15,10 +17,10 @@ class Sha1Filter extends AbstractTwigExtension implements TwigFilterInterface
     }
 
     /**
-     * @return \Twig_SimpleFilter
+     * @return TwigFilter
      */
     public static function get()
     {
-        return new \Twig_SimpleFilter('sha1', new self());
+        return new TwigFilter('sha1', new self());
     }
 }

@@ -7,12 +7,14 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use Twig\TwigFilter;
+
 interface TwigFilterInterface
 {
     const CONTAINER_TAG = 'stakx.twig_filter';
 
     /**
-     * @return \Twig_SimpleFilter
+     * @return TwigFilter
      */
     public static function get();
 }

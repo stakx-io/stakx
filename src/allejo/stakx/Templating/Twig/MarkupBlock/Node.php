@@ -7,13 +7,15 @@
 
 namespace allejo\stakx\Templating\Twig\MarkupBlock;
 
+use Twig\Compiler;
+
 /**
  * @author Gunnar Lium <gunnar@aptoma.com>
  * @author Joris Berthelot <joris@berthelot.tel>
  *
  * @see https://github.com/aptoma/twig-markdown/blob/master/src/Aptoma/Twig/Node/MarkdownNode.php
  */
-class Node extends \Twig_Node
+class Node extends \Twig\Node\Node
 {
     public function __construct(\Twig_Node $body, $lineno, $tag)
     {
@@ -23,9 +25,9 @@ class Node extends \Twig_Node
     /**
      * Compiles the node to PHP.
      *
-     * @param \Twig_Compiler A Twig_Compiler instance
+     * @param Compiler A Twig_Compiler instance
      */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler)
     {
         $compiler
             ->addDebugInfo($this)

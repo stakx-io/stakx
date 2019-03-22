@@ -9,8 +9,9 @@ namespace allejo\stakx\Templating\Twig;
 
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
+use Twig\Loader\FilesystemLoader;
 
-class TwigFileLoader extends \Twig_Loader_Filesystem
+class TwigFileLoader extends FilesystemLoader
 {
     public function getCacheKey($name)
     {

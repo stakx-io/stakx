@@ -8,6 +8,7 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use allejo\stakx\Utilities\HtmlUtils;
+use Twig\TwigFilter;
 
 class SummaryFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
@@ -35,6 +36,6 @@ class SummaryFilter extends AbstractTwigExtension implements TwigFilterInterface
 
     public static function get()
     {
-        return new \Twig_SimpleFilter('summary', new self());
+        return new TwigFilter('summary', new self());
     }
 }

@@ -8,6 +8,7 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use allejo\stakx\Utilities\HtmlUtils;
+use Twig\TwigFilter;
 
 class TableOfContentsFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
@@ -97,10 +98,10 @@ class TableOfContentsFilter extends AbstractTwigExtension implements TwigFilterI
     }
 
     /**
-     * @return \Twig_SimpleFilter
+     * @return TwigFilter
      */
     public static function get()
     {
-        return new \Twig_SimpleFilter('toc', new self());
+        return new TwigFilter('toc', new self());
     }
 }

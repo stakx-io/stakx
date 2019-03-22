@@ -10,6 +10,7 @@ namespace allejo\stakx\Templating\Twig\Extension;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Service;
+use Twig\TwigFunction;
 use Twig_Environment;
 
 class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInterface
@@ -35,7 +36,7 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
 
     public static function get()
     {
-        return new \Twig_SimpleFunction('url', new self(), [
+        return new TwigFunction('url', new self(), [
             'needs_environment' => true,
         ]);
     }

@@ -8,6 +8,7 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use __;
+use Twig\TwigFilter;
 
 class SelectFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
@@ -40,6 +41,6 @@ class SelectFilter extends AbstractTwigExtension implements TwigFilterInterface
 
     public static function get()
     {
-        return new \Twig_SimpleFilter('select', new self());
+        return new TwigFilter('select', new self());
     }
 }

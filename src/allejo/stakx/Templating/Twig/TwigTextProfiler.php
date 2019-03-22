@@ -7,10 +7,10 @@
 
 namespace allejo\stakx\Templating\Twig;
 
-use Twig_Profiler_Dumper_Text;
-use Twig_Profiler_Profile;
+use Twig\Profiler\Dumper\TextDumper;
+use Twig\Profiler\Profile;
 
-class TwigTextProfiler extends Twig_Profiler_Dumper_Text
+class TwigTextProfiler extends TextDumper
 {
     private $templateMappings;
 
@@ -22,17 +22,17 @@ class TwigTextProfiler extends Twig_Profiler_Dumper_Text
         $this->templateMappings = $templateMappings;
     }
 
-    protected function formatTemplate(Twig_Profiler_Profile $profile, $prefix)
+    protected function formatTemplate(Profile $profile, $prefix)
     {
         return sprintf('%s└ %s', $prefix, $this->getMappedTemplateName($profile));
     }
 
-    protected function formatNonTemplate(Twig_Profiler_Profile $profile, $prefix)
+    protected function formatNonTemplate(Profile $profile, $prefix)
     {
         return sprintf('%s└ %s::%s(%s)', $prefix, $this->getMappedTemplateName($profile), $profile->getType(), $profile->getName());
     }
 
-    private function getMappedTemplateName(Twig_Profiler_Profile $profile)
+    private function getMappedTemplateName(Profile $profile)
     {
         $name = $profile->getTemplate();
 

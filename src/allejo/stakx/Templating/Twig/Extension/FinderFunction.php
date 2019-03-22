@@ -9,6 +9,7 @@ namespace allejo\stakx\Templating\Twig\Extension;
 
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use Symfony\Component\Finder\Finder;
+use Twig\TwigFunction;
 
 class FinderFunction extends AbstractFilesystemTwigExtension implements TwigFunctionInterface
 {
@@ -24,7 +25,7 @@ class FinderFunction extends AbstractFilesystemTwigExtension implements TwigFunc
 
     public static function get()
     {
-        return new \Twig_SimpleFunction('finder', new self());
+        return new TwigFunction('finder', new self());
     }
 
     public static function disableInSafeMode()
