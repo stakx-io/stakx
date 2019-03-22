@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use Twig\TwigFilter;
+
 class Md5Filter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke($str)
@@ -15,10 +17,10 @@ class Md5Filter extends AbstractTwigExtension implements TwigFilterInterface
     }
 
     /**
-     * @return \Twig_SimpleFilter
+     * @return TwigFilter
      */
     public static function get()
     {
-        return new \Twig_SimpleFilter('md5', new self());
+        return new TwigFilter('md5', new self());
     }
 }

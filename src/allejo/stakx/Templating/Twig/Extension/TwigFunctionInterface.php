@@ -7,12 +7,14 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use Twig\TwigFunction;
+
 interface TwigFunctionInterface
 {
     const CONTAINER_TAG = 'stakx.twig_function';
 
     /**
-     * @return \Twig_SimpleFunction
+     * @return TwigFunction
      */
     public static function get();
 }

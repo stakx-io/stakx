@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use Twig\TwigFilter;
+
 /**
  * This filter is adapted from the Twig Text extension.
  *
@@ -39,11 +41,11 @@ class TruncateFilter extends AbstractTwigExtension implements TwigFilterInterfac
     }
 
     /**
-     * @return \Twig_SimpleFilter
+     * @return TwigFilter
      */
     public static function get()
     {
-        return new \Twig_SimpleFilter('truncate', new self(), [
+        return new TwigFilter('truncate', new self(), [
             'needs_environment' => true,
         ]);
     }

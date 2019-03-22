@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use Twig\TwigFilter;
+
 /**
  * This filter is adapted from the Twig Text extension.
  *
@@ -43,7 +45,7 @@ class WordWrapFilter extends AbstractTwigExtension implements TwigFilterInterfac
 
     public static function get()
     {
-        return new \Twig_SimpleFilter('wordwrap', new self(), [
+        return new TwigFilter('wordwrap', new self(), [
             'needs_environment' => true,
         ]);
     }

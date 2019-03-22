@@ -8,12 +8,13 @@
 namespace allejo\stakx\Templating\Twig;
 
 use allejo\stakx\Templating\TemplateInterface;
+use Twig\TemplateWrapper;
 
 class TwigTemplate implements TemplateInterface
 {
     private $template;
 
-    public function __construct(\Twig_Template $template)
+    public function __construct(TemplateWrapper $template)
     {
         $this->template = $template;
     }

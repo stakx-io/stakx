@@ -7,7 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\MarkupBlock;
 
-use Twig_Token;
+use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
 /**
  * @author Gunnar Lium <gunnar@aptoma.com>
@@ -15,7 +16,7 @@ use Twig_Token;
  *
  * @see https://github.com/aptoma/twig-markdown/blob/master/src/Aptoma/Twig/TokenParser/MarkdownTokenParser.php
  */
-class TokenParser extends \Twig_TokenParser
+class TokenParser extends AbstractTokenParser
 {
     private $tagName;
 
@@ -27,13 +28,13 @@ class TokenParser extends \Twig_TokenParser
     /**
      * {@inheritdoc}
      */
-    public function parse(Twig_Token $token)
+    public function parse(Token $token)
     {
         $lineNumber = $token->getLine();
 
-        $this->parser->getStream()->expect(\Twig_Token::BLOCK_END_TYPE);
+        $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
         $body = $this->parser->subparse([$this, 'decideEndTag'], true);
-        $this->parser->getStream()->expect(\Twig_Token::BLOCK_END_TYPE);
+        $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
 
         return new Node($body, $lineNumber, $this->getTag());
     }
@@ -41,11 +42,11 @@ class TokenParser extends \Twig_TokenParser
     /**
      * Decide if current token marks end of our markup block.
      *
-     * @param Twig_Token $token
+     * @param Token $token
      *
      * @return bool
      */
-    public function decideEndTag(\Twig_Token $token)
+    public function decideEndTag(Token $token)
     {
         return $token->test('end' . $this->getTag());
     }

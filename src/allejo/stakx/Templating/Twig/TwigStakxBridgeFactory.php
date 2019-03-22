@@ -12,8 +12,11 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Psr\Log\LoggerInterface;
-use Twig_Environment;
-use Twig_Extension_Debug;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Extension\DebugExtension;
+use Twig\Extension\ProfilerExtension;
+use Twig\Profiler\Profile;
 
 class TwigStakxBridgeFactory
 {
@@ -35,7 +38,7 @@ class TwigStakxBridgeFactory
             {
                 $loader->addPath(fs::absolutePath('_themes', $theme), 'theme');
             }
-            catch (\Twig_Error_Loader $e)
+            catch (LoaderError $e)
             {
                 $logger->error('The following theme could not be loaded: {theme}', [
                     'theme' => $theme,
@@ -44,7 +47,7 @@ class TwigStakxBridgeFactory
             }
         }
 
-        $twig = new Twig_Environment($loader, [
+        $twig = new Environment($loader, [
             'autoescape' => $configuration->getTwigAutoescape(),
             'auto_reload' => true,
             'cache' => fs::absolutePath('.stakx-cache/twig'),
@@ -56,13 +59,13 @@ class TwigStakxBridgeFactory
 
         if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE))
         {
-            $profiler = new \Twig_Profiler_Profile();
-            $twig->addExtension(new \Twig_Extension_Profiler($profiler));
+            $profiler = new Profile();
+            $twig->addExtension(new ProfilerExtension($profiler));
         }
 
         if ($configuration->isDebug())
         {
-            $twig->addExtension(new Twig_Extension_Debug());
+            $twig->addExtension(new DebugExtension());
             $twig->enableDebug();
         }
 

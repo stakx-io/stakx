@@ -14,8 +14,10 @@ use allejo\stakx\Templating\Twig\Extension\AbstractTwigExtension;
 use allejo\stakx\Templating\Twig\Extension\TwigFilterInterface;
 use allejo\stakx\Templating\Twig\Extension\TwigFunctionInterface;
 use allejo\stakx\Templating\Twig\MarkupBlock\TokenParser;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 
-class TwigExtension extends \Twig_Extension
+class TwigExtension extends AbstractExtension
 {
     private $filters = [];
     private $functions = [];
@@ -79,7 +81,7 @@ class TwigExtension extends \Twig_Extension
         {
             // Since we can't pass what tag/markup language we're using to the callable, let's make the callable to a
             // non-existent method that will be handled by __call()
-            $filters[] = new \Twig_SimpleFilter(
+            $filters[] = new TwigFilter(
                 $tag,
                 [$this, 'parseMarkup' . ucfirst($tag)],
                 ['is_safe' => ['html']]

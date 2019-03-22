@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Templating\Twig\Extension;
 
+use Twig\TwigFilter;
+
 class ZipFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke(array $array1, array $array2, $glue = '', $strict = false)
@@ -56,7 +58,7 @@ class ZipFilter extends AbstractTwigExtension implements TwigFilterInterface
 
     public static function get()
     {
-        return new \Twig_SimpleFilter('zip', new self());
+        return new TwigFilter('zip', new self());
     }
 
     private static function safe_get(array &$array, $key, $default = '')

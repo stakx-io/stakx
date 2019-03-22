@@ -8,7 +8,8 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use __;
-use Twig_Error_Syntax;
+use Twig\Error\SyntaxError;
+use Twig\TwigFilter;
 
 /**
  * Where Twig Filter.
@@ -37,7 +38,7 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
      * @param string               $comparison The actual comparison symbols being used
      * @param mixed                $value      The value we're searching for
      *
-     * @throws Twig_Error_Syntax
+     * @throws SyntaxError
      *
      * @return array
      */
@@ -57,11 +58,11 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
     }
 
     /**
-     * @return \Twig_SimpleFilter
+     * @return TwigFilter
      */
     public static function get()
     {
-        return new \Twig_SimpleFilter('where', new self());
+        return new TwigFilter('where', new self());
     }
 
     /**
@@ -72,7 +73,7 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
      * @param string             $comparison The actual comparison symbol being used
      * @param string             $value      The value we're searching for
      *
-     * @throws Twig_Error_Syntax
+     * @throws SyntaxError
      *
      * @return bool
      */
@@ -130,7 +131,7 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
      * @param string $comparison
      * @param mixed  $rhs
      *
-     * @throws Twig_Error_Syntax
+     * @throws SyntaxError
      *
      * @return bool
      */
@@ -166,7 +167,7 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
                 return $this->regexMatches($lhs, $rhs);
 
             default:
-                throw new Twig_Error_Syntax("Invalid where comparison ({$comparison})");
+                throw new SyntaxError("Invalid where comparison ({$comparison})");
         }
     }
 
