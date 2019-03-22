@@ -107,6 +107,13 @@ class RouteMapper
         return $this->mapping;
     }
 
+    public function &getRedirectMapping()
+    {
+        ksort($this->redirects);
+
+        return $this->redirects;
+    }
+
     public static function extractUrlParameters($permalink)
     {
         $matches = [];

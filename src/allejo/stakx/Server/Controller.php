@@ -162,6 +162,22 @@ class Controller
     }
 
     /**
+     * Create a redirect response to forward.
+     *
+     * @param string $to The destination URL
+     *
+     * @return \Closure
+     */
+    private function createRedirectAction($to)
+    {
+        return function () use ($to) {
+            return new Response(302, [
+                'Location' => $to,
+            ]);
+        };
+    }
+
+    /**
      * Check to see if a file has been touched since we last read it.
      *
      * @param ReadableDocument $document
@@ -196,6 +212,11 @@ class Controller
 
         return \FastRoute\simpleDispatcher(function (RouteCollector $r) use ($router, $compiler) {
             $dispatcher = new Controller();
+
+            foreach ($router->getRedirectMapping() as $from => $to)
+            {
+                $r->get($from, $dispatcher->createRedirectAction($to));
+            }
 
             foreach ($router->getRouteMapping() as $route => $pageView)
             {
