@@ -237,7 +237,23 @@ class Controller
             $routeName = $pageView->getRelativeFilePath();
             $routeName = preg_replace('/[\/\.]/', '_', $routeName);
 
-            $route = new Route($routeUrl, ['_controller' => $dispatcher->createAction($pageView, $compiler)]);
+            // Find the name of the last route parameter, if one exists
+            $results = [];
+            preg_match('/{(.+)}\/$/', $routeUrl, $results);
+
+            // Allow the last route parameter to have `/` in the permalink that's not part of the route itself
+            //   see https://github.com/stakx-io/stakx/issues/98
+            $requirements = [];
+            if (count($results) >= 2)
+            {
+                $requirements[$results[1]] = '.+';
+            }
+
+            $route = new Route(
+                $routeUrl,
+                ['_controller' => $dispatcher->createAction($pageView, $compiler)],
+                $requirements
+            );
 
             $router->add($routeName, $route);
         }
