@@ -16,13 +16,20 @@ use allejo\stakx\FrontMatter\FrontMatterParser;
 
 class RouteMapper
 {
+    /** @var string[] */
     private $redirects;
+
+    /** @var string */
     private $baseUrl;
+
+    /** @var BasePageView[] */
     private $mapping;
 
     public function __construct()
     {
+        $this->redirects = [];
         $this->mapping = [];
+        $this->baseUrl = '';
     }
 
     public function getBaseUrl()
