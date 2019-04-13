@@ -11,11 +11,13 @@ use allejo\stakx\Compiler;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Service;
-use FastRoute\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
 use React\Http\Server;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
 
 class WebServer
 {
@@ -49,16 +51,16 @@ class WebServer
     /**
      * Factory method for creating a React Server instance.
      *
-     * @param RouteMapper $router
+     * @param RouteMapper $routeMapper
      * @param Compiler    $compiler
      *
      * @return Server
      */
-    public static function create(RouteMapper $router, Compiler $compiler)
+    public static function create(RouteMapper $routeMapper, Compiler $compiler)
     {
-        $dispatcher = Controller::create($router, $compiler);
+        $routes = Controller::create($routeMapper, $compiler);
 
-        return new Server(function (ServerRequestInterface $request) use ($router, $dispatcher, $compiler) {
+        return new Server(function (ServerRequestInterface $request) use ($routes, $compiler) {
             $httpMethod = $request->getMethod();
             $urlPath = Controller::normalizeUrl($request->getUri()->getPath());
 
@@ -68,36 +70,35 @@ class WebServer
                 return new Response(406, ['Content-Type' => 'text/plain'], 'Method not allowed');
             }
 
-            $routeInfo = $dispatcher->dispatch($httpMethod, $urlPath);
+            $context = new RequestContext($urlPath);
+            $matcher = new UrlMatcher($routes, $context);
 
-            switch ($routeInfo[0])
+            try
             {
-                // We found a known URL meaning it's a PageView
-                case Dispatcher::FOUND:
-                    $urlPlaceholders = isset($routeInfo[2]) ? $routeInfo[2] : [];
+                $parameters = $matcher->match($urlPath);
 
-                    try
-                    {
-                        return $routeInfo[1]($request, ...array_values($urlPlaceholders));
-                    }
-                    catch (\Exception $e)
-                    {
-                        $response = ExceptionRenderer::render($e, $compiler);
+                if (isset($parameters['_controller']))
+                {
+                    $controller = $parameters['_controller'];
 
-                        return new Response(500, ['Content-Type' => 'text/html'], $response);
-                    }
-
-                case Dispatcher::NOT_FOUND:
-                    if (($asset = self::searchAsset($urlPath)) !== null)
-                    {
-                        return $asset;
-                    }
-
-                    return WebServer::return404();
-
-                default:
-                    return WebServer::return404();
+                    return $controller($request, ...array_values($parameters));
+                }
             }
+            catch (ResourceNotFoundException $e)
+            {
+                if (($asset = self::searchAsset($urlPath)) !== null)
+                {
+                    return $asset;
+                }
+            }
+            catch (\Exception $e)
+            {
+                $response = ExceptionRenderer::render($e, $compiler);
+
+                return new Response(500, ['Content-Type' => 'text/html'], $response);
+            }
+
+            return WebServer::return404();
         });
     }
 
@@ -107,7 +108,7 @@ class WebServer
      * @param string $url
      * @param bool   $continueNesting
      *
-     * @return null|Response
+     * @return Response|null
      */
     private static function searchAsset($url, $continueNesting = true)
     {
