@@ -1,3 +1,22 @@
+## 0.2.0 Beta 2
+
+**Changes**
+
+- The MIME list used in the development web server has been extended to use Symfony's list
+
+**Fixes**
+
+- Highlighting code in PHP 7.3 no longer causes an infinite loop
+- Fix the `summary` and `toc` Twig filters failing under rare conditions when a `<body>` tag existed in the HTML given to it
+- "File aware" exceptions display more helpful messages when running under the `serve` command 
+- Redirects now work correctly when using the `serve` command
+- Fix support for extra `/`s added to permalinks via Front Matter variables ([#99](https://github.com/stakx-io/stakx/pull/99))
+
+**Development**
+
+- Updated Twig to use namespaces after a breaking change caused stakx to fail with an updated version of Twig
+- The development web server now uses Symfony's router instead of nikic's FastRoute
+
 ## 0.2.0 Beta 1
 
 **New**
