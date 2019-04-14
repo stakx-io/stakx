@@ -239,7 +239,7 @@ class Controller
 
             // Find the name of the last route parameter, if one exists
             $results = [];
-            preg_match('/{(.+)}\/$/', $routeUrl, $results);
+            preg_match('/{(.+)}\/?$/', $routeUrl, $results);
 
             // Allow the last route parameter to have `/` in the permalink that's not part of the route itself
             //   see https://github.com/stakx-io/stakx/issues/98
