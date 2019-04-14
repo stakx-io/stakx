@@ -18,9 +18,10 @@ use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Service;
-use FastRoute\RouteCollector;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 
 class Controller
 {
@@ -201,28 +202,63 @@ class Controller
     /**
      * Create a FastRoute Dispatcher.
      *
-     * @param RouteMapper $router
+     * @param RouteMapper $routeMapper
      * @param Compiler    $compiler
      *
-     * @return \FastRoute\Dispatcher
+     * @return RouteCollection
      */
-    public static function create(RouteMapper $router, Compiler $compiler)
+    public static function create(RouteMapper $routeMapper, Compiler $compiler)
     {
-        self::$baseUrl = $router->getBaseUrl();
+        self::$baseUrl = $routeMapper->getBaseUrl();
 
-        return \FastRoute\simpleDispatcher(function (RouteCollector $r) use ($router, $compiler) {
-            $dispatcher = new Controller();
+        $dispatcher = new Controller();
+        $router = new RouteCollection();
 
-            foreach ($router->getRedirectMapping() as $from => $to)
+        /**
+         * @var string $from
+         * @var string $to
+         */
+        foreach ($routeMapper->getRedirectMapping() as $from => $to)
+        {
+            $routeName = preg_replace('/[\/\.]/', '_', $from);
+            $routeName = 'redirect_' . $routeName;
+
+            $route = new Route($from, ['_controller' => $dispatcher->createRedirectAction($to)]);
+
+            $router->add($routeName, $route);
+        }
+
+        /**
+         * @var string       $routeUrl
+         * @var BasePageView $pageView
+         */
+        foreach ($routeMapper->getRouteMapping() as $routeUrl => $pageView)
+        {
+            $routeName = $pageView->getRelativeFilePath();
+            $routeName = preg_replace('/[\/\.]/', '_', $routeName);
+
+            // Find the name of the last route parameter, if one exists
+            $results = [];
+            preg_match('/{(.+)}\/?$/', $routeUrl, $results);
+
+            // Allow the last route parameter to have `/` in the permalink that's not part of the route itself
+            //   see https://github.com/stakx-io/stakx/issues/98
+            $requirements = [];
+            if (count($results) >= 2)
             {
-                $r->get($from, $dispatcher->createRedirectAction($to));
+                $requirements[$results[1]] = '.*';
             }
 
-            foreach ($router->getRouteMapping() as $route => $pageView)
-            {
-                $r->get($route, $dispatcher->createAction($pageView, $compiler));
-            }
-        });
+            $route = new Route(
+                $routeUrl,
+                ['_controller' => $dispatcher->createAction($pageView, $compiler)],
+                $requirements
+            );
+
+            $router->add($routeName, $route);
+        }
+
+        return $router;
     }
 
     /**
