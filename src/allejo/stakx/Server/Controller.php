@@ -246,7 +246,7 @@ class Controller
             $requirements = [];
             if (count($results) >= 2)
             {
-                $requirements[$results[1]] = '.+';
+                $requirements[$results[1]] = '.*';
             }
 
             $route = new Route(
