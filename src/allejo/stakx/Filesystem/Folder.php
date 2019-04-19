@@ -10,7 +10,7 @@ namespace allejo\stakx\Filesystem;
  *
  * @since 0.2.0
  */
-class Folder extends BaseFilesystemItem
+final class Folder extends BaseFilesystemItem
 {
     /**
      * Get the name of the with the extension.
