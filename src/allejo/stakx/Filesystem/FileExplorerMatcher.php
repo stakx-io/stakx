@@ -20,7 +20,13 @@ abstract class FileExplorerMatcher
      */
     public static function modifiedAfter(\DateTime $time)
     {
-        return function (File $file) use ($time) {
+        return function ($file) use ($time) {
+            /** @var File|Folder $file */
+
+            if ($file instanceof Folder) {
+                return true;
+            }
+
             return $file->getLastModified() > $time->getTimestamp();
         };
     }
