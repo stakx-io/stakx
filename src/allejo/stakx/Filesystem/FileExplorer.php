@@ -133,12 +133,17 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     /**
      * Get the current File object.
      *
-     * @return File
+     * @return File|Folder
      */
     public function current()
     {
         /** @var \SplFileInfo $current */
         $current = parent::current();
+
+        if ($current->isDir())
+        {
+            return new Folder($current->getPathname());
+        }
 
         return new File($current->getPathname());
     }
