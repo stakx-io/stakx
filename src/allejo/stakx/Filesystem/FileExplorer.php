@@ -153,9 +153,16 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      */
     public function getChildren()
     {
-        return new self(
+        $explorer = new self(
             $this->getInnerIterator()->getChildren(), $this->includes, $this->excludes, $this->flags
         );
+
+        foreach ($this->matchers as $matcher)
+        {
+            $explorer->addMatcher($matcher);
+        }
+
+        return $explorer;
     }
 
     /**
