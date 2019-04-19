@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Filesystem;
 
-abstract class FileExplorerMatchers
+abstract class FileExplorerMatcher
 {
     /**
      * Return a matcher callable for files that have been modified after a certain timestamp.

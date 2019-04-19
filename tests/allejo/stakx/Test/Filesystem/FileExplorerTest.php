@@ -9,7 +9,7 @@ namespace allejo\stakx\Test\Filesystem;
 
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
-use allejo\stakx\Filesystem\FileExplorerMatchers;
+use allejo\stakx\Filesystem\FileExplorerMatcher;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use org\bovigo\vfs\vfsStream;
 
@@ -279,7 +279,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
         }
 
         $explorer = FileExplorer::create($this->rootDir->url());
-        $explorer->addMatcher(FileExplorerMatchers::modifiedAfter($cutoff));
+        $explorer->addMatcher(FileExplorerMatcher::modifiedAfter($cutoff));
 
         /** @var File $file */
         foreach ($explorer->getFileIterator() as $file)
