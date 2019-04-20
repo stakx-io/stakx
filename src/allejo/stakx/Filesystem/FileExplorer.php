@@ -139,13 +139,14 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     {
         /** @var \SplFileInfo $current */
         $current = parent::current();
+        $path = new FilesystemPath($current->getPathname());
 
         if ($current->isDir())
         {
-            return new Folder($current->getPathname());
+            return new Folder($path);
         }
 
-        return new File($current->getPathname());
+        return new File($path);
     }
 
     /**
