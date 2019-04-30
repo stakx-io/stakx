@@ -15,14 +15,18 @@ abstract class HtmlUtils
 
         libxml_use_internal_errors(true);
 
-        $DOMDocument->loadHTML($html);
+        $DOMDocument->loadHTML(
+            mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
 
         $xmlErrors = libxml_get_errors();
 
         /** @var \LibXMLError $error */
         foreach ($xmlErrors as $error)
         {
-            // http://www.xmlsoft.org/html/libxml-xmlerror.html#xmlParserErrors
+            // Ignore errors about invalid tags
+            //   http://www.xmlsoft.org/html/libxml-xmlerror.html#xmlParserErrors
             if ($error->code === 801)
             {
                 continue;
