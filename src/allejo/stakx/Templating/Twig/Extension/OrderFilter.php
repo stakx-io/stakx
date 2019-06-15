@@ -12,16 +12,22 @@ use Twig\TwigFilter;
 
 class OrderFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
-    public function __invoke($array, $key, $order = 'ASC')
+    public function __invoke($array, $key, $order = 'ASC', $case_insensitive = false)
     {
         if (!is_array($array))
         {
             return $array;
         }
 
-        usort($array, function ($a, $b) use ($key, $order) {
+        usort($array, function ($a, $b) use ($key, $order, $case_insensitive) {
             $aValue = __::get($a, $key);
             $bValue = __::get($b, $key);
+
+            if ($case_insensitive)
+            {
+                $aValue = strtolower($aValue);
+                $bValue = strtolower($bValue);
+            }
 
             if ($aValue == $bValue)
             {
