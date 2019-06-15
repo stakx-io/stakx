@@ -20,7 +20,7 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
-use Leafo\ScssPhp\Compiler as SassCompiler;
+use ScssPhp\ScssPhp\Compiler as SassCompiler;
 use org\bovigo\vfs\vfsStream;
 
 class SassEngineTest extends PHPUnit_Stakx_TestCase

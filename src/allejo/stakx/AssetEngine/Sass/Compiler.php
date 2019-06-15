@@ -9,7 +9,8 @@ namespace allejo\stakx\AssetEngine\Sass;
 
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
-use Leafo\ScssPhp\Compiler as BaseCompiler;
+use ScssPhp\ScssPhp\Compiler as BaseCompiler;
+use ScssPhp\ScssPhp\Formatter\OutputBlock;
 
 /**
  * A modified version of our Sass compiler.
@@ -29,10 +30,10 @@ class Compiler extends BaseCompiler
      * supporting our built-in dev server so that it can recompile Sass with the
      * latest changes made in imports.
      *
-     * @param string $path
-     * @param array  $out
+     * @param string      $path
+     * @param OutputBlock $out
      */
-    protected function importFile($path, $out)
+    protected function importFile($path, OutputBlock $out)
     {
         $serveMode = Service::hasRunTimeFlag(RuntimeStatus::IN_SERVE_MODE);
         $cacheMode = Service::hasRunTimeFlag(RuntimeStatus::USING_CACHE);

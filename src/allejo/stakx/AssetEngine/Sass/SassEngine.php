@@ -16,10 +16,10 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
-use Leafo\ScssPhp\Formatter\Compact;
-use Leafo\ScssPhp\Formatter\Crunched;
-use Leafo\ScssPhp\Formatter\Expanded;
-use Leafo\ScssPhp\Formatter\Nested;
+use ScssPhp\ScssPhp\Formatter\Compact;
+use ScssPhp\ScssPhp\Formatter\Crunched;
+use ScssPhp\ScssPhp\Formatter\Expanded;
+use ScssPhp\ScssPhp\Formatter\Nested;
 
 class SassEngine implements AssetEngineInterface
 {
