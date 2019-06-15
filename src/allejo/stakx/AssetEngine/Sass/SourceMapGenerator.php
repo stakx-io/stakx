@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\AssetEngine\Sass;
 
-use Leafo\ScssPhp\SourceMap\SourceMapGenerator as BaseGenerator;
+use ScssPhp\ScssPhp\SourceMap\SourceMapGenerator as BaseGenerator;
 
 /**
  * A custom SourceMapGenerator to override the one provided by ScssPhp.
