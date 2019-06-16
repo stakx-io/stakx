@@ -8,6 +8,7 @@
 namespace allejo\stakx;
 
 use allejo\stakx\Event\BuildProcessComplete;
+use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\AssetManager;
@@ -45,9 +46,24 @@ class Website
         $this->configureHighlighter();
     }
 
+    /**
+     * Get the compiler used by this website for combining content and the given templating engine.
+     *
+     * @return Compiler
+     */
     public function getCompiler()
     {
         return $this->compiler;
+    }
+
+    /**
+     * Get all of the folder definitions this website looks in for site content.
+     *
+     * @return FileExplorerDefinition[]
+     */
+    public function getFolderDefinitions()
+    {
+        return $this->compiler->getFolderDefinitions();
     }
 
     /**

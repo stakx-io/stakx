@@ -112,6 +112,14 @@ abstract class TrackingManager extends BaseManager
     }
 
     /**
+     * @return FileExplorerDefinition[]
+     */
+    public function getFolderDefinitions()
+    {
+        return $this->watchedFolders;
+    }
+
+    /**
      * Check whether a file is already being tracked.
      *
      * @param string $filePath The relative path of the file

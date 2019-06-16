@@ -23,12 +23,14 @@ use allejo\stakx\Event\CompilerPreRenderStaticPageView;
 use allejo\stakx\Event\CompilerTemplateCreation;
 use allejo\stakx\Event\RedirectPreOutput;
 use allejo\stakx\Exception\FileAwareException;
+use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
+use allejo\stakx\Manager\TrackingManager;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use allejo\stakx\Templating\TemplateErrorInterface;
 use allejo\stakx\Templating\TemplateInterface;
@@ -66,6 +68,9 @@ class Compiler
     /** @var string */
     private $theme;
 
+    /** @var TrackingManager[] */
+    private $managers;
+
     private $templateBridge;
     private $pageManager;
     private $eventDispatcher;
@@ -93,6 +98,10 @@ class Compiler
         $this->pageViewsFlattened = &$pageManager->getPageViewsFlattened();
         $this->redirectTemplate = $this->configuration->getRedirectTemplate();
 
+        $this->managers['collection'] = $collectionManager;
+        $this->managers['data'] = $dataManager;
+        $this->managers['page'] = $pageManager;
+
         // Global variables maintained by stakx
         $this->templateBridge->setGlobalVariable('site', $configuration->getConfiguration());
         $this->templateBridge->setGlobalVariable('data', $dataManager->getJailedDataItems());
@@ -117,6 +126,25 @@ class Compiler
     public function setThemeName($themeName)
     {
         $this->theme = $themeName;
+    }
+
+    ///
+    // Files and folders we listen to
+    ///
+
+    /**
+     * @return FileExplorerDefinition[]
+     */
+    public function getFolderDefinitions()
+    {
+        $results = [];
+
+        foreach ($this->managers as $manager)
+        {
+            $results += $manager->getFolderDefinitions();
+        }
+
+        return $results;
     }
 
     ///
