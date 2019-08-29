@@ -34,7 +34,7 @@
 - Heading IDs inside of the markdown engine now use the same algorithm as the Twig `slug()` filter
 - Underscore folders inside of themes are now automatically ignored ([#87](https://github.com/stakx-io/stakx/pull/87))
 - The Sass compiler has been updated to better handle AST caching especially during `serve` and `--use-cache`
-- The `where()` Twig filter logic has been simplified and longer works recursively, which was "undefined behavior" to begin with
+- The `where()` Twig filter logic has been simplified and no longer works recursively, which was "undefined behavior" to begin with
 
 **Fixes**
 
