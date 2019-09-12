@@ -60,12 +60,20 @@ class ServeCommand extends BuildCommand
             $router = $this->getContainer()->get(RouteMapper::class);
             $router->setBaseUrl($website->getConfiguration()->getBaseUrl());
 
-            $lastTick = new \DateTime();
+            $lastModification = new \DateTime();
             $fsDiffer = new FilesystemDiff($website->getFolderDefinitions());
 
             $loop = Factory::create();
-            $loop->addPeriodicTimer(1, function() use (&$lastTick, $fsDiffer, $output) {
-                $changedFiles = $fsDiffer->modifiedAfter($lastTick);
+            $loop->addPeriodicTimer(1, function() use (&$lastModification, $fsDiffer, $output) {
+                $changedFiles = $fsDiffer->modifiedAfter($lastModification);
+                $hasChanges = count($changedFiles) > 0;
+
+                // Don't proceed if there hasn't been any changes. We only want to check for modified files since the
+                // last time we've checked just in case a tick lags.
+                if (!$hasChanges)
+                {
+                    return;
+                }
 
                 foreach ($changedFiles as $file)
                 {
@@ -74,7 +82,7 @@ class ServeCommand extends BuildCommand
                     // @TODO Update the respective Manager with the new file content
                 }
 
-                $lastTick = new \DateTime();
+                $lastModification = new \DateTime();
             });
 
             $socket = new \React\Socket\Server(
