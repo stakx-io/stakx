@@ -8,6 +8,7 @@
 namespace allejo\stakx;
 
 use allejo\stakx\Event\BuildProcessComplete;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\WritableFolder;
@@ -57,6 +58,14 @@ class Website
     }
 
     /**
+     * @return Configuration
+     */
+    public function getConfiguration()
+    {
+        return $this->configuration;
+    }
+
+    /**
      * Get all of the folder definitions this website looks in for site content.
      *
      * @return FileExplorerDefinition[]
@@ -67,7 +76,21 @@ class Website
     }
 
     /**
+     * Given a file path, refresh the contents of the file.
+     *
+     * @param File $filePath
+     *
+     * @return bool Whether or not the file was refreshed successfully.
+     */
+    public function refreshFile(File $filePath)
+    {
+        return $this->compiler->refreshFile($filePath);
+    }
+
+    /**
      * Compile the website.
+     *
+     * @throws \Exception
      *
      * @return true if the website built successfully
      */
@@ -135,14 +158,8 @@ class Website
         $this->assetManager->copyFiles();
 
         $this->eventDispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
-    }
 
-    /**
-     * @return Configuration
-     */
-    public function getConfiguration()
-    {
-        return $this->configuration;
+        return true;
     }
 
     /**

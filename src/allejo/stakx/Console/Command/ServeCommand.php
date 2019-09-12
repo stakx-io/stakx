@@ -64,7 +64,7 @@ class ServeCommand extends BuildCommand
             $fsDiffer = new FilesystemDiff($website->getFolderDefinitions());
 
             $loop = Factory::create();
-            $loop->addPeriodicTimer(1, function() use (&$lastModification, $fsDiffer, $output) {
+            $loop->addPeriodicTimer(1, function() use (&$lastModification, $website, $fsDiffer, $output) {
                 $changedFiles = $fsDiffer->modifiedAfter($lastModification);
                 $hasChanges = count($changedFiles) > 0;
 
@@ -79,7 +79,7 @@ class ServeCommand extends BuildCommand
                 {
                     $output->writeln(sprintf('File changed: %s', $file->getRelativeFilePath()));
 
-                    // @TODO Update the respective Manager with the new file content
+                    $website->refreshFile($file);
                 }
 
                 $lastModification = new \DateTime();

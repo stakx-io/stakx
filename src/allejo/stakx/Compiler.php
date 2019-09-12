@@ -23,6 +23,7 @@ use allejo\stakx\Event\CompilerPreRenderStaticPageView;
 use allejo\stakx\Event\CompilerTemplateCreation;
 use allejo\stakx\Event\RedirectPreOutput;
 use allejo\stakx\Exception\FileAwareException;
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\FrontMatter\ExpandedValue;
@@ -145,6 +146,29 @@ class Compiler
         }
 
         return $results;
+    }
+
+    /**
+     * Trigger a refresh of a file
+     *
+     * @param File $filePath
+     *
+     * @return bool
+     */
+    public function refreshFile(File $filePath)
+    {
+        foreach ($this->managers as $name => $manager)
+        {
+            if ($manager->isTracked($filePath))
+            {
+                // @TODO Start implementing this refresh logic for managers
+                $manager->refreshItem($filePath);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     ///
