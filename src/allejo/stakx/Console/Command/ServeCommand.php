@@ -44,6 +44,8 @@ class ServeCommand extends BuildCommand
 
         try
         {
+            $output->writeln('The `serve` option is still an experimental feature and has a few known bugs.');
+
             $this->configureConfigurationFile($input);
             $website = $this->getContainer()->get(Website::class);
 
