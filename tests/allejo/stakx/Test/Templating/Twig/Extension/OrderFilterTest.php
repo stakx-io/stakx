@@ -29,6 +29,10 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
                         'name' => 'Side order of fries',
                         'sort' => 3,
                     ],
+                    [
+                        'name' => 'super size me',
+                        'sort' => 10,
+                    ],
                 ],
             ],
         ];
@@ -51,6 +55,10 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
             [
                 'name' => 'Side order of fries',
                 'sort' => 3,
+            ],
+            [
+                'name' => 'super size me',
+                'sort' => 10,
             ],
             [
                 'name' => 'Order of Bacon',
@@ -76,12 +84,140 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
                 'sort' => 30,
             ],
             [
+                'name' => 'super size me',
+                'sort' => 10,
+            ],
+            [
                 'name' => 'Side order of fries',
                 'sort' => 3,
             ],
             [
                 'name' => 'Whee',
                 'sort' => 0,
+            ],
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @dataProvider dataProvider_singleLevelArray
+     *
+     * @param array $dataset
+     */
+    public function testOrderFilterAscOnArrayCaseSensitive($dataset)
+    {
+        $orderFilter = new OrderFilter();
+        $result = $orderFilter($dataset, 'name', 'ASC');
+        $expected = [
+            [
+                'name' => 'Order of Bacon',
+                'sort' => 30,
+            ],
+            [
+                'name' => 'Side order of fries',
+                'sort' => 3,
+            ],
+            [
+                'name' => 'Whee',
+                'sort' => 0,
+            ],
+            [
+                'name' => 'super size me',
+                'sort' => 10,
+            ],
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @dataProvider dataProvider_singleLevelArray
+     *
+     * @param array $dataset
+     */
+    public function testOrderFilterDescOnArrayCaseSensitive($dataset)
+    {
+        $orderFilter = new OrderFilter();
+        $result = $orderFilter($dataset, 'name', 'DESC');
+        $expected = [
+            [
+                'name' => 'super size me',
+                'sort' => 10,
+            ],
+            [
+                'name' => 'Whee',
+                'sort' => 0,
+            ],
+            [
+                'name' => 'Side order of fries',
+                'sort' => 3,
+            ],
+            [
+                'name' => 'Order of Bacon',
+                'sort' => 30,
+            ],
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @dataProvider dataProvider_singleLevelArray
+     *
+     * @param array $dataset
+     */
+    public function testOrderFilterAscOnArrayCaseInsensitive($dataset)
+    {
+        $orderFilter = new OrderFilter();
+        $result = $orderFilter($dataset, 'name', 'ASC', true);
+        $expected = [
+            [
+                'name' => 'Order of Bacon',
+                'sort' => 30,
+            ],
+            [
+                'name' => 'Side order of fries',
+                'sort' => 3,
+            ],
+            [
+                'name' => 'super size me',
+                'sort' => 10,
+            ],
+            [
+                'name' => 'Whee',
+                'sort' => 0,
+            ],
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @dataProvider dataProvider_singleLevelArray
+     *
+     * @param array $dataset
+     */
+    public function testOrderFilterDescOnArrayCaseInsensitive($dataset)
+    {
+        $orderFilter = new OrderFilter();
+        $result = $orderFilter($dataset, 'name', 'DESC', true);
+        $expected = [
+            [
+                'name' => 'Whee',
+                'sort' => 0,
+            ],
+            [
+                'name' => 'super size me',
+                'sort' => 10,
+            ],
+            [
+                'name' => 'Side order of fries',
+                'sort' => 3,
+            ],
+            [
+                'name' => 'Order of Bacon',
+                'sort' => 30,
             ],
         ];
 
