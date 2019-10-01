@@ -1,3 +1,19 @@
+## 0.2.0 "Guilty Ocelot"
+
+The next major release of stakx is ready and has been battle tested with the [redesign of the BZFlag.org website](https://github.com/BZFlag-Dev/bzflag.org/pull/25).
+
+Here are the changes since the last beta release:
+
+**Changes**
+
+- The `serve` command has been marked as experimental due to some known bugs that are not easy to fix
+- The minimum version of PHP required is now 5.6
+- Our SCSS library has been updated with bug fixes and speed improvements
+
+**Fixes**
+
+- Unicode characters are now preserved in the `summary` and `toc` Twig filters
+
 ## 0.2.0 Beta 2
 
 **Changes**
