@@ -34,6 +34,17 @@ cd example/
 php ../bin/stakx build
 ```
 
+### Locally Serving a Site
+
+Stakx includes a built in PHP server, which you can run with the following commands. Access your site at `http://0.0.0.0:8000/`.
+
+```bash
+cd example/
+php ../bin/stakx serve
+```
+
+Note that the `serve` command will also rebuild your site when it detects a file change, including recompiling the SASS/SCSS, if any is in use.
+
 ## License
 
 [MIT](./LICENSE.md)
