@@ -6,25 +6,17 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 {% endblock %}
 
+{% block menu %}
+    {% for item in menu | order("title") %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url(item) }}">{{ item.title }}</a>
+        </li>
+    {% endfor %}
+{% endblock %}
+
 {% block footer %}
-    <div class="row">
-        <div class="col-md-4">
-            {{ parent() }}
-        </div>
-        <div class="col-md-4">
-            <p class="text-center text-muted">Built with <i class="fa fa-fw fa-heart"></i> with <a href="https://stakx.io">stakx</a></p>
-        </div>
-        <div class="col-md-4">
-            <ul class="list-inline">
-                <li>
-                    <a href="{{ url('/') }}">Stakx</a>
-                </li>
-                {% for item in menu | order("title") %}
-                    <li>
-                        <a href="{{ url(item) }}">{{ item.title }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
+    <p class="m-0 text-center">
+        Built with <i class="fa fa-fw fa-heart text-danger"><span class="sr-only">love</span></i> using <a class="text-danger" href="https://stakx.io">Stakx</a>
+    </p>
+    {{ parent() }}
 {% endblock %}

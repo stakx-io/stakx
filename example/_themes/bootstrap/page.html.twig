@@ -1,7 +1,7 @@
 {% extends "@theme/base.html.twig" %}
 
 {% block body %}
-    <div class="container">
+    <div class="container d-flex flex-column flex-grow-1 ">
         <header class="page-header">
             {% block header %}
                 <h1>
@@ -17,11 +17,12 @@
         <main>
             {% block content %}{% endblock %}
         </main>
-
-        <footer class="page-footer">
-            {% block footer %}
-                <p>Copyright &copy; {{ "now" | date("Y") }}</p>
-            {% endblock %}
-        </footer>
     </div>
+
+    <footer class="bg-dark border-top border-secondary mt-5 p-4 shadow-lg text-light">
+        {% block footer %}
+            <p class="m-0 text-center">Copyright &copy; {{ "now" | date("Y") }}</p>
+        {% endblock %}
+    </footer>
+    
 {% endblock %}
