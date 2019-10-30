@@ -88,9 +88,9 @@ permalink:
 
     <hr>
 
-    <div class="c-yearly">
+    <div class="row">
         {% for i in range(1, 12) %}
-            <div class="c-yearly__month">
+            <div class="col-md-3">
                 {{ _self.calendar('2020-' ~ i, data.calendar) }}
             </div>
         {% endfor %}

@@ -6,14 +6,19 @@ author: %fname %lname
 
 {% extends '_layouts/base.html.twig' %}
 
+{% block header %}
+    <h1 class="text-capitalize">
+        {{ this.title }}
+    </h1>
+{% endblock %}
+
 {% block content %}
     <article>
-        <p><strong>{{ this.title }}</strong></p>
-        <p><small>{{ this.author }}</small></p>
-        <p><strong>ISBN:</strong> {{ this.isbn }}</p>
-        <p><strong>Pages:</strong> {{ this.pages }}</p>
+        <p class="mb-0"><strong>Author:</strong> {{ this.author }}</p>
+        <p class="mb-0"><strong>ISBN:</strong> {{ this.isbn }}</p>
+        <p class="mb-0"><strong>Pages:</strong> {{ this.pages }}</p>
 
-        <section>
+        <section  class="mt-4">
             {{ this.content }}
         </section>
     </article>

@@ -9,7 +9,7 @@ slug: An example of the Finder filter
 {% block content %}
     {% set files = finder('assets/imgs/gallery').files.name('*.jpg') %}
 
-    <section>
+    <section class="mb-5">
         {% markdown %}
             Stakx has a `finder()` function for your Twig templates which exposes a [Finder](http://symfony.com/doc/3.0/components/finder.html) instance. By using the Finder instance, you may access the filesystem directly to get a list of files inside of the website folder. For example, to build a gallery from images in a specific folder, you can use the following snippet to get an array of file paths.
 
@@ -19,14 +19,14 @@ slug: An example of the Finder filter
         {% endmarkdown %}
     </section>
 
-    <h3>Sample Pictures</h3>
+    <h2 class="mb-4">Sample Pictures</h2>
 
     <div class="row">
         {% for file in files %}
-            <div class="col-xs-6 col-md-3">
-                <span class="thumbnail">
-                    <img src="{{ url(file) }}">
-                </span>
+            <div class="col-xs-6 col-md-3 overflow-hidden">
+                <div class="mb-4">
+                    <img class="card-img-top rounded shadow" src="{{ url(file) }}">
+                </div>
             </div>
         {% endfor %}
     </div>

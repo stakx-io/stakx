@@ -7,7 +7,7 @@ title: %basename
 {% extends "_layouts/base.html.twig" %}
 
 {% block content %}
-    <p>Events for the month of {{ this.title | title }}</p>
+    <h3>Events for the month of {{ this.title | title }}</h3>
 
     {% for date in this %}
         <article>

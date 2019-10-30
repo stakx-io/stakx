@@ -4,17 +4,16 @@
     <div class="container d-flex flex-column flex-grow-1 ">
         <header class="page-header">
             {% block header %}
-                <h1>
+                <h1 class="lead text-capitalize">
                     {{ this.title ? this.title : site.title }}
-
-                    {% if this.slug %}
-                        <small>{{ this.slug }}</small>
-                    {% endif %}
                 </h1>
+                {% if this.slug %}
+                    <h2 class="h1">{{ this.slug }}</h2>
+                {% endif %}
             {% endblock %}
         </header>
 
-        <main>
+        <main class="mt-5">
             {% block content %}{% endblock %}
         </main>
     </div>
