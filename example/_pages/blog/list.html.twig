@@ -8,11 +8,11 @@ permalink: /blog/
 
 {% block content %}
     {% for post in collections.posts | order('date', 'DESC') %}
-        <article>
-            <h2>
+        <article class="mb-4">
+            <h3 class="m-0">
                 <a href="{{ url(post.permalink) }}">{{ post.title }}</a>
-            </h2>
-            <p class="text-muted"><strong>{{ post.date | date("F d, Y") }}</strong></p>
+            </h3>
+            <p><strong>{{ post.date | date("F d, Y") }}</strong></p>
         </article>
     {% endfor %}
 {% endblock %}

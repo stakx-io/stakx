@@ -5,9 +5,12 @@ permalink: /blog/%year/%month/%day/%title/
 
 {% extends "_layouts/base.html.twig" %}
 
+{% block header %}
+{% endblock %}
+
 {% block content %}
     <article>
-        <h2 id="{{ this.title | slug }}">{{ this.title }}</h2>
+        <h1 class="mb-5" id="{{ this.title | slug }}">{{ this.title }}</h1>
 
         <section>
             {{ this.content }}
