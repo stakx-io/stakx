@@ -11,10 +11,10 @@ permalink:
 {% macro calendar(given_date, special_days) %}
     {% set month = given_date | date('F') %}
 
-    <table class="c-calendar">
+    <table class="w-100 mb-4">
         <thead>
             <tr>
-                <th colspan="7" class="c-calendar__month">
+                <th colspan="7" class="mb-2">
                     <a href="{{ url('/calendar/' ~ (month | lower) ~ '/') }}">{{ month }}</a>
                 </th>
             </tr>
