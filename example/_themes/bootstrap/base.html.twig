@@ -5,9 +5,11 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ site.title }}</title>
-        {% block stylesheets %}{% endblock %}
-        <link rel="stylesheet" href="{{ url("/assets/css/custom.css") }}">
+
+        <link rel="stylesheet" href="{{ url("/assets/css/bootstrap-4.3.1-custom.css") }}">
         <link href="https://fonts.googleapis.com/css?family=Lato:300,300i,900,900i&display=swap" rel="stylesheet">
+
+        {% block stylesheets %}{% endblock %}
         {% block scripts %}{% endblock %}
     </head>
 
