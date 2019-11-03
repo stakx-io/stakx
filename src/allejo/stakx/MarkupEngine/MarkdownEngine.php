@@ -37,7 +37,10 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 
     protected function blockSetextHeader($Line, array $Block = null)
     {
-        $Block = parent::blockSetextHeader($Line, $Block);
+        // @TODO Remove this `@` operator in an update to Parsedown and ParsedownExtra
+        //   https://wiki.php.net/rfc/notice-for-non-valid-array-container
+        //   https://github.com/erusev/parsedown-extra/issues/134
+        $Block = @parent::blockSetextHeader($Line, $Block);
 
         if (isset($Block['element']['name']))
         {
