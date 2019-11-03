@@ -44,9 +44,23 @@ install:
   - sc config wuauserv start= auto
   - net start wuauserv
   - cinst -y OpenSSL.Light
-  - ps: cinst -y php --allow-empty-checksums --version ((choco search php --exact --all-versions -r | select-string -pattern $Env:php_ver_target | Select-Object -first 1) -replace '[php|]',''); cmd.exe /c 'appveyor.bat'
+
+  # In order to be able to list all the available PHP packages we have to
+  # downgrade Chocolatey to version 0.10.13.
+  # See https://github.com/chocolatey/choco/issues/1843
+  - ps: choco install chocolatey -y --version 0.10.13 --allow-downgrade --force
+  - ps: appveyor-retry choco install php --ignore-checksums -y --force --version ((choco search php -r --exact --all-versions| select-string -pattern $Env:php_ver_target | Select-Object -first 1) -replace '[php|]','')
+
+  - cd c:\tools\php*
+  - copy php.ini-production php.ini /Y
+  - echo date.timezone="UTC" >> php.ini
+  - echo extension_dir=ext >> php.ini
+  - echo extension=php_openssl.dll >> php.ini
+  - echo extension=php_mbstring.dll >> php.ini
+  - echo extension=php_fileinfo.dll >> php.ini
+
   - refreshenv
-  - cd C:\projects\stakx
+  - cd %APPVEYOR_BUILD_FOLDER%
   - php -r "readfile('http://getcomposer.org/installer');" | php
   - php composer.phar config github-oauth.github.com %GH_TOKEN%
   - IF %dependencies%==current php composer.phar install --no-progress --prefer-dist
