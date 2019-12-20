@@ -1,3 +1,10 @@
+## master
+
+**New**
+
+- A new `highlighter.line_numbers` configuration file option has been added to render line numbers in markup code blocks ([#105](https://github.com/stakx-io/stakx/issues/105), [#112](https://github.com/stakx-io/stakx/pull/112))
+- Added ability to highlight specific lines in markup code blocks ([#105](https://github.com/stakx-io/stakx/issues/105), [#112](https://github.com/stakx-io/stakx/pull/112))
+
 ## 0.2.0 "Guilty Ocelot"
 
 The next major release of stakx is ready and has been battle tested with the [redesign of the BZFlag.org website](https://github.com/BZFlag-Dev/bzflag.org/pull/25).

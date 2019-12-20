@@ -12,12 +12,17 @@ use allejo\stakx\Service;
 use Highlight\Highlighter;
 use function HighlightUtilities\splitCodeIntoArray;
 
+/**
+ * @since 0.2.1
+ */
 trait SyntaxHighlighterTrait
 {
     /** @var Highlighter */
     protected $highlighter;
 
     /**
+     * @since 0.2.1
+     *
      * @param string $infoString
      * @param string $rawCode
      *
@@ -66,6 +71,8 @@ trait SyntaxHighlighterTrait
     }
 
     /**
+     * @since 0.2.1
+     *
      * @param string $infoString
      *
      * @return array
