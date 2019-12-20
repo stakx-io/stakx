@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
+
 namespace allejo\stakx\MarkupEngine;
 
 use allejo\stakx\RuntimeStatus;
@@ -40,7 +45,6 @@ trait SyntaxHighlighterTrait
                         $line,
                     ]);
                 }
-
             }
 
             return vsprintf('<pre><code class="hljs language-%s">%s</code></pre>', [
@@ -68,7 +72,7 @@ trait SyntaxHighlighterTrait
      */
     private function parseInfoString($infoString)
     {
-        $infoString = substr($infoString, 9);
+        $infoString = str_replace('language-', '', $infoString);
         $definition = [
             'language' => $infoString,
             'selectedLines' => [],
@@ -103,7 +107,7 @@ trait SyntaxHighlighterTrait
             $start = intval($extremes[0]);
             $end = intval($extremes[1]);
 
-            for ($i = $start; $i <= $end; $i++)
+            for ($i = $start; $i <= $end; ++$i)
             {
                 $definition['selectedLines'][$i] = true;
             }

@@ -11,7 +11,6 @@ use __;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
-use function HighlightUtilities\splitCodeIntoArray;
 
 class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 {

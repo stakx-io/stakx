@@ -31,7 +31,7 @@ interface MarkupEngineInterface
      *
      * @since 0.2.0
      *
-     * @return null|string if null, then no tag or filter will be registered
+     * @return string|null if null, then no tag or filter will be registered
      */
     public function getTemplateTag();
 
