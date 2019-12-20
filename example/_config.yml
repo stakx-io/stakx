@@ -29,6 +29,7 @@ templates:
   redirect: false
 
 highlighter:
+  line_numbers: true
   languages:
     bzw: _languages/bzw.json
 

@@ -33,7 +33,7 @@ class MarkdownEngineTest extends PHPUnit_Stakx_TestCase
 
     public function testCodeBlockWithLanguage()
     {
-        $codeBlock = <<<CODE
+        $codeBlock = <<<'CODE'
 ```php
 <?php
 
@@ -43,6 +43,99 @@ CODE;
         $compiled = $this->mdEngine->parse($codeBlock);
 
         $this->assertContains('<code class="hljs language-php">', $compiled);
+    }
+
+    public function testCodeBlockWithLanguageSingleLineNumber()
+    {
+        $codeBlock = <<<'CODE'
+```php{3}
+<?php
+
+echo "hello world";
+```
+CODE;
+        $compiled = $this->mdEngine->parse($codeBlock);
+        $chunks = explode("\n", $compiled);
+
+        $this->assertContains('<code class="hljs language-php">', $chunks[0]);
+        $this->assertNotContains('<div class="loc highlighted">', $chunks[1]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[2]);
+    }
+
+    public function testCodeBlockWithLanguageSingleLineRange()
+    {
+        $codeBlock = <<<'CODE'
+```php{6-8}
+<?php
+
+/**
+ * Hello World
+ *
+ * @api
+ * @since 1.0.0
+ * @param string $str Some string parameter
+ */
+```
+CODE;
+        $compiled = $this->mdEngine->parse($codeBlock);
+        $chunks = explode("\n", $compiled);
+
+        $this->assertContains('<code class="hljs language-php">', $chunks[0]);
+        $this->assertNotContains('<div class="loc highlighted">', $chunks[4]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[5]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[6]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[7]);
+    }
+
+    public function testCodeBlockWithLanguageTwoSingleNumbers()
+    {
+        $codeBlock = <<<'CODE'
+```php{4,7}
+<?php
+
+/**
+ * Hello World
+ *
+ * @api
+ * @since 1.0.0
+ * @param string $str Some string parameter
+ */
+```
+CODE;
+        $compiled = $this->mdEngine->parse($codeBlock);
+        $chunks = explode("\n", $compiled);
+
+        $this->assertContains('<code class="hljs language-php">', $chunks[0]);
+        $this->assertNotContains('<div class="loc highlighted">', $chunks[0]);
+        $this->assertNotContains('<div class="loc highlighted">', $chunks[2]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[3]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[6]);
+    }
+
+    public function testCodeBlockWithLanguageSingleNumberAndRange()
+    {
+        $codeBlock = <<<'CODE'
+```php{6-8,1}
+<?php
+
+/**
+ * Hello World
+ *
+ * @api
+ * @since 1.0.0
+ * @param string $str Some string parameter
+ */
+```
+CODE;
+        $compiled = $this->mdEngine->parse($codeBlock);
+        $chunks = explode("\n", $compiled);
+
+        $this->assertContains('<code class="hljs language-php">', $chunks[0]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[0]);
+        $this->assertNotContains('<div class="loc highlighted">', $chunks[2]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[5]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[6]);
+        $this->assertContains('<div class="loc highlighted">', $chunks[7]);
     }
 
     public function testCodeBlockWithNoLanguage()

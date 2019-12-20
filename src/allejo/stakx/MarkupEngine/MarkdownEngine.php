@@ -14,7 +14,7 @@ use Highlight\Highlighter;
 
 class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 {
-    protected $highlighter;
+    use SyntaxHighlighterTrait;
 
     public function __construct()
     {
@@ -66,25 +66,9 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         if (isset($block['element']['text']['attributes']) && Service::hasRunTimeFlag(RuntimeStatus::USING_HIGHLIGHTER))
         {
             $cssClass = $block['element']['text']['attributes']['class'];
-            $language = substr($cssClass, 9);
+            $block['markup'] = $this->highlightCode($cssClass, $block['element']['text']['text']);
 
-            try
-            {
-                $highlighted = $this->highlighter->highlight($language, $block['element']['text']['text']);
-                $block['markup'] = "<pre><code class=\"hljs ${cssClass}\">" . $highlighted->value . '</code></pre>';
-
-                // Only return the block if Highlighter knew the language and how to handle it.
-                return $block;
-            }
-            // Exception thrown when language not supported
-            catch (\DomainException $exception)
-            {
-                trigger_error("An unsupported language ($language) was detected in a code block", E_USER_WARNING);
-            }
-            catch (\Exception $e)
-            {
-                trigger_error('An error has occurred in the highlight.php language definition files', E_USER_WARNING);
-            }
+            return $block;
         }
 
         return parent::blockFencedCodeComplete($block);

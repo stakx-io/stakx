@@ -20,4 +20,5 @@ abstract class RuntimeStatus
     const USING_CACHE = 16;
     const USING_DRAFTS = 32;
     const USING_HIGHLIGHTER = 64;
+    const USING_LINE_NUMBERS = 256;
 }
