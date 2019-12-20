@@ -33,7 +33,7 @@ echo "Hello World";
 
 ...and here's one in Ruby with some class usage as well.
 
-```ruby
+```ruby{2-4}
 class HelloWorld
    def initialize(name)
       @name = name.capitalize
