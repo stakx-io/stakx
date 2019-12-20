@@ -11,6 +11,7 @@ use __;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
+use function HighlightUtilities\splitCodeIntoArray;
 
 class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 {
@@ -66,12 +67,32 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         if (isset($block['element']['text']['attributes']) && Service::hasRunTimeFlag(RuntimeStatus::USING_HIGHLIGHTER))
         {
             $cssClass = $block['element']['text']['attributes']['class'];
-            $language = substr($cssClass, 9);
+            $langDef = $this->parseInfoString($cssClass);
 
             try
             {
-                $highlighted = $this->highlighter->highlight($language, $block['element']['text']['text']);
-                $block['markup'] = "<pre><code class=\"hljs ${cssClass}\">" . $highlighted->value . '</code></pre>';
+                $highlighted = $this->highlighter->highlight($langDef['language'], $block['element']['text']['text']);
+                $value = $highlighted->value;
+
+                if (count($langDef['selectedLines']) > 0)
+                {
+                    $lines = splitCodeIntoArray($value);
+                    $value = '';
+
+                    foreach ($lines as $i => $line)
+                    {
+                        // `$i + 1` since our line numbers are indexed starting at 1
+                        $value .= vsprintf("<div class=\"loc%s\"><span>%s</span></div>\n", [
+                            isset($langDef['selectedLines'][$i + 1]) ? ' highlighted' : '',
+                            $line,
+                        ]);
+                    }
+                }
+
+                $block['markup'] = vsprintf('<pre><code class="hljs language-%s">%s</code></pre>', [
+                    $langDef['language'],
+                    $value,
+                ]);
 
                 // Only return the block if Highlighter knew the language and how to handle it.
                 return $block;
@@ -79,7 +100,7 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
             // Exception thrown when language not supported
             catch (\DomainException $exception)
             {
-                trigger_error("An unsupported language ($language) was detected in a code block", E_USER_WARNING);
+                trigger_error("An unsupported language (${langDef['language']}) was detected in a code block", E_USER_WARNING);
             }
             catch (\Exception $e)
             {
@@ -88,6 +109,52 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         }
 
         return parent::blockFencedCodeComplete($block);
+    }
+
+    private function parseInfoString($infoString)
+    {
+        $infoString = substr($infoString, 9);
+        $definition = [
+            'language' => $infoString,
+            'selectedLines' => [],
+        ];
+
+        $bracePos = strpos($infoString, '{');
+
+        if ($bracePos === false)
+        {
+            return $definition;
+        }
+
+        $definition['language'] = substr($infoString, 0, $bracePos);
+        $lineDefinition = substr($infoString, $bracePos + 1, -1);
+        $lineNumbers = explode(',', $lineDefinition);
+
+        foreach ($lineNumbers as $lineNumber)
+        {
+            if (strpos($lineNumber, '-') === false)
+            {
+                $definition['selectedLines'][intval($lineNumber)] = true;
+                continue;
+            }
+
+            $extremes = explode('-', $lineNumber);
+
+            if (count($extremes) !== 2)
+            {
+                continue;
+            }
+
+            $start = intval($extremes[0]);
+            $end = intval($extremes[1]);
+
+            for ($i = $start; $i <= $end; $i++)
+            {
+                $definition['selectedLines'][$i] = true;
+            }
+        }
+
+        return $definition;
     }
 
     ///
