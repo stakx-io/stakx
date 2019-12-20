@@ -164,6 +164,10 @@ class Website
 
         Service::setRuntimeFlag(RuntimeStatus::USING_HIGHLIGHTER);
 
+        if ($this->getConfiguration()->isHighlighterUsingLineNumbers()) {
+            Service::setRuntimeFlag(RuntimeStatus::USING_LINE_NUMBERS);
+        }
+
         foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
         {
             $fullPath = fs::absolutePath($path);

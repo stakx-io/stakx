@@ -74,7 +74,7 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
                 $highlighted = $this->highlighter->highlight($langDef['language'], $block['element']['text']['text']);
                 $value = $highlighted->value;
 
-                if (count($langDef['selectedLines']) > 0)
+                if (Service::hasRunTimeFlag(RuntimeStatus::USING_LINE_NUMBERS) || count($langDef['selectedLines']) > 0)
                 {
                     $lines = splitCodeIntoArray($value);
                     $value = '';
