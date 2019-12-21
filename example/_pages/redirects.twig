@@ -1,0 +1,10 @@
+---
+permalink: /_redirects
+---
+
+# Netlify style redirects
+#   https://docs.netlify.com/routing/redirects/#syntax-for-the-redirects-file
+
+{% for from, to in redirects  %}
+{{ from }}    {{ to }}
+{% endfor %}

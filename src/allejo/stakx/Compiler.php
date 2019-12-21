@@ -79,6 +79,7 @@ class Compiler
         DataManager $dataManager,
         MenuManager $menuManager,
         PageManager $pageManager,
+        RedirectMapper $redirectMapper,
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface $logger
     ) {
@@ -99,6 +100,7 @@ class Compiler
         $this->templateBridge->setGlobalVariable('menu', $menuManager->getSiteMenu());
         $this->templateBridge->setGlobalVariable('pages', $pageManager->getJailedStaticPageViews());
         $this->templateBridge->setGlobalVariable('repeaters', $pageManager->getJailedRepeaterPageViews());
+        $this->templateBridge->setGlobalVariable('redirects', $redirectMapper->getRedirects());
     }
 
     /**
