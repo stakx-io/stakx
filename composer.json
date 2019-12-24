@@ -22,6 +22,8 @@
   },
   "require": {
     "ext-dom": "*",
+    "ext-fileinfo": "*",
+    "ext-json": "*",
     "ext-libxml": "*",
     "erusev/parsedown": "^1.6.1",
     "erusev/parsedown-extra": "^0.7.1",
