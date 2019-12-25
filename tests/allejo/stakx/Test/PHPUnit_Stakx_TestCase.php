@@ -23,6 +23,7 @@ use allejo\stakx\MarkupEngine\MarkdownEngine;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\MarkupEngine\PlainTextEngine;
 use allejo\stakx\MarkupEngine\RstEngine;
+use allejo\stakx\RedirectMapper;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use allejo\stakx\Templating\Twig\TwigExtension;
@@ -371,6 +372,20 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         ]);
 
         return $markupEngine;
+    }
+
+    /**
+     * @return RedirectMapper|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMockRedirectMapper()
+    {
+        $stub = $this->getMockBuilder(RedirectMapper::class)
+            ->getMock()
+        ;
+
+        $stub->method('getRedirects')->willReturn([]);
+
+        return $stub;
     }
 
     /**
