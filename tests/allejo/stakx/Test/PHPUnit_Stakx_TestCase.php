@@ -13,7 +13,7 @@ use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Logger;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
@@ -126,7 +126,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function createPhysicalFile($fileName, $content)
     {
-        $folder = new Folder($this->assetFolder);
+        $folder = new WritableFolder($this->assetFolder);
         $folder->writeFile($fileName, $content);
 
         return fs::appendPath($this->assetFolder, $fileName);

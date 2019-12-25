@@ -18,7 +18,7 @@ use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\FilesystemPath;
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Psr\Log\LoggerInterface;
@@ -74,7 +74,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
                 $extensions[] = "/.{$extension}.twig$/";
             }
 
-            $explorer = FileExplorer::create($assetFolder, [], $extensions, FileExplorer::INCLUDE_ONLY_FILES | FileExplorer::IGNORE_DIRECTORIES);
+            $explorer = FileExplorer::create($assetFolder, $extensions, [], FileExplorer::INCLUDE_ONLY_FILES | FileExplorer::IGNORE_DIRECTORIES);
 
             foreach ($explorer as $file)
             {
@@ -142,7 +142,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
 
         fs::mkdir($cacheDirPath);
 
-        $cacheDir = new Folder($cacheDirPath);
+        $cacheDir = new WritableFolder($cacheDirPath);
         $cacheDir->freeze();
 
         return $cacheDir;

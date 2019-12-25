@@ -14,7 +14,9 @@ use allejo\stakx\Event\CollectionDefinitionAdded;
 use allejo\stakx\Event\CollectionItemAdded;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use Psr\Log\LoggerInterface;
@@ -140,23 +142,13 @@ class CollectionManager extends TrackingManager
                 'name' => $collection['name'],
             ]);
 
-            $collectionFolder = fs::absolutePath($collection['folder']);
+            $folder = new Folder($collection['folder']);
 
-            if (!fs::exists($collectionFolder))
-            {
-                $this->logger->warning('The folder "{folder}" could not be found for the "{name}" collection', [
-                    'folder' => $collection['folder'],
-                    'name' => $collection['name'],
-                ]);
-
-                continue;
-            }
-
-            $event = new CollectionDefinitionAdded($collection['name'], $collection['folder']);
+            $event = new CollectionDefinitionAdded($collection['name'], $folder);
             $this->eventDispatcher->dispatch(CollectionDefinitionAdded::NAME, $event);
 
-            $this->saveFolderDefinition($collection['folder'], $collection);
-            $this->scanTrackableItems($collectionFolder, [
+            $def = new FileExplorerDefinition($folder);
+            $this->scanTrackableItems($def, [
                 'namespace' => $collection['name'],
             ]);
         }

@@ -22,7 +22,7 @@ use allejo\stakx\Event\CompilerPreRenderRepeaterPageView;
 use allejo\stakx\Event\CompilerPreRenderStaticPageView;
 use allejo\stakx\Event\CompilerTemplateCreation;
 use allejo\stakx\Exception\FileAwareException;
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
@@ -59,7 +59,7 @@ class Compiler
     /** @var string[] */
     private $templateMapping;
 
-    /** @var Folder */
+    /** @var WritableFolder */
     private $folder;
 
     /** @var string */
@@ -101,9 +101,9 @@ class Compiler
     }
 
     /**
-     * @param Folder $folder
+     * @param WritableFolder $folder
      */
-    public function setTargetFolder(Folder $folder)
+    public function setTargetFolder(WritableFolder $folder)
     {
         $this->folder = $folder;
     }

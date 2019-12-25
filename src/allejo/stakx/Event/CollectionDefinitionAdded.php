@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Event;
 
+use allejo\stakx\Filesystem\Folder;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -19,12 +20,12 @@ class CollectionDefinitionAdded extends Event
     const NAME = 'collection.definition.added';
 
     private $collectionName;
-    private $folderName;
+    private $folder;
 
-    public function __construct($collectionName, $folderName)
+    public function __construct($collectionName, Folder $folder)
     {
         $this->collectionName = $collectionName;
-        $this->folderName = $folderName;
+        $this->folder = $folder;
     }
 
     /**
@@ -36,10 +37,10 @@ class CollectionDefinitionAdded extends Event
     }
 
     /**
-     * @return string
+     * @return Folder
      */
-    public function getFolderName()
+    public function getFolder()
     {
-        return $this->folderName;
+        return $this->folder;
     }
 }

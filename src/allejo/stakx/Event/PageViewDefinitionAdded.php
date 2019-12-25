@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Event;
 
+use allejo\stakx\Filesystem\Folder;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -18,18 +19,18 @@ class PageViewDefinitionAdded extends Event
 {
     const NAME = 'pageview.definition.added';
 
-    private $folderName;
+    private $folder;
 
-    public function __construct($folderName)
+    public function __construct(Folder $folder)
     {
-        $this->folderName = $folderName;
+        $this->folder = $folder;
     }
 
     /**
      * @return string
      */
-    public function getFolderName()
+    public function getFolder()
     {
-        return $this->folderName;
+        return $this->folder;
     }
 }

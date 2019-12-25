@@ -8,8 +8,10 @@
 namespace allejo\stakx\Manager;
 
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Service;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -19,7 +21,7 @@ class AssetManager extends TrackingManager
     /**
      * The location of where to write files to.
      *
-     * @var Folder
+     * @var WritableFolder
      */
     protected $outputDirectory;
 
@@ -55,7 +57,7 @@ class AssetManager extends TrackingManager
     /**
      * Set the target directory of where files should be written to.
      *
-     * @param Folder $directory
+     * @param WritableFolder $directory
      */
     public function setFolder($directory)
     {
@@ -69,17 +71,18 @@ class AssetManager extends TrackingManager
     {
         $this->logger->notice('Copying asset files...');
 
-        $this->scanTrackableItems(
-            Service::getWorkingDirectory(),
-            [
-                'prefix' => '',
-            ],
-            $this->includes,
-            array_merge(
-                ['_themes'],
-                $this->excludes
-            )
+        $folder = new Folder(Service::getWorkingDirectory());
+
+        $def = new FileExplorerDefinition($folder);
+        $def->includes = $this->includes;
+        $def->excludes = array_merge(
+            ['_themes'],
+            $this->excludes
         );
+
+        $this->scanTrackableItems($def, [
+            'prefix' => '',
+        ]);
     }
 
     /**

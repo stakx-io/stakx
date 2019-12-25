@@ -22,7 +22,8 @@ use allejo\stakx\Event\PageViewDefinitionAdded;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\FileExplorerDefinition;
+use allejo\stakx\Filesystem\Folder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -90,20 +91,16 @@ class PageManager extends TrackingManager
 
         foreach ($pageViewFolders as $pageViewFolderName)
         {
-            $pageViewFolderPath = fs::absolutePath($pageViewFolderName);
+            $folder = new Folder($pageViewFolderName);
 
-            if (!fs::exists($pageViewFolderPath))
-            {
-                $this->logger->warning("The '$pageViewFolderName' folder could not be found");
-                continue;
-            }
-
-            $event = new PageViewDefinitionAdded($pageViewFolderName);
+            $event = new PageViewDefinitionAdded($folder);
             $this->eventDispatcher->dispatch(PageViewDefinitionAdded::NAME, $event);
 
-            $this->scanTrackableItems($pageViewFolderPath, [
-                'fileExplorer' => FileExplorer::INCLUDE_ONLY_FILES,
-            ], ['/.html$/', '/.twig$/']);
+            $def = new FileExplorerDefinition($folder);
+            $def->flags = FileExplorer::INCLUDE_ONLY_FILES;
+            $def->includes = ['/.html$/', '/.twig$/'];
+
+            $this->scanTrackableItems($def);
         }
 
         $postEvent = new PageManagerPostProcess($this);
