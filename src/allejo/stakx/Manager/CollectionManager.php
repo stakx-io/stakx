@@ -14,6 +14,7 @@ use allejo\stakx\Event\CollectionDefinitionAdded;
 use allejo\stakx\Event\CollectionItemAdded;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
@@ -147,7 +148,13 @@ class CollectionManager extends TrackingManager
             $event = new CollectionDefinitionAdded($collection['name'], $folder);
             $this->eventDispatcher->dispatch(CollectionDefinitionAdded::NAME, $event);
 
+            // Only fetch ContentItems with supported extensions
             $def = new FileExplorerDefinition($folder);
+            $def->flags |= FileExplorer::INCLUDE_ONLY_FILES;
+            $def->includes = [
+                sprintf('/\.(%s)$/', implode('|', $this->markupEngineManager->getSupportedExtensions())),
+            ];
+
             $this->scanTrackableItems($def, [
                 'namespace' => $collection['name'],
             ]);
