@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Document;
 
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\MarkupEngine\MarkupEngineInterface;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\Templating\TemplateErrorInterface;
@@ -18,6 +19,27 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
 
     /** @var MarkupEngineInterface */
     private $markupEngine;
+
+    /** @var array<int, File> */
+    private $assets = [];
+
+    /**
+     * Attach an asset to this ContentItem.
+     *
+     * @param File $asset
+     */
+    public function attachAsset(File $asset)
+    {
+        $this->assets[] = $asset;
+    }
+
+    /**
+     * @return array<int, File>
+     */
+    public function &getAssets()
+    {
+        return $this->assets;
+    }
 
     public function setMarkupEngine(MarkupEngineManager $manager)
     {
@@ -65,7 +87,7 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
 
             if ($this->markupEngine)
             {
-                $this->bodyContent = $this->markupEngine->parse($this->bodyContent);
+                $this->bodyContent = $this->markupEngine->parse($this->bodyContent, $this);
             }
 
             $this->bodyContentEvaluated = true;

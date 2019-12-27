@@ -10,6 +10,7 @@ namespace allejo\stakx\Document;
 use allejo\stakx\DataTransformer\DataTransformerInterface;
 use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\FrontMatter\FrontMatterParser;
 
 class DataItem extends ReadableDocument implements CollectableItem, TemplateReadyDocument, PermalinkDocument
@@ -124,6 +125,24 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
         ];
 
         return new JailedDocument($this, $whiteListedFunctions, $jailedFunctions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function attachAsset(File $asset)
+    {
+        throw new \InvalidArgumentException('DataItems do not support attaching assets.');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function &getAssets()
+    {
+        $assets = [];
+
+        return $assets;
     }
 
     ///
