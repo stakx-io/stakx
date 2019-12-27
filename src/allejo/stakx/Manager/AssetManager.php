@@ -51,9 +51,28 @@ class AssetManager extends TrackingManager
         $this->logger = $logger;
     }
 
-    public function addAsset($permalink, File $file)
+    /**
+     * @param string $permalink
+     * @param File   $file
+     */
+    public function addManualAsset($permalink, File $file)
     {
         $this->manualAssets[$permalink] = $file;
+    }
+
+    /**
+     * @param string $permalink
+     *
+     * @return File|null
+     */
+    public function getManualAsset($permalink)
+    {
+        if (isset($this->manualAssets[$permalink]))
+        {
+            return $this->manualAssets[$permalink];
+        }
+
+        return null;
     }
 
     public function configureFinder($includes = [], $excludes = [])

@@ -73,6 +73,6 @@ trait AssetHandlerTrait
         $asset = $this->getFileFromPath($path);
         $permalink = $this->getPermalinkFromFile($asset);
 
-        $this->assetManager->addAsset($permalink, $asset);
+        $this->assetManager->addManualAsset($permalink, $asset);
     }
 }
