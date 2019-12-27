@@ -23,6 +23,7 @@ use allejo\stakx\Event\CompilerPreRenderStaticPageView;
 use allejo\stakx\Event\CompilerTemplateCreation;
 use allejo\stakx\Event\RedirectPreOutput;
 use allejo\stakx\Exception\FileAwareException;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\CollectionManager;
@@ -290,6 +291,7 @@ class Compiler
         $contentItems = $pageView->getCollectableItems();
         $template = $this->createTwigTemplate($pageView);
 
+        /** @var CollectableItem $contentItem */
         foreach ($contentItems as &$contentItem)
         {
             if ($contentItem->isDraft() && !Service::hasRunTimeFlag(RuntimeStatus::USING_DRAFTS))
@@ -301,11 +303,30 @@ class Compiler
                 continue;
             }
 
+            $targetFile = $contentItem->getTargetFile();
+            $assets = &$contentItem->getAssets();
+
             $this->writeToFilesystem(
-                $contentItem->getTargetFile(),
+                $targetFile,
                 $this->buildDynamicPageViewHTML($template, $contentItem),
                 BasePageView::DYNAMIC_TYPE
             );
+
+            // Copy over any assets used inside a CollectableItem
+            if (count($assets) > 0)
+            {
+                $parentFolder = fs::path($targetFile)->getParentDirectory();
+
+                foreach ($assets as $asset)
+                {
+                    $targetAsset = fs::getRelativePath($parentFolder->generatePath($asset->getFilename()));
+
+                    $this->logger->info('Copying asset: {asset}', [
+                        'asset' => $targetAsset,
+                    ]);
+                    $this->folder->copyFile($asset->getAbsolutePath(), $targetAsset);
+                }
+            }
 
             $this->compileStandardRedirects($contentItem);
         }
