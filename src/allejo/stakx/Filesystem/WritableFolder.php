@@ -106,7 +106,7 @@ final class WritableFolder
     {
         $targetPath = $this->folder->generatePath($targetPath);
 
-        fs::copy($absolutePath, $targetPath, true);
+        fs::copy($absolutePath, (string)$targetPath, true);
     }
 
     /**
@@ -122,7 +122,7 @@ final class WritableFolder
     public function writeFile($relativePath, $content)
     {
         $targetFile = $this->folder->generatePath($relativePath);
-        $targetFolderPath = fs::getFolderPath($targetFile);
+        $targetFolderPath = $targetFile->getParentDirectory();
 
         if (!file_exists($targetFolderPath))
         {
