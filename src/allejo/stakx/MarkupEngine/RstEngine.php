@@ -25,9 +25,9 @@ class RstEngine extends Parser implements MarkupEngineInterface
         $this->setIncludePolicy(true, Service::getWorkingDirectory());
     }
 
-    public function parse($content, $parentItem = null)
+    public function parse($content, $contentItem = null)
     {
-        $this->parentItem = $parentItem;
+        $this->parentItem = $contentItem;
 
         return parent::parse($content);
     }

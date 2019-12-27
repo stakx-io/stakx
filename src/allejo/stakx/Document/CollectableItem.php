@@ -7,27 +7,11 @@
 
 namespace allejo\stakx\Document;
 
-use allejo\stakx\Filesystem\File;
-
 /**
  * An interface for objects that can be stored in a group, e.g. a Collection or a Dataset.
  */
 interface CollectableItem
 {
-    /**
-     * Attach an asset to this ContentItem.
-     *
-     * @param File $asset
-     */
-    public function attachAsset(File $asset);
-
-    /**
-     * Get the assets attached to this CollectableItem.
-     *
-     * @return array<int, File>
-     */
-    public function &getAssets();
-
     public function getRelativeFilePath();
 
     /**

@@ -127,24 +127,6 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
         return new JailedDocument($this, $whiteListedFunctions, $jailedFunctions);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function attachAsset(File $asset)
-    {
-        throw new \InvalidArgumentException('DataItems do not support attaching assets.');
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function &getAssets()
-    {
-        $assets = [];
-
-        return $assets;
-    }
-
     ///
     // JsonSerializable implementation
     ///

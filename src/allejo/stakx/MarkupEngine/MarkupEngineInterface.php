@@ -50,11 +50,11 @@ interface MarkupEngineInterface
      * Parse a given string using this engine.
      *
      * @param string           $content
-     * @param ContentItem|null $parentItem
-     *
-     * @since 0.2.0
+     * @param ContentItem|null $contentItem
      *
      * @return string
+     *@since 0.2.0
+     *
      */
-    public function parse($content, $parentItem = null);
+    public function parse($content, $contentItem = null);
 }

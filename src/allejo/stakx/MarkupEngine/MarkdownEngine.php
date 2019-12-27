@@ -8,30 +8,27 @@
 namespace allejo\stakx\MarkupEngine;
 
 use __;
-use allejo\stakx\Document\ContentItem;
-use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
 
 class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 {
+    use AssetHandlerTrait;
     use SyntaxHighlighterTrait;
 
-    /** @var ContentItem|null */
-    private $parentItem;
-
-    public function __construct()
+    public function __construct(AssetManager $assetManager)
     {
         parent::__construct();
 
         $this->highlighter = new Highlighter();
+        $this->assetManager = $assetManager;
     }
 
-    public function parse($text, $parentItem = null)
+    public function parse($text, $contentItem = null)
     {
-        $this->parentItem = $parentItem;
+        $this->contentItem = $contentItem;
 
         return parent::parse($text);
     }
@@ -90,15 +87,7 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         {
             $imageSrc = trim($imageBlock['element']['attributes']['src']);
 
-            if (!filter_var($imageSrc, FILTER_VALIDATE_URL))
-            {
-                $assetPath = fs::path($this->parentItem->getAbsoluteFilePath())
-                    ->getParentDirectory()
-                    ->generatePath($imageSrc);
-                $asset = new File($assetPath);
-
-                $this->parentItem->attachAsset($asset);
-            }
+            $this->registerAsset($imageSrc);
         }
 
         return $imageBlock;

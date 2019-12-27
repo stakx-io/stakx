@@ -304,29 +304,12 @@ class Compiler
             }
 
             $targetFile = $contentItem->getTargetFile();
-            $assets = &$contentItem->getAssets();
 
             $this->writeToFilesystem(
                 $targetFile,
                 $this->buildDynamicPageViewHTML($template, $contentItem),
                 BasePageView::DYNAMIC_TYPE
             );
-
-            // Copy over any assets used inside a CollectableItem
-            if (count($assets) > 0)
-            {
-                $parentFolder = fs::path($targetFile)->getParentDirectory();
-
-                foreach ($assets as $asset)
-                {
-                    $targetAsset = fs::getRelativePath($parentFolder->generatePath($asset->getFilename()));
-
-                    $this->logger->info('Copying asset: {asset}', [
-                        'asset' => $targetAsset,
-                    ]);
-                    $this->folder->copyFile($asset->getAbsolutePath(), $targetAsset);
-                }
-            }
 
             $this->compileStandardRedirects($contentItem);
         }

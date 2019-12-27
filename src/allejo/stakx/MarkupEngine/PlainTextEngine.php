@@ -30,7 +30,7 @@ class PlainTextEngine implements MarkupEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function parse($content, $parentItem = null)
+    public function parse($content, $contentItem = null)
     {
         return $content;
     }

@@ -14,7 +14,6 @@ use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FileExplorerDefinition;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 
