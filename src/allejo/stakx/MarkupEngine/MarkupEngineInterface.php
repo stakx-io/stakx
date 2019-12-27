@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\MarkupEngine;
 
+use allejo\stakx\Document\ContentItem;
+
 /**
  * This interface defines the markup engines stakx will know how to parse as ContentItems and as regular text within
  * Twig by registering custom tags and filters.
@@ -47,11 +49,12 @@ interface MarkupEngineInterface
     /**
      * Parse a given string using this engine.
      *
-     * @param string $content
+     * @param string           $content
+     * @param ContentItem|null $parentItem
      *
      * @since 0.2.0
      *
      * @return string
      */
-    public function parse($content);
+    public function parse($content, $parentItem = null);
 }

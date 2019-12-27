@@ -8,6 +8,9 @@
 namespace allejo\stakx\MarkupEngine;
 
 use __;
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Filesystem\File;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
@@ -16,11 +19,21 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 {
     use SyntaxHighlighterTrait;
 
+    /** @var ContentItem|null */
+    private $parentItem;
+
     public function __construct()
     {
         parent::__construct();
 
         $this->highlighter = new Highlighter();
+    }
+
+    public function parse($text, $parentItem = null)
+    {
+        $this->parentItem = $parentItem;
+
+        return parent::parse($text);
     }
 
     protected function blockHeader($Line)
@@ -55,11 +68,6 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         return $Block;
     }
 
-    private function slugifyHeader($Block)
-    {
-        return __::slug($Block['element']['text']);
-    }
-
     protected function blockFencedCodeComplete($block)
     {
         // The class has a `language-` prefix, remove this to get the language
@@ -72,6 +80,33 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         }
 
         return parent::blockFencedCodeComplete($block);
+    }
+
+    protected function inlineImage($Excerpt)
+    {
+        $imageBlock = parent::inlineImage($Excerpt);
+
+        if ($imageBlock !== null)
+        {
+            $imageSrc = trim($imageBlock['element']['attributes']['src']);
+
+            if (!filter_var($imageSrc, FILTER_VALIDATE_URL))
+            {
+                $assetPath = fs::path($this->parentItem->getAbsoluteFilePath())
+                    ->getParentDirectory()
+                    ->generatePath($imageSrc);
+                $asset = new File($assetPath);
+
+                $this->parentItem->attachAsset($asset);
+            }
+        }
+
+        return $imageBlock;
+    }
+
+    private function slugifyHeader($Block)
+    {
+        return __::slug($Block['element']['text']);
     }
 
     ///
