@@ -15,6 +15,7 @@ use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Logger;
+use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
@@ -259,6 +260,14 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return AssetManager
+     */
+    protected function getMockAssetManager()
+    {
+        return new AssetManager($this->getMockEventDistpatcher(), $this->getMockLogger());
+    }
+
+    /**
      * @return Configuration|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getMockConfiguration()
@@ -366,8 +375,8 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $markupEngine = new MarkupEngineManager();
 
         $markupEngine->addMarkupEngines([
-            new MarkdownEngine(),
-            new RstEngine(),
+            new MarkdownEngine($this->getMockAssetManager()),
+            new RstEngine($this->getMockAssetManager()),
             new PlainTextEngine(),
         ]);
 
