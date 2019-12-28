@@ -1,3 +1,17 @@
+pre .hljs {
+    padding: 0.75em 0;
+}
+
+.loc {
+    display: inline-block;
+    padding: 0 0.75em;
+    width: 100%;
+}
+
+.loc.highlighted {
+    background: #4c5600;
+}
+
 .written-content {
     img {
         display: block;
