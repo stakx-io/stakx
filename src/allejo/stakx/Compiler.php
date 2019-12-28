@@ -23,7 +23,6 @@ use allejo\stakx\Event\CompilerPreRenderStaticPageView;
 use allejo\stakx\Event\CompilerTemplateCreation;
 use allejo\stakx\Event\RedirectPreOutput;
 use allejo\stakx\Exception\FileAwareException;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\CollectionManager;
@@ -291,7 +290,6 @@ class Compiler
         $contentItems = $pageView->getCollectableItems();
         $template = $this->createTwigTemplate($pageView);
 
-        /** @var CollectableItem $contentItem */
         foreach ($contentItems as &$contentItem)
         {
             if ($contentItem->isDraft() && !Service::hasRunTimeFlag(RuntimeStatus::USING_DRAFTS))
@@ -303,10 +301,8 @@ class Compiler
                 continue;
             }
 
-            $targetFile = $contentItem->getTargetFile();
-
             $this->writeToFilesystem(
-                $targetFile,
+                $contentItem->getTargetFile(),
                 $this->buildDynamicPageViewHTML($template, $contentItem),
                 BasePageView::DYNAMIC_TYPE
             );
