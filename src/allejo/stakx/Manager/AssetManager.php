@@ -40,7 +40,7 @@ class AssetManager extends TrackingManager
     protected $includes;
 
     /** @var array<string, File> */
-    protected $manualAssets;
+    protected $explicitAssets;
 
     protected $eventDispatcher;
     protected $logger;
@@ -55,9 +55,9 @@ class AssetManager extends TrackingManager
      * @param string $permalink
      * @param File   $file
      */
-    public function addManualAsset($permalink, File $file)
+    public function addExplicitAsset($permalink, File $file)
     {
-        $this->manualAssets[$permalink] = $file;
+        $this->explicitAssets[$permalink] = $file;
     }
 
     /**
@@ -65,11 +65,11 @@ class AssetManager extends TrackingManager
      *
      * @return File|null
      */
-    public function getManualAsset($permalink)
+    public function getExplicitAsset($permalink)
     {
-        if (isset($this->manualAssets[$permalink]))
+        if (isset($this->explicitAssets[$permalink]))
         {
-            return $this->manualAssets[$permalink];
+            return $this->explicitAssets[$permalink];
         }
 
         return null;
@@ -98,7 +98,7 @@ class AssetManager extends TrackingManager
     {
         $this->logger->notice('Copying manual assets...');
 
-        foreach ($this->manualAssets as $targetPath => $manualAsset)
+        foreach ($this->explicitAssets as $targetPath => $manualAsset)
         {
             $this->handleTrackableItem($manualAsset, [
                 'prefix' => '',

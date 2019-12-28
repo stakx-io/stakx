@@ -89,7 +89,7 @@ class WebServer
             catch (ResourceNotFoundException $e)
             {
                 // If we have a "manual" asset, let's serve from it
-                if (($file = $assetManager->getManualAsset(self::normalizePath($urlPath))) !== null)
+                if (($file = $assetManager->getExplicitAsset(self::normalizePath($urlPath))) !== null)
                 {
                     return self::makeResponse($file);
                 }
