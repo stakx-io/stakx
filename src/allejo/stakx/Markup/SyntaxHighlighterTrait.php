@@ -5,7 +5,7 @@
  * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\MarkupEngine;
+namespace allejo\stakx\Markup;
 
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
@@ -13,6 +13,9 @@ use Highlight\Highlighter;
 use function HighlightUtilities\splitCodeIntoArray;
 
 /**
+ * This trait provides functionality for parsing the language names in a consistent manner and providing identical
+ * highlighted HTML across markup engines.
+ *
  * @since 0.2.1
  */
 trait SyntaxHighlighterTrait

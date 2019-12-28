@@ -9,6 +9,8 @@ namespace allejo\stakx\MarkupEngine;
 
 use __;
 use allejo\stakx\Manager\AssetManager;
+use allejo\stakx\Markup\AssetHandlerTrait;
+use allejo\stakx\Markup\SyntaxHighlighterTrait;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;

@@ -4,7 +4,7 @@ namespace allejo\stakx\Markup;
 
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Manager\AssetManager;
-use allejo\stakx\MarkupEngine\AssetHandlerTrait;
+use allejo\stakx\Markup\AssetHandlerTrait;
 use Gregwar\RST\HTML\Directives\Image;
 use Gregwar\RST\HTML\Nodes\ImageNode;
 use Gregwar\RST\Parser;

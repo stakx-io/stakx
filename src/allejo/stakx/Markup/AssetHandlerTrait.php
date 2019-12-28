@@ -1,6 +1,6 @@
 <?php
 
-namespace allejo\stakx\MarkupEngine;
+namespace allejo\stakx\Markup;
 
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Filesystem\File;
@@ -8,6 +8,8 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\AssetManager;
 
 /**
+ * This trait provides the functionality for registering linked files with our AssetManager.
+ *
  * @since 0.2.1
  */
 trait AssetHandlerTrait
@@ -35,6 +37,10 @@ trait AssetHandlerTrait
     }
 
     /**
+     * Get the permalink this file would belong at.
+     *
+     * This is taken from the ContentItem's target path and puts the asset at the same location as a sibling.
+     *
      * @param File $file
      *
      * @return string
@@ -59,6 +65,10 @@ trait AssetHandlerTrait
     }
 
     /**
+     * Given a URL to a local path, register this function with the AssetManager so it can be available at compile time.
+     *
+     * @since 0.2.1
+     *
      * @param string $path
      *
      * @return void
