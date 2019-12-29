@@ -15,6 +15,7 @@ use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
+use allejo\stakx\Event\CollectionItemFinalized;
 use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\Event\PageManagerPreProcess;
 use allejo\stakx\Event\PageViewAdded;
@@ -23,6 +24,7 @@ use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FileExplorerDefinition;
+use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -44,6 +46,8 @@ class PageManager extends TrackingManager
     private $dataManager;
     private $eventDispatcher;
     private $logger;
+    /** @var AssetManager */
+    private $assetManager;
 
     /**
      * PageManager constructor.
@@ -52,6 +56,7 @@ class PageManager extends TrackingManager
         Configuration $configuration,
         CollectionManager $collectionManager,
         DataManager $dataManager,
+        AssetManager $assetManager,
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface $logger
     ) {
@@ -67,6 +72,7 @@ class PageManager extends TrackingManager
         $this->dataManager = $dataManager;
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
+        $this->assetManager = $assetManager;
     }
 
     /**
@@ -313,6 +319,11 @@ class PageManager extends TrackingManager
             $item->saveParentPageView($pageView);
             $item->buildPermalink(true);
 
+            if ($item instanceof ContentItem)
+            {
+                $this->registerExplicitAssets($item);
+            }
+
             $event = new CollectionItemFinalized($item);
             $this->eventDispatcher->dispatch(CollectionItemFinalized::NAME, $event);
 
@@ -340,5 +351,42 @@ class PageManager extends TrackingManager
         }
 
         $this->repeaterPages[$pageView['title']] = &$pageView;
+    }
+
+    private function registerExplicitAssets(ContentItem $contentItem)
+    {
+        $assets = $contentItem['assets'];
+
+        if (!is_array($assets) && $assets !== null)
+        {
+            $this->logger->warning('The "assets" directive in FrontMatter must be null or an array of strings.');
+            return;
+        }
+
+        if ($assets === null || count($assets) === 0)
+        {
+            return;
+        }
+
+        $sourceFolder = fs::path($contentItem->getAbsoluteFilePath())->getParentDirectory();
+        $permalinkFolder = fs::path($contentItem->getTargetFile())->getParentDirectory();
+
+        foreach ($assets as $i => $asset)
+        {
+            if (!is_string($asset))
+            {
+                $this->logger->warning('{path}: Item #{index} of the "assets" array is not a string', [
+                    'path' => $contentItem->getRelativeFilePath(),
+                    'index' => $i,
+                ]);
+
+                continue;
+            }
+
+            $assetFile = new File($sourceFolder->generatePath($asset));
+            $assetPermalink = fs::getRelativePath($permalinkFolder->generatePath($asset));
+
+            $this->assetManager->addExplicitAsset($assetPermalink, $assetFile);
+        }
     }
 }
