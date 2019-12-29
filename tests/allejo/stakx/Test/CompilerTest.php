@@ -20,229 +20,315 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         return [
             // Static page with single explicit URL with custom extension
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'permalink' => 'toast.json',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'permalink' => 'toast.json',
+                        ],
+                        'contents' => '{}',
+                    ],
                 ],
-                'fileContents' => '{}',
                 'expectedFiles' => [
-                    '/toast.json',
-                ],
-                'expectedBody' => [
-                    '{}',
+                    [
+                        'path' => '/toast.json',
+                        'body' => '{}',
+                    ],
                 ],
             ],
 
             // Static page with single explicit URL with extension
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'permalink' => 'toast.html',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'permalink' => 'toast.html',
+                        ],
+                        'contents' => 'Page body',
+                    ],
                 ],
-                'fileContents' => 'Page body',
-                'expectedFiles' => [
-                    '/toast.html',
-                ],
-                'expectedBody' => [
-                    'Page body',
+                'expectedFiles'=> [
+                    [
+                        'path' => '/toast.html',
+                        'body' => 'Page body',
+                    ]
                 ],
             ],
 
             // Static page with single explicit URL without a trailing slash means a file without an extension
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'permalink' => '/tester',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'permalink' => '/tester',
+                        ],
+                        'contents' => 'Page body',
+                    ]
                 ],
-                'fileContents' => 'Page body',
-                'expectedFiles' => [
-                    '/tester',
-                ],
-                'expectedBody' => [
-                    'Page body',
+                'expectedFiles'=> [
+                    [
+                        'path' => '/tester',
+                        'body' => 'Page body',
+                    ]
                 ],
             ],
 
             // Static page with single explicit URL with trailing slash means folder with index.html
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'permalink' => '/tester/',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'permalink' => '/tester/',
+                        ],
+                        'contents' => 'Page body',
+                    ],
                 ],
-                'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/tester/index.html',
-                ],
-                'expectedBody' => [
-                    'Page body',
+                    [
+                        'path' => '/tester/index.html',
+                        'body' => 'Page body',
+                    ]
                 ],
             ],
 
             // Static page with single permalink down multiple directories with an extension
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'permalink' => '/parent/child/toast.html',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'permalink' => '/parent/child/toast.html',
+                        ],
+                        'contents' => 'Page body',
+                    ]
                 ],
-                'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/parent/child/toast.html',
-                ],
-                'expectedBody' => [
-                    'Page body',
+                    [
+                        'path' => '/parent/child/toast.html',
+                        'body' => 'Page body',
+                    ],
                 ],
             ],
 
             // Static page with single permalink down multiple directories with a trailing slash
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'permalink' => '/parent/child/toast/',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'permalink' => '/parent/child/toast/',
+                        ],
+                        'contents' => 'Page body',
+                    ],
                 ],
-                'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/parent/child/toast/index.html',
-                ],
-                'expectedBody' => [
-                    'Page body',
+                    [
+                        'path' => '/parent/child/toast/index.html',
+                        'body' => 'Page body',
+                    ]
                 ],
             ],
 
             // Static page with redirects
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'permalink' => [
-                        'toast.html',
-                        '/toast/',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'permalink' => [
+                                'toast.html',
+                                '/toast/',
+                            ],
+                        ],
+                        'contents' => 'Page body',
                     ],
                 ],
-                'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/toast.html',
-                    '/toast/index.html',
-                ],
-                'expectedBody' => [
-                    'Page body',
-                    "0;URL='/toast.html'",
+                    [
+                        'path' => '/toast.html',
+                        'body' => 'Page body',
+                    ],
+                    [
+                        'path' => '/toast/index.html',
+                        'body' => "0;URL='/toast.html'",
+                    ],
                 ],
             ],
 
             // Static page with periods in the permalink
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'permalink' => '/release-0.1.0-name/',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'permalink' => '/release-0.1.0-name/',
+                        ],
+                        'contents' => 'Page body',
+                    ],
                 ],
-                'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/release-0.1.0-name/index.html',
-                ],
-                'expectedBody' => [
-                    'Page body',
+                    [
+                        'path' => '/release-0.1.0-name/index.html',
+                        'body' => 'Page body',
+                    ]
                 ],
             ],
 
             // Static page with strange symbols needing to be sanitized in the permalink
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'permalink' => '/permal:;nk-~!a@^$-w3*rd-c(#4r$/',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'permalink' => '/permal:;nk-~!a@^$-w3*rd-c(#4r$/',
+                        ],
+                        'contents' => 'Page body',
+                    ],
                 ],
-                'fileContents' => 'Page body',
                 'expectedFiles' => [
-                    '/permalnk-a-w3rd-c4r/index.html',
-                ],
-                'expectedBody' => [
-                    'Page body',
+                    [
+                        'path' => '/permalnk-a-w3rd-c4r/index.html',
+                        'body' => 'Page body',
+                    ]
                 ],
             ],
 
             // Repeater page with single expansion
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'value' => ['one', 'two', 'three', 'four'],
-                    'permalink' => '/expandable/%value/',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'value' => ['one', 'two', 'three', 'four'],
+                            'permalink' => '/expandable/%value/',
+                        ],
+                        'contents' => 'item: {{ this.iterators.value }}',
+                    ],
                 ],
-                'fileContents' => 'item: {{ this.iterators.value }}',
                 'expectedFiles' => [
-                    '/expandable/one/index.html',
-                    '/expandable/two/index.html',
-                    '/expandable/three/index.html',
-                    '/expandable/four/index.html',
-                ],
-                'expectedBody' => [
-                    'item: one',
-                    'item: two',
-                    'item: three',
-                    'item: four',
+                    [
+                        'path' => '/expandable/one/index.html',
+                        'body' => 'item: one',
+                    ],
+                    [
+                        'path' => '/expandable/two/index.html',
+                        'body' => 'item: two',
+                    ],
+                    [
+                        'path' => '/expandable/three/index.html',
+                        'body' => 'item: three',
+                    ],
+                    [
+                        'path' => '/expandable/four/index.html',
+                        'body' => 'item: four',
+                    ],
                 ],
             ],
 
             // Repeater page with multiple expansions
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'category' => ['rants', 'misc', 'toast'],
-                    'year' => [2015, 2016, 2017],
-                    'permalink' => '/multi-expansion/%year-%category/',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'category' => ['rants', 'misc', 'toast'],
+                            'year' => [2015, 2016, 2017],
+                            'permalink' => '/multi-expansion/%year-%category/',
+                        ],
+                        'contents' => 'cat: {{ this.iterators.category }}; year: {{ this.iterators.year }}',
+                    ],
                 ],
-                'fileContents' => 'cat: {{ this.iterators.category }}; year: {{ this.iterators.year }}',
                 'expectedFiles' => [
-                    '/multi-expansion/2015-rants/index.html',
-                    '/multi-expansion/2015-misc/index.html',
-                    '/multi-expansion/2015-toast/index.html',
-                    '/multi-expansion/2016-rants/index.html',
-                    '/multi-expansion/2016-misc/index.html',
-                    '/multi-expansion/2016-toast/index.html',
-                    '/multi-expansion/2017-rants/index.html',
-                    '/multi-expansion/2017-misc/index.html',
-                    '/multi-expansion/2017-toast/index.html',
-                ],
-                'expectedBody' => [
-                    'cat: rants; year: 2015',
-                    'cat: misc; year: 2015',
-                    'cat: toast; year: 2015',
-                    'cat: rants; year: 2016',
-                    'cat: misc; year: 2016',
-                    'cat: toast; year: 2016',
-                    'cat: rants; year: 2017',
-                    'cat: misc; year: 2017',
-                    'cat: toast; year: 2017',
+                    [
+                        'path' => '/multi-expansion/2015-rants/index.html',
+                        'body' => 'cat: rants; year: 2015',
+                    ],
+                    [
+                        'path' => '/multi-expansion/2015-misc/index.html',
+                        'body' => 'cat: misc; year: 2015',
+                    ],
+                    [
+                        'path' => '/multi-expansion/2015-toast/index.html',
+                        'body' => 'cat: toast; year: 2015',
+                    ],
+                    [
+                        'path' => '/multi-expansion/2016-rants/index.html',
+                        'body' => 'cat: rants; year: 2016',
+                    ],
+                    [
+                        'path' => '/multi-expansion/2016-misc/index.html',
+                        'body' => 'cat: misc; year: 2016',
+                    ],
+                    [
+                        'path' => '/multi-expansion/2016-toast/index.html',
+                        'body' => 'cat: toast; year: 2016',
+                    ],
+                    [
+                        'path' => '/multi-expansion/2017-rants/index.html',
+                        'body' => 'cat: rants; year: 2017',
+                    ],
+                    [
+                        'path' => '/multi-expansion/2017-misc/index.html',
+                        'body' => 'cat: misc; year: 2017',
+                    ],
+                    [
+                        'path' => '/multi-expansion/2017-toast/index.html',
+                        'body' => 'cat: toast; year: 2017',
+                    ],
                 ],
             ],
 
             // Repeater page with single expansion and redirects
             [
-                'filename' => 'static.html.twig',
-                'frontmatter' => [
-                    'month' => ['jan', 'feb', 'mar', 'apr'],
-                    'permalink' => [
-                        '/calendar/%month/',
-                        '/cal/%month/',
+                'sourcePages' => [
+                    [
+                        'filename' => 'static.html.twig',
+                        'frontmatter' => [
+                            'month' => ['jan', 'feb', 'mar', 'apr'],
+                            'permalink' => [
+                                '/calendar/%month/',
+                                '/cal/%month/',
+                            ],
+                        ],
+                        'contents' => 'month: {{ this.iterators.month }}',
                     ],
                 ],
-                'fileContents' => 'month: {{ this.iterators.month }}',
                 'expectedFiles' => [
-                    '/calendar/jan/index.html',
-                    '/cal/jan/index.html',
-                    '/calendar/feb/index.html',
-                    '/cal/feb/index.html',
-                    '/calendar/mar/index.html',
-                    '/cal/mar/index.html',
-                    '/calendar/apr/index.html',
-                    '/cal/apr/index.html',
-                ],
-                'expectedBody' => [
-                    'month: jan',
-                    "0;URL='/calendar/jan/'",
-                    'month: feb',
-                    "0;URL='/calendar/feb/'",
-                    'month: mar',
-                    "0;URL='/calendar/mar/'",
-                    'month: apr',
-                    "0;URL='/calendar/apr/'",
+                    [
+                        'path' => '/calendar/jan/index.html',
+                        'body' => 'month: jan',
+                    ],
+                    [
+                        'path' => '/cal/jan/index.html',
+                        'body' => "0;URL='/calendar/jan/'",
+                    ],
+                    [
+                        'path' => '/calendar/feb/index.html',
+                        'body' => 'month: feb',
+                    ],
+                    [
+                        'path' => '/cal/feb/index.html',
+                        'body' => "0;URL='/calendar/feb/'",
+                    ],
+                    [
+                        'path' => '/calendar/mar/index.html',
+                        'body' => 'month: mar',
+                    ],
+                    [
+                        'path' => '/cal/mar/index.html',
+                        'body' => "0;URL='/calendar/mar/'",
+                    ],
+                    [
+                        'path' => '/calendar/apr/index.html',
+                        'body' => 'month: apr',
+                    ],
+                    [
+                        'path' => '/cal/apr/index.html',
+                        'body' => "0;URL='/calendar/apr/'",
+                    ],
                 ],
             ],
         ];
@@ -251,20 +337,22 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
     /**
      * @dataProvider dataProvider_StaticAndRepeaterPageViews
      *
-     * @param mixed $filename
-     * @param mixed $frontmatter
-     * @param mixed $fileContents
-     * @param mixed $expectedFiles
-     * @param mixed $expectedBody
+     * @param array $sourcePages
+     * @param array $expectedFiles
      */
-    public function testCompileStaticAndRepeaterPageViews($filename, $frontmatter, $fileContents, $expectedFiles, $expectedBody)
+    public function testCompileStaticAndRepeaterPageViews(array $sourcePages, array $expectedFiles)
     {
-        vfsStream::create([
-            '_pages' => [
-                $filename => $this->buildFrontMatterTemplate($frontmatter, $fileContents),
-            ],
+        $filesystem = [
+            '_pages' => [],
             '_site' => [],
-        ]);
+        ];
+
+        foreach ($sourcePages as $sourceFile)
+        {
+            $filesystem['_pages'][$sourceFile['filename']] = $this->buildFrontMatterTemplate($sourceFile['frontmatter'], $sourceFile['contents']);
+        }
+
+        vfsStream::create($filesystem);
 
         $pageManager = new PageManager(
             $this->getMockConfiguration(),
@@ -300,12 +388,12 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
         $compiler->setTargetFolder($folder);
         $compiler->compileAll();
 
-        foreach ($expectedFiles as $key => $expectedFile)
+        foreach ($expectedFiles as $expectedFile)
         {
-            $uri = vfsStream::url('root/_site' . $expectedFile);
+            $uri = vfsStream::url('root/_site' . $expectedFile['path']);
 
             $this->assertFileExists($uri);
-            $this->assertFileContains($expectedBody[$key], $uri);
+            $this->assertFileContains($expectedFile['body'], $uri);
         }
     }
 }
