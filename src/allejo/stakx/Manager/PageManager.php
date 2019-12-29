@@ -313,6 +313,9 @@ class PageManager extends TrackingManager
             $item->saveParentPageView($pageView);
             $item->buildPermalink(true);
 
+            $event = new CollectionItemFinalized($item);
+            $this->eventDispatcher->dispatch(CollectionItemFinalized::NAME, $event);
+
             $pageView->addCollectableItem($item);
         }
     }
