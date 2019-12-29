@@ -77,11 +77,13 @@ final class FilesystemPath
      *
      * @param string $append
      *
-     * @return string
+     * @return FilesystemPath
      */
     public function generatePath($append)
     {
-        return $this->buildPath($this->absolutePath, $this->unixifyPath($append));
+        return new FilesystemPath(
+            $this->buildPath($this->absolutePath, $this->unixifyPath($append))
+        );
     }
 
     /**
@@ -97,6 +99,16 @@ final class FilesystemPath
         }
 
         return $this->absolutePath;
+    }
+
+    /**
+     * Get the parent folder's path as a FilesystemPath object.
+     *
+     * @return FilesystemPath
+     */
+    public function getParentDirectory()
+    {
+        return new FilesystemPath(fs::getFolderPath($this->absolutePath));
     }
 
     /**

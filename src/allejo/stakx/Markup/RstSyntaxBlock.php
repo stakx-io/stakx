@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Markup;
 
-use allejo\stakx\MarkupEngine\SyntaxHighlighterTrait;
+use allejo\stakx\Markup\SyntaxHighlighterTrait;
 use Gregwar\RST\Directives\CodeBlock;
 use Gregwar\RST\HTML\Nodes\CodeNode;
 use Gregwar\RST\Parser;

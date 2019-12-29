@@ -14,7 +14,7 @@ use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FileExplorerDefinition;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 
@@ -94,6 +94,21 @@ abstract class TrackingManager extends BaseManager
     public function createNewItem($filePath)
     {
         return $this->handleTrackableItem($filePath);
+    }
+
+    /**
+     * @param FilesystemPath|string $filePath
+     *
+     * @return mixed|null
+     */
+    public function getTracked($filePath)
+    {
+        if ($this->isTracked($filePath))
+        {
+            return $this->trackedItemsFlattened[(string)$filePath];
+        }
+
+        return null;
     }
 
     /**

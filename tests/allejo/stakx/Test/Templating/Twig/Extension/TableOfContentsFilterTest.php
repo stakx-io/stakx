@@ -162,7 +162,7 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
      */
     public function testTableOfContentsFilter($markdown, $expectedHTML, $id, $class, $hMin, $hMax)
     {
-        $md = new MarkdownEngine();
+        $md = new MarkdownEngine($this->getMockAssetManager());
         $html = $md->parse($markdown);
 
         $filter = new TableOfContentsFilter();

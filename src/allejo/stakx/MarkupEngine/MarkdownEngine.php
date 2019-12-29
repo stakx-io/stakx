@@ -8,19 +8,31 @@
 namespace allejo\stakx\MarkupEngine;
 
 use __;
+use allejo\stakx\Manager\AssetManager;
+use allejo\stakx\Markup\AssetHandlerTrait;
+use allejo\stakx\Markup\SyntaxHighlighterTrait;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
 
 class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 {
+    use AssetHandlerTrait;
     use SyntaxHighlighterTrait;
 
-    public function __construct()
+    public function __construct(AssetManager $assetManager)
     {
         parent::__construct();
 
         $this->highlighter = new Highlighter();
+        $this->assetManager = $assetManager;
+    }
+
+    public function parse($text, $contentItem = null)
+    {
+        $this->contentItem = $contentItem;
+
+        return parent::parse($text);
     }
 
     protected function blockHeader($Line)
@@ -55,11 +67,6 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         return $Block;
     }
 
-    private function slugifyHeader($Block)
-    {
-        return __::slug($Block['element']['text']);
-    }
-
     protected function blockFencedCodeComplete($block)
     {
         // The class has a `language-` prefix, remove this to get the language
@@ -72,6 +79,25 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         }
 
         return parent::blockFencedCodeComplete($block);
+    }
+
+    protected function inlineImage($Excerpt)
+    {
+        $imageBlock = parent::inlineImage($Excerpt);
+
+        if ($imageBlock !== null)
+        {
+            $imageSrc = trim($imageBlock['element']['attributes']['src']);
+
+            $this->registerAsset($imageSrc);
+        }
+
+        return $imageBlock;
+    }
+
+    private function slugifyHeader($Block)
+    {
+        return __::slug($Block['element']['text']);
     }
 
     ///

@@ -366,9 +366,9 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $markdownContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample Markdown.md');
 
         $contentItem = $this->createContentItem([], $markdownContent);
-        $pd = new MarkdownEngine();
+        $pd = new MarkdownEngine($this->getMockAssetManager());
 
-        $this->assertEquals($pd->parse($markdownContent), $contentItem->getContent());
+        $this->assertEquals($pd->parse($markdownContent, $contentItem), $contentItem->getContent());
     }
 
     public function testContentItemJailWithMdExtensionFile()
@@ -389,9 +389,9 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $rstContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample reStructuredText.rst');
 
         $contentItem = $this->createContentItem([], $rstContent, 'document.rst');
-        $pd = new RstEngine();
+        $pd = new RstEngine($this->getMockAssetManager());
 
-        $this->assertEquals((string)$pd->parse($rstContent), $contentItem->getContent());
+        $this->assertEquals((string)$pd->parse($rstContent, $contentItem), $contentItem->getContent());
     }
 
     public function testContentItemJailWithRstExtensionFile()

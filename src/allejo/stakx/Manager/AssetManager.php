@@ -39,6 +39,9 @@ class AssetManager extends TrackingManager
      */
     protected $includes;
 
+    /** @var array<string, File> */
+    protected $explicitAssets;
+
     protected $eventDispatcher;
     protected $logger;
 
@@ -46,6 +49,30 @@ class AssetManager extends TrackingManager
     {
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
+    }
+
+    /**
+     * @param string $permalink
+     * @param File   $file
+     */
+    public function addExplicitAsset($permalink, File $file)
+    {
+        $this->explicitAssets[$permalink] = $file;
+    }
+
+    /**
+     * @param string $permalink
+     *
+     * @return File|null
+     */
+    public function getExplicitAsset($permalink)
+    {
+        if (isset($this->explicitAssets[$permalink]))
+        {
+            return $this->explicitAssets[$permalink];
+        }
+
+        return null;
     }
 
     public function configureFinder($includes = [], $excludes = [])
@@ -69,10 +96,19 @@ class AssetManager extends TrackingManager
      */
     public function copyFiles()
     {
+        $this->logger->notice('Copying manual assets...');
+
+        foreach ($this->explicitAssets as $targetPath => $manualAsset)
+        {
+            $this->handleTrackableItem($manualAsset, [
+                'prefix' => '',
+                'siteTargetPath' => $targetPath,
+            ]);
+        }
+
         $this->logger->notice('Copying asset files...');
 
         $folder = new Folder(Service::getWorkingDirectory());
-
         $def = new FileExplorerDefinition($folder);
         $def->includes = $this->includes;
         $def->excludes = array_merge(
@@ -125,7 +161,15 @@ class AssetManager extends TrackingManager
 
         $filePath = $file->getRealPath();
         $pathToStrip = fs::appendPath(Service::getWorkingDirectory(), $options['prefix']);
-        $siteTargetPath = ltrim(str_replace($pathToStrip, '', $filePath), DIRECTORY_SEPARATOR);
+
+        if (isset($options['siteTargetPath']))
+        {
+            $siteTargetPath = $options['siteTargetPath'];
+        }
+        else
+        {
+            $siteTargetPath = ltrim(str_replace($pathToStrip, '', $filePath), DIRECTORY_SEPARATOR);
+        }
 
         try
         {

@@ -19,7 +19,7 @@ class MarkdownEngineTest extends PHPUnit_Stakx_TestCase
     {
         parent::setUp();
 
-        $this->mdEngine = new MarkdownEngine();
+        $this->mdEngine = new MarkdownEngine($this->getMockAssetManager());
     }
 
     public function testHeaderIdAttr()

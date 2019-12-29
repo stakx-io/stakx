@@ -65,7 +65,7 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
 
             if ($this->markupEngine)
             {
-                $this->bodyContent = $this->markupEngine->parse($this->bodyContent);
+                $this->bodyContent = $this->markupEngine->parse($this->bodyContent, $this);
             }
 
             $this->bodyContentEvaluated = true;

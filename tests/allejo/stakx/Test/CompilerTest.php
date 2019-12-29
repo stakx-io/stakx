@@ -270,6 +270,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             $this->getMockConfiguration(),
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
+            $this->getMockAssetManager(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
