@@ -47,6 +47,7 @@ class AssetManager extends TrackingManager
 
     public function __construct(EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
+        $this->explicitAssets = [];
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
     }
