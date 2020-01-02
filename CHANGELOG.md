@@ -4,6 +4,16 @@
 
 - A new `highlighter.line_numbers` configuration file option has been added to render line numbers in markup code blocks ([#105](https://github.com/stakx-io/stakx/issues/105), [#112](https://github.com/stakx-io/stakx/pull/112))
 - Added ability to highlight specific lines in markup code blocks ([#105](https://github.com/stakx-io/stakx/issues/105), [#112](https://github.com/stakx-io/stakx/pull/112))
+- Add new global `redirects` Twig variable to keep track of all redirects used in a site ([#113](https://github.com/stakx-io/stakx/pull/113))
+- Collection items can now have assets tied to them either automatically by linking images or using the `assets` directive in FrontMatter ([#116](https://github.com/stakx-io/stakx/pull/116))
+
+**Fixes**
+
+- Added PHP 7.4 support where Parsedown threw deprecation warnings
+
+**Changes**
+
+- Improve the Sass compilation time by using scssphp's new built-in cache capabilities instead of our custom workaround
 
 ## 0.2.0 "Guilty Ocelot"
 
