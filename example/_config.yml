@@ -5,6 +5,8 @@ collections:
     folder: _posts
   - name: books
     folder: _books
+  - name: empty-collection
+    folder: _empty-collection
 
 categories:
   - features

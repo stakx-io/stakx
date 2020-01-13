@@ -219,6 +219,7 @@ class PageManager extends TrackingManager
         $event = new PageViewAdded($pageView);
         $this->eventDispatcher->dispatch(PageViewAdded::NAME, $event);
 
+        $this->declareTrackingNamespace($namespace);
         $this->addObjectToTracker($pageView, $namespace);
     }
 

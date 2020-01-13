@@ -143,6 +143,7 @@ class DataManager extends TrackingManager
             $this->eventDispatcher->dispatch(DatasetDefinitionAdded::NAME, $event);
 
             $def = new FileExplorerDefinition($folder);
+            $this->declareTrackingNamespace($dataSet['name']);
             $this->scanTrackableItems($def, [
                 'namespace' => $dataSet['name'],
             ]);

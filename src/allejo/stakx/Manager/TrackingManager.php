@@ -162,6 +162,19 @@ abstract class TrackingManager extends BaseManager
     // Internal object handling
     ///
 
+    /**
+     * Initialize a namespace that will be tracked.
+     *
+     * @param string $namespace
+     */
+    protected function declareTrackingNamespace($namespace)
+    {
+        if (!isset($this->trackedItems[$namespace]))
+        {
+            $this->trackedItems[$namespace] = [];
+        }
+    }
+
     protected function addFileToTracker(File &$file)
     {
         $this->trackedItemsFlattened[$file->getRelativeFilePath()] = &$file;

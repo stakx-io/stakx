@@ -164,6 +164,7 @@ class CollectionManager extends TrackingManager
                 sprintf('/\.(%s)$/', implode('|', $this->markupEngineManager->getSupportedExtensions())),
             ];
 
+            $this->declareTrackingNamespace($collection['name']);
             $this->scanTrackableItems($def, [
                 'namespace' => $collection['name'],
             ]);
