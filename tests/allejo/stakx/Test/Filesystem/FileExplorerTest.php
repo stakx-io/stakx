@@ -288,4 +288,36 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
             $this->assertNotContains($file->getFilename(), 'old');
         }
     }
+
+    public function testIncludesSupercedesExcludes()
+    {
+        vfsStream::create([
+            'dist' => [
+                'css' => [
+                    'styles.css' => '',
+                ],
+                'images' => [
+                    'image1.png' => '',
+                    'image2.png' => '',
+                ],
+                'js' => [
+                    'main.js' => '',
+                ],
+                'index.html' => '',
+                'about.html' => '',
+            ],
+        ]);
+
+        $explorer = FileExplorer::create($this->rootDir->url(), ['/dist\/(css|images|js)\/.+/'], ['dist'])->getFileIterator();
+        $blacklist = ['index.html', 'about.html'];
+        $fileCount = 0;
+
+        /** @var File $file */
+        foreach ($explorer as $file) {
+            ++$fileCount;
+            $this->assertNotContains($blacklist, $file->getFilename());
+        }
+
+        $this->assertEquals(4, $fileCount);
+    }
 }
