@@ -21,7 +21,7 @@ use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use ScssPhp\ScssPhp\Compiler as SassCompiler;
-use org\bovigo\vfs\vfsStream;
+use bovigo\vfs\vfsStream;
 
 class SassEngineTest extends PHPUnit_Stakx_TestCase
 {

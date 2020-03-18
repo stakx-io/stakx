@@ -9,8 +9,8 @@ namespace allejo\stakx\Document;
 
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamWrapper;
+use bovigo\vfs\vfsStream;
+use bovigo\vfs\StreamWrapper;
 use Symfony\Component\Yaml\Yaml;
 
 abstract class BasePageView extends PermalinkFrontMatterDocument implements PermalinkDocument
@@ -76,7 +76,7 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
      */
     public static function createVirtual($frontMatter, $body)
     {
-        if (vfsStreamWrapper::getRoot() == null)
+        if (StreamWrapper::getRoot() == null)
         {
             vfsStream::setup();
         }
@@ -84,7 +84,7 @@ abstract class BasePageView extends PermalinkFrontMatterDocument implements Perm
         $redirectFile = vfsStream::newFile(sprintf('redirect_%s.html.twig', uniqid()));
         $redirectFile
             ->setContent(sprintf(self::TEMPLATE, Yaml::dump($frontMatter, 2), $body))
-            ->at(vfsStreamWrapper::getRoot())
+            ->at(StreamWrapper::getRoot())
         ;
 
         $file = new File($redirectFile->url());

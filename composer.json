@@ -29,7 +29,7 @@
     "erusev/parsedown-extra": "^0.7.1",
     "gregwar/rst": "^1.0",
     "maciejczyzewski/bottomline": "dev-master",
-    "mikey179/vfsstream": "^1.6",
+    "mikey179/vfsstream": "dev-prepare_class_changes",
     "psr/log": "^1.0.2",
     "react/http": "^0.8.3",
     "scrivo/highlight.php": "^9.12",

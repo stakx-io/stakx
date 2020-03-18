@@ -11,7 +11,6 @@ use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Logger;
@@ -30,9 +29,9 @@ use allejo\stakx\Service;
 use allejo\stakx\Templating\Twig\TwigExtension;
 use allejo\stakx\Templating\Twig\TwigStakxBridge;
 use allejo\stakx\Templating\Twig\TwigStakxBridgeFactory;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
-use org\bovigo\vfs\vfsStreamFile;
+use bovigo\vfs\vfsStream;
+use bovigo\vfs\vfsDirectory;
+use bovigo\vfs\vfsFile;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -44,9 +43,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
     /** @var string */
     protected $assetFolder;
-    /** @var vfsStreamFile */
+    /** @var vfsFile */
     protected $dummyFile;
-    /** @var vfsStreamDirectory */
+    /** @var vfsDirectory */
     protected $rootDir;
 
     public function setUp()

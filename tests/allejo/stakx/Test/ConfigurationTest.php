@@ -10,7 +10,7 @@ namespace allejo\stakx\Test;
 use allejo\stakx\Configuration;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Service;
-use org\bovigo\vfs\vfsStream;
+use bovigo\vfs\vfsStream;
 
 class ConfigurationTest extends PHPUnit_Stakx_TestCase
 {
