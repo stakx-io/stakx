@@ -11,7 +11,7 @@ use allejo\stakx\Compiler;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Templating\Twig\TwigStakxBridgeFactory;
-use org\bovigo\vfs\vfsStream;
+use bovigo\vfs\vfsStream;
 
 class CompilerTest extends PHPUnit_Stakx_TestCase
 {

@@ -16,7 +16,7 @@ use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\MarkupEngine\MarkdownEngine;
 use allejo\stakx\MarkupEngine\RstEngine;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
-use org\bovigo\vfs\vfsStream;
+use bovigo\vfs\vfsStream;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Exception\ParseException;
 

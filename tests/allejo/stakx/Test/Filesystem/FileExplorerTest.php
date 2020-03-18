@@ -11,7 +11,7 @@ use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FileExplorerMatcher;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
-use org\bovigo\vfs\vfsStream;
+use bovigo\vfs\vfsStream;
 
 class FileExplorerTest extends PHPUnit_Stakx_TestCase
 {
