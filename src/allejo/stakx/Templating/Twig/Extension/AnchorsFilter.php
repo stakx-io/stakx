@@ -15,12 +15,18 @@ class AnchorsFilter extends AbstractTwigExtension implements TwigFilterInterface
     /**
      * @param string $html          The HTML we'll be processing
      * @param bool   $beforeHeading Set to true if the anchor should be placed before the heading's content
-     * @param array  $anchorAttrs   Any custom HTML attributes that will be added to the `<a>` tag; you may NOT use `href`, `class`, or `title`
-     * @param string $anchorBody    The content that will be placed inside the anchor; the `{heading}` placeholder is available
-     * @param string $anchorClass   The class(es) that will be used for each anchor. Separate multiple classes with a space
-     * @param string $anchorTitle   The title attribute that will be used for anchors; the `{heading}` placeholder is available
-     * @param int    $hMin          The minimum header level to build an anchor for; any header lower than this value will be ignored
-     * @param int    $hMax          The maximum header level to build an anchor for; any header greater than this value will be ignored
+     * @param array  $anchorAttrs   Any custom HTML attributes that will be added to the `<a>` tag; you may NOT use
+     *                              `href`, `class`, or `title`
+     * @param string $anchorBody    The content that will be placed inside the anchor; the `{heading}` placeholder is
+     *                              available
+     * @param string $anchorClass   The class(es) that will be used for each anchor. Separate multiple classes with a
+     *                              space
+     * @param string $anchorTitle   The title attribute that will be used for anchors; the `{heading}` placeholder is
+     *                              available
+     * @param int    $hMin          The minimum header level to build an anchor for; any header lower than this value
+     *                              will be ignored
+     * @param int    $hMax          The maximum header level to build an anchor for; any header greater than this value
+     *                              will be ignored
      *
      * @return string
      */
@@ -61,9 +67,30 @@ class AnchorsFilter extends AbstractTwigExtension implements TwigFilterInterface
 
             $anchor = $dom->createElement('a');
             $anchor->setAttribute('href', '#' . $headingID->nodeValue);
-            $anchor->nodeValue = strtr($anchorBody, [
+
+            $body = strtr($anchorBody, [
                 '{heading}' => $heading->textContent,
             ]);
+
+            if (substr($body, 0, 1) === '<')
+            {
+                $domAnchorBody = new \DOMDocument();
+                $loaded = @$domAnchorBody->loadHTML($body, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+                if ($loaded)
+                {
+                    /** @var \DOMElement $childNode */
+                    foreach ($domAnchorBody->childNodes as $childNode)
+                    {
+                        $node = $anchor->ownerDocument->importNode($childNode->cloneNode(true), true);
+                        $anchor->appendChild($node);
+                    }
+                }
+            }
+            else
+            {
+                $anchor->nodeValue = $body;
+            }
 
             if ($anchorTitle)
             {
