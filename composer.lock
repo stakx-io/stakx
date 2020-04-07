@@ -194,17 +194,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/maciejczyzewski/bottomline.git",
-                "reference": "cc41571635fd5290b3bd754026682045800ae7c8"
+                "reference": "4990108ac70f553b823345134d6a59efe653d479"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maciejczyzewski/bottomline/zipball/cc41571635fd5290b3bd754026682045800ae7c8",
-                "reference": "cc41571635fd5290b3bd754026682045800ae7c8",
+                "url": "https://api.github.com/repos/maciejczyzewski/bottomline/zipball/4990108ac70f553b823345134d6a59efe653d479",
+                "reference": "4990108ac70f553b823345134d6a59efe653d479",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "php": ">=5.4.0"
+                "php": ">=5.5.0"
             },
             "require-dev": {
                 "doctrine/instantiator": "~1.0.5",
@@ -233,28 +233,30 @@
                     "email": "maciejanthonyczyzewski@gmail.com"
                 }
             ],
-            "description": "A full-on PHP manipulation utility-belt that provides support for the usual functional.",
+            "description": "A full-on PHP manipulation utility belt that provides support for working with arrays, objects, and iterables; a lodash or underscore equivalent for PHP.",
             "keywords": [
                 "__",
                 "bottomline",
                 "functions",
                 "library",
+                "lodash",
+                "underscore",
                 "utility"
             ],
-            "time": "2019-02-19T15:30:14+00:00"
+            "time": "2020-03-22T22:30:53+00:00"
         },
         {
             "name": "mikey179/vfsstream",
-            "version": "v1.6.7",
+            "version": "v1.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bovigo/vfsStream.git",
-                "reference": "2b544ac3a21bcc4dde5d90c4ae8d06f4319055fb"
+                "reference": "231c73783ebb7dd9ec77916c10037eff5a2b6efe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bovigo/vfsStream/zipball/2b544ac3a21bcc4dde5d90c4ae8d06f4319055fb",
-                "reference": "2b544ac3a21bcc4dde5d90c4ae8d06f4319055fb",
+                "url": "https://api.github.com/repos/bovigo/vfsStream/zipball/231c73783ebb7dd9ec77916c10037eff5a2b6efe",
+                "reference": "231c73783ebb7dd9ec77916c10037eff5a2b6efe",
                 "shasum": ""
             },
             "require": {
@@ -281,13 +283,13 @@
             "authors": [
                 {
                     "name": "Frank Kleine",
-                    "role": "Developer",
-                    "homepage": "http://frankkleine.de/"
+                    "homepage": "http://frankkleine.de/",
+                    "role": "Developer"
                 }
             ],
             "description": "Virtual file system to mock the real file system in unit tests.",
             "homepage": "http://vfs.bovigo.org/",
-            "time": "2019-08-01T01:38:37+00:00"
+            "time": "2019-10-30T15:31:00+00:00"
         },
         {
             "name": "psr/container",

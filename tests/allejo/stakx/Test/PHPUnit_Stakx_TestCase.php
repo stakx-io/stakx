@@ -460,6 +460,53 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return sprintf(self::FM_OBJ_TEMPLATE, $fm, $body);
     }
 
+    /**
+     * @param string               $cls
+     * @param string               $method
+     * @param array<string, mixed> $namedParams
+     *
+     * @throws \ReflectionException
+     *
+     * @return mixed
+     */
+    protected function invokeClassFunctionWithNamedParams($cls, $method, $namedParams = [])
+    {
+        $clsReflection = new \ReflectionClass($cls);
+        $fxns = $clsReflection->getMethods();
+
+        /** @var \ReflectionMethod $fxnToCall */
+        $fxnToCall = \__::chain($fxns)
+            ->filter(function (\ReflectionMethod $fxn) use ($method) {
+                return $fxn->getName() === $method;
+            })
+            ->get(0, null)
+            ->value()
+        ;
+
+        if ($fxnToCall === null)
+        {
+            throw new \BadFunctionCallException(sprintf('No function by the name of "%s" in this class', $method));
+        }
+
+        $arguments = $fxnToCall->getParameters();
+        $callUserFuncArray = [];
+
+        /** @var \ReflectionParameter $argument */
+        foreach ($arguments as $argument)
+        {
+            if (isset($namedParams[$argument->getName()]))
+            {
+                $callUserFuncArray[] = $namedParams[$argument->getName()];
+            }
+            else
+            {
+                $callUserFuncArray[] = $argument->getDefaultValue();
+            }
+        }
+
+        return $fxnToCall->invoke(null, ...$callUserFuncArray);
+    }
+
     ///
     // Misc Functions
     ///
