@@ -13,7 +13,7 @@ permalink: /blog/%year/%month/%day/%title/
         <h1 class="mb-5" id="{{ this.title | slug }}">{{ this.title }}</h1>
 
         <section class="written-content">
-            {{ this.content }}
+            {{ this.content | anchors(anchorBody='#') }}
         </section>
 
         <footer>
