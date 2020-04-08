@@ -2,18 +2,24 @@
 
 **New**
 
+- Added new `case_insensitive` flag to the `order` filter ([#101](https://github.com/stakx-io/stakx/pull/101))
 - A new `highlighter.line_numbers` configuration file option has been added to render line numbers in markup code blocks ([#105](https://github.com/stakx-io/stakx/issues/105), [#112](https://github.com/stakx-io/stakx/pull/112))
 - Added ability to highlight specific lines in markup code blocks ([#105](https://github.com/stakx-io/stakx/issues/105), [#112](https://github.com/stakx-io/stakx/pull/112))
 - Add new global `redirects` Twig variable to keep track of all redirects used in a site ([#113](https://github.com/stakx-io/stakx/pull/113))
 - Collection items can now have assets tied to them either automatically by linking images or using the `assets` directive in FrontMatter ([#116](https://github.com/stakx-io/stakx/pull/116))
+- Introduce new `anchors` Twig filter ([#120](https://github.com/stakx-io/stakx/pull/120)) to let you add anchors to HTML headings
 
 **Fixes**
 
-- Added PHP 7.4 support where Parsedown threw deprecation warnings
+- Added PHP 7.4 support where Parsedown threw deprecation warnings ([#111](https://github.com/stakx-io/stakx/pull/111))
 
 **Changes**
 
 - Improve the Sass compilation time by using scssphp's new built-in cache capabilities instead of our custom workaround
+
+**Development**
+
+- The core filesystem classes have been updated to have a unified way of handling paths, files, and directories ([#115](https://github.com/stakx-io/stakx/pull/115))
 
 ## 0.2.0 "Guilty Ocelot"
 
