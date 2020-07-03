@@ -1,4 +1,4 @@
-## master
+## 0.2.1 "Jittery Lynx"
 
 **New**
 
