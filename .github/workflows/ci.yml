@@ -49,3 +49,10 @@ jobs:
 
       - name: Run test suite
         run: composer test
+
+      - name: Push to Scrutinizer
+        if: matrix.php-versions == '7.3' && runner.os == 'Linux' && matrix.dependencies == 'install'
+        run: |
+          composer coverage
+          curl -O https://scrutinizer-ci.com/ocular.phar
+          php ocular.phar code-coverage:upload --format=php-clover coverage.clover

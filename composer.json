@@ -56,6 +56,7 @@
       "box build",
       "php -r \"file_put_contents('stakx.phar.version', sha1_file('stakx.phar'));\""
     ],
+    "coverage": "phpunit --coverage-clover coverage.clover",
     "test": "phpunit"
   },
   "config": {
