@@ -151,6 +151,14 @@ class Configuration
     }
 
     /**
+     * @return bool
+     */
+    public function isHighlighterUsingLineNumbers()
+    {
+        return __::get($this->configuration, 'highlighter.line_numbers', false);
+    }
+
+    /**
      * @return string
      */
     public function getTheme()
@@ -315,6 +323,7 @@ class Configuration
             ],
             'highlighter' => [
                 'enabled' => true,
+                'line_numbers' => false,
                 'languages' => [],
             ],
             'build' => [

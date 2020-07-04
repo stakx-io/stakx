@@ -13,9 +13,10 @@ use allejo\stakx\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
+use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Compact;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
@@ -23,19 +24,27 @@ use ScssPhp\ScssPhp\Formatter\Nested;
 
 class SassEngine implements AssetEngineInterface
 {
-    const CACHE_FILE = 'sass_engine.cache';
-
+    /** @var bool */
     private $fileSourceMap = false;
+
+    /** @var WritableFolder|null */
+    private $cacheDirectory;
+
+    /** @var Configuration */
     private $configuration;
+
     /** @var PageManager */
     private $pageManager;
+
+    /** @var Compiler|null */
     private $compiler;
+
+    /** @var array<string, mixed> */
     private $options = [];
 
     public function __construct(Configuration $configuration)
     {
         $this->configuration = $configuration;
-        $this->compiler = new Compiler();
     }
 
     public function getName()
@@ -76,6 +85,8 @@ class SassEngine implements AssetEngineInterface
      */
     public function parse($content, array $options = [])
     {
+        $this->initializeCompiler();
+
         $sourceMapOptions = [
             'sourceMapBasepath' => Service::getWorkingDirectory(),
         ];
@@ -120,10 +131,6 @@ class SassEngine implements AssetEngineInterface
     public function setOptions(array $options)
     {
         $this->options = $options;
-
-        $this->configureImportPath();
-        $this->configureOutputStyle();
-        $this->configureSourceMap();
     }
 
     public function setPageManager(PageManager $pageManager)
@@ -131,33 +138,13 @@ class SassEngine implements AssetEngineInterface
         $this->pageManager = $pageManager;
     }
 
-    public function loadCache(Folder $cacheDir)
+    public function loadCache(WritableFolder $cacheDir)
     {
-        $cachePath = $cacheDir
-            ->getFilesystemPath()
-            ->appendToPath(self::CACHE_FILE)
-        ;
-
-        if (fs::exists($cachePath))
-        {
-            list(
-                $this->compiler
-            ) = unserialize(file_get_contents($cachePath));
-        }
+        $this->cacheDirectory = $cacheDir;
     }
 
-    public function saveCache(Folder $cacheDir)
+    public function saveCache(WritableFolder $cacheDir)
     {
-        $cachePath = $cacheDir
-            ->getFilesystemPath()
-            ->appendToPath(self::CACHE_FILE)
-        ;
-
-        $cache = serialize([
-            $this->compiler,
-        ]);
-
-        file_put_contents($cachePath, $cache);
     }
 
     private function configureImportPath()
@@ -197,6 +184,31 @@ class SassEngine implements AssetEngineInterface
             $this->configuration->getTargetFolder(),
             $pageView->getTargetFile() . '.map'
         );
+    }
+
+    private function initializeCompiler()
+    {
+        if ($this->compiler)
+        {
+            return;
+        }
+
+        $cacheOptions = [];
+
+        // If we have a cache directory set, use it.
+        if ($this->cacheDirectory)
+        {
+            $cacheOptions = [
+                'cacheDir' => (string) $this->cacheDirectory->getFilesystemPath(),
+                'forceRefresh' => false,
+            ];
+        }
+
+        $this->compiler = new Compiler($cacheOptions);
+
+        $this->configureImportPath();
+        $this->configureOutputStyle();
+        $this->configureSourceMap();
     }
 
     private function handleThemeImports(&$content)

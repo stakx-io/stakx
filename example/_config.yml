@@ -5,6 +5,8 @@ collections:
     folder: _posts
   - name: books
     folder: _books
+  - name: empty-collection
+    folder: _empty-collection
 
 categories:
   - features
@@ -23,12 +25,13 @@ pageviews:
 
 theme: bootstrap
 
-title: My First Stakx Website
+title: Stakx
 
 templates:
   redirect: false
 
 highlighter:
+  line_numbers: true
   languages:
     bzw: _languages/bzw.json
 

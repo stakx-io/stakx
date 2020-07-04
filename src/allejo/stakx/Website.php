@@ -9,7 +9,7 @@ namespace allejo\stakx;
 
 use allejo\stakx\Event\BuildProcessComplete;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Templating\TemplateBridgeInterface;
@@ -68,7 +68,7 @@ class Website
         $this->createFolderStructure();
 
         // Our output directory
-        $outputDirectory = new Folder($this->getConfiguration()->getTargetFolder());
+        $outputDirectory = new WritableFolder($this->getConfiguration()->getTargetFolder());
         $outputDirectory->setTargetDirectory($this->getConfiguration()->getBaseUrl());
 
         // Compile everything
@@ -163,6 +163,10 @@ class Website
         }
 
         Service::setRuntimeFlag(RuntimeStatus::USING_HIGHLIGHTER);
+
+        if ($this->getConfiguration()->isHighlighterUsingLineNumbers()) {
+            Service::setRuntimeFlag(RuntimeStatus::USING_LINE_NUMBERS);
+        }
 
         foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
         {

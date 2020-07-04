@@ -168,6 +168,22 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     }
 
     /**
+     * Get the MIME type of a file.
+     *
+     * @param string $filePath
+     *
+     * @return string
+     */
+    public function getMimeType($filePath)
+    {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $filePath);
+        finfo_close($finfo);
+
+        return $mimeType;
+    }
+
+    /**
      * Check whether or not if a given path is a directory.
      *
      * @param string $folderPath

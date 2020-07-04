@@ -7,7 +7,9 @@
 
 namespace allejo\stakx\Test\Filesystem;
 
+use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
+use allejo\stakx\Filesystem\FileExplorerMatcher;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use org\bovigo\vfs\vfsStream;
 
@@ -101,7 +103,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         vfsStream::create($filesystem);
 
-        $explorer = FileExplorer::create($this->rootDir->url(), [], $includes, FileExplorer::INCLUDE_ONLY_FILES)->getFileIterator();
+        $explorer = FileExplorer::create($this->rootDir->url(), $includes, [], FileExplorer::INCLUDE_ONLY_FILES)->getFileIterator();
 
         foreach ($explorer as $file)
         {
@@ -127,7 +129,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         vfsStream::create($filesystem);
 
-        $explorer = FileExplorer::create($this->rootDir->url(), $exclusion)->getFileIterator();
+        $explorer = FileExplorer::create($this->rootDir->url(), [], $exclusion)->getFileIterator();
 
         foreach ($explorer as $file)
         {
@@ -218,7 +220,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         vfsStream::create(array_merge($excluded, $baseFiles));
 
-        $explorer = FileExplorer::create($this->rootDir->url(), ['/\.twig$/'])->getFileIterator();
+        $explorer = FileExplorer::create($this->rootDir->url(), [], ['/\.twig$/'])->getFileIterator();
 
         foreach ($explorer as $file)
         {
@@ -242,7 +244,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         vfsStream::create(array_merge($included, $baseFiles));
 
-        $explorer = FileExplorer::create($this->rootDir->url(), [], ['/\.twig$/'], FileExplorer::INCLUDE_ONLY_FILES)->getFileIterator();
+        $explorer = FileExplorer::create($this->rootDir->url(), ['/\.twig$/'], [], FileExplorer::INCLUDE_ONLY_FILES)->getFileIterator();
 
         foreach ($explorer as $file)
         {
@@ -250,5 +252,40 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
         }
 
         $this->assertCount(count($included), $explorer);
+    }
+
+    public function testCustomTimestampMatcher()
+    {
+        $cutoff = new \DateTime('2018-12-01');
+        $filesystem = [
+            'future.txt' => new \DateTime('2032-01-01'),
+            'new.txt' => new \DateTime('2019-01-02'),
+            'current.txt' => new \DateTime('2019-01-01'),
+            'old.txt' => new \DateTime('2018-07-01'),
+            'older.txt' => new \DateTime('2018-02-02'),
+            'oldest.txt' => new \DateTime('2010-04-30'),
+        ];
+
+        $structure = array_fill_keys(array_keys($filesystem), '');
+        vfsStream::create($structure);
+
+        /**
+         * @var string    $file
+         * @var \DateTime $lastMod
+         */
+        foreach ($filesystem as $file => $lastMod)
+        {
+            $this->rootDir->getChild($file)->lastModified($lastMod->getTimestamp());
+        }
+
+        $explorer = FileExplorer::create($this->rootDir->url());
+        $explorer->addMatcher(FileExplorerMatcher::modifiedAfter($cutoff));
+
+        /** @var File $file */
+        foreach ($explorer->getFileIterator() as $file)
+        {
+            $this->assertGreaterThan($cutoff->getTimestamp(), $file->getLastModified());
+            $this->assertNotContains($file->getFilename(), 'old');
+        }
     }
 }

@@ -14,7 +14,9 @@ use allejo\stakx\Event\CollectionDefinitionAdded;
 use allejo\stakx\Event\CollectionItemAdded;
 use allejo\stakx\Exception\TrackedItemNotFoundException;
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\FileExplorer;
+use allejo\stakx\Filesystem\FileExplorerDefinition;
+use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use Psr\Log\LoggerInterface;
@@ -27,17 +29,27 @@ class CollectionManager extends TrackingManager
 {
     /** @var string[][] A copy of the collection definitions to be available for later usage. */
     private $collectionDefinitions;
+    /** @var MarkupEngineManager */
     private $markupEngineManager;
+    /** @var Configuration */
     private $configuration;
+    /** @var EventDispatcherInterface */
     private $eventDispatcher;
+    /** @var TemplateBridgeInterface */
     private $templateBridge;
+    /** @var LoggerInterface */
     private $logger;
 
     /**
      * CollectionManager constructor.
      */
-    public function __construct(MarkupEngineManager $markupEngineManager, Configuration $configuration, TemplateBridgeInterface $templateBridge, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
-    {
+    public function __construct(
+        MarkupEngineManager $markupEngineManager,
+        Configuration $configuration,
+        TemplateBridgeInterface $templateBridge,
+        EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger
+    ) {
         $this->markupEngineManager = $markupEngineManager;
         $this->configuration = $configuration;
         $this->eventDispatcher = $eventDispatcher;
@@ -140,23 +152,20 @@ class CollectionManager extends TrackingManager
                 'name' => $collection['name'],
             ]);
 
-            $collectionFolder = fs::absolutePath($collection['folder']);
+            $folder = new Folder($collection['folder']);
 
-            if (!fs::exists($collectionFolder))
-            {
-                $this->logger->warning('The folder "{folder}" could not be found for the "{name}" collection', [
-                    'folder' => $collection['folder'],
-                    'name' => $collection['name'],
-                ]);
-
-                continue;
-            }
-
-            $event = new CollectionDefinitionAdded($collection['name'], $collection['folder']);
+            $event = new CollectionDefinitionAdded($collection['name'], $folder);
             $this->eventDispatcher->dispatch(CollectionDefinitionAdded::NAME, $event);
 
-            $this->saveFolderDefinition($collection['folder'], $collection);
-            $this->scanTrackableItems($collectionFolder, [
+            // Only fetch ContentItems with supported extensions
+            $def = new FileExplorerDefinition($folder);
+            $def->flags |= FileExplorer::INCLUDE_ONLY_FILES;
+            $def->includes = [
+                sprintf('/\.(%s)$/', implode('|', $this->markupEngineManager->getSupportedExtensions())),
+            ];
+
+            $this->declareTrackingNamespace($collection['name']);
+            $this->scanTrackableItems($def, [
                 'namespace' => $collection['name'],
             ]);
         }

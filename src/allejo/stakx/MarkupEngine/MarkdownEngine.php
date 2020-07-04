@@ -8,19 +8,31 @@
 namespace allejo\stakx\MarkupEngine;
 
 use __;
+use allejo\stakx\Manager\AssetManager;
+use allejo\stakx\Markup\AssetHandlerTrait;
+use allejo\stakx\Markup\SyntaxHighlighterTrait;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
 
 class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 {
-    protected $highlighter;
+    use AssetHandlerTrait;
+    use SyntaxHighlighterTrait;
 
-    public function __construct()
+    public function __construct(AssetManager $assetManager)
     {
         parent::__construct();
 
         $this->highlighter = new Highlighter();
+        $this->assetManager = $assetManager;
+    }
+
+    public function parse($text, $contentItem = null)
+    {
+        $this->contentItem = $contentItem;
+
+        return parent::parse($text);
     }
 
     protected function blockHeader($Line)
@@ -37,7 +49,10 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
 
     protected function blockSetextHeader($Line, array $Block = null)
     {
-        $Block = parent::blockSetextHeader($Line, $Block);
+        // @TODO Remove this `@` operator in an update to Parsedown and ParsedownExtra
+        //   https://wiki.php.net/rfc/notice-for-non-valid-array-container
+        //   https://github.com/erusev/parsedown-extra/issues/134
+        $Block = @parent::blockSetextHeader($Line, $Block);
 
         if (isset($Block['element']['name']))
         {
@@ -52,39 +67,37 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         return $Block;
     }
 
-    private function slugifyHeader($Block)
-    {
-        return __::slug($Block['element']['text']);
-    }
-
     protected function blockFencedCodeComplete($block)
     {
         // The class has a `language-` prefix, remove this to get the language
         if (isset($block['element']['text']['attributes']) && Service::hasRunTimeFlag(RuntimeStatus::USING_HIGHLIGHTER))
         {
             $cssClass = $block['element']['text']['attributes']['class'];
-            $language = substr($cssClass, 9);
+            $block['markup'] = $this->highlightCode($cssClass, $block['element']['text']['text']);
 
-            try
-            {
-                $highlighted = $this->highlighter->highlight($language, $block['element']['text']['text']);
-                $block['markup'] = "<pre><code class=\"hljs ${cssClass}\">" . $highlighted->value . '</code></pre>';
-
-                // Only return the block if Highlighter knew the language and how to handle it.
-                return $block;
-            }
-            // Exception thrown when language not supported
-            catch (\DomainException $exception)
-            {
-                trigger_error("An unsupported language ($language) was detected in a code block", E_USER_WARNING);
-            }
-            catch (\Exception $e)
-            {
-                trigger_error('An error has occurred in the highlight.php language definition files', E_USER_WARNING);
-            }
+            return $block;
         }
 
         return parent::blockFencedCodeComplete($block);
+    }
+
+    protected function inlineImage($Excerpt)
+    {
+        $imageBlock = parent::inlineImage($Excerpt);
+
+        if ($imageBlock !== null)
+        {
+            $imageSrc = trim($imageBlock['element']['attributes']['src']);
+
+            $this->registerAsset($imageSrc);
+        }
+
+        return $imageBlock;
+    }
+
+    private function slugifyHeader($Block)
+    {
+        return __::slug($Block['element']['text']);
     }
 
     ///

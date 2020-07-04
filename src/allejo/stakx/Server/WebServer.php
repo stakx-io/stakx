@@ -10,6 +10,7 @@ namespace allejo\stakx\Server;
 use allejo\stakx\Compiler;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemPath;
+use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Service;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
@@ -51,16 +52,17 @@ class WebServer
     /**
      * Factory method for creating a React Server instance.
      *
-     * @param RouteMapper $routeMapper
-     * @param Compiler    $compiler
+     * @param RouteMapper  $routeMapper
+     * @param Compiler     $compiler
+     * @param AssetManager $assetManager
      *
      * @return Server
      */
-    public static function create(RouteMapper $routeMapper, Compiler $compiler)
+    public static function create(RouteMapper $routeMapper, Compiler $compiler, AssetManager $assetManager)
     {
         $routes = Controller::create($routeMapper, $compiler);
 
-        return new Server(function (ServerRequestInterface $request) use ($routes, $compiler) {
+        return new Server(function (ServerRequestInterface $request) use ($routes, $compiler, $assetManager) {
             $httpMethod = $request->getMethod();
             $urlPath = Controller::normalizeUrl($request->getUri()->getPath());
 
@@ -86,6 +88,17 @@ class WebServer
             }
             catch (ResourceNotFoundException $e)
             {
+                // If we have a "manual" asset, let's serve from it
+                if (($file = $assetManager->getExplicitAsset(self::normalizePath($urlPath))) !== null)
+                {
+                    return self::makeResponse($file);
+                }
+
+                // Our AssetManager only populates its registry of assets when files are copied at build time. Because
+                // the web server doesn't perform the full site compilation, our manager is not populated. For this
+                // reason, we manually look through the filesystem and load from there.
+                //
+                // @TODO this should be fixed to make the AssetManager the authority on assets.
                 if (($asset = self::searchAsset($urlPath)) !== null)
                 {
                     return $asset;
@@ -112,15 +125,11 @@ class WebServer
      */
     private static function searchAsset($url, $continueNesting = true)
     {
-        $preparedPath = substr($url, 0, 1) === '/' ? substr($url, 1) : $url;
-        $path = new FilesystemPath($preparedPath);
-
         try
         {
-            $file = new File($path);
-            $mime = MimeDetector::getMimeType($file->getExtension());
+            $file = new File(self::normalizePath($url));
 
-            return new Response(200, ['Content-Type' => $mime], $file->getContents());
+            return self::makeResponse($file);
         }
         catch (FileNotFoundException $e)
         {
@@ -136,5 +145,31 @@ class WebServer
 
             return self::searchAsset($themeFile, false);
         }
+    }
+
+    /**
+     * Given a URL, normalize it to how we maintain permalinks internally (without the preceding slash).
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    private static function normalizePath($url)
+    {
+        return substr($url, 0, 1) === '/' ? substr($url, 1) : $url;
+    }
+
+    /**
+     * Given a File object, create a web server Response object for it.
+     *
+     * @param File $file
+     *
+     * @return Response
+     */
+    private static function makeResponse(File $file)
+    {
+        $mime = MimeDetector::getMimeType($file->getExtension());
+
+        return new Response(200, ['Content-Type' => $mime], $file->getContents());
     }
 }

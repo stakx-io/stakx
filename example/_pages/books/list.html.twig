@@ -8,11 +8,11 @@ permalink: /books/
 
 {% block content %}
     {% for book in collections.books | order('title', 'ASC') %}
-        <article>
-            <p>
+        <article class="mb-4">
+            <h3 class="m-0">
                 <strong><a href="{{ url(book) }}">{{ book.title }}</a></strong>
-            </p>
-            <p>
+            </h2>
+            <p class="m-0">
                 <strong>ISBN:</strong> {{ book.isbn }}
             </p>
         </article>

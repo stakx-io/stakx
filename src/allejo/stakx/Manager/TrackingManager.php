@@ -13,7 +13,8 @@ use allejo\stakx\Document\ReadableDocument;
 use allejo\stakx\Document\TemplateReadyDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\FileExplorerDefinition;
+use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 
@@ -41,9 +42,17 @@ abstract class TrackingManager extends BaseManager
      *
      * $folderDefinitions[] = '<folder path>'
      *
+     * @deprecated This has been superseded by `$watchedFolders`
      * @var string[]
      */
     protected $folderDefinitions = [];
+
+    /**
+     * An array of folder definitions which tracked items are stored in.
+     *
+     * @var FileExplorerDefinition[]
+     */
+    protected $watchedFolders = [];
 
     /**
      * The storage which contains the same information as $trackedItems but organized by relative file path instead of a
@@ -85,6 +94,21 @@ abstract class TrackingManager extends BaseManager
     public function createNewItem($filePath)
     {
         return $this->handleTrackableItem($filePath);
+    }
+
+    /**
+     * @param FilesystemPath|string $filePath
+     *
+     * @return mixed|null
+     */
+    public function getTracked($filePath)
+    {
+        if ($this->isTracked($filePath))
+        {
+            return $this->trackedItemsFlattened[(string)$filePath];
+        }
+
+        return null;
     }
 
     /**
@@ -137,6 +161,19 @@ abstract class TrackingManager extends BaseManager
     ///
     // Internal object handling
     ///
+
+    /**
+     * Initialize a namespace that will be tracked.
+     *
+     * @param string $namespace
+     */
+    protected function declareTrackingNamespace($namespace)
+    {
+        if (!isset($this->trackedItems[$namespace]))
+        {
+            $this->trackedItems[$namespace] = [];
+        }
+    }
 
     protected function addFileToTracker(File &$file)
     {
@@ -195,6 +232,8 @@ abstract class TrackingManager extends BaseManager
     /**
      * Save a folder that is tracked by this manager and its respective options.
      *
+     * @deprecated
+     *
      * @param string $folderPath
      * @param array  $options
      */
@@ -232,22 +271,23 @@ abstract class TrackingManager extends BaseManager
     /**
      * Parse the specified folder for items to track.
      *
-     * @param string $path
-     * @param array  $options  Special options that will be passed to the static::parseTrackableItem() implementation
-     * @param array  $includes
-     * @param array  $excludes
+     * @param FileExplorerDefinition $def
+     * @param array $options Special options that will be passed to the `static::parseTrackableItem()`
+     *                       implementation
      */
-    protected function scanTrackableItems($path, array $options = [], array $includes = [], array $excludes = [])
+    protected function scanTrackableItems(FileExplorerDefinition $def, array $options = [])
     {
-        $this->folderDefinitions[] = fs::getRelativePath($path);
+        $this->watchedFolders[$def->folder->getAbsolutePath()] = $def;
 
-        $excludes = empty($excludes) ? self::$documentIgnoreList : $excludes;
+        if (empty($def->excludes))
+        {
+            $def->excludes = self::$documentIgnoreList;
+        }
 
-        $fileExplorerFlags = array_key_exists('fileExplorer', $options) ? $options['fileExplorer'] : null;
-        $this->fileExplorer = FileExplorer::create($path, $excludes, $includes, $fileExplorerFlags);
-        $fileExplorer = $this->fileExplorer->getFileIterator();
+        $fileExplorer = FileExplorer::createFromDefinition($def);
+        $fileIterator = $fileExplorer->getFileIterator();
 
-        foreach ($fileExplorer as $file)
+        foreach ($fileIterator as $file)
         {
             $this->handleTrackableItem($file, $options);
         }
@@ -276,8 +316,9 @@ abstract class TrackingManager extends BaseManager
     /**
      * Return an array of JailedDocuments created from the tracked items.
      *
-     * @param array    $elements
-     * @param \Closure $name
+     * @param JailedDocument[] $elements An array of elements to get jailed versions of
+     * @param \Closure $name A closure to generate the name of the element that will be used as the key in
+     *                       this associative array.
      *
      * @return JailedDocument[]|JailedDocument[][]
      */

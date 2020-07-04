@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Event;
 
+use allejo\stakx\Filesystem\Folder;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -21,7 +22,7 @@ class DatasetDefinitionAdded extends Event
     private $datasetName;
     private $datasetFolder;
 
-    public function __construct($datasetName, $datasetFolder)
+    public function __construct($datasetName, Folder $datasetFolder)
     {
         $this->datasetName = $datasetName;
         $this->datasetFolder = $datasetFolder;
@@ -36,7 +37,7 @@ class DatasetDefinitionAdded extends Event
     }
 
     /**
-     * @return string
+     * @return Folder
      */
     public function getDatasetFolder()
     {

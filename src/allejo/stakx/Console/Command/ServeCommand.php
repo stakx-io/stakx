@@ -8,6 +8,7 @@
 namespace allejo\stakx\Console\Command;
 
 use allejo\stakx\Exception\FileAwareException;
+use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Server\RouteMapper;
 use allejo\stakx\Server\WebServer;
@@ -47,7 +48,12 @@ class ServeCommand extends BuildCommand
             $output->writeln('The `serve` option is still an experimental feature and has a few known bugs.');
 
             $this->configureConfigurationFile($input);
+
+            /** @var Website $website */
             $website = $this->getContainer()->get(Website::class);
+
+            /** @var AssetManager $assetManager */
+            $assetManager = $this->getContainer()->get(AssetManager::class);
 
             /** @var RouteMapper $router */
             $router = $this->getContainer()->get(RouteMapper::class);
@@ -59,7 +65,7 @@ class ServeCommand extends BuildCommand
                 $loop
             );
 
-            $server = WebServer::create($router, $website->getCompiler());
+            $server = WebServer::create($router, $website->getCompiler(), $assetManager);
             $server->listen($socket);
 
             $output->writeln('Listening on ' . str_replace('tcp:', 'http:', $socket->getAddress()));

@@ -16,7 +16,8 @@ use allejo\stakx\Event\DatasetDefinitionAdded;
 use allejo\stakx\Exception\DependencyMissingException;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\FileExplorerDefinition;
+use allejo\stakx\Filesystem\Folder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -93,11 +94,17 @@ class DataManager extends TrackingManager
 
         foreach ($folders as $folder)
         {
-            $event = new DataItemFolderAdded($folder);
+            $cls = new Folder($folder);
+
+            $this->logger->debug('Scanning "{folder}" for data items...', [
+                'folder' => $cls->getRelativeFilePath(),
+            ]);
+
+            $event = new DataItemFolderAdded($cls);
             $this->eventDispatcher->dispatch(DataItemFolderAdded::NAME, $event);
 
-            $this->saveFolderDefinition($folder);
-            $this->scanTrackableItems(fs::absolutePath($folder));
+            $def = new FileExplorerDefinition($cls);
+            $this->scanTrackableItems($def);
         }
     }
 
@@ -125,16 +132,21 @@ class DataManager extends TrackingManager
          */
         foreach ($dataSets as $dataSet)
         {
-            $event = new DatasetDefinitionAdded($dataSet['name'], $dataSet['folder']);
+            $folder = new Folder($dataSet['folder']);
+
+            $this->logger->debug('Scanning "{folder}" for the "{name}" dataset...', [
+                'folder' => $folder->getRelativeFilePath(),
+                'name' => $dataSet['name'],
+            ]);
+
+            $event = new DatasetDefinitionAdded($dataSet['name'], $folder);
             $this->eventDispatcher->dispatch(DatasetDefinitionAdded::NAME, $event);
 
-            $this->saveFolderDefinition($dataSet['folder'], [
+            $def = new FileExplorerDefinition($folder);
+            $this->declareTrackingNamespace($dataSet['name']);
+            $this->scanTrackableItems($def, [
                 'namespace' => $dataSet['name'],
             ]);
-            $this->scanTrackableItems(
-                fs::absolutePath($dataSet['folder']),
-                ['namespace' => $dataSet['name']]
-            );
         }
     }
 

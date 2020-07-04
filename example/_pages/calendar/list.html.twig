@@ -1,6 +1,6 @@
 ---
 title: Calendar
-slug: A 2016 Calendar in Twig
+slug: A 2020 Calendar in Twig
 permalink:
     - /calendar/
     - /cal/
@@ -14,7 +14,7 @@ permalink:
     <table class="c-calendar">
         <thead>
             <tr>
-                <th colspan="7" class="c-calendar__month">
+                <th colspan="7" class="mb-2">
                     <a href="{{ url('/calendar/' ~ (month | lower) ~ '/') }}">{{ month }}</a>
                 </th>
             </tr>
@@ -88,10 +88,10 @@ permalink:
 
     <hr>
 
-    <div class="c-yearly">
+    <div class="row">
         {% for i in range(1, 12) %}
-            <div class="c-yearly__month">
-                {{ _self.calendar('2016-' ~ i, data.calendar) }}
+            <div class="col-md-3">
+                {{ _self.calendar('2020-' ~ i, data.calendar) }}
             </div>
         {% endfor %}
     </div>

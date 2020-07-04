@@ -21,8 +21,9 @@ use allejo\stakx\Event\CompilerPreRenderDynamicPageView;
 use allejo\stakx\Event\CompilerPreRenderRepeaterPageView;
 use allejo\stakx\Event\CompilerPreRenderStaticPageView;
 use allejo\stakx\Event\CompilerTemplateCreation;
+use allejo\stakx\Event\RedirectPreOutput;
 use allejo\stakx\Exception\FileAwareException;
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\FrontMatter\ExpandedValue;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
@@ -59,7 +60,7 @@ class Compiler
     /** @var string[] */
     private $templateMapping;
 
-    /** @var Folder */
+    /** @var WritableFolder */
     private $folder;
 
     /** @var string */
@@ -78,6 +79,7 @@ class Compiler
         DataManager $dataManager,
         MenuManager $menuManager,
         PageManager $pageManager,
+        RedirectMapper $redirectMapper,
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface $logger
     ) {
@@ -98,12 +100,13 @@ class Compiler
         $this->templateBridge->setGlobalVariable('menu', $menuManager->getSiteMenu());
         $this->templateBridge->setGlobalVariable('pages', $pageManager->getJailedStaticPageViews());
         $this->templateBridge->setGlobalVariable('repeaters', $pageManager->getJailedRepeaterPageViews());
+        $this->templateBridge->setGlobalVariable('redirects', $redirectMapper->getRedirects());
     }
 
     /**
-     * @param Folder $folder
+     * @param WritableFolder $folder
      */
-    public function setTargetFolder(Folder $folder)
+    public function setTargetFolder(WritableFolder $folder)
     {
         $this->folder = $folder;
     }
@@ -374,6 +377,14 @@ class Compiler
                 'site' => $this->configuration->getConfiguration(),
             ]);
 
+            $redirectEvent = new RedirectPreOutput(
+                $redirect,
+                $pageView->getPermalink(),
+                $pageView,
+                $redirectPageView
+            );
+            $this->eventDispatcher->dispatch(RedirectPreOutput::NAME, $redirectEvent);
+
             $this->compileStaticPageView($redirectPageView);
         }
     }
@@ -406,6 +417,14 @@ class Compiler
                 $redirectPageView->evaluateFrontMatter([], [
                     'site' => $this->configuration->getConfiguration(),
                 ]);
+
+                $redirectEvent = new RedirectPreOutput(
+                    $redirect->getEvaluated(),
+                    $permalinks[$index]->getEvaluated(),
+                    $pageView,
+                    $redirectPageView
+                );
+                $this->eventDispatcher->dispatch(RedirectPreOutput::NAME, $redirectEvent);
 
                 $this->compilePageView($redirectPageView);
             }

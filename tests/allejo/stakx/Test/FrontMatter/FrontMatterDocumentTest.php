@@ -20,6 +20,18 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
                 'data', 'name', true,
             ],
             [
+                "{%- for d in data['name'] -%}",
+                'data', 'name', true,
+            ],
+            [
+                "{% for d in data['name'] -%}",
+                'data', 'name', true,
+            ],
+            [
+                "{%- for d in data['name'] %}",
+                'data', 'name', true,
+            ],
+            [
                 '{% for d in collections.name %}',
                 'collections', 'name', true,
             ],

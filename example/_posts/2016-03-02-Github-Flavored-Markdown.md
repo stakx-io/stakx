@@ -33,7 +33,9 @@ echo "Hello World";
 
 ...and here's one in Ruby with some class usage as well.
 
-```ruby
+Do you need to highlight specific lines? Sure, why not?! Use the `{}` syntax after you specify the language. The following would be `ruby{2-4,10}` to highlight lines 2 through 4 and then line 10 by itself.
+
+```ruby{2-4,10}
 class HelloWorld
    def initialize(name)
       @name = name.capitalize

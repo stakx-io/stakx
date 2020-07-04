@@ -8,11 +8,11 @@ permalink: /features/
 {% extends "_layouts/base.html.twig" %}
 
 {% macro feature(header, icon, body) %}
-    <article>
+    <article class="mb-4">
         <h3>{{ header }}</h3>
         <div class="row">
             <div class="col-md-1 text-center feature-icon">
-                <i class="fa fa-fw fa-{{ icon }}"></i>
+                <i class="fa fa-fw fa-{{ icon }} fa-2x"></i>
             </div>
             <div class="col-md-11">{{ body }}</div>
         </div>

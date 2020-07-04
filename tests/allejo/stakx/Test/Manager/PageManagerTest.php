@@ -18,6 +18,7 @@ use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
 use allejo\stakx\Test\StreamInterceptor;
 use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class PageManagerTest extends PHPUnit_Stakx_TestCase
 {
@@ -88,6 +89,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockConfiguration(),
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
+            $this->getMockAssetManager(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
@@ -108,6 +110,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockConfiguration(),
             $this->getCollectionManager(),
             $this->getMockDataManager(),
+            $this->getMockAssetManager(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
@@ -132,6 +135,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockConfiguration(),
             $this->getCollectionManager(),
             $this->getMockDataManager(),
+            $this->getMockAssetManager(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
@@ -150,6 +154,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockConfiguration(),
             $collectionManager,
             $this->getMockDataManager(),
+            $this->getMockAssetManager(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
@@ -170,6 +175,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockConfiguration(),
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
+            $this->getMockAssetManager(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
@@ -192,6 +198,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockConfiguration(),
             $this->getCollectionManager(),
             $this->getMockDataManager(),
+            $this->getMockAssetManager(),
             $this->getMockEventDistpatcher(),
             $this->getMockLogger()
         );
@@ -216,6 +223,8 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
 
     public function testWarningThrownWhenPageViewFolderNotFound()
     {
+        $this->setExpectedException(FileNotFoundException::class);
+
         /** @var Configuration|MockObject $conf */
         $conf = parent::getMockConfiguration();
         $conf
@@ -227,12 +236,12 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $conf,
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
+            $this->getMockAssetManager(),
             $this->getMockEventDistpatcher(),
-            $this->getReadableLogger()
+            $this->getMockLogger()
         );
         $pageManager->compileManager();
 
-        $this->assertContains("The 'non-existent' folder could not be found", StreamInterceptor::$output);
         $this->assertCount(0, $pageManager->getPageViewsFlattened());
     }
 }

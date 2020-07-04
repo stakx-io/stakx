@@ -13,8 +13,9 @@ use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Filesystem\Folder;
+use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Logger;
+use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
@@ -23,6 +24,7 @@ use allejo\stakx\MarkupEngine\MarkdownEngine;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\MarkupEngine\PlainTextEngine;
 use allejo\stakx\MarkupEngine\RstEngine;
+use allejo\stakx\RedirectMapper;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use allejo\stakx\Templating\Twig\TwigExtension;
@@ -126,7 +128,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function createPhysicalFile($fileName, $content)
     {
-        $folder = new Folder($this->assetFolder);
+        $folder = new WritableFolder($this->assetFolder);
         $folder->writeFile($fileName, $content);
 
         return fs::appendPath($this->assetFolder, $fileName);
@@ -258,6 +260,14 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return AssetManager
+     */
+    protected function getMockAssetManager()
+    {
+        return new AssetManager($this->getMockEventDistpatcher(), $this->getMockLogger());
+    }
+
+    /**
      * @return Configuration|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getMockConfiguration()
@@ -365,12 +375,26 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $markupEngine = new MarkupEngineManager();
 
         $markupEngine->addMarkupEngines([
-            new MarkdownEngine(),
-            new RstEngine(),
+            new MarkdownEngine($this->getMockAssetManager()),
+            new RstEngine($this->getMockAssetManager()),
             new PlainTextEngine(),
         ]);
 
         return $markupEngine;
+    }
+
+    /**
+     * @return RedirectMapper|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMockRedirectMapper()
+    {
+        $stub = $this->getMockBuilder(RedirectMapper::class)
+            ->getMock()
+        ;
+
+        $stub->method('getRedirects')->willReturn([]);
+
+        return $stub;
     }
 
     /**
@@ -434,6 +458,53 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
 
         return sprintf(self::FM_OBJ_TEMPLATE, $fm, $body);
+    }
+
+    /**
+     * @param string               $cls
+     * @param string               $method
+     * @param array<string, mixed> $namedParams
+     *
+     * @throws \ReflectionException
+     *
+     * @return mixed
+     */
+    protected function invokeClassFunctionWithNamedParams($cls, $method, $namedParams = [])
+    {
+        $clsReflection = new \ReflectionClass($cls);
+        $fxns = $clsReflection->getMethods();
+
+        /** @var \ReflectionMethod $fxnToCall */
+        $fxnToCall = \__::chain($fxns)
+            ->filter(function (\ReflectionMethod $fxn) use ($method) {
+                return $fxn->getName() === $method;
+            })
+            ->get(0, null)
+            ->value()
+        ;
+
+        if ($fxnToCall === null)
+        {
+            throw new \BadFunctionCallException(sprintf('No function by the name of "%s" in this class', $method));
+        }
+
+        $arguments = $fxnToCall->getParameters();
+        $callUserFuncArray = [];
+
+        /** @var \ReflectionParameter $argument */
+        foreach ($arguments as $argument)
+        {
+            if (isset($namedParams[$argument->getName()]))
+            {
+                $callUserFuncArray[] = $namedParams[$argument->getName()];
+            }
+            else
+            {
+                $callUserFuncArray[] = $argument->getDefaultValue();
+            }
+        }
+
+        return $fxnToCall->invoke(null, ...$callUserFuncArray);
     }
 
     ///

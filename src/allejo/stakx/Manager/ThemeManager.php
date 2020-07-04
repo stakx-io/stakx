@@ -7,7 +7,9 @@
 
 namespace allejo\stakx\Manager;
 
+use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Filesystem\Folder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -97,19 +99,20 @@ class ThemeManager extends AssetManager
     {
         $this->logger->notice('Copying theme files...');
 
-        $this->scanTrackableItems(
-            $this->themeFolder,
-            [
-                'prefix' => $this->themeFolderRelative,
-            ],
-            array_merge(
-                $this->includes,
-                $this->themeData['include']
-            ),
-            array_merge(
-                $this->excludes,
-                $this->themeData['exclude']
-            )
+        $folder = new Folder($this->themeFolder);
+
+        $def = new FileExplorerDefinition($folder);
+        $def->includes = array_merge(
+            $this->includes,
+            $this->themeData['include']
         );
+        $def->excludes = array_merge(
+            $this->excludes,
+            $this->themeData['exclude']
+        );
+
+        $this->scanTrackableItems($def, [
+            'prefix' => $this->themeFolderRelative,
+        ]);
     }
 }

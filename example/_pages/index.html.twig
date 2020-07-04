@@ -1,7 +1,7 @@
 ---
 permalink: /
 title: Stakx
-slug: Yet another static website generator
+slug: A Purely PHP Powered Static Site Generator
 menu: false
 ---
 
@@ -9,31 +9,34 @@ menu: false
 
 {% block content %}
     <article>
-        <div class="row text-center margin-bottom-40">
-            <div class="col-md-6">
-                <h3>Inspired by a Giant</h3>
-                <img src="{{ url('assets/imgs/logo-jekyll.png') }}" alt="Jekyll—simple, blog-aware, sites">
+        <div class="row align-items-center">
+            <div class="col-12 col-md-9">
+                <p class="lead">
+                    Stakx is like Jekyll, but written in PHP. That means:
+                </p>
+                <ul class="lead list-unstyled">
+                    <li><i class="fa fa-archive fa-fw mr-2 text-muted" aria-hidden="true"></i> Zero dependencies</li>
+                    <li><i class="fa fa-wrench fa-fw mr-2 text-muted" aria-hidden="true"></i> Zero setup</li>
+                    <li><i class="fa fa-gears fa-fw mr-2 text-muted" aria-hidden="true"></i> One Executable</li>
+                </ul>
+                <p class="lead">
+                    If you can run PHP, you can run Stakx. Oh, and by the way, Stakx is built using the popular and well respected Symphony PHP framework. If you&rsquo;ve ever worked with Symphony or Laravel, you&rsquo;ll love Stakx.
+                </p>
             </div>
-            <div class="col-md-6">
-                <h3>Built on the Shoulders of Giants</h3>
-                <img src="{{ url('assets/imgs/logo-symfony.png') }}" alt="Symfony—high performance PHP framework">
-                <img src="{{ url('assets/imgs/logo-twig.png') }}" alt="Twig—flexible, fast, and secure PHP template engine">
+            <div class="col-12 col-md-3">
+                <img alt="A LEGO minifig welds a rubber duck." class="img-fluid rounded-circle shadow-lg" src="assets/imgs/bg-duck.webp">
             </div>
         </div>
 
-        <p>
-            Stakx is yet another static website generator just like Jekyll, but it's written in PHP. Now, you're
-            probably thinking one of the following things:
-        </p>
-        <ul>
-            <li>"Why make another static website when Jekyll exists?"</li>
-            <li>"But there's already a PHP project called <a href="https://sculpin.io/">Sculpin</a>, why make another?"</li>
-            <li>"Ew, why PHP?"</li>
-        </ul>
-        <p>
-            I love Jekyll and work with it a lot but Liquid has a lot of short-comings if you're coming from a Twig
-            background, like me. Stakx is a proof of concept to build a more powerful static website builder without
-            any requirements on superfluous settings, setup, workarounds, etc. Stakx is designed to "just work."
-        </p>
+        <div class="mt-5 row align-items-center">
+            <div class="col-12 col-md-3">
+                <img alt="A giant robot built with LEGO blocks." class="img-fluid rounded-circle shadow-lg" src="assets/imgs/bg-giant.webp">
+            </div>
+            <div class="col-12 col-md-9">
+                <h2 class="h4 mb-4">Inspired by a Giant; Built on the Shoulders of Giants</h2>
+                <p class="lead m-0">
+                    Jekyll&rsquo;s great, but the Liquid templating engine has a lot of shortcomings if you&rsquo;re coming from a Twig background. Stakx solves all of that without any requirements on superfluous settings, setup, workarounds, <abbr class="text-decoration-none" title="etcetera">etc</abbr>. Stakx is designed to just work, and it does. Zero dependencies, infinite possibilities.
+                </p>
+            </div>
     </article>
 {% endblock %}

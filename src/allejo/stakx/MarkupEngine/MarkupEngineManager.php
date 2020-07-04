@@ -67,4 +67,9 @@ class MarkupEngineManager
     {
         return array_filter(array_keys($this->enginesByTags));
     }
+
+    public function getSupportedExtensions()
+    {
+        return array_keys($this->enginesByExtension);
+    }
 }
