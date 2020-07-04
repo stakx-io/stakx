@@ -1,7 +1,6 @@
 <p align="center"><img alt="stakx logo" src=".github/brand.png"></p>
 
-[![*nix build Status](https://img.shields.io/travis/stakx-io/stakx.svg)](https://travis-ci.org/stakx-io/stakx)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/0otqsetd0079jipd?svg=true)](https://ci.appveyor.com/project/allejo/stakx)
+[![Unit Tests](https://github.com/stakx-io/stakx/workflows/Unit%20Tests/badge.svg)](https://github.com/stakx-io/stakx/actions)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/stakx-io/stakx.svg)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/stakx-io/stakx.svg)](https://scrutinizer-ci.com/g/stakx-io/stakx/?branch=master)
 
