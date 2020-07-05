@@ -20,3 +20,6 @@ if (PHP_VERSION_ID >= 70400) {
 
     set_error_handler("customErrorHandler");
 }
+
+define('STAKX_TEST_ROOT', __DIR__);
+define('STAKX_PROJ_ROOT', dirname(__DIR__));

@@ -56,7 +56,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
         Service::resetRuntimeFlags();
 
-        Service::setWorkingDirectory(null);
+        Service::setWorkingDirectory(STAKX_PROJ_ROOT);
         Service::setRuntimeFlag(RuntimeStatus::USING_HIGHLIGHTER);
 
         // Inspect the VFS as an array

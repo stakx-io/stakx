@@ -77,4 +77,11 @@ class FileTest extends PHPUnit_Stakx_TestCase
 
         new File('non-existent');
     }
+
+    public function testGetContentsThrowsErrorOnFileOutsideWorkingDirectory()
+    {
+        $this->setExpectedExceptionRegExp(FileNotFoundException::class, '/.*is outside the website.*/');
+
+        new File(STAKX_PROJ_ROOT . '/../some-file.txt');
+    }
 }

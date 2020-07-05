@@ -6,7 +6,7 @@ use allejo\stakx\Service;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class BaseFilesystemItem extends \SplFileInfo
+abstract class BaseFilesystemItem extends \SplFileInfo
 {
     /** @var string The path relative to the site's working directory. */
     protected $relativePath;
