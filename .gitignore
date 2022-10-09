@@ -117,6 +117,7 @@ fabric.properties
 ### Symfony ###
 # Managed by Composer
 /vendor/
+/vendor-bin/*/vendor/
 
 # Composer PHAR
 /composer.phar
@@ -128,6 +129,6 @@ fabric.properties
 _site
 *.phar*
 .travis/phar-deploy.pem
-.php_cs.cache
+.php-cs-fixer.cache
 .php-version
 src/allejo/stakx/Console/Container.php
