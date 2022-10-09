@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,13 +9,21 @@ namespace allejo\stakx\Test\FrontMatter;
 
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Exception\InvalidSyntaxException;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Filesystem\File;
+use allejo\stakx\Test\StakxTestCase;
 
-class FrontMatterFormatTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @covers \allejo\stakx\Document\FrontMatterDocument
+ */
+class FrontMatterFormatTest extends StakxTestCase
 {
-    public function testBlankLineAfterFrontMatter()
+    public function testBlankLineAfterFrontMatter(): void
     {
-        $expectedFormat = <<<LINE
+        $this->expectNotToPerformAssertions();
+
+        $expectedFormat = <<<'LINE'
 ---
 foo: bar
 ---
@@ -26,9 +34,11 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoBlankLineAfterFrontMatter()
+    public function testNoBlankLineAfterFrontMatter(): void
     {
-        $expectedFormat = <<<LINE
+        $this->expectNotToPerformAssertions();
+
+        $expectedFormat = <<<'LINE'
 ---
 foo: bar
 ---
@@ -38,9 +48,11 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testEmptyFrontMatter()
+    public function testEmptyFrontMatter(): void
     {
-        $expectedFormat = <<<LINE
+        $this->expectNotToPerformAssertions();
+
+        $expectedFormat = <<<'LINE'
 ---
 ---
 
@@ -50,9 +62,11 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testEmptyWithLineFrontMatter()
+    public function testEmptyWithLineFrontMatter(): void
     {
-        $expectedFormat = <<<LINE
+        $this->expectNotToPerformAssertions();
+
+        $expectedFormat = <<<'LINE'
 ---
 
 
@@ -64,9 +78,11 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testMultipleBlankLinesAfterFrontMatter()
+    public function testMultipleBlankLinesAfterFrontMatter(): void
     {
-        $expectedFormat = <<<LINE
+        $this->expectNotToPerformAssertions();
+
+        $expectedFormat = <<<'LINE'
 ---
 foo: bar
 ---
@@ -78,10 +94,10 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoNewLineAfterFrontMatterThrowsException()
+    public function testNoNewLineAfterFrontMatterThrowsException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class);
-        $expectedFormat = <<<LINE
+        $this->expectException(InvalidSyntaxException::class);
+        $expectedFormat = <<<'LINE'
 ---
 foo: bar
 ---Some content
@@ -90,10 +106,10 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoNewLineAtBeginningOfFrontMatterThrowsException()
+    public function testNoNewLineAtBeginningOfFrontMatterThrowsException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class);
-        $expectedFormat = <<<LINE
+        $this->expectException(InvalidSyntaxException::class);
+        $expectedFormat = <<<'LINE'
 ---foo: bar
 ---
 
@@ -103,10 +119,10 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testFrontMatterInOneLineThrowsException()
+    public function testFrontMatterInOneLineThrowsException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class);
-        $expectedFormat = <<<LINE
+        $this->expectException(InvalidSyntaxException::class);
+        $expectedFormat = <<<'LINE'
 ---foo: bar---
 
 Some content
@@ -115,10 +131,10 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoNewLineBeforeFrontMatterClosesThrowsException()
+    public function testNoNewLineBeforeFrontMatterClosesThrowsException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class);
-        $expectedFormat = <<<LINE
+        $this->expectException(InvalidSyntaxException::class);
+        $expectedFormat = <<<'LINE'
 ---
 foo: bar---
 
@@ -128,10 +144,10 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testNoBodyThrowsException()
+    public function testNoBodyThrowsException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class);
-        $expectedFormat = <<<LINE
+        $this->expectException(InvalidSyntaxException::class);
+        $expectedFormat = <<<'LINE'
 ---
 foo: bar---
 LINE;
@@ -139,10 +155,10 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testWhiteSpaceBodyThrowsException()
+    public function testWhiteSpaceBodyThrowsException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class);
-        $expectedFormat = <<<LINE
+        $this->expectException(InvalidSyntaxException::class);
+        $expectedFormat = <<<'LINE'
 ---
 foo: bar---
 
@@ -152,10 +168,10 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    public function testEmptyFrontMatterOneLineThrowsException()
+    public function testEmptyFrontMatterOneLineThrowsException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class);
-        $expectedFormat = <<<LINE
+        $this->expectException(InvalidSyntaxException::class);
+        $expectedFormat = <<<'LINE'
 ------
 
 Some content
@@ -164,7 +180,11 @@ LINE;
         $this->createFile(ContentItem::class, $expectedFormat);
     }
 
-    private function createFile($classType, $content)
+    /**
+     * @param class-string $classType
+     * @param string       $content
+     */
+    private function createFile(string $classType, string $content): void
     {
         $this->dummyFile
             ->setContent($content)
@@ -173,6 +193,6 @@ LINE;
 
         $url = $this->dummyFile->url();
 
-        return new $classType($this->createFileObjectFromPath($url));
+        new $classType(new File($url));
     }
 }

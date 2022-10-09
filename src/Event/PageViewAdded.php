@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -11,7 +11,7 @@ use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is fired whenever a PageView is registered. This event grants access to the actual PageView object to
@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class PageViewAdded extends Event
 {
-    const NAME = 'pageview.item.added';
+    final public const NAME = 'pageview.item.added';
 
     private $pageView;
 
@@ -30,10 +30,7 @@ class PageViewAdded extends Event
         $this->pageView = &$pageView;
     }
 
-    /**
-     * @return BasePageView|DynamicPageView|RepeaterPageView|StaticPageView
-     */
-    public function &getPageView()
+    public function &getPageView(): BasePageView|DynamicPageView|RepeaterPageView|StaticPageView
     {
         return $this->pageView;
     }

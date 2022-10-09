@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,14 +12,18 @@ use allejo\stakx\Filesystem\File;
 use allejo\stakx\Service;
 use org\bovigo\vfs\vfsStream;
 
-class ConfigurationTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @covers \allejo\stakx\Configuration
+ */
+class ConfigurationTest extends StakxTestCase
 {
-    /** @var Configuration */
-    private $sampleConfig;
-    /** @var Configuration */
-    private $defaultConfig;
+    private Configuration $sampleConfig;
 
-    public function setup()
+    private Configuration $defaultConfig;
+
+    public function setup(): void
     {
         parent::setUp();
 
@@ -29,39 +33,39 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
 
         Service::setWorkingDirectory('vfs://root');
 
-        $this->sampleConfig = new Configuration($this->getMockEventDistpatcher(), $this->getMockLogger());
+        $this->sampleConfig = new Configuration($this->getMockEventDispatcher(), $this->getMockLogger());
         $this->sampleConfig->parse(new File($file));
 
-        $this->defaultConfig = new Configuration($this->getMockEventDistpatcher(), $this->getMockLogger());
+        $this->defaultConfig = new Configuration($this->getMockEventDispatcher(), $this->getMockLogger());
         $this->defaultConfig->parse();
 
         $this->createAssetFolder('ConfigurationTestAssets');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 
         StreamInterceptor::$output = '';
     }
 
-    public function testSampleConfigIsDebug()
+    public function testSampleConfigIsDebug(): void
     {
         $this->assertTrue($this->sampleConfig->isDebug());
     }
 
-    public function testSampleConfigGetBaseUrl()
+    public function testSampleConfigGetBaseUrl(): void
     {
         $this->assertEquals('super-toast', $this->sampleConfig->getBaseUrl());
     }
 
-    public function testSampleConfigGetDataFolders()
+    public function testSampleConfigGetDataFolders(): void
     {
         $this->assertCount(1, $this->sampleConfig->getDataFolders());
         $this->assertEquals(['_data'], $this->sampleConfig->getDataFolders());
     }
 
-    public function testSampleConfigGetDataSets()
+    public function testSampleConfigGetDataSets(): void
     {
         $this->assertCount(1, $this->sampleConfig->getDataSets());
         $this->assertEquals([
@@ -72,24 +76,24 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
         ], $this->sampleConfig->getDataSets());
     }
 
-    public function testSampleConfigCombinedInclude()
+    public function testSampleConfigCombinedInclude(): void
     {
         $this->assertContains('.htaccess', $this->sampleConfig->getIncludes());
         $this->assertContains('include.html', $this->sampleConfig->getIncludes());
     }
 
-    public function testSampleConfigCombinedExclude()
+    public function testSampleConfigCombinedExclude(): void
     {
         $this->assertContains('node_modules/', $this->sampleConfig->getExcludes());
         $this->assertContains('exclude.html', $this->sampleConfig->getExcludes());
     }
 
-    public function testSampleConfigGetTheme()
+    public function testSampleConfigGetTheme(): void
     {
         $this->assertEquals('bootstrap', $this->sampleConfig->getTheme());
     }
 
-    public function testSampleConfigGetCustomOptions()
+    public function testSampleConfigGetCustomOptions(): void
     {
         $options = $this->sampleConfig->getConfiguration();
 
@@ -98,19 +102,19 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('http://twitter.com', $options['social']['twitter']);
     }
 
-    public function testSampleConfigGetPageViews()
+    public function testSampleConfigGetPageViews(): void
     {
         $this->assertCount(3, $this->sampleConfig->getPageViewFolders());
         $this->assertContains('_pages', $this->sampleConfig->getPageViewFolders());
         $this->assertContains('_foo', $this->sampleConfig->getPageViewFolders());
     }
 
-    public function testSampleConfigGetTargetFolder()
+    public function testSampleConfigGetTargetFolder(): void
     {
         $this->assertEquals('_bacon/', $this->sampleConfig->getTargetFolder());
     }
 
-    public function testSampleConfigGetCollectionsFolders()
+    public function testSampleConfigGetCollectionsFolders(): void
     {
         $collections = $this->sampleConfig->getCollectionsFolders();
 
@@ -121,32 +125,32 @@ class ConfigurationTest extends PHPUnit_Stakx_TestCase
         ], $collections);
     }
 
-    public function testDefaultConfigTwigEscape()
+    public function testDefaultConfigTwigEscape(): void
     {
         $this->assertFalse($this->defaultConfig->getTwigAutoescape());
     }
 
-    public function testDefaultConfigBaseUrl()
+    public function testDefaultConfigBaseUrl(): void
     {
         $this->assertEmpty($this->defaultConfig->getBaseUrl());
     }
 
-    public function testDefaultConfigTargetUrl()
+    public function testDefaultConfigTargetUrl(): void
     {
         $this->assertEquals('_site/', $this->defaultConfig->getTargetFolder());
     }
 
-    public function testInvalidConfigurationFails()
+    public function testInvalidConfigurationFails(): void
     {
         $configPath = $this->createVirtualFile('_config.yml', "foo: bar\nfoo baz");
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getReadableLogger());
         $config->parse(new File($configPath));
 
         $this->assertStringContains('parsing failed...', StreamInterceptor::$output);
     }
 
-    public static function dataProviderImportTests()
+    public static function provideConfigurationImportsCases(): iterable
     {
         return [
             [
@@ -259,34 +263,30 @@ value_one: 1
     }
 
     /**
-     * @dataProvider dataProviderImportTests
-     *
-     * @param array $rules
+     * @dataProvider provideConfigurationImportsCases
      */
-    public function testConfigurationImports(array $rules)
+    public function testConfigurationImports(array $rules): void
     {
         $files = [];
 
-        foreach ($rules['files'] as $fileName => $fileContent)
-        {
+        foreach ($rules['files'] as $fileName => $fileContent) {
             $files[] = $this->createVirtualFile($fileName, $fileContent);
         }
 
         $masterConfig = $files[0];
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getMockLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getMockLogger());
         $config->parse(new File($masterConfig));
         $result = $config->getConfiguration();
 
         $this->assertArrayNotHasKey('import', $result);
 
-        foreach ($rules['keys'] as $key => $expectedValue)
-        {
+        foreach ($rules['keys'] as $key => $expectedValue) {
             $this->assertEquals($expectedValue, $result[$key]);
         }
     }
 
-    public function testConfigurationImportDirectoryFails()
+    public function testConfigurationImportDirectoryFails(): void
     {
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - hello/");
         vfsStream::create([
@@ -295,34 +295,34 @@ value_one: 1
             ],
         ]);
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
-        $this->assertContains("can't import a directory", StreamInterceptor::$output);
+        $this->assertStringContains("can't import a directory", StreamInterceptor::$output);
     }
 
-    public function testConfigurationImportSelfFails()
+    public function testConfigurationImportSelfFails(): void
     {
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - _config.yml");
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
-        $this->assertContains("can't import yourself", StreamInterceptor::$output);
+        $this->assertStringContains("can't import yourself", StreamInterceptor::$output);
     }
 
-    public function testConfigurationImportNonYamlFails()
+    public function testConfigurationImportNonYamlFails(): void
     {
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - my_xml.xml");
         $this->createVirtualFile('my_xml.xml', '<root></root>');
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
-        $this->assertContains('a non-YAML configuration', StreamInterceptor::$output);
+        $this->assertStringContains('a non-YAML configuration', StreamInterceptor::$output);
     }
 
-    public function testConfigurationImportSymlinkFails()
+    public function testConfigurationImportSymlinkFails(): never
     {
         $this->markTestIncomplete('This needs to be enabled/changed when I test against a sample site and not vfs.');
 
@@ -333,29 +333,29 @@ value_one: 1
             $this->fs->appendPath($this->assetFolder, 'my_sym.yml')
         );
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
-        $this->assertContains('a symbolically linked file', StreamInterceptor::$output);
+        $this->assertStringContains('a symbolically linked file', StreamInterceptor::$output);
     }
 
-    public function testConfigurationImportFileNotFound()
+    public function testConfigurationImportFileNotFound(): void
     {
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - fake_file.yml");
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
-        $this->assertContains('could not find file to import', StreamInterceptor::$output);
+        $this->assertStringContains('could not find file to import', StreamInterceptor::$output);
     }
 
-    public function testConfigurationImportGrandchild()
+    public function testConfigurationImportGrandchild(): void
     {
         $masterConfig = $this->createVirtualFile('grandparent.yml', "import:\n  - parent.yml\ngrandparent_value: 1");
         $this->createVirtualFile('parent.yml', "import:\n  - child.yml\nparent_value: 2");
         $this->createVirtualFile('child.yml', 'child_value: 3');
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getMockLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getMockLogger());
         $config->parse(new File($masterConfig));
         $result = $config->getConfiguration();
 
@@ -364,18 +364,18 @@ value_one: 1
         $this->assertArrayHasKey('child_value', $result);
     }
 
-    public function testConfigurationImportRecursivelyFails()
+    public function testConfigurationImportRecursivelyFails(): void
     {
         $masterConfig = $this->createVirtualFile('_config.yml', "import:\n  - _second.yml");
         $this->createVirtualFile('_second.yml', "import:\n  - _config.yml");
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getReadableLogger());
         $config->parse(new File($masterConfig));
 
-        $this->assertContains("can't recursively import a file", StreamInterceptor::$output);
+        $this->assertStringContains("can't recursively import a file", StreamInterceptor::$output);
     }
 
-    public static function dataProviderInvalidImportArrays()
+    public static function provideConfigurationInvalidImportArrayFailsCases(): iterable
     {
         return [
             ["import:\n- 1"],
@@ -385,21 +385,21 @@ value_one: 1
     }
 
     /**
-     * @dataProvider dataProviderInvalidImportArrays
+     * @dataProvider provideConfigurationInvalidImportArrayFailsCases
      *
      * @param string $invalidImportArray
      */
-    public function testConfigurationInvalidImportArrayFails($invalidImportArray)
+    public function testConfigurationInvalidImportArrayFails($invalidImportArray): void
     {
         $configPath = $this->createVirtualFile('config.yml', $invalidImportArray);
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getReadableLogger());
         $config->parse(new File($configPath));
 
-        $this->assertContains('invalid import:', StreamInterceptor::$output);
+        $this->assertStringContains('invalid import:', StreamInterceptor::$output);
     }
 
-    public static function dataProviderInvalidImports()
+    public static function provideConfigurationImportNotAnArrayCases(): iterable
     {
         return [
             ['import: true'],
@@ -409,17 +409,17 @@ value_one: 1
     }
 
     /**
-     * @dataProvider dataProviderInvalidImports
+     * @dataProvider provideConfigurationImportNotAnArrayCases
      *
      * @param string $invalidImport
      */
-    public function testConfigurationImportNotAnArray($invalidImport)
+    public function testConfigurationImportNotAnArray($invalidImport): void
     {
         $configPath = $this->createVirtualFile('config.yml', $invalidImport);
 
-        $config = new Configuration($this->getMockEventDistpatcher(), $this->getReadableLogger());
+        $config = new Configuration($this->getMockEventDispatcher(), $this->getReadableLogger());
         $config->parse(new File($configPath));
 
-        $this->assertContains('the reserved "import" keyword can only be an array', StreamInterceptor::$output);
+        $this->assertStringContains('the reserved "import" keyword can only be an array', StreamInterceptor::$output);
     }
 }

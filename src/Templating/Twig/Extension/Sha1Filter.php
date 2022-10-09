@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -13,13 +13,10 @@ class Sha1Filter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke($str)
     {
-        return sha1($str);
+        return sha1((string)$str);
     }
 
-    /**
-     * @return TwigFilter
-     */
-    public static function get()
+    public static function get(): TwigFilter
     {
         return new TwigFilter('sha1', new self());
     }

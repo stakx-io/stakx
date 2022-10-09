@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Filesystem\Folder;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * A notification-only event for when a Dataset definition is scanned.
@@ -17,29 +17,18 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class DatasetDefinitionAdded extends Event
 {
-    const NAME = 'dataset.definition.added';
+    final public const NAME = 'dataset.definition.added';
 
-    private $datasetName;
-    private $datasetFolder;
-
-    public function __construct($datasetName, Folder $datasetFolder)
+    public function __construct(private $datasetName, private readonly Folder $datasetFolder)
     {
-        $this->datasetName = $datasetName;
-        $this->datasetFolder = $datasetFolder;
     }
 
-    /**
-     * @return string
-     */
-    public function getDatasetName()
+    public function getDatasetName(): string
     {
         return $this->datasetName;
     }
 
-    /**
-     * @return Folder
-     */
-    public function getDatasetFolder()
+    public function getDatasetFolder(): Folder
     {
         return $this->datasetFolder;
     }

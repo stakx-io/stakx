@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -16,13 +16,10 @@ trait TemplateEngineDependent
 
     protected $dataDependencies = [];
 
-    /** @var TemplateBridgeInterface */
-    protected $templateEngine;
+    protected ?TemplateBridgeInterface $templateEngine = null;
 
     /**
      * Set the template engine used to parse the body of the document.
-     *
-     * @param TemplateBridgeInterface $templateEngine
      *
      * @return $this
      */
@@ -34,18 +31,54 @@ trait TemplateEngineDependent
     }
 
     /**
+     * Check whether this object has a reference to a collection or data item.
+     *
+     * @param string $namespace 'collections' or 'data'
+     * @param string $needle
+     */
+    public function hasDependencyOnCollection($namespace, $needle): bool
+    {
+        return
+            in_array($needle, $this->dataDependencies[$namespace])
+            || (is_null($needle) && !empty($this->dataDependencies[$namespace]));
+    }
+
+    /**
+     * Check whether this object has an "import" or "from" reference to a given path.
+     *
+     * @param string $filePath
+     */
+    public function hasDependencyOnTemplateImport($filePath): bool
+    {
+        return in_array($filePath, $this->importDependencies);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getImportDependencies(): array
+    {
+        return $this->importDependencies;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getCollectionDependencies(): array
+    {
+        return $this->dataDependencies;
+    }
+
+    /**
      * Pass the document's body through the template engine.
      *
      * @param string $bodyContent
      *
      * @throws TemplateErrorInterface
-     *
-     * @return string
      */
-    protected function parseTemplateLanguage($bodyContent)
+    protected function parseTemplateLanguage($bodyContent): string
     {
-        if ($this->templateEngine !== null)
-        {
+        if ($this->templateEngine !== null) {
             $this->importDependencies = $this->templateEngine->getTemplateImportDependencies($bodyContent);
             $this->dataDependencies = [
                 'collections' => $this->templateEngine->getAssortmentDependencies('collections', $bodyContent),
@@ -58,48 +91,5 @@ trait TemplateEngineDependent
         }
 
         return $bodyContent;
-    }
-
-    /**
-     * Check whether this object has a reference to a collection or data item.
-     *
-     * @param string $namespace 'collections' or 'data'
-     * @param string $needle
-     *
-     * @return bool
-     */
-    public function hasDependencyOnCollection($namespace, $needle)
-    {
-        return
-            in_array($needle, $this->dataDependencies[$namespace]) ||
-            (is_null($needle) && !empty($this->dataDependencies[$namespace]));
-    }
-
-    /**
-     * Check whether this object has an "import" or "from" reference to a given path.
-     *
-     * @param string $filePath
-     *
-     * @return bool
-     */
-    public function hasDependencyOnTemplateImport($filePath)
-    {
-        return in_array($filePath, $this->importDependencies);
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getImportDependencies()
-    {
-        return $this->importDependencies;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getCollectionDependencies()
-    {
-        return $this->dataDependencies;
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -10,17 +10,18 @@ namespace allejo\stakx\Templating\Twig\Extension;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Service;
+use ArrayAccess;
+use SplFileInfo;
+use Twig\Environment;
 use Twig\TwigFunction;
-use Twig_Environment;
 
 class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInterface
 {
-    private $site;
+    private array $site;
 
-    public function __invoke(Twig_Environment $env, $assetPath, $absolute = false, $params = [])
+    public function __invoke(Environment $env, $assetPath, $absolute = false, $params = []): string
     {
-        if ($this->isExternalUrl($assetPath))
-        {
+        if ($this->isExternalUrl($assetPath)) {
             return $assetPath;
         }
 
@@ -34,63 +35,53 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
         return $this->buildPermalink($url, $baseURL, $permalink);
     }
 
-    public static function get()
+    public static function get(): TwigFunction
     {
         return new TwigFunction('url', new self(), [
             'needs_environment' => true,
         ]);
     }
 
-    private function getUrl($absolute)
+    private function getUrl($absolute): string
     {
         $url = '/';
 
-        if (!$absolute)
-        {
+        if (!$absolute) {
             return $url;
         }
 
-        if (isset($this->site['url']))
-        {
+        if (isset($this->site['url'])) {
             $url = $this->site['url'];
         }
 
-        return ltrim($url, '/');
+        return ltrim((string)$url, '/');
     }
 
-    private function getBaseUrl()
+    private function getBaseUrl(): string
     {
         $base = '';
 
-        if (isset($this->site['baseurl']))
-        {
+        if (isset($this->site['baseurl'])) {
             $base = $this->site['baseurl'];
-        }
-        elseif (isset($this->site['base']))
-        {
+        } elseif (isset($this->site['base'])) {
             $base = $this->site['base'];
         }
 
         return $base;
     }
 
-    private function guessAssetPath($assetPath, $params)
+    private function guessAssetPath($assetPath, $params): string
     {
-        if ($assetPath instanceof JailedDocument && $assetPath->_coreInstanceOf(RepeaterPageView::class))
-        {
-            /** @var RepeaterPageView $assetPath */
+        if ($assetPath instanceof JailedDocument && $assetPath->_coreInstanceOf(RepeaterPageView::class)) {
             return ($link = $assetPath->_getPermalinkWhere($params)) ? $link : '/';
         }
-        elseif (is_array($assetPath) || ($assetPath instanceof \ArrayAccess))
-        {
-            return (isset($assetPath['permalink'])) ? $assetPath['permalink'] : '/';
+        if (is_array($assetPath) || ($assetPath instanceof ArrayAccess)) {
+            return $assetPath['permalink'] ?? '/';
         }
-        elseif (is_null($assetPath))
-        {
+        if (is_null($assetPath)) {
             return '/';
         }
-        elseif ($assetPath instanceof \SplFileInfo)
-        {
+        if ($assetPath instanceof SplFileInfo) {
             return str_replace(Service::getWorkingDirectory(), '', $assetPath);
         }
 
@@ -102,14 +93,13 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
      *
      * If the string contains an `://`, then it's guessed to be an external URL.
      *
-     * @param string|mixed $str
+     * @param mixed|string $str
      *
-     * @return bool True if the given string is guessed to be an external URL.
+     * @return bool true if the given string is guessed to be an external URL
      */
-    private function isExternalUrl($str)
+    private function isExternalUrl(mixed $str): bool
     {
-        if (!is_string($str))
-        {
+        if (!is_string($str)) {
             return false;
         }
 
@@ -118,21 +108,17 @@ class BaseUrlFunction extends AbstractTwigExtension implements TwigFunctionInter
 
     /**
      * @see   https://stackoverflow.com/a/15575293
-     *
-     * @return string
      */
-    private function buildPermalink()
+    private function buildPermalink(): string
     {
         $paths = [];
 
-        foreach (func_get_args() as $arg)
-        {
-            if ($arg !== '')
-            {
+        foreach (func_get_args() as $arg) {
+            if ($arg !== '') {
                 $paths[] = $arg;
             }
         }
 
-        return preg_replace('#(?<!:)/+#', '/', join('/', $paths));
+        return preg_replace('#(?<!:)/+#', '/', implode('/', $paths));
     }
 }

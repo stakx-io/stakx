@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -11,20 +11,16 @@ abstract class AbstractTwigExtension
 {
     /**
      * Whether or not this filter is allowed when a site is built in safe mode.
-     *
-     * @return bool
      */
-    public static function disableInSafeMode()
+    public static function disableInSafeMode(): bool
     {
         return false;
     }
 
     /**
      * Whether or not this filter is allowed when a site is built in debug mode.
-     *
-     * @return bool
      */
-    public static function onlyInDebug()
+    public static function onlyInDebug(): bool
     {
         return false;
     }

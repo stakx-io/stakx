@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -13,37 +13,33 @@ use allejo\stakx\Service;
 
 trait PermalinkDocumentTrait
 {
-    /** @var string */
-    protected $permalink = null;
+    protected ?string $permalink = null;
 
-    /** @var array */
-    protected $redirects = null;
+    protected ?array $redirects = null;
 
     /** Extensions that need to be stripped from permalinks. */
-    private static $extensionsToStrip = ['twig'];
+    private static array $extensionsToStrip = ['twig'];
 
     /**
      * {@inheritdoc}
      */
-    public function handleSpecialRedirects()
+    public function handleSpecialRedirects(): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    final public function getTargetFile($permalink = null)
+    final public function getTargetFile($permalink = null): string
     {
-        if ($permalink === null)
-        {
+        if ($permalink === null) {
             $permalink = $this->getPermalink();
         }
 
-        $missingFile = (substr($permalink, -1) == '/');
-        $permalink = str_replace('/', DIRECTORY_SEPARATOR, $permalink);
+        $missingFile = substr((string)$permalink, -1) == '/';
+        $permalink = str_replace('/', DIRECTORY_SEPARATOR, (string)$permalink);
 
-        if ($missingFile)
-        {
+        if ($missingFile) {
             $permalink = rtrim($permalink, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.html';
         }
 
@@ -53,12 +49,12 @@ trait PermalinkDocumentTrait
     /**
      * {@inheritdoc}
      */
-    final public function getPermalink()
+    final public function getPermalink(): string
     {
         $this->buildPermalink();
 
         $this->permalink = $this->sanitizePermalink($this->permalink);
-        $this->permalink = str_replace(DIRECTORY_SEPARATOR, '/', $this->permalink);
+        $this->permalink = str_replace(DIRECTORY_SEPARATOR, '/', (string)$this->permalink);
         $this->permalink = '/' . ltrim($this->permalink, '/'); // Permalinks should always use '/' and not be OS specific
 
         return $this->permalink;
@@ -67,10 +63,9 @@ trait PermalinkDocumentTrait
     /**
      * {@inheritdoc}
      */
-    final public function getRedirects()
+    final public function getRedirects(): array
     {
-        if ($this->redirects === null)
-        {
+        if ($this->redirects === null) {
             $this->getPermalink();
         }
 
@@ -82,32 +77,26 @@ trait PermalinkDocumentTrait
     /**
      * Get the permalink based off the location of where the file is relative to the website. This permalink is to be
      * used as a fallback in the case that a permalink is not explicitly specified in the Front Matter.
-     *
-     * @return string
      */
-    final protected function getPathPermalink()
+    final protected function getPathPermalink(): string
     {
         // Remove the protocol of the path, if there is one and prepend a '/' to the beginning
         $cleanPath = preg_replace('/[\w|\d]+:\/\//', '', $this->getRelativeFilePath());
         $cleanPath = ltrim($cleanPath, DIRECTORY_SEPARATOR);
 
         // Handle vfs:// paths by replacing their forward slashes with the OS appropriate directory separator
-        if (DIRECTORY_SEPARATOR !== '/')
-        {
+        if (DIRECTORY_SEPARATOR !== '/') {
             $cleanPath = str_replace('/', DIRECTORY_SEPARATOR, $cleanPath);
         }
 
         // Check the first folder and see if it's a data folder (starts with an underscore) intended for stakx
         $folders = explode(DIRECTORY_SEPARATOR, $cleanPath);
 
-        if (substr($folders[0], 0, 1) === '_')
-        {
+        if (str_starts_with($folders[0], '_')) {
             array_shift($folders);
         }
 
-        $cleanPath = implode(DIRECTORY_SEPARATOR, $folders);
-
-        return $cleanPath;
+        return implode(DIRECTORY_SEPARATOR, $folders);
     }
 
     /**
@@ -117,7 +106,7 @@ trait PermalinkDocumentTrait
      *
      * @return string $permalink The sanitized permalink
      */
-    final private function sanitizePermalink($permalink)
+    private function sanitizePermalink($permalink): string
     {
         // Remove multiple '/' together
         $permalink = preg_replace('/\/+/', '/', $permalink);
@@ -128,8 +117,7 @@ trait PermalinkDocumentTrait
         // Remove all disallowed characters
         $permalink = preg_replace('/[^0-9a-zA-Z-_\/\\\.]/', '', $permalink);
 
-        if (in_array(fs::getExtension($permalink), self::$extensionsToStrip))
-        {
+        if (in_array(fs::getExtension($permalink), self::$extensionsToStrip)) {
             $permalink = fs::removeExtension($permalink);
         }
 
@@ -137,8 +125,7 @@ trait PermalinkDocumentTrait
         $permalink = preg_replace('/^[^0-9a-zA-Z-_]*/', '', $permalink);
 
         // Convert permalinks to lower case
-        if (!Service::hasRunTimeFlag(RuntimeStatus::COMPILER_PRESERVE_CASE))
-        {
+        if (!Service::hasRunTimeFlag(RuntimeStatus::COMPILER_PRESERVE_CASE)) {
             $permalink = mb_strtolower($permalink, 'UTF-8');
         }
 

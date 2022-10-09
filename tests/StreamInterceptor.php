@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,19 +7,20 @@
 
 namespace allejo\stakx\Test;
 
+use php_user_filter;
+
 /**
  * Class StreamIntercept.
  *
  * @see http://stackoverflow.com/a/39785995
  */
-class StreamInterceptor extends \php_user_filter
+class StreamInterceptor extends php_user_filter
 {
-    public static $output = '';
+    public static string $output = '';
 
-    public function filter($in, $out, &$consumed, $closing)
+    public function filter($in, $out, &$consumed, $closing): int
     {
-        while ($bucket = stream_bucket_make_writeable($in))
-        {
+        while ($bucket = stream_bucket_make_writeable($in)) {
             self::$output .= $bucket->data;
             $consumed += $bucket->datalen;
         }

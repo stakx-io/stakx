@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,11 +7,11 @@
 
 namespace allejo\stakx\Test;
 
+use __;
 use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\Configuration;
 use allejo\stakx\Document\FrontMatterDocument;
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\Filesystem;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Logger;
@@ -30,26 +30,33 @@ use allejo\stakx\Service;
 use allejo\stakx\Templating\Twig\TwigExtension;
 use allejo\stakx\Templating\Twig\TwigStakxBridge;
 use allejo\stakx\Templating\Twig\TwigStakxBridgeFactory;
+use BadFunctionCallException;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
+use PHPUnit\Framework\MockObject\MockBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
+use ReflectionParameter;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Yaml\Yaml;
 
-abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
+abstract class StakxTestCase extends TestCase
 {
-    const FM_OBJ_TEMPLATE = "---\n%s\n---\n\n%s";
+    public const FM_OBJ_TEMPLATE = "---\n%s\n---\n\n%s";
 
-    /** @var string */
-    protected $assetFolder;
-    /** @var vfsStreamFile */
-    protected $dummyFile;
-    /** @var vfsStreamDirectory */
-    protected $rootDir;
+    protected vfsStreamDirectory $rootDir;
 
-    public function setUp()
+    protected vfsStreamFile $dummyFile;
+
+    protected ?string $assetFolder = null;
+
+    public function setUp(): void
     {
         $this->dummyFile = vfsStream::newFile('stakx.html.twig');
         $this->rootDir = vfsStream::setup();
@@ -63,52 +70,39 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         // vfsStream::inspect(new vfsStreamStructureVisitor())->getStructure();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        if ($this->assetFolder !== null)
-        {
+        if ($this->assetFolder !== null) {
             fs::remove($this->assetFolder);
         }
     }
 
-    ///
+    //
     // Assertion Functions
-    ///
+    //
 
-    /**
-     * @param string $needle
-     * @param string $haystack
-     * @param string $message
-     */
-    protected function assertStringContains($needle, $haystack, $message = '')
+    protected function assertStringContains(string $needle, string $haystack, string $message = ''): void
     {
         $this->assertNotFalse(strpos($haystack, $needle), $message);
     }
 
-    /**
-     * @param string $fileContent
-     * @param string $filePath
-     * @param string $message
-     */
-    protected function assertFileContains($fileContent, $filePath, $message = '')
+    protected function assertFileContains(string $fileContent, string $filePath, string $message = ''): void
     {
-        (substr($filePath, -1, 1) == '/') && $filePath .= 'index.html';
+        ($filePath[strlen($filePath) - 1] === '/') && $filePath .= 'index.html';
 
         $contents = file_get_contents($filePath);
 
         $this->assertStringContains($fileContent, $contents, $message);
     }
 
-    ///
+    //
     // Filesystem Functions
-    ///
+    //
 
     /**
      * Create a temporary folder where temporary file writes will be made to.
-     *
-     * @param string $folderName
      */
-    protected function createAssetFolder($folderName)
+    protected function createAssetFolder(string $folderName): void
     {
         $this->assetFolder = fs::getRelativePath(fs::appendPath(__DIR__, $folderName));
 
@@ -121,12 +115,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      * This file will be written to the actual filesystem and not the virtual filesystem. This file will be deleted at
      * each tearDown().
      *
-     * @param string $fileName
-     * @param string $content
-     *
      * @return string Path to the temporary file; relative to the project's root
      */
-    protected function createPhysicalFile($fileName, $content)
+    protected function createPhysicalFile(string $fileName, string $content): string
     {
         $folder = new WritableFolder($this->assetFolder);
         $folder->writeFile($fileName, $content);
@@ -139,12 +130,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      *
      * This file will be deleted at each tearDown().
      *
-     * @param string $filename
-     * @param string $content
-     *
      * @return string the URL of the file on the virtual filesystem
      */
-    protected function createVirtualFile($filename, $content)
+    protected function createVirtualFile(string $filename, string $content): string
     {
         $file = vfsStream::newFile($filename);
         $file
@@ -160,13 +148,9 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      *
      * This will create a virtual file and then create an object of the specified type for the created file.
      *
-     * @param string $classType
-     * @param string $filename
-     * @param string $content
-     *
      * @return object An instance of $classType
      */
-    protected function createDocumentOfType($classType, $filename, $content)
+    protected function createDocumentOfType(string $classType, string $filename, string $content): object
     {
         $file = $this->createVirtualFile($filename, $content);
 
@@ -176,20 +160,15 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     /**
      * Create an object of a given type following the Front Matter format.
      *
-     * @param string $classType
-     * @param string $filename
-     * @param array  $frontMatter
-     * @param string $content
      *
      * @return object An instance of $classType
      */
-    protected function createFrontMatterDocumentOfType($classType, $filename = null, $frontMatter = [], $content = 'Body Text')
+    protected function createFrontMatterDocumentOfType(string $classType, ?string $filename = null, array $frontMatter = [], string $content = 'Body Text'): object
     {
         $body = $this->buildFrontMatterTemplate($frontMatter, $content);
 
-        if (!$filename)
-        {
-            $filename = hash('sha256', uniqid(mt_rand(), true), false);
+        if (!$filename) {
+            $filename = hash('sha256', (string)random_int(0, mt_getrandmax()));
         }
 
         return $this->createDocumentOfType($classType, $filename, $body);
@@ -210,18 +189,15 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      *
      * @param string $classType
      * @param array  $elements
-     *
-     * @return array
      */
-    protected function createMultipleFrontMatterDocumentsOfType($classType, $elements)
+    protected function createMultipleFrontMatterDocumentsOfType($classType, $elements): array
     {
         $results = [];
 
-        foreach ($elements as $element)
-        {
-            $filename = (isset($element['filename'])) ? $element['filename'] : null;
+        foreach ($elements as $element) {
+            $filename = $element['filename'] ?? null;
             $frontMatter = (!isset($element['frontmatter']) || empty($element['frontmatter'])) ? [] : $element['frontmatter'];
-            $body = (isset($element['body'])) ? $element['body'] : 'Body Text';
+            $body = $element['body'] ?? 'Body Text';
 
             /** @var FrontMatterDocument $item */
             $item = $this->createFrontMatterDocumentOfType($classType, $filename, $frontMatter, $body);
@@ -239,38 +215,27 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
      * @deprecated
      *
      * @param string $filePath
-     *
-     * @return File
      */
-    protected function createFileObjectFromPath($filePath)
+    protected function createFileObjectFromPath($filePath): File
     {
         return new File($filePath);
     }
 
-    ///
+    //
     // Mock Objects
-    ///
+    //
 
-    /**
-     * @return AssetEngineManager|\PHPUnit_Framework_MockObject_MockBuilder
-     */
-    protected function getMockAssetEngineManager()
+    protected function getMockAssetEngineManager(): MockBuilder|AssetEngineManager
     {
         return new AssetEngineManager();
     }
 
-    /**
-     * @return AssetManager
-     */
-    protected function getMockAssetManager()
+    protected function getMockAssetManager(): AssetManager
     {
-        return new AssetManager($this->getMockEventDistpatcher(), $this->getMockLogger());
+        return new AssetManager($this->getMockEventDispatcher(), $this->getMockLogger());
     }
 
-    /**
-     * @return Configuration|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function getMockConfiguration()
+    protected function getMockConfiguration(): MockObject|Configuration
     {
         $stub = $this->getMockBuilder(Configuration::class)
             ->disableOriginalConstructor()
@@ -283,10 +248,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $stub;
     }
 
-    /**
-     * @return PageManager|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function getMockPageManager()
+    protected function getMockPageManager(): PageManager|MockObject
     {
         $stub = $this->getMockBuilder(PageManager::class)
             ->disableOriginalConstructor()
@@ -298,10 +260,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $stub;
     }
 
-    /**
-     * @return MenuManager|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function getMockMenuManager()
+    protected function getMockMenuManager(): MockObject|MenuManager
     {
         $stub = $this->getMockBuilder(MenuManager::class)
             ->disableOriginalConstructor()
@@ -313,10 +272,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $stub;
     }
 
-    /**
-     * @return CollectionManager|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function getMockCollectionManager()
+    protected function getMockCollectionManager(): MockObject|CollectionManager
     {
         $stub = $this->getMockBuilder(CollectionManager::class)
             ->disableOriginalConstructor()
@@ -328,10 +284,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $stub;
     }
 
-    /**
-     * @return DataManager|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function getMockDataManager()
+    protected function getMockDataManager(): MockObject|DataManager
     {
         $stub = $this->getMockBuilder(DataManager::class)
             ->disableOriginalConstructor()
@@ -343,20 +296,14 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $stub;
     }
 
-    /**
-     * @return TwigExtension
-     */
-    protected function getMockTwigExtension()
+    protected function getMockTwigExtension(): TwigExtension
     {
         // too lazy to actually mock all the methods... just create an actual instance of and dub it a "mock" to match
         // all the other mock methods. if this causes problems: sorry, future me!
         return new TwigExtension($this->getMockMarkupEngineManager());
     }
 
-    /**
-     * @return TwigStakxBridge
-     */
-    protected function getMockTemplateBridge()
+    protected function getMockTemplateBridge(): TwigStakxBridge
     {
         return TwigStakxBridgeFactory::createTwigEnvironment(
             $this->getMockConfiguration(),
@@ -365,10 +312,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @return MarkupEngineManager
-     */
-    protected function getMockMarkupEngineManager()
+    protected function getMockMarkupEngineManager(): MarkupEngineManager
     {
         // Just trying to keep the naming convention the same, but create an actual markup engine manager since it's
         // necessary in a lot of the unit tests
@@ -383,10 +327,7 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $markupEngine;
     }
 
-    /**
-     * @return RedirectMapper|\PHPUnit_Framework_MockObject_MockObject
-     */
-    protected function getMockRedirectMapper()
+    protected function getMockRedirectMapper(): RedirectMapper|MockObject
     {
         $stub = $this->getMockBuilder(RedirectMapper::class)
             ->getMock()
@@ -399,30 +340,24 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
 
     /**
      * Get a mock EventDispatcher.
-     *
-     * @return EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected function getMockEventDistpatcher()
+    protected function getMockEventDispatcher(): MockObject|EventDispatcherInterface
     {
-        return $this->getMock(EventDispatcherInterface::class);
+        return $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
     }
 
     /**
      * Get a mock logger.
-     *
-     * @return LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected function getMockLogger()
+    protected function getMockLogger(): MockObject|LoggerInterface
     {
-        return $this->getMock(LoggerInterface::class);
+        return $this->getMockBuilder(LoggerInterface::class)->getMock();
     }
 
     /**
      * Get a real logger instance that will save output to the console.
-     *
-     * @return Logger
      */
-    protected function getReadableLogger()
+    protected function getReadableLogger(): Logger
     {
         stream_filter_register('intercept', StreamInterceptor::class);
         $stakxLogger = new Logger(new ConsoleOutput());
@@ -431,29 +366,22 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $stakxLogger;
     }
 
-    ///
+    //
     // Utility Functions
-    ///
+    //
 
     /**
      * Get the directory of the unit tests.
-     *
-     * @return string
      */
-    protected static function getTestRoot()
+    protected static function getTestRoot(): string
     {
         return __DIR__;
     }
 
     /**
      * Generate a FrontMatter-ready syntax to be used as a file's content.
-     *
-     * @param array  $frontMatter
-     * @param string $body
-     *
-     * @return string
      */
-    protected function buildFrontMatterTemplate(array $frontMatter = [], $body = 'Body text')
+    protected function buildFrontMatterTemplate(array $frontMatter = [], string $body = 'Body text'): string
     {
         $fm = (empty($frontMatter)) ? '' : Yaml::dump($frontMatter, 2);
 
@@ -461,45 +389,34 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param string               $cls
-     * @param string               $method
      * @param array<string, mixed> $namedParams
      *
-     * @throws \ReflectionException
-     *
-     * @return mixed
+     * @throws ReflectionException
      */
-    protected function invokeClassFunctionWithNamedParams($cls, $method, $namedParams = [])
+    protected function invokeClassFunctionWithNamedParams(string $cls, string $method, array $namedParams = []): mixed
     {
-        $clsReflection = new \ReflectionClass($cls);
+        $clsReflection = new ReflectionClass($cls);
         $fxns = $clsReflection->getMethods();
 
-        /** @var \ReflectionMethod $fxnToCall */
-        $fxnToCall = \__::chain($fxns)
-            ->filter(function (\ReflectionMethod $fxn) use ($method) {
-                return $fxn->getName() === $method;
-            })
+        /** @var ReflectionMethod $fxnToCall */
+        $fxnToCall = __::chain($fxns)
+            ->filter(fn (ReflectionMethod $fxn) => $fxn->getName() === $method)
             ->get(0, null)
             ->value()
         ;
 
-        if ($fxnToCall === null)
-        {
-            throw new \BadFunctionCallException(sprintf('No function by the name of "%s" in this class', $method));
+        if ($fxnToCall === null) {
+            throw new BadFunctionCallException(sprintf('No function by the name of "%s" in this class', $method));
         }
 
         $arguments = $fxnToCall->getParameters();
         $callUserFuncArray = [];
 
-        /** @var \ReflectionParameter $argument */
-        foreach ($arguments as $argument)
-        {
-            if (isset($namedParams[$argument->getName()]))
-            {
+        /** @var ReflectionParameter $argument */
+        foreach ($arguments as $argument) {
+            if (isset($namedParams[$argument->getName()])) {
                 $callUserFuncArray[] = $namedParams[$argument->getName()];
-            }
-            else
-            {
+            } else {
                 $callUserFuncArray[] = $argument->getDefaultValue();
             }
         }
@@ -507,23 +424,23 @@ abstract class PHPUnit_Stakx_TestCase extends \PHPUnit_Framework_TestCase
         return $fxnToCall->invoke(null, ...$callUserFuncArray);
     }
 
-    ///
+    //
     // Misc Functions
-    ///
+    //
 
-    protected function bookCollectionProvider($jailed = false)
+    protected function bookCollectionProvider($jailed = false): array
     {
         $cm = new CollectionManager(
             $this->getMockMarkupEngineManager(),
             $this->getMockConfiguration(),
             $this->getMockTemplateBridge(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $cm->parseCollections([
             [
                 'name' => 'books',
-                'folder' => 'tests/allejo/stakx/Test/assets/MyBookCollection/',
+                'folder' => 'tests/assets/MyBookCollection/',
             ],
         ]);
 

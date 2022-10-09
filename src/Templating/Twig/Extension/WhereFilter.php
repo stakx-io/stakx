@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,6 +8,7 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use __;
+use ArrayAccess;
 use Twig\Error\SyntaxError;
 use Twig\TwigFilter;
 
@@ -33,23 +34,19 @@ use Twig\TwigFilter;
 class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     /**
-     * @param array|\ArrayAccess[] $array      The elements to filter through
-     * @param string               $key        The key value in an associative array or FrontMatter
-     * @param string               $comparison The actual comparison symbols being used
-     * @param mixed                $value      The value we're searching for
+     * @param array  $array      The elements to filter through
+     * @param string $key        The key value in an associative array or FrontMatter
+     * @param string $comparison The actual comparison symbols being used
+     * @param mixed  $value      The value we're searching for
      *
      * @throws SyntaxError
-     *
-     * @return array
      */
-    public function __invoke($array, $key, $comparison, $value)
+    public function __invoke(array $array, string $key, string $comparison, mixed $value): array
     {
         $results = [];
 
-        foreach ($array as $item)
-        {
-            if ($this->compare($item, $key, $comparison, $value))
-            {
+        foreach ($array as $item) {
+            if ($this->compare($item, $key, $comparison, $value)) {
                 $results[] = $item;
             }
         }
@@ -57,10 +54,7 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
         return $results;
     }
 
-    /**
-     * @return TwigFilter
-     */
-    public static function get()
+    public static function get(): TwigFilter
     {
         return new TwigFilter('where', new self());
     }
@@ -68,26 +62,22 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
     /**
      * The logic for determining if an element matches the filter.
      *
-     * @param mixed|\ArrayAccess $item       The elements to filter through
-     * @param string             $key        The key value in an associative array or FrontMatter
-     * @param string             $comparison The actual comparison symbol being used
-     * @param string             $value      The value we're searching for
+     * @param mixed  $item       The elements to filter through
+     * @param string $key        The key value in an associative array or FrontMatter
+     * @param string $comparison The actual comparison symbol being used
+     * @param mixed  $value      The value we're searching for
      *
      * @throws SyntaxError
-     *
-     * @return bool
      */
-    private function compare($item, $key, $comparison, $value)
+    private function compare(mixed $item, string $key, string $comparison, mixed $value): bool
     {
-        if ($this->compareNullValues($item, $key, $comparison, $value))
-        {
+        if ($this->compareNullValues($item, $key, $comparison, $value)) {
             return true;
         }
 
         $lhsValue = __::get($item, $key);
 
-        if ($lhsValue === null)
-        {
+        if ($lhsValue === null) {
             return false;
         }
 
@@ -97,28 +87,22 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
     /**
      * If the comparison is == or !=, then special behavior is defined for null values.
      *
-     * @param mixed|\ArrayAccess $item     The elements to filter through
-     * @param string             $key      The key value in an associative array or FrontMatter
-     * @param string             $operator The actual comparison symbol being used
-     * @param mixed              $value    The value we're searching for
-     *
-     * @return bool
+     * @param ArrayAccess|mixed $item     The elements to filter through
+     * @param string            $key      The key value in an associative array or FrontMatter
+     * @param string            $operator The actual comparison symbol being used
+     * @param mixed             $value    The value we're searching for
      */
-    private function compareNullValues($item, $key, $operator, $value)
+    private function compareNullValues($item, $key, $operator, mixed $value): bool
     {
-        if ($operator != '==' && $operator != '!=')
-        {
+        if ($operator !== '==' && $operator !== '!=') {
             return false;
         }
 
-        if (!__::has($item, $key))
-        {
-            if ($operator == '==' && $value === null)
-            {
+        if (!__::has($item, $key)) {
+            if ($operator === '==' && $value === null) {
                 return true;
             }
-            if ($operator == '!=' && $value !== null)
-            {
+            if ($operator === '!=' && $value !== null) {
                 return true;
             }
         }
@@ -127,71 +111,44 @@ class WhereFilter extends AbstractTwigExtension implements TwigFilterInterface
     }
 
     /**
-     * @param mixed  $lhs
-     * @param string $comparison
-     * @param mixed  $rhs
-     *
      * @throws SyntaxError
-     *
-     * @return bool
      */
-    private function comparisonSymbol($lhs, $comparison, $rhs)
+    private function comparisonSymbol(mixed $lhs, string $comparison, mixed $rhs): bool
     {
-        switch ($comparison)
-        {
-            case '==':
-                return $lhs === $rhs;
-
-            case '!=':
-                return $lhs !== $rhs;
-
-            case '>':
-                return $lhs > $rhs;
-
-            case '>=':
-                return $lhs >= $rhs;
-
-            case '<':
-                return $lhs < $rhs;
-
-            case '<=':
-                return $lhs <= $rhs;
-
-            case '~=':
-                return $this->contains($lhs, $rhs);
-
-            case '_=':
-                return $this->containsCaseInsensitive($lhs, $rhs);
-
-            case '/=':
-                return $this->regexMatches($lhs, $rhs);
-
-            default:
-                throw new SyntaxError("Invalid where comparison ({$comparison})");
-        }
+        return match ($comparison) {
+            '==' => $lhs === $rhs,
+            '!=' => $lhs !== $rhs,
+            '>' => $lhs > $rhs,
+            '>=' => $lhs >= $rhs,
+            '<' => $lhs < $rhs,
+            '<=' => $lhs <= $rhs,
+            '~=' => $this->contains($lhs, $rhs),
+            '_=' => $this->containsCaseInsensitive($lhs, $rhs),
+            '/=' => $this->regexMatches($lhs, $rhs),
+            default => throw new SyntaxError("Invalid where comparison ({$comparison})"),
+        };
     }
 
-    private function contains($haystack, $needle)
+    private function contains($haystack, $needle): bool
     {
         return
-            (is_array($haystack) && in_array($needle, $haystack)) ||
-            (is_string($haystack) && strpos($haystack, $needle) !== false);
+            (is_array($haystack) && in_array($needle, $haystack))
+            || (is_string($haystack) && str_contains($haystack, (string)$needle));
     }
 
-    private function containsCaseInsensitive($haystack, $needle)
+    private function containsCaseInsensitive($haystack, $needle): bool
     {
-        if (is_array($haystack))
-        {
+        if (is_array($haystack)) {
             $downCase = array_combine(array_map('strtolower', $haystack), $haystack);
 
-            return isset($downCase[strtolower($needle)]);
+            return isset($downCase[strtolower((string)$needle)]);
         }
 
-        return is_string($haystack) && strpos(strtolower($haystack), strtolower($needle)) !== false;
+        return is_string($haystack) && str_contains(strtolower($haystack), strtolower((string)$needle));
     }
 
-    private function regexMatches($haystack, $regex)
+    private function regexMatches($haystack, $regex): bool
     {
-        return preg_match($regex, $haystack) === 1;
+        return preg_match($regex, (string)$haystack) === 1;
     }
 }

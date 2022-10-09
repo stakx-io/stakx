@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -14,5 +14,5 @@ namespace allejo\stakx\Event;
  */
 class PageManagerPostProcess extends PageManagerPreProcess
 {
-    const NAME = 'pagemanager.process.post_process';
+    final public const NAME = 'pagemanager.process.post_process';
 }

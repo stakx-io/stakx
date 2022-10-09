@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -28,42 +28,21 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class CollectionManager extends TrackingManager
 {
     /** @var string[][] A copy of the collection definitions to be available for later usage. */
-    private $collectionDefinitions;
-    /** @var MarkupEngineManager */
-    private $markupEngineManager;
-    /** @var Configuration */
-    private $configuration;
-    /** @var EventDispatcherInterface */
-    private $eventDispatcher;
-    /** @var TemplateBridgeInterface */
-    private $templateBridge;
-    /** @var LoggerInterface */
-    private $logger;
+    private array $collectionDefinitions;
 
     /**
      * CollectionManager constructor.
      */
-    public function __construct(
-        MarkupEngineManager $markupEngineManager,
-        Configuration $configuration,
-        TemplateBridgeInterface $templateBridge,
-        EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $logger
-    ) {
-        $this->markupEngineManager = $markupEngineManager;
-        $this->configuration = $configuration;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->templateBridge = $templateBridge;
-        $this->logger = $logger;
+    public function __construct(private readonly MarkupEngineManager $markupEngineManager, private readonly Configuration $configuration, private readonly TemplateBridgeInterface $templateBridge, private readonly EventDispatcherInterface $eventDispatcher, private readonly LoggerInterface $logger)
+    {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function compileManager()
+    public function compileManager(): void
     {
-        if (!$this->configuration->hasCollections())
-        {
+        if (!$this->configuration->hasCollections()) {
             $this->logger->notice('No Collections defined... Ignoring');
 
             return;
@@ -86,7 +65,7 @@ class CollectionManager extends TrackingManager
      *
      * @return ContentItem[][]
      */
-    public function &getCollections()
+    public function &getCollections(): array
     {
         return $this->trackedItems;
     }
@@ -97,14 +76,11 @@ class CollectionManager extends TrackingManager
      * @param string $filePath
      *
      * @throws TrackedItemNotFoundException
-     *
-     * @return ContentItem
      */
-    public function &getContentItem($filePath)
+    public function &getContentItem($filePath): ContentItem
     {
-        if (!isset($this->trackedItemsFlattened[$filePath]))
-        {
-            throw new TrackedItemNotFoundException("The ContentItem at '$filePath' was not found.");
+        if (!isset($this->trackedItemsFlattened[$filePath])) {
+            throw new TrackedItemNotFoundException("The ContentItem at '{$filePath}' was not found.");
         }
 
         return $this->trackedItemsFlattened[$filePath];
@@ -115,11 +91,9 @@ class CollectionManager extends TrackingManager
      *
      * @return JailedDocument[][]
      */
-    public function getJailedCollections()
+    public function getJailedCollections(): array
     {
-        return self::getJailedTrackedItems($this->trackedItemsFlattened, function ($contentItem) {
-            return $contentItem['basename'];
-        });
+        return self::getJailedTrackedItems($this->trackedItemsFlattened, fn ($contentItem) => $contentItem['basename']);
     }
 
     /**
@@ -127,10 +101,9 @@ class CollectionManager extends TrackingManager
      *
      * @param string[][] $collections An array of definitions for collections
      */
-    public function parseCollections($collections)
+    public function parseCollections($collections): void
     {
-        if ($collections == null || empty($collections))
-        {
+        if ($collections == null || empty($collections)) {
             $this->logger->debug('No collections found, nothing to parse.');
 
             return;
@@ -143,11 +116,8 @@ class CollectionManager extends TrackingManager
          *
          * $collection['name']   string The name of the collection
          *            ['folder'] string The folder where this collection has its ContentItems
-         *
-         * @var array
          */
-        foreach ($collections as $collection)
-        {
+        foreach ($collections as $collection) {
             $this->logger->notice('Loading "{name}" collection...', [
                 'name' => $collection['name'],
             ]);
@@ -155,7 +125,7 @@ class CollectionManager extends TrackingManager
             $folder = new Folder($collection['folder']);
 
             $event = new CollectionDefinitionAdded($collection['name'], $folder);
-            $this->eventDispatcher->dispatch(CollectionDefinitionAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event, CollectionDefinitionAdded::NAME);
 
             // Only fetch ContentItems with supported extensions
             $def = new FileExplorerDefinition($folder);
@@ -174,7 +144,7 @@ class CollectionManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    public function createNewItem($filePath)
+    public function createNewItem($filePath): mixed
     {
         $collection = $this->getCollectionNameFromPath($filePath);
 
@@ -186,14 +156,15 @@ class CollectionManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    public function refreshItem($filePath)
+    public function refreshItem($filePath): mixed
     {
+        return null;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem(File $filePath, array $options = [])
+    protected function handleTrackableItem(File $filePath, array $options = []): mixed
     {
         $collectionName = $options['namespace'];
 
@@ -213,25 +184,20 @@ class CollectionManager extends TrackingManager
         ]);
 
         $event = new CollectionItemAdded($contentItem);
-        $this->eventDispatcher->dispatch(CollectionItemAdded::NAME, $event);
+        $this->eventDispatcher->dispatch($event, CollectionItemAdded::NAME);
 
         return $contentItem;
     }
 
     /**
      * Get the name of the Collection this ContentItem belongs to based on its location.
-     *
-     * @param File $file
-     *
-     * @return string
      */
-    private function getCollectionNameFromPath(File $file)
+    private function getCollectionNameFromPath(File $file): string
     {
         $folders = array_column($this->collectionDefinitions, 'folder');
         $index = array_search($file->getRelativeParentFolder(), $folders);
 
-        if (isset($this->collectionDefinitions[$index]['name']))
-        {
+        if (isset($this->collectionDefinitions[$index]['name'])) {
             return $this->collectionDefinitions[$index]['name'];
         }
 

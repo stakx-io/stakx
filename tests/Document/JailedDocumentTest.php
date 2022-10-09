@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -10,9 +10,17 @@ namespace allejo\stakx\Test\Document;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use BadMethodCallException;
+use DateTime;
+use DateTimeZone;
 
-class JailedDocumentTests extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class JailedDocumentTest extends StakxTestCase
 {
     public function getJailObject()
     {
@@ -23,7 +31,7 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
         return $pageView->createJail();
     }
 
-    public function testJailObjectGetPermalink()
+    public function testJailObjectGetPermalink(): void
     {
         $permalink = '/authors/scott-pilgrim/';
         $jail = $this->getJailObject();
@@ -32,17 +40,17 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($jail->getPermalink(), $jail['permalink']);
     }
 
-    public function testJailObjectGenericFrontMatter()
+    public function testJailObjectGenericFrontMatter(): void
     {
         $jail = $this->getJailObject();
 
         $this->assertTrue($jail['active']);
         $this->assertCount(4, $jail['powers']);
-        $this->assertInstanceOf(\DateTime::class, $jail['joined']);
+        $this->assertInstanceOf(DateTime::class, $jail['joined']);
         $this->assertNull($jail['my-fake-key']);
     }
 
-    public function testJailObjectGetRedirects()
+    public function testJailObjectGetRedirects(): void
     {
         $jail = $this->getJailObject();
 
@@ -51,19 +59,19 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($jail->getRedirects(), $jail['redirects']);
     }
 
-    public function testJailGetDateTimeTimezone()
+    public function testJailGetDateTimeTimezone(): void
     {
         $defaultTimezone = date_default_timezone_get();
         date_default_timezone_set('America/New_York');
 
         $jail = $this->getJailObject();
 
-        $this->assertEquals(new \DateTimeZone('America/New_York'), $jail['joined']->getTimezone());
+        $this->assertEquals(new DateTimeZone('America/New_York'), $jail['joined']->getTimezone());
 
         date_default_timezone_set($defaultTimezone);
     }
 
-    public function testJailWhiteListFunction()
+    public function testJailWhiteListFunction(): void
     {
         $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class);
         $jailable = $contentItem->createJail();
@@ -72,7 +80,7 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
         $this->assertNotEmpty($content);
     }
 
-    public function testJailFrontMatter()
+    public function testJailFrontMatter(): void
     {
         $value = 'super bacon!';
 
@@ -84,9 +92,9 @@ class JailedDocumentTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($value, $jailable['value']);
     }
 
-    public function testJailInvalidFunction()
+    public function testJailInvalidFunction(): void
     {
-        $this->setExpectedException(\BadMethodCallException::class);
+        $this->expectException(BadMethodCallException::class);
 
         /** @var ContentItem $contentItem */
         $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class);

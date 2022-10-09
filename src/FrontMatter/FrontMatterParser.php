@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -11,6 +11,9 @@ use __;
 use allejo\stakx\FrontMatter\Exception\YamlUnsupportedVariableException;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\Utilities\ArrayUtilities;
+use DateTime;
+use DateTimeZone;
+use Exception;
 
 /**
  * The parser tasked with sanitizing and evaluating Front Matter of its variables.
@@ -58,82 +61,67 @@ use allejo\stakx\Utilities\ArrayUtilities;
  */
 class FrontMatterParser
 {
-    const ANY_VARIABLE = '/(?<!\\\\)%{?([a-zA-Z\.]+)}?/';
+    final public const ANY_VARIABLE = '/(?<!\\\\)%{?([a-zA-Z\.]+)}?/';
 
     /**
      * The RegEx used to identify Front Matter variables.
      */
-    const VARIABLE_DEF = '/(?<!\\\\)%([a-zA-Z]+)/';
+    final public const VARIABLE_DEF = '/(?<!\\\\)%([a-zA-Z]+)/';
 
     /**
      * The RegEx used to identify special variables.
      */
-    const ARRAY_DEF = '/(?<!\\\\)%{([a-zA-Z\.]+)}/';
+    final public const ARRAY_DEF = '/(?<!\\\\)%{([a-zA-Z\.]+)}/';
 
     /**
      * A list of special fields in the Front Matter that will support expansion.
      *
      * @var string[]
      */
-    private static $expandableFields = ['permalink'];
+    private static array $expandableFields = ['permalink'];
 
     /**
      * Whether or not an field was expanded into several values.
      *
      * Only fields specified in $expandableFields will cause this value to be set to true
-     *
-     * @var bool
      */
-    private $expansionUsed;
+    private bool $expansionUsed;
 
     /**
      * The current depth of the recursion for evaluating nested arrays in the Front Matter.
-     *
-     * @var int
      */
-    private $nestingLevel;
-
-    /**
-     * Special FrontMatter keys that are defined manually.
-     *
-     * @var array
-     */
-    private $specialKeys;
+    private int $nestingLevel;
 
     /**
      * The current hierarchy of the keys that are being evaluated.
      *
      * Since arrays can be nested, we'll keep track of the keys up until the current depth. This information is used for
      * error reporting
-     *
-     * @var array
      */
-    private $yamlKeys;
+    private array $yamlKeys;
 
     /**
      * The entire Front Matter block; evaluation will happen in place.
-     *
-     * @var array
      */
-    private $frontMatter;
+    private array $frontMatter;
 
     /**
      * YAML data that is being imported from external sources.
-     *
-     * @var array
      */
-    private $complexVariables;
+    private array $complexVariables;
 
     /**
      * @param array $rawFrontMatter The array representation of a document's Front Matter
      * @param array $specialKeys    front Matter variables defined manually, which will override any values defined
      *                              through Front Matter
      */
-    public function __construct(array &$rawFrontMatter, array $specialKeys = [])
+    public function __construct(array &$rawFrontMatter, /**
+     * Special FrontMatter keys that are defined manually.
+     */
+    private readonly array $specialKeys = [])
     {
         $this->expansionUsed = false;
         $this->nestingLevel = 0;
-        $this->specialKeys = $specialKeys;
         $this->yamlKeys = [];
 
         $this->frontMatter = &$rawFrontMatter;
@@ -142,10 +130,8 @@ class FrontMatterParser
 
     /**
      * Make complex variables available to the parser.
-     *
-     * @param array $yaml
      */
-    public function addComplexVariables(array $yaml)
+    public function addComplexVariables(array $yaml): void
     {
         $this->complexVariables = array_merge($this->complexVariables, $yaml);
     }
@@ -153,7 +139,7 @@ class FrontMatterParser
     /**
      * Trigger the parsing functionality. The given array will be evaluated in place.
      */
-    public function parse()
+    public function parse(): void
     {
         $this->handleSpecialFrontMatter();
         $this->evaluateBlock($this->frontMatter);
@@ -161,10 +147,8 @@ class FrontMatterParser
 
     /**
      * True if any fields were expanded in the FrontMatter block.
-     *
-     * @return bool
      */
-    public function hasExpansion()
+    public function hasExpansion(): bool
     {
         return $this->expansionUsed;
     }
@@ -176,7 +160,7 @@ class FrontMatterParser
     /**
      * Special treatment for some FrontMatter variables.
      */
-    private function handleSpecialFrontMatter()
+    private function handleSpecialFrontMatter(): void
     {
         $this->handleSpecialKeys();
         $this->handleDateField();
@@ -185,7 +169,7 @@ class FrontMatterParser
     /**
      * Merge in the special keys with the existing FrontMatter.
      */
-    private function handleSpecialKeys()
+    private function handleSpecialKeys(): void
     {
         $this->frontMatter = array_merge($this->frontMatter, $this->specialKeys);
     }
@@ -193,18 +177,16 @@ class FrontMatterParser
     /**
      * Special treatment for the `date` field in FrontMatter that creates three new variables: year, month, day.
      */
-    private function handleDateField()
+    private function handleDateField(): void
     {
-        if (!isset($this->frontMatter['date']))
-        {
+        if (!isset($this->frontMatter['date'])) {
             return;
         }
 
         $date = &$this->frontMatter['date'];
         $itemDate = $this->guessDateTime($date);
 
-        if (!$itemDate === false)
-        {
+        if (!$itemDate === false) {
             $this->frontMatter['date'] = $itemDate->format('U');
             $this->frontMatter['year'] = $itemDate->format('Y');
             $this->frontMatter['month'] = $itemDate->format('m');
@@ -221,29 +203,21 @@ class FrontMatterParser
      *
      * @param array $yaml
      */
-    private function evaluateBlock(&$yaml)
+    private function evaluateBlock(&$yaml): void
     {
         ++$this->nestingLevel;
 
-        foreach ($yaml as $key => &$value)
-        {
+        foreach ($yaml as $key => &$value) {
             $this->yamlKeys[$this->nestingLevel] = $key;
             $keys = implode('.', $this->yamlKeys);
 
-            if (in_array($key, self::$expandableFields, true))
-            {
+            if (in_array($key, self::$expandableFields, true)) {
                 $value = $this->evaluateExpandableField($keys, $value);
-            }
-            elseif (is_array($value))
-            {
+            } elseif (is_array($value)) {
                 $this->evaluateBlock($value);
-            }
-            elseif (is_string($value))
-            {
+            } elseif (is_string($value)) {
                 $value = $this->evaluateBasicType($keys, $value);
-            }
-            elseif ($value instanceof \DateTime)
-            {
+            } elseif ($value instanceof DateTime) {
                 $value = $this->castDateTimeTimezone($value->format('U'));
             }
         }
@@ -257,27 +231,22 @@ class FrontMatterParser
      *
      * @param string $key
      * @param string $fmStatement
-     *
-     * @return array
      */
-    private function evaluateExpandableField($key, $fmStatement)
+    private function evaluateExpandableField($key, $fmStatement): array
     {
-        if (!is_array($fmStatement))
-        {
+        if (!is_array($fmStatement)) {
             $fmStatement = [$fmStatement];
         }
 
         $wip = [];
 
-        foreach ($fmStatement as $statement)
-        {
+        foreach ($fmStatement as $statement) {
             $value = $this->evaluateBasicType($key, $statement, true);
 
             // Only continue expansion if there are Front Matter variables remain in the string, this means there'll be
             // Front Matter variables referencing arrays
             $expandingVars = $this->findFrontMatterVariables($value);
-            if (!empty($expandingVars))
-            {
+            if (!empty($expandingVars)) {
                 $value = $this->evaluateArrayType($key, $value, $expandingVars);
             }
 
@@ -295,38 +264,31 @@ class FrontMatterParser
      * @param string[] $arrayVariableNames The Front Matter variable names that reference arrays
      *
      * @throws YamlUnsupportedVariableException If a multidimensional array is given for value expansion
-     *
-     * @return array
      */
-    private function evaluateArrayType($frontMatterKey, $expandableValue, $arrayVariableNames)
+    private function evaluateArrayType($frontMatterKey, $expandableValue, $arrayVariableNames): array
     {
-        if (!is_array($expandableValue))
-        {
+        if (!is_array($expandableValue)) {
             $expandableValue = [$expandableValue];
         }
 
         $this->expansionUsed = true;
 
-        foreach ($arrayVariableNames as $variable)
-        {
+        foreach ($arrayVariableNames as $variable) {
             $variableValue = $this->getVariableValue($frontMatterKey, $variable);
 
-            if (ArrayUtilities::is_multidimensional($variableValue))
-            {
-                throw new YamlUnsupportedVariableException("Yaml array expansion is not supported with multidimensional arrays with `$variable` for key `$frontMatterKey`");
+            if (ArrayUtilities::is_multidimensional($variableValue)) {
+                throw new YamlUnsupportedVariableException("Yaml array expansion is not supported with multidimensional arrays with `{$variable}` for key `{$frontMatterKey}`");
             }
 
             $wip = [];
 
-            foreach ($expandableValue as &$statement)
-            {
-                foreach ($variableValue as $value)
-                {
+            foreach ($expandableValue as &$statement) {
+                foreach ($variableValue as $value) {
                     $evaluatedValue = ($statement instanceof ExpandedValue) ? clone $statement : new ExpandedValue($statement);
 
                     $varTemplate = $this->getVariableTemplate($variable);
 
-                    $evaluatedValue->setEvaluated(str_replace($varTemplate, $value, $evaluatedValue->getEvaluated()));
+                    $evaluatedValue->setEvaluated(str_replace($varTemplate, (string)$value, $evaluatedValue->getEvaluated()));
                     $evaluatedValue->setIterator($variable, $value);
 
                     $wip[] = $evaluatedValue;
@@ -351,27 +313,24 @@ class FrontMatterParser
      *
      * @return string The final string with variables evaluated
      */
-    private function evaluateBasicType($key, $string, $ignoreArrays = false)
+    private function evaluateBasicType($key, $string, $ignoreArrays = false): string
     {
         $variables = $this->findFrontMatterVariables($string);
 
-        foreach ($variables as $variable)
-        {
+        foreach ($variables as $variable) {
             $value = $this->getVariableValue($key, $variable);
 
-            if (is_array($value) || is_bool($value))
-            {
-                if ($ignoreArrays)
-                {
+            if (is_array($value) || is_bool($value)) {
+                if ($ignoreArrays) {
                     continue;
                 }
 
-                throw new YamlUnsupportedVariableException("Yaml variable `$variable` for `$key` is not a supported data type.");
+                throw new YamlUnsupportedVariableException("Yaml variable `{$variable}` for `{$key}` is not a supported data type.");
             }
 
             // The FM variable template that we need to replace with our evaluated value
             $varTemplate = $this->getVariableTemplate($variable);
-            $string = str_replace($varTemplate, $value, $string);
+            $string = str_replace($varTemplate, (string)$value, $string);
         }
 
         return $string;
@@ -388,7 +347,7 @@ class FrontMatterParser
      *
      * @return string[]
      */
-    private function findFrontMatterVariables($string)
+    private function findFrontMatterVariables($string): array
     {
         $primitiveVars = [];
         preg_match_all(self::VARIABLE_DEF, $string, $primitiveVars);
@@ -408,26 +367,20 @@ class FrontMatterParser
      * @param string $varName The variable name we're searching for without the `%`
      *
      * @throws YamlVariableUndefinedException when variable is not defined
-     *
-     * @return mixed
      */
-    private function getVariableValue($key, $varName)
+    private function getVariableValue($key, $varName): mixed
     {
-        $isPrimitive = (strpos($varName, '.') === false);
+        $isPrimitive = !str_contains($varName, '.');
         $variableVal = null;
 
-        if ($isPrimitive)
-        {
+        if ($isPrimitive) {
             $variableVal = __::get($this->frontMatter, $varName);
-        }
-        else
-        {
+        } else {
             $variableVal = __::get($this->complexVariables, $varName);
         }
 
-        if ($variableVal === null)
-        {
-            throw new YamlVariableUndefinedException("Yaml variable `$varName` is not defined for: $key");
+        if ($variableVal === null) {
+            throw new YamlVariableUndefinedException("Yaml variable `{$varName}` is not defined for: {$key}");
         }
 
         return $variableVal;
@@ -440,56 +393,39 @@ class FrontMatterParser
      * template that will be used to replace the value.
      *
      * @param string $variableName The variable name
-     *
-     * @return string
      */
-    private function getVariableTemplate($variableName)
+    private function getVariableTemplate($variableName): string
     {
-        $isPrimitive = (strpos($variableName, '.') === false);
+        $isPrimitive = !str_contains($variableName, '.');
 
-        return ($isPrimitive) ? sprintf('%%%s', $variableName) : sprintf('%%{%s}', $variableName);
+        return $isPrimitive ? sprintf('%%%s', $variableName) : sprintf('%%{%s}', $variableName);
     }
 
     //
     // Utility functions
     //
 
-    /**
-     * @param string $epochTime
-     *
-     * @return bool|\DateTime
-     */
-    private function castDateTimeTimezone($epochTime)
+    private function castDateTimeTimezone(int|string $epochTime): bool|DateTime
     {
-        $timezone = new \DateTimeZone(date_default_timezone_get());
-        $value = \DateTime::createFromFormat('U', $epochTime);
+        $timezone = new DateTimeZone(date_default_timezone_get());
+        $value = DateTime::createFromFormat('U', (string)$epochTime);
         $value->setTimezone($timezone);
 
         return $value;
     }
 
-    /**
-     * @param $guess
-     *
-     * @return bool|\DateTime
-     */
-    private function guessDateTime($guess)
+    private function guessDateTime(mixed $guess): bool|DateTime
     {
-        if ($guess instanceof \DateTime)
-        {
+        if ($guess instanceof DateTime) {
             return $guess;
         }
-        elseif (is_numeric($guess))
-        {
+        if (is_numeric($guess)) {
             return $this->castDateTimeTimezone($guess);
         }
 
-        try
-        {
-            return new \DateTime($guess);
-        }
-        catch (\Exception $e)
-        {
+        try {
+            return new DateTime($guess);
+        } catch (Exception) {
             return false;
         }
     }

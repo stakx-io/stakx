@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,13 +12,19 @@ use allejo\stakx\Document\ContentItem;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use allejo\stakx\Templating\Twig\Extension\WhereFilter;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use Twig\Error\SyntaxError;
 
-class WhereFilterTests extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @covers \allejo\stakx\Templating\Twig\Extension\WhereFilter
+ */
+class WhereFilterTest extends StakxTestCase
 {
-    private $dataset;
+    private array $dataset;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -84,7 +90,7 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
         ];
     }
 
-    public static function dataProvider()
+    public static function provideWhereFilterCases(): iterable
     {
         return [
             ['assertEquals', 'cost', '==', 50],
@@ -94,52 +100,55 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
             ['assertEquals', 'author.lname', '==', 'Doe'],
 
             // Weakly typed comparisons should fail
-            ['assertNotEquals', 'cost', '==', '50'],
-            ['assertNotEquals', 'cost', '==', '20'],
+            ['assertEmpty', 'cost', '==', '50'],
+            ['assertEmpty', 'cost', '==', '20'],
             ['assertNotEquals', 'cost', '!=', 10],
             ['assertNotEquals', 'cost', '!=', 20],
             ['assertNotEquals', 'slug', '!=', 'meeting'],
             ['assertGreaterThan', 'cost', '>', 20],
-            ['assertGreaterThan', 'cost', '>', 50],
+            ['assertEmpty', 'cost', '>', 50],
             ['assertGreaterThanOrEqual', 'cost', '>=', 40],
             ['assertGreaterThanOrEqual', 'cost', '>=', 50],
             ['assertLessThan', 'cost', '<', 40],
-            ['assertLessThan', 'cost', '<', 10],
+            ['assertEmpty', 'cost', '<', 10],
             ['assertLessThanOrEqual', 'cost', '<=', 50],
             ['assertLessThanOrEqual', 'cost', '<=', 30],
             ['assertContains', 'tags', '~=', 'purple'],
-            ['assertContains', 'name', '~=', 'One'],
+            ['assertStringContains', 'name', '~=', 'One'],
         ];
     }
 
     /**
-     * @dataProvider dataProvider
+     * @dataProvider provideWhereFilterCases
      *
      * @param string $fxn        The assertion function to test
      * @param string $key        The array key we'll be checking
      * @param string $comparison The comparison we'll be using
      * @param mixed  $value      The value we are looking for
      */
-    public function testWhereFilter($fxn, $key, $comparison, $value)
+    public function testWhereFilter(string $fxn, string $key, string $comparison, mixed $value): void
     {
         $whereFilter = new WhereFilter();
         $filtered = $whereFilter($this->dataset, $key, $comparison, $value);
 
-        foreach ($filtered as $item)
-        {
-            $this->$fxn($value, __::get($item, $key));
+        if ($fxn === 'assertEmpty') {
+            $this->assertEmpty($filtered);
+        } else {
+            foreach ($filtered as $item) {
+                $this->{$fxn}($value, __::get($item, $key));
+            }
         }
     }
 
-    public function testInvalidFilterEmptyResult()
+    public function testInvalidFilterEmptyResult(): void
     {
-        $this->setExpectedException(\Twig_Error_Syntax::class);
+        $this->expectException(SyntaxError::class);
 
         $whereFilter = new WhereFilter();
         $whereFilter($this->dataset, 'name', 'non-existent-comparison', 'the_map');
     }
 
-    public function testInvalidKeyEmptyResult()
+    public function testInvalidKeyEmptyResult(): void
     {
         $whereFilter = new WhereFilter();
         $filtered = $whereFilter($this->dataset, 'non-existent-key', '==', 'the_map');
@@ -147,14 +156,14 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertEmpty($filtered);
     }
 
-    public function testGetTwigSimpleFilter()
+    public function testGetTwigSimpleFilter(): void
     {
-        $twigSimpleFilter = WhereFilter::get();
+        $this->expectNotToPerformAssertions();
 
-        $this->assertInstanceOf(\Twig_SimpleFilter::class, $twigSimpleFilter);
+        WhereFilter::get();
     }
 
-    public function testWhereFilterAgainstContentItem()
+    public function testWhereFilterAgainstContentItem(): void
     {
         $elements = [
             $this->createFrontMatterDocumentOfType(ContentItem::class, null, [
@@ -171,8 +180,7 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
             ]),
         ];
 
-        foreach ($elements as $element)
-        {
+        foreach ($elements as $element) {
             $element->evaluateFrontMatter();
         }
 
@@ -184,7 +192,7 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertCount(2, $filteredCategory);
     }
 
-    public static function fmDataProvider()
+    public static function provideWhereFilterContentItemAssertCountCases(): iterable
     {
         return [
             ['completed', '==', true, 3],
@@ -209,14 +217,14 @@ class WhereFilterTests extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider fmDataProvider
+     * @dataProvider provideWhereFilterContentItemAssertCountCases
      *
      * @param string $fm         The front matter key we'll be checking
      * @param string $comparison The comparison we'll be using
      * @param mixed  $value      The value we're looking for the front matter to match
      * @param int    $count      The amount of entries we're expecting to match this rule
      */
-    public function testWhereFilterContentItemAssertCount($fm, $comparison, $value, $count)
+    public function testWhereFilterContentItemAssertCount(string $fm, string $comparison, mixed $value, int $count): void
     {
         $collections = $this->bookCollectionProvider(true);
         $books = $collections['books'];

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -6,6 +6,8 @@
  */
 
 namespace allejo\stakx\Document;
+
+use Exception;
 
 /**
  * A document that builds its permalink from FrontMatter data.
@@ -17,29 +19,24 @@ abstract class PermalinkFrontMatterDocument extends FrontMatterDocument implemen
     /**
      * {@inheritdoc}
      */
-    public function buildPermalink($force = false)
+    public function buildPermalink($force = false): void
     {
-        if ($this->permalink !== null && !$force)
-        {
+        if ($this->permalink !== null && !$force) {
             return;
         }
 
-        if ($this->frontMatterParser !== null && $this->frontMatterParser->hasExpansion())
-        {
-            throw new \Exception('The permalink for this item has not been set');
+        if ($this->frontMatterParser !== null && $this->frontMatterParser->hasExpansion()) {
+            throw new Exception('The permalink for this item has not been set');
         }
 
         $permalink = (is_array($this->frontMatter) && isset($this->frontMatter['permalink'])) ?
             $this->frontMatter['permalink'] : $this->getPathPermalink();
 
-        if (is_array($permalink))
-        {
+        if (is_array($permalink)) {
             $this->permalink = $permalink[0];
             array_shift($permalink);
             $this->redirects = $permalink;
-        }
-        else
-        {
+        } else {
             $this->permalink = $permalink;
             $this->redirects = [];
         }

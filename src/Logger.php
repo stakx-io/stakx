@@ -24,18 +24,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Logger extends AbstractLogger
 {
-    const INFO = 'info';
-    const ERROR = 'error';
+    final public const INFO = 'info';
+    final public const ERROR = 'error';
 
-    /**
-     * @var OutputInterface
-     */
-    private $output;
-
-    /**
-     * @var array
-     */
-    private $verbosityLevelMap = array(
+    private array $verbosityLevelMap = array(
         LogLevel::EMERGENCY => OutputInterface::VERBOSITY_NORMAL,
         LogLevel::ALERT     => OutputInterface::VERBOSITY_NORMAL,
         LogLevel::CRITICAL  => OutputInterface::VERBOSITY_NORMAL,
@@ -46,10 +38,7 @@ class Logger extends AbstractLogger
         LogLevel::DEBUG     => OutputInterface::VERBOSITY_DEBUG,
     );
 
-    /**
-     * @var array
-     */
-    private $formatLevelMap = array(
+    private array $formatLevelMap = array(
         LogLevel::EMERGENCY => self::ERROR,
         LogLevel::ALERT     => self::ERROR,
         LogLevel::CRITICAL  => self::ERROR,
@@ -62,12 +51,9 @@ class Logger extends AbstractLogger
 
     /**
      * ConsoleInterface constructor.
-     *
-     * @param OutputInterface $output
      */
-    public function __construct(OutputInterface $output)
+    public function __construct(private readonly OutputInterface $output)
     {
-        $this->output = $output;
     }
 
     /**
@@ -85,7 +71,6 @@ class Logger extends AbstractLogger
      *
      * @param mixed  $level
      * @param string $message
-     * @param array  $context
      */
     public function log($level, $message, array $context = array())
     {
@@ -123,7 +108,7 @@ class Logger extends AbstractLogger
      * @param int          $options  A bitmask of options (one of the OUTPUT or VERBOSITY constants), 0 is considered
      *                               the same as self::OUTPUT_NORMAL | self::VERBOSITY_NORMAL
      */
-    public function writeln($messages, $options = 0)
+    public function writeln(string|array $messages, $options = 0)
     {
         $this->output->writeln($messages, $options);
     }
@@ -134,7 +119,6 @@ class Logger extends AbstractLogger
      * @author PHP Framework Interoperability Group
      *
      * @param string $message
-     * @param array  $context
      *
      * @return string
      */

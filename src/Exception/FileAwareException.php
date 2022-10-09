@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,20 +7,18 @@
 
 namespace allejo\stakx\Exception;
 
+use Exception;
+use RuntimeException;
+use Twig_Error_Syntax;
+
 /**
  * Exception thrown when an error is found in a file.
  */
-class FileAwareException extends \RuntimeException
+class FileAwareException extends RuntimeException
 {
-    private $lineNumber;
-    private $filePath;
-
-    public function __construct($message = '', $code = 0, \Exception $previous = null, $path = '', $line = -1)
+    public function __construct($message = '', $code = 0, Exception $previous = null, private $filePath = '', private $lineNumber = -1)
     {
         parent::__construct($message, $code, $previous);
-
-        $this->filePath = $path;
-        $this->lineNumber = $line;
     }
 
     public function getLineNumber()
@@ -33,18 +31,16 @@ class FileAwareException extends \RuntimeException
         return $this->filePath;
     }
 
-    public static function castException(\Exception $e, $filePath)
+    public static function castException(Exception $e, $filePath)
     {
-        $lineNumber = ($e instanceof \Twig_Error_Syntax) ? $e->getTemplateLine() : -1;
+        $lineNumber = ($e instanceof Twig_Error_Syntax) ? $e->getTemplateLine() : -1;
 
-        $exception = new self(
+        return new self(
             $e->getMessage(),
             $e->getCode(),
             $e,
             $filePath,
             $lineNumber
         );
-
-        return $exception;
     }
 }

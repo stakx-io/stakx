@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -17,38 +17,32 @@ class ZipFilter extends AbstractTwigExtension implements TwigFilterInterface
         $arr1_length = count($array1);
         $arr2_length = count($array2);
 
-        for ($i = 0; $i < $arr1_length; ++$i)
-        {
-            if ($i >= $arr2_length)
-            {
+        for ($i = 0; $i < $arr1_length; ++$i) {
+            if ($i >= $arr2_length) {
                 break;
             }
 
             $rhs = self::safe_get($array1, $i);
             $lhs = self::safe_get($array2, $i);
 
-            if (empty($rhs))
-            {
+            if (empty($rhs)) {
                 $result[] = $lhs;
+
                 continue;
             }
-            elseif (empty($lhs))
-            {
+            if (empty($lhs)) {
                 $result[] = $rhs;
+
                 continue;
             }
 
             $result[] = self::safe_get($array1, $i) . $glue . self::safe_get($array2, $i);
         }
 
-        if (!$strict)
-        {
-            if ($arr2_length > $arr1_length)
-            {
+        if (!$strict) {
+            if ($arr2_length > $arr1_length) {
                 $result = array_merge($result, array_slice($array2, $arr1_length));
-            }
-            else
-            {
+            } else {
                 $result = array_merge($result, array_slice($array1, $arr2_length));
             }
         }
@@ -56,7 +50,7 @@ class ZipFilter extends AbstractTwigExtension implements TwigFilterInterface
         return $result;
     }
 
-    public static function get()
+    public static function get(): TwigFilter
     {
         return new TwigFilter('zip', new self());
     }

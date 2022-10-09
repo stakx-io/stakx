@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,13 +8,20 @@
 namespace allejo\stakx\Test\DataTransformer;
 
 use allejo\stakx\DataTransformer\YamlTransformer;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use DateTime;
+use DateTimeZone;
 
-class YamlTransformerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class YamlTransformerTest extends StakxTestCase
 {
-    public function testValidYamlData()
+    public function testValidYamlData(): void
     {
-        $file = <<<FILE
+        $file = <<<'FILE'
 month: January
 events:
   - 2017-01-01
@@ -23,23 +30,23 @@ events:
   - 2017-01-30
 FILE;
 
-        $tz = new \DateTimeZone('UTC');
+        $tz = new DateTimeZone('UTC');
 
         $actual = YamlTransformer::transformData($file);
         $expected = [
             'month' => 'January',
             'events' => [
-                new \DateTime('2017-01-01', $tz),
-                new \DateTime('2017-01-18', $tz),
-                new \DateTime('2017-01-19', $tz),
-                new \DateTime('2017-01-30', $tz),
+                new DateTime('2017-01-01', $tz),
+                new DateTime('2017-01-18', $tz),
+                new DateTime('2017-01-19', $tz),
+                new DateTime('2017-01-30', $tz),
             ],
         ];
 
         $this->assertEquals($expected, $actual);
     }
 
-    public function testInvalidYamlData()
+    public function testInvalidYamlData(): void
     {
         $file = "root:\tkey: 1";
 

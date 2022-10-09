@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -16,22 +16,18 @@ class GroupByFilter extends AbstractTwigExtension implements TwigFilterInterface
     {
         $arr = [];
 
-        foreach ($array as $key => $item)
-        {
+        foreach ($array as $key => $item) {
             $groupBy = __::get($item, $sortKey);
 
-            if ($groupBy === null)
-            {
+            if ($groupBy === null) {
                 continue;
             }
 
-            if (is_bool($groupBy))
-            {
-                $groupBy = ($groupBy) ? 'true' : 'false';
-            }
-            elseif (!is_scalar($groupBy))
-            {
+            if (is_bool($groupBy)) {
+                $groupBy = $groupBy ? 'true' : 'false';
+            } elseif (!is_scalar($groupBy)) {
                 trigger_error('You cannot group by a non-scalar value', E_USER_WARNING);
+
                 continue;
             }
 
@@ -41,7 +37,7 @@ class GroupByFilter extends AbstractTwigExtension implements TwigFilterInterface
         return $arr;
     }
 
-    public static function get()
+    public static function get(): TwigFilter
     {
         return new TwigFilter('group', new self());
     }

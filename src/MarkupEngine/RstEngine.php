@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\MarkupEngine;
 
-use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Markup\RstImageDirective;
 use allejo\stakx\Markup\RstSyntaxBlock;
@@ -16,8 +15,7 @@ use Gregwar\RST\Parser;
 
 class RstEngine extends Parser implements MarkupEngineInterface
 {
-    /** @var RstImageDirective */
-    private $imageDirective;
+    private readonly RstImageDirective $imageDirective;
 
     public function __construct(AssetManager $assetManager, $environment = null, $kernel = null)
     {
@@ -31,14 +29,14 @@ class RstEngine extends Parser implements MarkupEngineInterface
         $this->setIncludePolicy(true, Service::getWorkingDirectory());
     }
 
-    public function parse($content, $contentItem = null)
+    public function parse($content, $contentItem = null): string
     {
         $this->imageDirective->setContentItem($contentItem);
 
-        return parent::parse($content);
+        return parent::parse($content)->render();
     }
 
-    public function getTemplateTag()
+    public function getTemplateTag(): string
     {
         return 'rst';
     }
@@ -46,7 +44,7 @@ class RstEngine extends Parser implements MarkupEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getExtensions()
+    public function getExtensions(): array
     {
         return [
             'rst',

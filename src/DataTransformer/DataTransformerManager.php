@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -18,26 +18,23 @@ class DataTransformerManager
         $this->transformers = [];
     }
 
-    public function addDataTransformers(/*iterable*/ $dataTransformers)
+    public function addDataTransformers(/* iterable */ $dataTransformers): void
     {
-        foreach ($dataTransformers as $dataTransformer)
-        {
+        foreach ($dataTransformers as $dataTransformer) {
             $this->addDataTransformer($dataTransformer);
         }
     }
 
-    public function addDataTransformer(DataTransformerInterface $transformer)
+    public function addDataTransformer(DataTransformerInterface $transformer): void
     {
-        foreach ($transformer->getExtensions() as $extension)
-        {
+        foreach ($transformer->getExtensions() as $extension) {
             $this->transformers[$extension] = $transformer;
         }
     }
 
     public function getTransformer($extension)
     {
-        if (isset($this->transformers[$extension]))
-        {
+        if (isset($this->transformers[$extension])) {
             return $this->transformers[$extension];
         }
 

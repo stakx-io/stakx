@@ -1,4 +1,9 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
 
 namespace allejo\stakx\Filesystem;
 
@@ -16,10 +21,8 @@ final class Folder extends BaseFilesystemItem
      * Get the name of the with the extension.
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getFolderName()
+    public function getFolderName(): string
     {
         return $this->getFullName();
     }

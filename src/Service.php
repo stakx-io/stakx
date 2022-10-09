@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -10,17 +10,19 @@ namespace allejo\stakx;
 abstract class Service
 {
     protected static $workingDirectory;
+
     protected static $runTimeStatus;
+
     protected static $options;
 
-    public static function setOption($key, $value)
+    public static function setOption($key, $value): void
     {
         self::$options[$key] = $value;
     }
 
     public static function getOption($key)
     {
-        return isset(self::$options[$key]) ? self::$options[$key] : null;
+        return self::$options[$key] ?? null;
     }
 
     public static function hasRunTimeFlag($status)
@@ -28,32 +30,31 @@ abstract class Service
         return self::$runTimeStatus & $status;
     }
 
-    public static function setRuntimeFlag($status)
+    public static function setRuntimeFlag($status): void
     {
         self::$runTimeStatus |= $status;
     }
 
-    public static function removeRuntimeFlag($status)
+    public static function removeRuntimeFlag($status): void
     {
         self::$runTimeStatus &= ~$status;
     }
 
-    public static function resetRuntimeFlags()
+    public static function resetRuntimeFlags(): void
     {
         self::$runTimeStatus = 0;
     }
 
     public static function getWorkingDirectory()
     {
-        if (!self::$workingDirectory)
-        {
+        if (!self::$workingDirectory) {
             return getcwd();
         }
 
         return self::$workingDirectory;
     }
 
-    public static function setWorkingDirectory($directory)
+    public static function setWorkingDirectory($directory): void
     {
         self::$workingDirectory = $directory;
     }

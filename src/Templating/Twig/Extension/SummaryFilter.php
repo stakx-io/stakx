@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,33 +8,32 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use allejo\stakx\Utilities\HtmlUtils;
+use DOMDocument;
 use Twig\TwigFilter;
 
 class SummaryFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke($value, $paragraphCount = 1)
     {
-        if (!extension_loaded('dom'))
-        {
+        if (!extension_loaded('dom')) {
             @trigger_error('The DOM Extension is not loaded and is necessary for the "summary" Twig filter.', E_WARNING);
 
             return $value;
         }
 
-        $dom = new \DOMDocument();
+        $dom = new DOMDocument();
         $paragraphs = HtmlUtils::htmlXPath($dom, $value, sprintf('//body/p[position() <= %d]', $paragraphCount));
 
         $summary = '';
 
-        foreach ($paragraphs as $paragraph)
-        {
+        foreach ($paragraphs as $paragraph) {
             $summary .= $dom->saveHTML($paragraph);
         }
 
         return $summary;
     }
 
-    public static function get()
+    public static function get(): TwigFilter
     {
         return new TwigFilter('summary', new self());
     }

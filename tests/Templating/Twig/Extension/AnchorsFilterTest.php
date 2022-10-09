@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,11 +8,17 @@
 namespace allejo\stakx\Test\Templating\Twig\Extension;
 
 use allejo\stakx\Templating\Twig\Extension\AnchorsFilter;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use ReflectionException;
 
-class AnchorsFilterTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class AnchorsFilterTest extends StakxTestCase
 {
-    public static function dataProviderAnchors()
+    public static function provideAnchorsFilterCases(): iterable
     {
         return [
             [
@@ -150,20 +156,16 @@ class AnchorsFilterTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProviderAnchors
+     * @dataProvider provideAnchorsFilterCases
      *
-     * @param $input
-     * @param $expected
-     * @param $options
-     *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
-    public function testAnchorsFilter($input, $expected, $options)
+    public function testAnchorsFilter(mixed $input, mixed $expected, mixed $options): void
     {
         $options['html'] = $input;
 
-        $actual = trim($this->invokeClassFunctionWithNamedParams(AnchorsFilter::class, 'filter', $options));
-        $expected = trim($expected);
+        $actual = trim((string)$this->invokeClassFunctionWithNamedParams(AnchorsFilter::class, 'filter', $options));
+        $expected = trim((string)$expected);
 
         $this->assertEquals($expected, $actual);
     }

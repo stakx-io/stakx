@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -15,17 +15,22 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\FrontMatter\Exception\YamlVariableUndefinedException;
 use allejo\stakx\MarkupEngine\MarkdownEngine;
 use allejo\stakx\MarkupEngine\RstEngine;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 use org\bovigo\vfs\vfsStream;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Exception\ParseException;
 
-class ContentItemTests extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @covers \allejo\stakx\Document\ContentItem
+ */
+class ContentItemTest extends StakxTestCase
 {
-    public function testContentItemFilePath()
+    public function testContentItemFilePath(): void
     {
         $this->dummyFile->setContent(sprintf(self::FM_OBJ_TEMPLATE, '', 'Body Text'))
-                        ->at($this->rootDir)
+            ->at($this->rootDir)
         ;
 
         $contentItem = $this->createContentItemFromVFS();
@@ -33,7 +38,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($this->dummyFile->url(), $contentItem->getAbsoluteFilePath());
     }
 
-    public function testContentItemAppearsAsDraft()
+    public function testContentItemAppearsAsDraft(): void
     {
         $item = $this->createContentItem([
             'draft' => true,
@@ -43,7 +48,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertTrue($item->isDraft());
     }
 
-    public function testContentItemWithEmptyFrontMatter()
+    public function testContentItemWithEmptyFrontMatter(): void
     {
         $item = $this->createContentItemWithEmptyFrontMatter();
         $item->evaluateFrontMatter();
@@ -51,7 +56,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertArrayHasKey('filePath', $item->getFrontMatter());
     }
 
-    public function testContentItemWithValidFrontMatter()
+    public function testContentItemWithValidFrontMatter(): void
     {
         $frontMatter = [
             'string' => 'foo',
@@ -62,13 +67,12 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $contentItem = $this->createContentItem($frontMatter);
         $contentItem->evaluateFrontMatter();
 
-        foreach ($frontMatter as $key => $value)
-        {
+        foreach ($frontMatter as $key => $value) {
             $this->assertArrayHasKey($key, $contentItem->getFrontMatter());
         }
     }
 
-    public function testContentItemFrontMatterMagicIsset()
+    public function testContentItemFrontMatterMagicIsset(): void
     {
         $frontMatter = [
             'foo' => 1,
@@ -82,7 +86,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertTrue(isset($contentItem['bar']));
     }
 
-    public function testContentItemFrontMatterDateParsing()
+    public function testContentItemFrontMatterDateParsing(): void
     {
         $year = '2000';
         $month = '12';
@@ -100,7 +104,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($day, $contentItem['day']);
     }
 
-    public function testContentItemFrontMatterInvalidDate()
+    public function testContentItemFrontMatterInvalidDate(): void
     {
         $frontMatter = [
             'date' => 'foo bar',
@@ -116,16 +120,16 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
     public function testContentItemFrontMatterInvalidYaml()
     {
-        $this->setExpectedException(ParseException::class);
+        $this->expectException(ParseException::class);
 
         $this->dummyFile->setContent(sprintf(self::FM_OBJ_TEMPLATE, 'invalid yaml', 'body text'))
-             ->at($this->rootDir)
+            ->at($this->rootDir)
         ;
 
         return $this->createContentItemFromVFS();
     }
 
-    public function testContentItemFrontMatterYamlVariables()
+    public function testContentItemFrontMatterYamlVariables(): void
     {
         $fname = 'jane';
         $lname = 'doe';
@@ -142,7 +146,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals(sprintf('%s %s', $fname, $lname), $finalFM['name']);
     }
 
-    public function testContentItemFrontMatterDynamicYamlVariables()
+    public function testContentItemFrontMatterDynamicYamlVariables(): void
     {
         $fname = 'John';
         $lname = 'Doe';
@@ -162,7 +166,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals(sprintf('%s %s', $finalFront['name'], $suffix), $finalFront['name_full']);
     }
 
-    public function testContentItemFrontMatterForDynamicPages()
+    public function testContentItemFrontMatterForDynamicPages(): void
     {
         $frontMatter = [
             'permalink' => '/blog/%title',
@@ -178,7 +182,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/blog/hello-world', $contentItem->getPermalink());
     }
 
-    public function testContentItemFrontMatterForDynamicPagesWithDates()
+    public function testContentItemFrontMatterForDynamicPagesWithDates(): void
     {
         $frontMatter = [
             'permalink' => '/blog/%year/%month/%day/%title',
@@ -195,7 +199,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/blog/2016/01/01/hello-world', $contentItem->getPermalink());
     }
 
-    public function testContentItemFrontMatterArrayYamlVariables()
+    public function testContentItemFrontMatterArrayYamlVariables(): void
     {
         $fname = 'John';
         $lname = 'Doe';
@@ -216,7 +220,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals(sprintf('%s %s', $fname, $fname), $finalFront['other']['name_d']);
     }
 
-    public function testContentItemFrontMatterYamlVariableNotFound()
+    public function testContentItemFrontMatterYamlVariableNotFound(): void
     {
         $frontMatter = [
             'var' => '%foobar',
@@ -224,12 +228,9 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
         $contentItem = $this->createContentItem($frontMatter);
 
-        try
-        {
+        try {
             $contentItem->evaluateFrontMatter();
-        }
-        catch (FileAwareException $f)
-        {
+        } catch (FileAwareException $f) {
             $this->assertInstanceOf(YamlVariableUndefinedException::class, $f->getPrevious());
 
             return;
@@ -238,7 +239,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->fail();
     }
 
-    public function testContentItemTargetFileFromPrettyURL()
+    public function testContentItemTargetFileFromPrettyURL(): void
     {
         $frontMatter = [
             'permalink' => '/about/',
@@ -250,7 +251,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals(fs::appendPath('about', 'index.html'), $contentItem->getTargetFile());
     }
 
-    public function testContentItemTargetFileFromPrettyUrlWithRedirects()
+    public function testContentItemTargetFileFromPrettyUrlWithRedirects(): void
     {
         $frontMatter = [
             'permalink' => [
@@ -269,7 +270,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertContains('/redirect-me/', $contentItem->getRedirects());
     }
 
-    public function testContentItemTargetFileFromFileURL()
+    public function testContentItemTargetFileFromFileURL(): void
     {
         $frontMatter = [
             'permalink' => '/home/about.html',
@@ -281,7 +282,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals(fs::appendPath('home', 'about.html'), $contentItem->getTargetFile());
     }
 
-    public function testContentItemTargetFileFromFileWithoutPermalinkInDir()
+    public function testContentItemTargetFileFromFileWithoutPermalinkInDir(): void
     {
         $root = vfsStream::create([
             'dir' => [
@@ -296,13 +297,13 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals(fs::appendPath('root', 'dir', 'foo.html'), $contentItem->getTargetFile());
     }
 
-    public function testContentItemTargetFileFromFileWithStakxDataFolder()
+    public function testContentItemTargetFileFromFileWithStakxDataFolder(): void
     {
         $rootDir = vfsStream::setup('_bacon');
         $file = vfsStream::newFile('foo.html.twig');
 
         $file->setContent(sprintf(self::FM_OBJ_TEMPLATE, '', 'Body Text'))
-             ->at($rootDir)
+            ->at($rootDir)
         ;
 
         $url = $rootDir->getChild('foo.html.twig')->url();
@@ -313,54 +314,54 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals('foo.html', $contentItem->getTargetFile());
     }
 
-    public function testContentItemWithNoFile()
+    public function testContentItemWithNoFile(): void
     {
-        $this->setExpectedException(FileNotFoundException::class);
+        $this->expectException(FileNotFoundException::class);
 
         new ContentItem(new File('foo.html.twig'));
     }
 
-    public function testContentItemWithEmptyBodyThrowsInvalidSyntaxException()
+    public function testContentItemWithEmptyBodyThrowsInvalidSyntaxException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class, 'must have a body to render');
+        $this->expectException(InvalidSyntaxException::class, 'must have a body to render');
 
         $this->dummyFile->setContent("---\n---\n\n  \n \t\n")
-                        ->at($this->rootDir)
+            ->at($this->rootDir)
         ;
 
         $this->createContentItemFromVFS();
     }
 
-    public function testContentItemWithNoBodyThrowsInvalidSyntaxException()
+    public function testContentItemWithNoBodyThrowsInvalidSyntaxException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class, 'Invalid FrontMatter file');
+        $this->expectException(InvalidSyntaxException::class, 'Invalid FrontMatter file');
 
         $this->dummyFile->setContent("---\n---")
-                        ->at($this->rootDir)
+            ->at($this->rootDir)
         ;
 
         $this->createContentItemFromVFS();
     }
 
-    public function testContentItemWithEmptyFileThrowsInvalidSyntaxException()
+    public function testContentItemWithEmptyFileThrowsInvalidSyntaxException(): void
     {
-        $this->setExpectedException(InvalidSyntaxException::class, 'Invalid FrontMatter file');
+        $this->expectException(InvalidSyntaxException::class, 'Invalid FrontMatter file');
 
         $file = vfsStream::newFile('foo.html.twig')->at($this->rootDir);
 
         new ContentItem($this->createFileObjectFromPath($file->url()));
     }
 
-    public function testContentItemWithDeletedFileAfterCreationThrowsFileNotFoundException()
+    public function testContentItemWithDeletedFileAfterCreationThrowsFileNotFoundException(): void
     {
-        $this->setExpectedException(FileNotFoundException::class);
+        $this->expectException(FileNotFoundException::class);
 
         $content = $this->createContentItem([]);
         fs::remove($content->getAbsoluteFilePath());
         $content->readContent();
     }
 
-    public function testContentItemWithMdExtensionFile()
+    public function testContentItemWithMdExtensionFile(): void
     {
         $this->dummyFile = vfsStream::newFile('Sample Markdown.md');
         $markdownContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample Markdown.md');
@@ -371,7 +372,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($pd->parse($markdownContent, $contentItem), $contentItem->getContent());
     }
 
-    public function testContentItemJailWithMdExtensionFile()
+    public function testContentItemJailWithMdExtensionFile(): void
     {
         $this->dummyFile = vfsStream::newFile('Sample Markdown.md');
         $markdownContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample Markdown.md');
@@ -383,7 +384,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($jailItem->getContent(), $jailItem['content']);
     }
 
-    public function testContentItemWithRstExtensionFile()
+    public function testContentItemWithRstExtensionFile(): void
     {
         $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
         $rstContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample reStructuredText.rst');
@@ -394,7 +395,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals((string)$pd->parse($rstContent, $contentItem), $contentItem->getContent());
     }
 
-    public function testContentItemJailWithRstExtensionFile()
+    public function testContentItemJailWithRstExtensionFile(): void
     {
         $this->dummyFile = vfsStream::newFile('Sample reStructuredText.rst');
         $rstContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample reStructuredText.rst');
@@ -406,7 +407,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($jailItem->getContent(), $jailItem['content']);
     }
 
-    public function testContentItemWithUnknownExtensionFile()
+    public function testContentItemWithUnknownExtensionFile(): void
     {
         $this->dummyFile = vfsStream::newFile('Sample HTML.html');
         $htmlContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample HTML.html');
@@ -416,7 +417,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($htmlContent, $contentItem->getContent());
     }
 
-    public function testContentItemJailWithUnknownExtensionFile()
+    public function testContentItemJailWithUnknownExtensionFile(): void
     {
         $this->dummyFile = vfsStream::newFile('Sample HTML.html');
         $htmlContent = file_get_contents(__DIR__ . '/../assets/EngineTemplates/Sample HTML.html');
@@ -428,7 +429,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($jailItem->getContent(), $jailItem['content']);
     }
 
-    public function testContentItemPermalinkSanitationMultipleForwardSlashes()
+    public function testContentItemPermalinkSanitationMultipleForwardSlashes(): void
     {
         $multipleForwardSlashes = $this->createContentItem(['permalink' => '////index.html']);
         $multipleForwardSlashes->evaluateFrontMatter();
@@ -436,7 +437,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/index.html', $multipleForwardSlashes->getPermalink());
     }
 
-    public function testContentItemPermalinkSanitationReplaceSpaces()
+    public function testContentItemPermalinkSanitationReplaceSpaces(): void
     {
         $replaceSpaces = $this->createContentItem(['permalink' => 'i like/toast and bacon.html']);
         $replaceSpaces->evaluateFrontMatter();
@@ -444,7 +445,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/i-like/toast-and-bacon.html', $replaceSpaces->getPermalink());
     }
 
-    public function testContentItemPermalinkSanitationDisallowedChars()
+    public function testContentItemPermalinkSanitationDisallowedChars(): void
     {
         $disallowedCharacters = $this->createContentItem(['permalink' => '/index-?!@#in_dex$%^&.html']);
         $disallowedCharacters->evaluateFrontMatter();
@@ -452,7 +453,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/index-in_dex.html', $disallowedCharacters->getPermalink());
     }
 
-    public function testContentItemPermalinkSanitationStripExtensions()
+    public function testContentItemPermalinkSanitationStripExtensions(): void
     {
         $stripExtensions = $this->createContentItem(['permalink' => 'parent/foo.html.twig']);
         $stripExtensions->evaluateFrontMatter();
@@ -460,7 +461,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/parent/foo.html', $stripExtensions->getPermalink());
     }
 
-    public function testContentItemPermalinkSanitationSpecialDotSlash()
+    public function testContentItemPermalinkSanitationSpecialDotSlash(): void
     {
         $specialDotSlash = $this->createContentItem(['permalink' => './index.html']);
         $specialDotSlash->evaluateFrontMatter();
@@ -468,7 +469,7 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/index.html', $specialDotSlash->getPermalink());
     }
 
-    public function testContentItemPermalinkSanitationUpperCaseToLower()
+    public function testContentItemPermalinkSanitationUpperCaseToLower(): void
     {
         $uppercase = $this->createContentItem(['permalink' => 'UPPER_CASE.html']);
         $uppercase->evaluateFrontMatter();
@@ -482,10 +483,8 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
 
     /**
      * Create a ContentItem from the default virtual file in the VFS.
-     *
-     * @return ContentItem
      */
-    private function createContentItemFromVFS()
+    private function createContentItemFromVFS(): ContentItem
     {
         return new ContentItem(
             $this->createFileObjectFromPath($this->dummyFile->url())
@@ -496,10 +495,8 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
      * Create a virtual ContentItem with only body text.
      *
      * @param string $body
-     *
-     * @return ContentItem
      */
-    private function createContentItemWithEmptyFrontMatter($body = 'Body Text')
+    private function createContentItemWithEmptyFrontMatter($body = 'Body Text'): ContentItem
     {
         return $this->createContentItem([], $body);
     }
@@ -510,10 +507,8 @@ class ContentItemTests extends PHPUnit_Stakx_TestCase
      * @param array  $frontMatter
      * @param string $body
      * @param string $filename
-     *
-     * @return ContentItem
      */
-    private function createContentItem($frontMatter, $body = 'Body Text', $filename = 'document.md')
+    private function createContentItem($frontMatter, $body = 'Body Text', $filename = 'document.md'): ContentItem
     {
         /** @var ContentItem $contentItem */
         $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class, $filename, $frontMatter, $body);

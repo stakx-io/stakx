@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -18,28 +18,14 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Website
 {
-    private $eventDispatcher;
-    private $templateBridge;
-    private $configuration;
-    private $assetManager;
-    private $compiler;
-    private $logger;
-
     public function __construct(
-        Compiler $compiler,
-        Configuration $configuration,
-        AssetManager $assetManager,
-        TemplateBridgeInterface $templateBridge,
-        EventDispatcherInterface $eventDispatcher,
-        Logger $logger
+        private readonly Compiler $compiler,
+        private readonly Configuration $configuration,
+        private readonly AssetManager $assetManager,
+        private readonly TemplateBridgeInterface $templateBridge,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Logger $logger
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->templateBridge = $templateBridge;
-        $this->configuration = $configuration;
-        $this->assetManager = $assetManager;
-        $this->compiler = $compiler;
-        $this->logger = $logger;
-
         Service::setOption('theme', $this->getConfiguration()->getTheme());
 
         $this->configureHighlighter();
@@ -55,10 +41,9 @@ class Website
      *
      * @return true if the website built successfully
      */
-    public function build()
+    public function build(): bool
     {
-        if (empty($this->getConfiguration()->getPageViewFolders()))
-        {
+        if (empty($this->getConfiguration()->getPageViewFolders())) {
             $this->logger->error('No PageViews were configured for this site. Check the `pageviews` key in your _config.yml.');
 
             return false;
@@ -78,14 +63,10 @@ class Website
         $this->compiler->setThemeName($theme);
         $this->compiler->compileAll();
 
-        if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE))
-        {
-            if (!$this->templateBridge->hasProfiler())
-            {
+        if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE)) {
+            if (!$this->templateBridge->hasProfiler()) {
                 $this->logger->writeln('This template engine currently does not support a profiler.');
-            }
-            else
-            {
+            } else {
                 $profilerText = $this->templateBridge->getProfilerOutput($this->compiler);
                 $this->logger->writeln($profilerText);
             }
@@ -101,9 +82,8 @@ class Website
         //
         // Theme Management
         //
-        if ($theme !== null)
-        {
-            $this->logger->notice("Looking for '${theme}' theme...");
+        if ($theme !== null) {
+            $this->logger->notice("Looking for '{$theme}' theme...");
 
             $tm = new ThemeManager($theme, $this->eventDispatcher, $this->logger);
             $tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);
@@ -121,10 +101,7 @@ class Website
         $this->eventDispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
     }
 
-    /**
-     * @return Configuration
-     */
-    public function getConfiguration()
+    public function getConfiguration(): Configuration
     {
         return $this->configuration;
     }
@@ -132,17 +109,15 @@ class Website
     /**
      * Prepare the Stakx environment by creating necessary cache folders.
      */
-    private function createFolderStructure()
+    private function createFolderStructure(): void
     {
         $targetDir = fs::absolutePath($this->getConfiguration()->getTargetFolder());
 
-        if (!Service::hasRunTimeFlag(RuntimeStatus::BOOT_WITHOUT_CLEAN))
-        {
+        if (!Service::hasRunTimeFlag(RuntimeStatus::BOOT_WITHOUT_CLEAN)) {
             fs::remove($targetDir);
         }
 
-        if (!Service::hasRunTimeFlag(RuntimeStatus::USING_CACHE))
-        {
+        if (!Service::hasRunTimeFlag(RuntimeStatus::USING_CACHE)) {
             fs::remove(fs::absolutePath(Configuration::CACHE_FOLDER, 'twig'));
             fs::mkdir(fs::absolutePath(fs::appendPath(Configuration::CACHE_FOLDER, 'twig')));
         }
@@ -153,12 +128,11 @@ class Website
     /**
      * Configure the Highlighter object for highlighting code blocks.
      */
-    private function configureHighlighter()
+    private function configureHighlighter(): void
     {
         $enabled = $this->getConfiguration()->isHighlighterEnabled();
 
-        if (!$enabled)
-        {
+        if (!$enabled) {
             return;
         }
 
@@ -168,15 +142,14 @@ class Website
             Service::setRuntimeFlag(RuntimeStatus::USING_LINE_NUMBERS);
         }
 
-        foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path)
-        {
+        foreach ($this->getConfiguration()->getHighlighterCustomLanguages() as $lang => $path) {
             $fullPath = fs::absolutePath($path);
 
-            if (!fs::exists($fullPath))
-            {
+            if (!fs::exists($fullPath)) {
                 $this->logger->warning('The following language definition could not be found: {lang}', [
                     'lang' => $path,
                 ]);
+
                 continue;
             }
 

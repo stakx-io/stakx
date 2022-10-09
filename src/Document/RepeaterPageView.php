@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,11 +12,11 @@ use allejo\stakx\FrontMatter\ExpandedValue;
 
 class RepeaterPageView extends BasePageView implements TemplateReadyDocument
 {
-    /** @var ExpandedValue[] All of the expanded permalinks. */
-    private $permalinks;
+    /** @var ExpandedValue[] All the expanded permalinks. */
+    private array $permalinks;
 
     /** @var ExpandedValue[][] All of expanded redirects that should point to the respective permalink; this is estimated by index. */
-    private $redirectLinks;
+    private array $redirectLinks;
 
     /**
      * RepeaterPageView constructor.
@@ -30,17 +30,11 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
 
     /**
      * Get the permalink matching all the placeholders for a Repeater.
-     *
-     * @param array $where
-     *
-     * @return null|string
      */
-    public function _getPermalinkWhere(array $where)
+    public function _getPermalinkWhere(array $where): ?string
     {
-        foreach ($this->permalinks as $expandedValue)
-        {
-            if ($expandedValue->getIterators() === $where)
-            {
+        foreach ($this->permalinks as $expandedValue) {
+            if ($expandedValue->getIterators() === $where) {
                 return $expandedValue->getEvaluated();
             }
         }
@@ -53,7 +47,7 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
      *
      * @return ExpandedValue[]
      */
-    public function getRepeaterPermalinks()
+    public function getRepeaterPermalinks(): array
     {
         return $this->permalinks;
     }
@@ -63,7 +57,7 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
      *
      * @return ExpandedValue[][]
      */
-    public function getRepeaterRedirects()
+    public function getRepeaterRedirects(): array
     {
         return $this->redirectLinks;
     }
@@ -71,7 +65,7 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
     /**
      * Configure permalinks from expanded values internally.
      */
-    public function configurePermalinks()
+    public function configurePermalinks(): void
     {
         $evaluated = $this->frontMatter['permalink'];
 
@@ -83,14 +77,14 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
     /**
      * {@inheritdoc}
      */
-    public function buildPermalink($force = false)
+    public function buildPermalink($force = false): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createJail()
+    public function createJail(): JailedDocument
     {
         $whitelist = array_merge(self::$whiteListedFunctions, [
             '_getPermalinkWhere',
@@ -102,7 +96,7 @@ class RepeaterPageView extends BasePageView implements TemplateReadyDocument
     /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [];
     }

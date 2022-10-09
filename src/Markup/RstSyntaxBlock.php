@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,7 +7,6 @@
 
 namespace allejo\stakx\Markup;
 
-use allejo\stakx\Markup\SyntaxHighlighterTrait;
 use Gregwar\RST\Directives\CodeBlock;
 use Gregwar\RST\HTML\Nodes\CodeNode;
 use Gregwar\RST\Parser;
@@ -22,9 +21,9 @@ class RstSyntaxBlock extends CodeBlock
         $this->highlighter = new Highlighter();
     }
 
-    public function process(Parser $parser, $node, $variable, $data, array $options)
+    public function process(Parser $parser, $node, $variable, $data, array $options): void
     {
-        /* @var CodeNode $node */
+        // @var CodeNode $node
 
         parent::process($parser, $node, $variable, $data, $options);
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,7 +9,10 @@ namespace allejo\stakx\Markup;
 
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
+use DomainException;
+use Exception;
 use Highlight\Highlighter;
+
 use function HighlightUtilities\splitCodeIntoArray;
 
 /**
@@ -20,33 +23,27 @@ use function HighlightUtilities\splitCodeIntoArray;
  */
 trait SyntaxHighlighterTrait
 {
-    /** @var Highlighter */
-    protected $highlighter;
+    protected Highlighter $highlighter;
 
     /**
      * @since 0.2.1
      *
      * @param string $infoString
      * @param string $rawCode
-     *
-     * @return string
      */
-    protected function highlightCode($infoString, $rawCode)
+    protected function highlightCode($infoString, $rawCode): string
     {
         $langDef = $this->parseInfoString($infoString);
 
-        try
-        {
+        try {
             $highlighted = $this->highlighter->highlight($langDef['language'], $rawCode);
             $value = $highlighted->value;
 
-            if (Service::hasRunTimeFlag(RuntimeStatus::USING_LINE_NUMBERS) || count($langDef['selectedLines']) > 0)
-            {
+            if (Service::hasRunTimeFlag(RuntimeStatus::USING_LINE_NUMBERS) || count($langDef['selectedLines']) > 0) {
                 $lines = splitCodeIntoArray($value);
                 $value = '';
 
-                foreach ($lines as $i => $line)
-                {
+                foreach ($lines as $i => $line) {
                     // `$i + 1` since our line numbers are indexed starting at 1
                     $value .= vsprintf("<div class=\"loc%s\"><span>%s</span></div>\n", [
                         isset($langDef['selectedLines'][$i + 1]) ? ' highlighted' : '',
@@ -61,12 +58,9 @@ trait SyntaxHighlighterTrait
             ]);
         }
         // Exception thrown when language not supported
-        catch (\DomainException $exception)
-        {
+        catch (DomainException) {
             trigger_error("An unsupported language (${langDef['language']}) was detected in a code block", E_USER_WARNING);
-        }
-        catch (\Exception $e)
-        {
+        } catch (Exception) {
             trigger_error('An error has occurred in the highlight.php language definition files', E_USER_WARNING);
         }
 
@@ -77,10 +71,8 @@ trait SyntaxHighlighterTrait
      * @since 0.2.1
      *
      * @param string $infoString
-     *
-     * @return array
      */
-    private function parseInfoString($infoString)
+    private function parseInfoString($infoString): array
     {
         $infoString = str_replace('language-', '', $infoString);
         $definition = [
@@ -90,8 +82,7 @@ trait SyntaxHighlighterTrait
 
         $bracePos = strpos($infoString, '{');
 
-        if ($bracePos === false)
-        {
+        if ($bracePos === false) {
             return $definition;
         }
 
@@ -99,26 +90,23 @@ trait SyntaxHighlighterTrait
         $lineDefinition = substr($infoString, $bracePos + 1, -1);
         $lineNumbers = explode(',', $lineDefinition);
 
-        foreach ($lineNumbers as $lineNumber)
-        {
-            if (strpos($lineNumber, '-') === false)
-            {
+        foreach ($lineNumbers as $lineNumber) {
+            if (!str_contains($lineNumber, '-')) {
                 $definition['selectedLines'][intval($lineNumber)] = true;
+
                 continue;
             }
 
             $extremes = explode('-', $lineNumber);
 
-            if (count($extremes) !== 2)
-            {
+            if (count($extremes) !== 2) {
                 continue;
             }
 
             $start = intval($extremes[0]);
             $end = intval($extremes[1]);
 
-            for ($i = $start; $i <= $end; ++$i)
-            {
+            for ($i = $start; $i <= $end; ++$i) {
                 $definition['selectedLines'][$i] = true;
             }
         }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\ContentItem;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is fired after a ContentItem has been finalized and tied to its respective parent PageViews. This event
@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class CollectionItemFinalized extends Event
 {
-    const NAME = 'collection.item.finalized';
+    final public const NAME = 'collection.item.finalized';
 
     private $contentItem;
 
@@ -27,10 +27,7 @@ class CollectionItemFinalized extends Event
         $this->contentItem = &$contentItem;
     }
 
-    /**
-     * @return ContentItem
-     */
-    public function getContentItem()
+    public function getContentItem(): ContentItem
     {
         return clone $this->contentItem;
     }

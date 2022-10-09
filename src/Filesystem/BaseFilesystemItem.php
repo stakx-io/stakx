@@ -1,33 +1,34 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
 
 namespace allejo\stakx\Filesystem;
 
-use allejo\stakx\Service;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use allejo\stakx\Service;
+use SplFileInfo;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class BaseFilesystemItem extends \SplFileInfo
+class BaseFilesystemItem extends SplFileInfo
 {
     /** @var string The path relative to the site's working directory. */
-    protected $relativePath;
-
-    /** @var string The original raw path given to the constructor. */
-    protected $rawPath;
+    protected string $relativePath;
 
     /**
-     * @param string $filePath an absolute file path or a path relative to the current working directory
+     * @param string|FilesystemPath $rawPath an absolute file path or a path relative to the current working directory
      *
      * @since 0.2.0
      *
      * @throws FileNotFoundException
      */
-    public function __construct($filePath)
+    public function __construct(protected string|FilesystemPath $rawPath)
     {
-        $this->rawPath = $filePath;
-        $realPath = fs::realpath($filePath);
+        $realPath = fs::realpath($rawPath);
 
-        if ($realPath === false)
-        {
+        if ($realPath === false) {
             throw $this->buildNotFoundException();
         }
 
@@ -39,11 +40,9 @@ class BaseFilesystemItem extends \SplFileInfo
     }
 
     /**
-     * Whether or not this file exists on the filesystem.
-     *
-     * @return bool
+     * Whether this file exists on the filesystem.
      */
-    public function exists()
+    public function exists(): bool
     {
         return file_exists($this->getAbsolutePath());
     }
@@ -52,10 +51,8 @@ class BaseFilesystemItem extends \SplFileInfo
      * Get the absolute path to this file.
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getAbsolutePath()
+    public function getAbsolutePath(): string
     {
         return $this->getPathname();
     }
@@ -64,10 +61,8 @@ class BaseFilesystemItem extends \SplFileInfo
      * Get the path to the parent folder of this file.
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getParentFolder()
+    public function getParentFolder(): string
     {
         return $this->getPath();
     }
@@ -76,10 +71,8 @@ class BaseFilesystemItem extends \SplFileInfo
      * Get the file path to this file, relative to where it was created; likely the current working directory.
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getRelativeFilePath()
+    public function getRelativeFilePath(): string
     {
         return $this->relativePath;
     }
@@ -88,10 +81,8 @@ class BaseFilesystemItem extends \SplFileInfo
      * Get the path to the parent folder this file, relative to where it was created; likely the current working directory.
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getRelativeParentFolder()
+    public function getRelativeParentFolder(): string
     {
         return dirname($this->getRelativeFilePath());
     }
@@ -101,17 +92,15 @@ class BaseFilesystemItem extends \SplFileInfo
      *
      * @return int The last modified time for the file, in a Unix timestamp
      */
-    public function getLastModified()
+    public function getLastModified(): int
     {
         return $this->getMTime();
     }
 
     /**
      * Get the full name of this file or folder.
-     *
-     * @return string
      */
-    protected function getFullName()
+    protected function getFullName(): string
     {
         return parent::getBasename();
     }
@@ -121,20 +110,18 @@ class BaseFilesystemItem extends \SplFileInfo
      *
      * @throws FileNotFoundException
      */
-    protected function isSafeToRead()
+    protected function isSafeToRead(): void
     {
-        if (fs::isVFS($this->getAbsolutePath()))
-        {
+        if (fs::isVFS($this->getAbsolutePath())) {
             return;
         }
 
-        if (strpos($this->getAbsolutePath(), Service::getWorkingDirectory()) !== 0)
-        {
+        if (!str_starts_with($this->getAbsolutePath(), (string)Service::getWorkingDirectory())) {
             throw $this->buildNotFoundException();
         }
     }
 
-    protected function buildNotFoundException()
+    protected function buildNotFoundException(): FileNotFoundException
     {
         return new FileNotFoundException(
             sprintf('The given path "%s" does not exist or is outside the website working directory', $this->rawPath),

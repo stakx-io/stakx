@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,15 +9,12 @@ namespace allejo\stakx\Exception;
 
 use allejo\stakx\Filesystem\File;
 use Exception;
+use RuntimeException;
 
-class RecursiveConfigurationException extends \RuntimeException
+class RecursiveConfigurationException extends RuntimeException
 {
-    private $import;
-
-    public function __construct(File $import, $message = '', $code = 0, Exception $previous = null)
+    public function __construct(private readonly File $import, $message = '', $code = 0, Exception $previous = null)
     {
-        $this->import = $import;
-
         parent::__construct($message, $code, $previous);
     }
 

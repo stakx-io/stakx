@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -17,13 +17,12 @@ use allejo\stakx\FrontMatter\FrontMatterParser;
 class RouteMapper
 {
     /** @var string[] */
-    private $redirects;
+    private array $redirects;
 
-    /** @var string */
-    private $baseUrl;
+    private string $baseUrl;
 
     /** @var BasePageView[] */
-    private $mapping;
+    private array $mapping;
 
     public function __construct()
     {
@@ -37,7 +36,7 @@ class RouteMapper
         return $this->baseUrl;
     }
 
-    public function setBaseUrl($baseUrl)
+    public function setBaseUrl($baseUrl): void
     {
         $this->baseUrl = $baseUrl;
     }
@@ -45,15 +44,13 @@ class RouteMapper
     /**
      * Register a PageView to this router.
      */
-    public function registerPageView(BasePageView $pageView)
+    public function registerPageView(BasePageView $pageView): void
     {
-        switch ($pageView->getType())
-        {
+        switch ($pageView->getType()) {
             case BasePageView::STATIC_TYPE:
                 $this->mapping[$pageView->getPermalink()] = $pageView;
 
-                foreach ($pageView->getRedirects() as $redirect)
-                {
+                foreach ($pageView->getRedirects() as $redirect) {
                     $this->redirects[$redirect] = $pageView->getPermalink();
                 }
 
@@ -67,6 +64,7 @@ class RouteMapper
                 $permalink = preg_replace(FrontMatterParser::VARIABLE_DEF, '{$1}', $permalink);
 
                 $this->mapping[$permalink] = $pageView;
+
                 break;
 
             case BasePageView::REPEATER_TYPE:
@@ -81,6 +79,7 @@ class RouteMapper
                 $permalink = preg_replace('/\./', '_', $permalink);
 
                 $this->mapping[$permalink] = $pageView;
+
                 break;
         }
     }
@@ -90,7 +89,7 @@ class RouteMapper
      *
      * @param string $route
      *
-     * @return StaticPageView|DynamicPageView|RepeaterPageView|null
+     * @return null|DynamicPageView|RepeaterPageView|StaticPageView
      */
     public function getRoute($route)
     {
@@ -102,7 +101,7 @@ class RouteMapper
      *
      * @return string[]
      */
-    public function getRoutes()
+    public function getRoutes(): array
     {
         return array_keys($this->mapping);
     }
@@ -125,7 +124,7 @@ class RouteMapper
     {
         $matches = [];
 
-        preg_match_all(FrontMatterParser::ANY_VARIABLE, $permalink, $matches);
+        preg_match_all(FrontMatterParser::ANY_VARIABLE, (string)$permalink, $matches);
 
         return $matches[1];
     }

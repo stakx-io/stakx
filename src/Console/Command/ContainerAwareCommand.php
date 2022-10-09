@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,6 +8,7 @@
 namespace allejo\stakx\Console\Command;
 
 use allejo\stakx\Console\Application;
+use LogicException;
 use Symfony\Component\Console\Command\Command;
 
 abstract class ContainerAwareCommand extends Command
@@ -16,14 +17,12 @@ abstract class ContainerAwareCommand extends Command
 
     public function getContainer()
     {
-        if ($this->container === null)
-        {
+        if ($this->container === null) {
             /** @var Application $application */
             $application = $this->getApplication();
 
-            if ($application === null)
-            {
-                throw new \LogicException('The container cannot be retrieved as the application instance is not yet set.');
+            if ($application === null) {
+                throw new LogicException('The container cannot be retrieved as the application instance is not yet set.');
             }
 
             $this->container = $application->getContainer();

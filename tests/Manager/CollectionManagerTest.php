@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -14,15 +14,19 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use allejo\stakx\Test\StakxTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
-class CollectionManagerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class CollectionManagerTest extends StakxTestCase
 {
-    /** @var CollectionManager */
-    private $cm;
+    private CollectionManager $cm;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -37,7 +41,7 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
             ->willReturn([
                 [
                     'name' => 'My Books',
-                    'folder' => fs::path($this->getTestRoot() . '/assets/MyBookCollection'),
+                    'folder' => fs::path(static::getTestRoot() . '/assets/MyBookCollection'),
                 ],
             ])
         ;
@@ -46,20 +50,20 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockMarkupEngineManager(),
             $conf,
             $this->getMockTemplateBridge(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $this->cm->compileManager();
     }
 
-    public function testCollectionCount()
+    public function testCollectionCount(): void
     {
         $collections = $this->cm->getCollections();
 
         $this->assertCount(1, $collections);
     }
 
-    public function testCollectionEmpty()
+    public function testCollectionEmpty(): void
     {
         /** @var Configuration $conf */
         $conf = $this->getMockConfiguration();
@@ -68,7 +72,7 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockMarkupEngineManager(),
             $conf,
             $this->getMockTemplateBridge(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $cm->parseCollections([]);
@@ -76,20 +80,20 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertEmpty($cm->getCollections());
     }
 
-    public function testCollectionManagerContainsContentItem()
+    public function testCollectionManagerContainsContentItem(): void
     {
-        $path = fs::path($this->getTestRoot() . '/assets/MyBookCollection/Tale-of-Despereaux.md');
+        $path = fs::path(static::getTestRoot() . '/assets/MyBookCollection/Tale-of-Despereaux.md');
         $file = new File($path);
         $this->assertTrue($this->cm->isTracked($file->getRelativeFilePath()));
 
-        $path = fs::path($this->getTestRoot() . '/assets/MyBookCollection/Tiger-Rising.md');
+        $path = fs::path(static::getTestRoot() . '/assets/MyBookCollection/Tiger-Rising.md');
         $file = new File($path);
         $this->assertTrue($this->cm->isTracked($file->getRelativeFilePath()));
     }
 
-    public function testCollectionManagerGetContentItem()
+    public function testCollectionManagerGetContentItem(): void
     {
-        $path = fs::path($this->getTestRoot() . '/assets/MyBookCollection/Tiger-Rising.md');
+        $path = fs::path(static::getTestRoot() . '/assets/MyBookCollection/Tiger-Rising.md');
         $file = new File($path);
 
         $contentItem = $this->cm->getContentItem($file->getRelativeFilePath());
@@ -99,7 +103,7 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('0763680877', $contentItem['isbn_10']);
     }
 
-    public function testCollectionManagerHasDrafts()
+    public function testCollectionManagerHasDrafts(): void
     {
         $withoutDrafts = count($this->cm->getJailedCollections()['My Books']);
 
@@ -110,7 +114,7 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertGreaterThan($withoutDrafts, $withDrafts);
     }
 
-    public function testCollectionManagerAdditionNewContentItem()
+    public function testCollectionManagerAdditionNewContentItem(): void
     {
         $this->createMultipleFrontMatterDocumentsOfType(ContentItem::class, [
             [
@@ -136,7 +140,7 @@ class CollectionManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockMarkupEngineManager(),
             $conf,
             $this->getMockTemplateBridge(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
 

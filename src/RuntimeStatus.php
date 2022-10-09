@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,16 +9,21 @@ namespace allejo\stakx;
 
 abstract class RuntimeStatus
 {
-    const BOOT_WITHOUT_CLEAN = 1;
+    final public const BOOT_WITHOUT_CLEAN = 1;
 
-    const COMPILER_PRESERVE_CASE = 2;
+    final public const COMPILER_PRESERVE_CASE = 2;
 
-    const IN_SAFE_MODE = 4;
-    const IN_PROFILE_MODE = 8;
-    const IN_SERVE_MODE = 128;
+    final public const IN_SAFE_MODE = 4;
 
-    const USING_CACHE = 16;
-    const USING_DRAFTS = 32;
-    const USING_HIGHLIGHTER = 64;
-    const USING_LINE_NUMBERS = 256;
+    final public const IN_PROFILE_MODE = 8;
+
+    final public const IN_SERVE_MODE = 128;
+
+    final public const USING_CACHE = 16;
+
+    final public const USING_DRAFTS = 32;
+
+    final public const USING_HIGHLIGHTER = 64;
+
+    final public const USING_LINE_NUMBERS = 256;
 }

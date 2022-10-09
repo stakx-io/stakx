@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,6 +8,7 @@
 namespace allejo\stakx\Templating\Twig\MarkupBlock;
 
 use Twig\Compiler;
+use Twig_Node;
 
 /**
  * @author Gunnar Lium <gunnar@aptoma.com>
@@ -17,7 +18,7 @@ use Twig\Compiler;
  */
 class Node extends \Twig\Node\Node
 {
-    public function __construct(\Twig_Node $body, $lineno, $tag)
+    public function __construct(Twig_Node $body, $lineno, $tag)
     {
         parent::__construct(['body' => $body], [], $lineno, $tag);
     }
@@ -27,7 +28,7 @@ class Node extends \Twig\Node\Node
      *
      * @param Compiler A Twig_Compiler instance
      */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler
             ->addDebugInfo($this)

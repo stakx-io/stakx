@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,6 +7,8 @@
 
 namespace allejo\stakx\Exception;
 
-class TrackedItemNotFoundException extends \Exception
+use Exception;
+
+class TrackedItemNotFoundException extends Exception
 {
 }

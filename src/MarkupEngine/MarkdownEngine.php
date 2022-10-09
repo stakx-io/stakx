@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,14 +8,16 @@
 namespace allejo\stakx\MarkupEngine;
 
 use __;
+use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Markup\AssetHandlerTrait;
 use allejo\stakx\Markup\SyntaxHighlighterTrait;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use Highlight\Highlighter;
+use ParsedownExtra;
 
-class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
+class MarkdownEngine extends ParsedownExtra implements MarkupEngineInterface
 {
     use AssetHandlerTrait;
     use SyntaxHighlighterTrait;
@@ -28,19 +30,42 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         $this->assetManager = $assetManager;
     }
 
-    public function parse($text, $contentItem = null)
+    public function parse($text, ContentItem $contentItem = null): string
     {
         $this->contentItem = $contentItem;
 
         return parent::parse($text);
     }
 
+    //
+    // MarkupEngine Implementation
+    //
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTemplateTag(): string
+    {
+        return 'markdown';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getExtensions(): array
+    {
+        return [
+            'md',
+            'mdown',
+            'markdown',
+        ];
+    }
+
     protected function blockHeader($Line)
     {
         $Block = parent::blockHeader($Line);
 
-        if (isset($Block['element']['text']))
-        {
+        if (isset($Block['element']['text'])) {
             $Block['element']['attributes']['id'] = $this->slugifyHeader($Block);
         }
 
@@ -54,12 +79,10 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         //   https://github.com/erusev/parsedown-extra/issues/134
         $Block = @parent::blockSetextHeader($Line, $Block);
 
-        if (isset($Block['element']['name']))
-        {
+        if (isset($Block['element']['name'])) {
             $element = $Block['element']['name'];
 
-            if (in_array($element, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']))
-            {
+            if (in_array($element, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])) {
                 $Block['element']['attributes']['id'] = $this->slugifyHeader($Block);
             }
         }
@@ -70,8 +93,7 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
     protected function blockFencedCodeComplete($block)
     {
         // The class has a `language-` prefix, remove this to get the language
-        if (isset($block['element']['text']['attributes']) && Service::hasRunTimeFlag(RuntimeStatus::USING_HIGHLIGHTER))
-        {
+        if (isset($block['element']['text']['attributes']) && Service::hasRunTimeFlag(RuntimeStatus::USING_HIGHLIGHTER)) {
             $cssClass = $block['element']['text']['attributes']['class'];
             $block['markup'] = $this->highlightCode($cssClass, $block['element']['text']['text']);
 
@@ -85,9 +107,8 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
     {
         $imageBlock = parent::inlineImage($Excerpt);
 
-        if ($imageBlock !== null)
-        {
-            $imageSrc = trim($imageBlock['element']['attributes']['src']);
+        if ($imageBlock !== null) {
+            $imageSrc = trim((string)$imageBlock['element']['attributes']['src']);
 
             $this->registerAsset($imageSrc);
         }
@@ -98,29 +119,5 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
     private function slugifyHeader($Block)
     {
         return __::slug($Block['element']['text']);
-    }
-
-    ///
-    // MarkupEngine Implementation
-    ///
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTemplateTag()
-    {
-        return 'markdown';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getExtensions()
-    {
-        return [
-            'md',
-            'mdown',
-            'markdown',
-        ];
     }
 }

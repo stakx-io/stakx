@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -19,19 +19,23 @@ use allejo\stakx\EventSubscriber\AssetEngineSubscriber;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
-use ScssPhp\ScssPhp\Compiler as SassCompiler;
+use allejo\stakx\Test\StakxTestCase;
 use org\bovigo\vfs\vfsStream;
+use PHPUnit\Framework\MockObject\MockObject;
+use ScssPhp\ScssPhp\Compiler as SassCompiler;
 
-class SassEngineTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class SassEngineTest extends StakxTestCase
 {
-    /** @var SassEngine */
-    private $sassEngine;
+    private SassEngine $sassEngine;
 
-    /** @var AssetEngineManager */
-    private $manager;
+    private AssetEngineManager $manager;
 
-    private $sass = <<<'SASS'
+    private string $sass = <<<'SASS'
 // A comment
 $color: red;
 
@@ -40,7 +44,7 @@ $color: red;
 }
 SASS;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -50,35 +54,7 @@ SASS;
         $this->manager->addAssetEngine($this->sassEngine);
     }
 
-    /**
-     * @param array $options
-     *
-     * @return Configuration|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private function mockConfigurationGenerator(array $options)
-    {
-        $settings = [
-            'scss' => $options,
-        ];
-
-        /** @var Configuration|\PHPUnit_Framework_MockObject_MockObject $config */
-        $config = $this->getMockBuilder(Configuration::class)
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
-        $config
-            ->method('getConfiguration')
-            ->willReturn($settings)
-        ;
-        $config
-            ->method('getTargetFolder')
-            ->willReturn('_site')
-        ;
-
-        return $config;
-    }
-
-    public static function dataProvider_outputStyles()
+    public static function provideSassOutputStyleFromConfigurationCases(): iterable
     {
         return [
             ['nested'],
@@ -89,11 +65,11 @@ SASS;
     }
 
     /**
-     * @dataProvider dataProvider_outputStyles
+     * @dataProvider provideSassOutputStyleFromConfigurationCases
      *
      * @param string $outputFormat
      */
-    public function testSassOutputStyleFromConfiguration($outputFormat)
+    public function testSassOutputStyleFromConfiguration($outputFormat): void
     {
         $config = $this->mockConfigurationGenerator([
             'style' => $outputFormat,
@@ -111,7 +87,7 @@ SASS;
         $this->assertEquals($expectedEngine->compile($this->sass), $actualEngine->parse($this->sass));
     }
 
-    public function testSassDisabledSourceMap()
+    public function testSassDisabledSourceMap(): void
     {
         $config = $this->mockConfigurationGenerator([
             'sourcemap' => false,
@@ -124,10 +100,10 @@ SASS;
         $actualEngine = $this->manager->getEngineByExtension('scss');
         $contents = $actualEngine->parse($this->sass);
 
-        $this->assertNotContains('/*# sourceMappingURL=data:application/json', $contents);
+        $this->assertStringNotContainsString('/*# sourceMappingURL=data:application/json', $contents);
     }
 
-    public function testSassInlineSourceMap()
+    public function testSassInlineSourceMap(): void
     {
         $config = $this->mockConfigurationGenerator([
             'sourcemap' => 'inline',
@@ -140,10 +116,10 @@ SASS;
         $actualEngine = $this->manager->getEngineByExtension('scss');
         $contents = $actualEngine->parse($this->sass);
 
-        $this->assertContains('/*# sourceMappingURL=data:application/json', $contents);
+        $this->assertStringContains('/*# sourceMappingURL=data:application/json', $contents);
     }
 
-    public function testSassExternalSourceMap()
+    public function testSassExternalSourceMap(): void
     {
         Service::setWorkingDirectory($this->rootDir->url());
         vfsStream::create([
@@ -165,7 +141,7 @@ SASS;
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockAssetManager(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
 
@@ -180,8 +156,7 @@ SASS;
         $pageViews = &$pageManager->getPageViews();
 
         // Dispatch the compiler event, which triggers the sourcemap to be written
-        foreach ($pageViews[BasePageView::STATIC_TYPE] as $pageView)
-        {
+        foreach ($pageViews[BasePageView::STATIC_TYPE] as $pageView) {
             $compileEvent = new CompilerPostRenderStaticPageView($pageView, $this->sass);
             $subscriber->compileAssetEnginePageViews($compileEvent);
         }
@@ -190,16 +165,37 @@ SASS;
         $actualFileCount = 0;
 
         /** @var StaticPageView $pageView */
-        foreach ($pageViews[BasePageView::STATIC_TYPE] as $pageView)
-        {
+        foreach ($pageViews[BasePageView::STATIC_TYPE] as $pageView) {
             $filename = fs::getFilename($pageView->getTargetFile());
 
-            if (in_array($filename, $expectedFiles))
-            {
+            if (in_array($filename, $expectedFiles)) {
                 ++$actualFileCount;
             }
         }
 
         $this->assertEquals(count($expectedFiles), $actualFileCount);
+    }
+
+    private function mockConfigurationGenerator(array $options): Configuration|MockObject
+    {
+        $settings = [
+            'scss' => $options,
+        ];
+
+        /** @var Configuration|MockObject $config */
+        $config = $this->getMockBuilder(Configuration::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+        $config
+            ->method('getConfiguration')
+            ->willReturn($settings)
+        ;
+        $config
+            ->method('getTargetFolder')
+            ->willReturn('_site')
+        ;
+
+        return $config;
     }
 }

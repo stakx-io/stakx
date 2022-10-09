@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -11,10 +11,7 @@ use Twig\TwigFilter;
 
 interface TwigFilterInterface
 {
-    const CONTAINER_TAG = 'stakx.twig_filter';
+    public const CONTAINER_TAG = 'stakx.twig_filter';
 
-    /**
-     * @return TwigFilter
-     */
-    public static function get();
+    public static function get(): TwigFilter;
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,61 +7,40 @@
 
 namespace allejo\stakx\Templating;
 
+use Throwable;
+
 /**
  * This interface is used to throw exceptions whenever a template cannot be compiled or parsed by the template engine.
  */
-interface TemplateErrorInterface extends \Throwable
+interface TemplateErrorInterface extends Throwable
 {
-    /**
-     * @return int
-     */
-    public function getTemplateLine();
+    public function getTemplateLine(): int;
 
     /**
      * @param int $lineNumber
-     *
-     * @return self
      */
-    public function setTemplateLine($lineNumber);
+    public function setTemplateLine($lineNumber): self;
 
-    /**
-     * @return string
-     */
-    public function getContent();
+    public function getContent(): string;
 
     /**
      * @param string $content
-     *
-     * @return self
      */
-    public function setContent($content);
+    public function setContent($content): self;
 
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): string;
 
     /**
      * @param string $name
-     *
-     * @return self
      */
-    public function setName($name);
+    public function setName($name): self;
 
-    /**
-     * @return string
-     */
-    public function getRelativeFilePath();
+    public function getRelativeFilePath(): string;
 
     /**
      * @param string $filePath
-     *
-     * @return self
      */
-    public function setRelativeFilePath($filePath);
+    public function setRelativeFilePath($filePath): self;
 
-    /**
-     * @return void
-     */
-    public function buildException();
+    public function buildException(): void;
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,19 +8,20 @@
 namespace allejo\stakx\Templating\Twig;
 
 use allejo\stakx\Templating\TemplateErrorInterface;
+use Exception;
 use Twig\Error\Error;
 use Twig\Source;
 
-class TwigError extends \Exception implements TemplateErrorInterface
+class TwigError extends Exception implements TemplateErrorInterface
 {
-    private $error;
     private $content;
+
     private $relativeFilePath;
+
     private $name;
 
-    public function __construct(Error $error)
+    public function __construct(private readonly Error $error)
     {
-        $this->error = $error;
         $this->message = $error->getRawMessage();
     }
 
@@ -99,7 +100,7 @@ class TwigError extends \Exception implements TemplateErrorInterface
     /**
      * {@inheritdoc}
      */
-    public function buildException()
+    public function buildException(): void
     {
         $this->error->setSourceContext(new Source(
             $this->content,

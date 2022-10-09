@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -16,30 +16,26 @@ class SelectFilter extends AbstractTwigExtension implements TwigFilterInterface
     {
         $results = [];
 
-        foreach ($array as $item)
-        {
+        foreach ($array as $item) {
             $results[] = __::get($item, $key);
         }
 
-        if ($flatten)
-        {
+        if ($flatten) {
             $results = __::flatten($results);
 
-            if ($distinct)
-            {
+            if ($distinct) {
                 $results = array_values(array_unique($results));
             }
         }
 
-        if ($ignore_null)
-        {
+        if ($ignore_null) {
             $results = array_values(array_filter($results));
         }
 
         return $results;
     }
 
-    public static function get()
+    public static function get(): TwigFilter
     {
         return new TwigFilter('select', new self());
     }

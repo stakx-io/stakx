@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,11 +8,16 @@
 namespace allejo\stakx\Test\Templating\Twig\Extension;
 
 use allejo\stakx\Templating\Twig\Extension\OrderFilter;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 
-class OrderFilterTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class OrderFilterTest extends StakxTestCase
 {
-    public static function dataProvider_singleLevelArray()
+    public static function dataProvider_singleLevelArray(): iterable
     {
         return [
             [
@@ -43,7 +48,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterAscOnArray($dataset)
+    public function testOrderFilterAscOnArray($dataset): void
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'sort');
@@ -74,7 +79,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterDescOnArray($dataset)
+    public function testOrderFilterDescOnArray($dataset): void
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'sort', 'DESC');
@@ -105,7 +110,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterAscOnArrayCaseSensitive($dataset)
+    public function testOrderFilterAscOnArrayCaseSensitive($dataset): void
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'name', 'ASC');
@@ -136,7 +141,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterDescOnArrayCaseSensitive($dataset)
+    public function testOrderFilterDescOnArrayCaseSensitive($dataset): void
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'name', 'DESC');
@@ -167,7 +172,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterAscOnArrayCaseInsensitive($dataset)
+    public function testOrderFilterAscOnArrayCaseInsensitive($dataset): void
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'name', 'ASC', true);
@@ -198,7 +203,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterDescOnArrayCaseInsensitive($dataset)
+    public function testOrderFilterDescOnArrayCaseInsensitive($dataset): void
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'name', 'DESC', true);
@@ -224,7 +229,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public static function dataProvider_multiLevelArray()
+    public static function dataProvider_multiLevelArray(): iterable
     {
         return [
             [
@@ -257,7 +262,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterAscNestedArray($dataset)
+    public function testOrderFilterAscNestedArray($dataset): void
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'metadata.sort');
@@ -290,7 +295,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
      *
      * @param array $dataset
      */
-    public function testOrderFilterDescNestedArray($dataset)
+    public function testOrderFilterDescNestedArray($dataset): void
     {
         $orderFilter = new OrderFilter();
         $result = $orderFilter($dataset, 'metadata.sort', 'DESC');
@@ -319,7 +324,7 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public static function keyProvider()
+    public static function keyProvider(): iterable
     {
         return [
             ['page_count'],
@@ -329,18 +334,15 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
 
     /**
      * @dataProvider keyProvider
-     *
-     * @param $sortKey
      */
-    public function testOrderFilterOnFrontMatterNumericAsc($sortKey)
+    public function testOrderFilterOnFrontMatterNumericAsc(mixed $sortKey): void
     {
         $books = $this->bookCollectionProvider()['books'];
         $orderFilter = new OrderFilter();
         $results = $orderFilter($books, $sortKey);
         $lastCount = -1;
 
-        foreach ($results as $result)
-        {
+        foreach ($results as $result) {
             $this->assertGreaterThanOrEqual($lastCount, $result[$sortKey]);
             $lastCount = $result[$sortKey];
         }
@@ -348,24 +350,21 @@ class OrderFilterTest extends PHPUnit_Stakx_TestCase
 
     /**
      * @dataProvider keyProvider
-     *
-     * @param $sortKey
      */
-    public function testOrderFilterOnFrontMatterNumericDesc($sortKey)
+    public function testOrderFilterOnFrontMatterNumericDesc(mixed $sortKey): void
     {
         $books = $this->bookCollectionProvider()['books'];
         $orderFilter = new OrderFilter();
         $results = $orderFilter($books, $sortKey, 'DESC');
         $lastCount = 999999;
 
-        foreach ($results as $result)
-        {
+        foreach ($results as $result) {
             $this->assertLessThanOrEqual($lastCount, $result[$sortKey]);
             $lastCount = $result[$sortKey];
         }
     }
 
-    public function testOrderFilterNonArray()
+    public function testOrderFilterNonArray(): void
     {
         $myString = 'Hello World';
         $orderFilter = new OrderFilter();

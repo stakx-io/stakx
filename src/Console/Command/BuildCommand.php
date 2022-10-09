@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -15,24 +15,31 @@ use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use allejo\stakx\Utilities\StrUtils;
 use allejo\stakx\Website;
+use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class BuildCommand extends ContainerAwareCommand
 {
-    const NO_CONF = 'no-conf';
-    const NO_CLEAN = 'no-clean';
-    const USE_DRAFTS = 'use-drafts';
-    const WATCHING = 'watching';
-    const USE_CACHE = 'use-cache';
-    const SAFE_MODE = 'safe';
-    const BUILD_PROFILE = 'profile';
+    public const NO_CONF = 'no-conf';
+
+    public const NO_CLEAN = 'no-clean';
+
+    public const USE_DRAFTS = 'use-drafts';
+
+    public const WATCHING = 'watching';
+
+    public const USE_CACHE = 'use-cache';
+
+    public const SAFE_MODE = 'safe';
+
+    public const BUILD_PROFILE = 'profile';
 
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addOption(self::NO_CONF, 'l', InputOption::VALUE_NONE, 'Build a stakx website without a configuration file');
 
@@ -55,32 +62,30 @@ class BuildCommand extends ContainerAwareCommand
         $this->handleDeprecations($input, $output);
         $this->setRunTimeOptions($input);
 
-        try
-        {
+        try {
             $this->configureConfigurationFile($input);
 
             $website = $this->getContainer()->get(Website::class);
             $website->build();
 
-            $output->writeln(sprintf('Your site built successfully! It can be found at: %s',
+            $output->writeln(sprintf(
+                'Your site built successfully! It can be found at: %s',
                 $website->getConfiguration()->getTargetFolder()
             ));
 
             return 0;
-        }
-        catch (FileAwareException $e)
-        {
+        } catch (FileAwareException $e) {
             $output->writeln(StrUtils::interpolate(
-                "Your website failed to build with the following error in file '{file}'{line}: {message}", [
+                "Your website failed to build with the following error in file '{file}'{line}: {message}",
+                [
                     'file' => $e->getPath(),
                     'line' => (($l = $e->getLineNumber()) >= 0) ? ' on line ' . $l : '',
                     'message' => $e->getMessage(),
                 ]
             ));
-        }
-        catch (\Exception $e)
-        {
-            $output->writeln(sprintf('Your website failed to build with the following error: %s',
+        } catch (Exception $e) {
+            $output->writeln(sprintf(
+                'Your website failed to build with the following error: %s',
                 $e->getMessage()
             ));
         }
@@ -89,11 +94,9 @@ class BuildCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param InputInterface $input
-     *
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function configureConfigurationFile(InputInterface $input)
+    protected function configureConfigurationFile(InputInterface $input): void
     {
         $confFilePath = $input->getOption('conf');
         $siteRoot = fs::getFolderPath(realpath($confFilePath));
@@ -106,41 +109,35 @@ class BuildCommand extends ContainerAwareCommand
         $conf->parse($configFile);
     }
 
-    protected function setRunTimeOptions(InputInterface $input)
+    protected function setRunTimeOptions(InputInterface $input): void
     {
-        if ($input->getOption(self::NO_CLEAN))
-        {
+        if ($input->getOption(self::NO_CLEAN)) {
             Service::setRuntimeFlag(RuntimeStatus::BOOT_WITHOUT_CLEAN);
         }
 
-        if ($input->getOption(self::USE_DRAFTS))
-        {
+        if ($input->getOption(self::USE_DRAFTS)) {
             Service::setRuntimeFlag(RuntimeStatus::USING_DRAFTS);
         }
 
-        if ($input->getOption(self::USE_CACHE))
-        {
+        if ($input->getOption(self::USE_CACHE)) {
             Service::setRuntimeFlag(RuntimeStatus::USING_CACHE);
         }
 
-        if ($input->getOption(self::SAFE_MODE))
-        {
+        if ($input->getOption(self::SAFE_MODE)) {
             // Caches could be maliciously manipulated so disable reading the cache in safe mode
             Service::removeRuntimeFlag(RuntimeStatus::USING_CACHE);
 
             Service::setRuntimeFlag(RuntimeStatus::IN_SAFE_MODE);
         }
 
-        if ($input->getOption(self::BUILD_PROFILE))
-        {
+        if ($input->getOption(self::BUILD_PROFILE)) {
             Service::setRuntimeFlag(RuntimeStatus::IN_PROFILE_MODE);
         }
     }
 
-    protected function handleDeprecations(InputInterface $input, OutputInterface $output)
+    protected function handleDeprecations(InputInterface $input, OutputInterface $output): void
     {
-        if ($input->getOption(self::NO_CONF))
-        {
+        if ($input->getOption(self::NO_CONF)) {
             $output->writeln('Deprecation: The "--no-conf" option is no longer supported. You must have a configuration file.');
         }
     }

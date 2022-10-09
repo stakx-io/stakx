@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -26,6 +26,8 @@ use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
+use Exception;
+use LogicException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -38,27 +40,21 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class PageManager extends TrackingManager
 {
     /** @var StaticPageView[] A place to store a reference to static PageViews with titles. */
-    private $staticPages;
+    private array $staticPages;
+
     /** @var RepeaterPageView[] A place to store a reference to repeater PageViews with titles. */
-    private $repeaterPages;
-    private $configuration;
-    private $collectionManager;
-    private $dataManager;
-    private $eventDispatcher;
-    private $logger;
-    /** @var AssetManager */
-    private $assetManager;
+    private array $repeaterPages;
 
     /**
      * PageManager constructor.
      */
     public function __construct(
-        Configuration $configuration,
-        CollectionManager $collectionManager,
-        DataManager $dataManager,
-        AssetManager $assetManager,
-        EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $logger
+        private readonly Configuration $configuration,
+        private readonly CollectionManager $collectionManager,
+        private readonly DataManager $dataManager,
+        private readonly AssetManager $assetManager,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger
     ) {
         $this->trackedItems = [
             BasePageView::STATIC_TYPE => [],
@@ -67,18 +63,12 @@ class PageManager extends TrackingManager
         ];
         $this->staticPages = [];
         $this->repeaterPages = [];
-        $this->configuration = $configuration;
-        $this->collectionManager = $collectionManager;
-        $this->dataManager = $dataManager;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
-        $this->assetManager = $assetManager;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function compileManager()
+    public function compileManager(): void
     {
         $this->parsePageViews($this->configuration->getPageViewFolders());
     }
@@ -90,17 +80,16 @@ class PageManager extends TrackingManager
      *
      * @since 0.1.0
      */
-    public function parsePageViews(array $pageViewFolders)
+    public function parsePageViews(array $pageViewFolders): void
     {
         $preEvent = new PageManagerPreProcess($this);
-        $this->eventDispatcher->dispatch(PageManagerPreProcess::NAME, $preEvent);
+        $this->eventDispatcher->dispatch($preEvent, PageManagerPreProcess::NAME);
 
-        foreach ($pageViewFolders as $pageViewFolderName)
-        {
+        foreach ($pageViewFolders as $pageViewFolderName) {
             $folder = new Folder($pageViewFolderName);
 
             $event = new PageViewDefinitionAdded($folder);
-            $this->eventDispatcher->dispatch(PageViewDefinitionAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event, PageViewDefinitionAdded::NAME);
 
             $def = new FileExplorerDefinition($folder);
             $def->flags = FileExplorer::INCLUDE_ONLY_FILES;
@@ -110,7 +99,7 @@ class PageManager extends TrackingManager
         }
 
         $postEvent = new PageManagerPostProcess($this);
-        $this->eventDispatcher->dispatch(PageManagerPostProcess::NAME, $postEvent);
+        $this->eventDispatcher->dispatch($postEvent, PageManagerPostProcess::NAME);
     }
 
     /**
@@ -120,7 +109,7 @@ class PageManager extends TrackingManager
      *
      * @return BasePageView[][]
      */
-    public function &getPageViews()
+    public function &getPageViews(): array
     {
         return $this->trackedItems;
     }
@@ -132,7 +121,7 @@ class PageManager extends TrackingManager
      *
      * @return BasePageView[]
      */
-    public function &getPageViewsFlattened()
+    public function &getPageViewsFlattened(): array
     {
         return $this->trackedItemsFlattened;
     }
@@ -144,7 +133,7 @@ class PageManager extends TrackingManager
      *
      * @return StaticPageView[]
      */
-    public function getStaticPageViews()
+    public function getStaticPageViews(): array
     {
         return $this->staticPages;
     }
@@ -156,12 +145,11 @@ class PageManager extends TrackingManager
      *
      * @return JailedDocument[]
      */
-    public function getJailedStaticPageViews()
+    public function getJailedStaticPageViews(): array
     {
         $jailedObjects = [];
 
-        foreach ($this->staticPages as $key => $value)
-        {
+        foreach ($this->staticPages as $key => $value) {
             $jailedObjects[$key] = $value->createJail();
         }
 
@@ -175,8 +163,7 @@ class PageManager extends TrackingManager
     {
         $jailedObjects = [];
 
-        foreach ($this->repeaterPages as $key => $value)
-        {
+        foreach ($this->repeaterPages as $key => $value) {
             $jailedObjects[$key] = $value->createJail();
         }
 
@@ -186,30 +173,30 @@ class PageManager extends TrackingManager
     /**
      * Add a PageView for this PageManager to track.
      *
-     * @param BasePageView|StaticPageView|DynamicPageView|RepeaterPageView $pageView
-     *
-     * @throws \LogicException             When a PageView is treated as the wrong type
+     * @throws LogicException              When a PageView is treated as the wrong type
      * @throws CollectionNotFoundException When the collection specified in a Dynamic PageView isn't found
-     * @throws \Exception                  The permalink could not be built correctly
+     * @throws Exception                   The permalink could not be built correctly
      *
      * @since 0.2.0
      */
-    public function trackNewPageView(BasePageView $pageView)
+    public function trackNewPageView(BasePageView|DynamicPageView|RepeaterPageView|StaticPageView $pageView): void
     {
         $namespace = $pageView->getType();
 
-        switch ($namespace)
-        {
+        switch ($namespace) {
             case BasePageView::STATIC_TYPE:
                 $this->handleTrackableStaticPageView($pageView);
+
                 break;
 
             case BasePageView::DYNAMIC_TYPE:
                 $this->handleTrackableDynamicPageView($pageView);
+
                 break;
 
             case BasePageView::REPEATER_TYPE:
                 $this->handleTrackableRepeaterPageView($pageView);
+
                 break;
 
             default:
@@ -217,7 +204,7 @@ class PageManager extends TrackingManager
         }
 
         $event = new PageViewAdded($pageView);
-        $this->eventDispatcher->dispatch(PageViewAdded::NAME, $event);
+        $this->eventDispatcher->dispatch($event, PageViewAdded::NAME);
 
         $this->declareTrackingNamespace($namespace);
         $this->addObjectToTracker($pageView, $namespace);
@@ -230,7 +217,7 @@ class PageManager extends TrackingManager
      *
      * @since 0.1.0
      */
-    public function trackNewContentItem(&$contentItem)
+    public function trackNewContentItem(&$contentItem): void
     {
         $collection = $contentItem->getNamespace();
         $this->trackedItems[BasePageView::DYNAMIC_TYPE][$collection]->addCollectableItem($contentItem);
@@ -239,7 +226,7 @@ class PageManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function &handleTrackableItem(File $filePath, array $options = [])
+    protected function &handleTrackableItem(File $filePath, array $options = []): mixed
     {
         $pageView = BasePageView::create($filePath, [
             'site' => $this->configuration->getConfiguration(),
@@ -257,14 +244,13 @@ class PageManager extends TrackingManager
      *
      * @since 0.1.0
      */
-    private function handleTrackableStaticPageView(&$pageView)
+    private function handleTrackableStaticPageView(&$pageView): void
     {
         $pageView->evaluateFrontMatter([], [
             'site' => $this->configuration->getConfiguration(),
         ]);
 
-        if (empty($pageView['title']))
-        {
+        if (empty($pageView['title'])) {
             return;
         }
 
@@ -278,55 +264,48 @@ class PageManager extends TrackingManager
      *
      * @since 0.1.0
      *
-     * @throws \LogicException             An invalid PageView has been given as a Dynamic PageView
+     * @throws LogicException              An invalid PageView has been given as a Dynamic PageView
      * @throws CollectionNotFoundException When a collection or dataset specified in a Dynamic PageView doesn't exist
-     * @throws \Exception                  When the permalink for the given PageView hasn't been set
+     * @throws Exception                   When the permalink for the given PageView hasn't been set
      */
-    private function handleTrackableDynamicPageView(&$pageView)
+    private function handleTrackableDynamicPageView(&$pageView): void
     {
         $frontMatter = $pageView->getRawFrontMatter();
         $dataSource = null;
         $namespace = null;
 
-        if (isset($frontMatter['collection']))
-        {
+        if (isset($frontMatter['collection'])) {
             $dataSource = &$this->collectionManager->getCollections();
             $namespace = 'collection';
-        }
-        elseif (isset($frontMatter['dataset']))
-        {
+        } elseif (isset($frontMatter['dataset'])) {
             $dataSource = &$this->dataManager->getDataItems();
             $namespace = 'dataset';
         }
 
-        if ($dataSource === null)
-        {
-            throw new \LogicException('Invalid Dynamic PageView defined');
+        if ($dataSource === null) {
+            throw new LogicException('Invalid Dynamic PageView defined');
         }
 
         $collection = $frontMatter[$namespace];
 
-        if (!isset($dataSource[$collection]))
-        {
-            throw new CollectionNotFoundException("The '$collection' $namespace is not defined");
+        if (!isset($dataSource[$collection])) {
+            throw new CollectionNotFoundException("The '{$collection}' {$namespace} is not defined");
         }
 
         /** @var ContentItem|DataItem $item */
-        foreach ($dataSource[$collection] as &$item)
-        {
+        foreach ($dataSource[$collection] as &$item) {
             $item->evaluateFrontMatter($frontMatter, [
                 'site' => $this->configuration->getConfiguration(),
             ]);
             $item->saveParentPageView($pageView);
             $item->buildPermalink(true);
 
-            if ($item instanceof ContentItem)
-            {
+            if ($item instanceof ContentItem) {
                 $this->registerExplicitAssets($item);
             }
 
             $event = new CollectionItemFinalized($item);
-            $this->eventDispatcher->dispatch(CollectionItemFinalized::NAME, $event);
+            $this->eventDispatcher->dispatch($event, CollectionItemFinalized::NAME);
 
             $pageView->addCollectableItem($item);
         }
@@ -339,43 +318,39 @@ class PageManager extends TrackingManager
      *
      * @since 0.2.0
      */
-    private function handleTrackableRepeaterPageView(&$pageView)
+    private function handleTrackableRepeaterPageView(&$pageView): void
     {
         $pageView->evaluateFrontMatter([], [
             'site' => $this->configuration->getConfiguration(),
         ]);
         $pageView->configurePermalinks();
 
-        if (empty($pageView['title']))
-        {
+        if (empty($pageView['title'])) {
             return;
         }
 
         $this->repeaterPages[$pageView['title']] = &$pageView;
     }
 
-    private function registerExplicitAssets(ContentItem $contentItem)
+    private function registerExplicitAssets(ContentItem $contentItem): void
     {
         $assets = $contentItem['assets'];
 
-        if (!is_array($assets) && $assets !== null)
-        {
+        if (!is_array($assets) && $assets !== null) {
             $this->logger->warning('The "assets" directive in FrontMatter must be null or an array of strings.');
+
             return;
         }
 
-        if ($assets === null || count($assets) === 0)
-        {
+        if ($assets === null || count($assets) === 0) {
             return;
         }
 
         $sourceFolder = fs::path($contentItem->getAbsoluteFilePath())->getParentDirectory();
         $permalinkFolder = fs::path($contentItem->getTargetFile())->getParentDirectory();
 
-        foreach ($assets as $i => $asset)
-        {
-            if (!is_string($asset))
-            {
+        foreach ($assets as $i => $asset) {
+            if (!is_string($asset)) {
                 $this->logger->warning('{path}: Item #{index} of the "assets" array is not a string', [
                     'path' => $contentItem->getRelativeFilePath(),
                     'index' => $i,

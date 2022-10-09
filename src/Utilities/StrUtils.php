@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -15,19 +15,14 @@ abstract class StrUtils
      * @author PHP Framework Interoperability Group
      *
      * @param string $message
-     * @param array  $context
-     *
-     * @return string
      */
-    public static function interpolate($message, array $context)
+    public static function interpolate($message, array $context): string
     {
         // build a replacement array with braces around the context keys
         $replace = [];
 
-        foreach ($context as $key => $val)
-        {
-            if (!is_array($val) && (!is_object($val) || method_exists($val, '__toString')))
-            {
+        foreach ($context as $key => $val) {
+            if (!is_array($val) && (!is_object($val) || method_exists($val, '__toString'))) {
                 $replace[sprintf('{%s}', $key)] = $val;
             }
         }
@@ -39,24 +34,19 @@ abstract class StrUtils
     /**
      * Check if an object can be casted into a string.
      *
-     * @param mixed $mixed
-     *
      * @see https://stackoverflow.com/a/5496674
-     *
-     * @return bool
      */
-    public static function canBeCastedToString($mixed)
+    public static function canBeCastedToString(mixed $mixed): bool
     {
-        if (is_string($mixed))
-        {
+        if (is_string($mixed)) {
             return true;
         }
 
         return
-            (!is_array($mixed)) &&
-            (
-                (!is_object($mixed) && settype($mixed, 'string') !== false) ||
-                (is_object($mixed) && method_exists($mixed, '__toString'))
+            (!is_array($mixed))
+            && (
+                (!is_object($mixed) && settype($mixed, 'string') !== false)
+                || (is_object($mixed) && method_exists($mixed, '__toString'))
             )
         ;
     }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,6 +8,7 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use Twig\TwigFilter;
+use Twig_Environment;
 
 /**
  * This filter is adapted from the Twig Text extension.
@@ -19,22 +20,20 @@ use Twig\TwigFilter;
  */
 class WordWrapFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
-    public function __invoke(\Twig_Environment $env, $value, $length = 80, $separator = "\n", $preserve = false)
+    public function __invoke(Twig_Environment $env, $value, $length = 80, $separator = "\n", $preserve = false)
     {
         $sentences = [];
 
         $previous = mb_regex_encoding();
         mb_regex_encoding($env->getCharset());
 
-        $pieces = mb_split($separator, $value);
+        $pieces = mb_split((string)$separator, (string)$value);
         mb_regex_encoding($previous);
 
-        foreach ($pieces as $piece)
-        {
-            while (!$preserve && mb_strlen($piece, $env->getCharset()) > $length)
-            {
-                $sentences[] = mb_substr($piece, 0, $length, $env->getCharset());
-                $piece = mb_substr($piece, $length, 2048, $env->getCharset());
+        foreach ($pieces as $piece) {
+            while (!$preserve && mb_strlen((string)$piece, $env->getCharset()) > $length) {
+                $sentences[] = mb_substr((string)$piece, 0, $length, $env->getCharset());
+                $piece = mb_substr((string)$piece, $length, 2048, $env->getCharset());
             }
 
             $sentences[] = $piece;

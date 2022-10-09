@@ -1,4 +1,9 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
 
 namespace allejo\stakx\Filesystem;
 
@@ -7,23 +12,15 @@ namespace allejo\stakx\Filesystem;
  */
 class FileExplorerDefinition
 {
-    /** @var Folder */
-    public $folder;
+    /** @var string[] */
+    public array $includes = [];
 
     /** @var string[] */
-    public $includes = [];
+    public array $excludes = [];
 
-    /** @var string[] */
-    public $excludes = [];
+    public ?int $flags = null;
 
-    /** @var int */
-    public $flags = null;
-
-    /**
-     * @param Folder $folder
-     */
-    public function __construct(Folder $folder)
+    public function __construct(public Folder $folder)
     {
-        $this->folder = $folder;
     }
 }

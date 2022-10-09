@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,6 +8,7 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use Twig\TwigFilter;
+use Twig_Environment;
 
 /**
  * This filter is adapted from the Twig Text extension.
@@ -19,31 +20,25 @@ use Twig\TwigFilter;
  */
 class TruncateFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
-    public function __invoke(\Twig_Environment $env, $value, $length = 30, $preserve = false, $separator = '...')
+    public function __invoke(Twig_Environment $env, $value, $length = 30, $preserve = false, $separator = '...')
     {
-        if (mb_strlen($value, $env->getCharset()) > $length)
-        {
-            if ($preserve)
-            {
+        if (mb_strlen((string)$value, $env->getCharset()) > $length) {
+            if ($preserve) {
                 // If breakpoint is on the last word, return the value without separator.
-                if (($breakpoint = mb_strpos($value, ' ', $length, $env->getCharset())) === false)
-                {
+                if (($breakpoint = mb_strpos((string)$value, ' ', $length, $env->getCharset())) === false) {
                     return $value;
                 }
 
                 $length = $breakpoint;
             }
 
-            return rtrim(mb_substr($value, 0, $length, $env->getCharset())) . $separator;
+            return rtrim(mb_substr((string)$value, 0, $length, $env->getCharset())) . $separator;
         }
 
         return $value;
     }
 
-    /**
-     * @return TwigFilter
-     */
-    public static function get()
+    public static function get(): TwigFilter
     {
         return new TwigFilter('truncate', new self(), [
             'needs_environment' => true,

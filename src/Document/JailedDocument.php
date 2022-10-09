@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,37 +7,34 @@
 
 namespace allejo\stakx\Document;
 
+use ArrayAccess;
+use BadMethodCallException;
+use IteratorAggregate;
+use JsonSerializable;
+use LogicException;
+use Stringable;
+
 /**
  * A wrapper object to only allow certain functions on the white list to be called and will redirect "jailed" function
  * calls to their appropriate jailed calls. This is used in order to limit which functions a user can call from
  * templates to prevent unexpected behavior.
  */
-class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializable
+class JailedDocument implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringable
 {
-    /** @var string[] */
-    private $whiteListFunctions;
+    private readonly TemplateReadyDocument $object;
 
-    /** @var string[] */
-    private $jailedFunctions;
-
-    /** @var TemplateReadyDocument */
-    private $object;
-
-    /** @var array */
-    private $debugInfo;
+    private array $debugInfo;
 
     /**
      * JailObject constructor.
      *
      * @param TemplateReadyDocument $object             the object that will be jailed
-     * @param array                 $whiteListFunctions a list of function names that can be called
-     * @param array                 $jailedFunctions    a list of functions that will be redirected to another function
+     * @param string[]              $whiteListFunctions a list of function names that can be called
+     * @param string[]              $jailedFunctions    a list of functions that will be redirected to another function
      */
-    public function __construct(TemplateReadyDocument &$object, array $whiteListFunctions, array $jailedFunctions = [])
+    public function __construct(TemplateReadyDocument &$object, private readonly array $whiteListFunctions, private array $jailedFunctions = [])
     {
         $this->object = &$object;
-        $this->whiteListFunctions = $whiteListFunctions;
-        $this->jailedFunctions = $jailedFunctions;
         $this->debugInfo = [];
     }
 
@@ -45,48 +42,40 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
     {
         // White listed functions will always be getter functions, so somehow get the name of a possible getter function
         // name.
-        $lcName = lcfirst($name);
-        $getFxnCall = ($lcName[0] === '_' || strpos($lcName, 'get') === 0) ? $lcName : sprintf('get%s', ucfirst($name));
+        $lcName = lcfirst((string)$name);
+        $getFxnCall = ($lcName[0] === '_' || str_starts_with($lcName, 'get')) ? $lcName : sprintf('get%s', ucfirst((string)$name));
 
         // Check if our function call is a jailed call, meaning the function should be mapped to special "jailed"
         // jailed version of the function call.
-        if (array_key_exists($getFxnCall, $this->jailedFunctions))
-        {
+        if (array_key_exists($getFxnCall, $this->jailedFunctions)) {
             return call_user_func_array([$this->object, $this->jailedFunctions[$getFxnCall]], $arguments);
         }
 
         // Otherwise, test to see if the function call is in our white list and call it
-        if (in_array($getFxnCall, $this->whiteListFunctions))
-        {
+        if (in_array($getFxnCall, $this->whiteListFunctions)) {
             return call_user_func_array([$this->object, $getFxnCall], $arguments);
         }
 
-        throw new \BadMethodCallException();
+        throw new BadMethodCallException();
     }
 
     public function __debugInfo()
     {
-        if (!empty($this->debugInfo))
-        {
+        if (!empty($this->debugInfo)) {
             return $this->debugInfo;
         }
 
-        if ($this->object instanceof FrontMatterDocument)
-        {
+        if ($this->object instanceof FrontMatterDocument) {
             $this->debugInfo = $this->object->getFrontMatter(true);
         }
 
-        foreach ($this->whiteListFunctions as $function)
-        {
+        foreach ($this->whiteListFunctions as $function) {
             $value = preg_replace('/^(get|is)/', '', $function);
             $value = lcfirst($value);
 
-            try
-            {
+            try {
                 $this->debugInfo[$value] = call_user_func([$this, $function]);
-            }
-            catch (\BadMethodCallException $e)
-            {
+            } catch (BadMethodCallException) {
                 // Just throw away this information because there's no point in listing an accessible value in this
                 // object that doesn't actually exist.
             }
@@ -106,22 +95,20 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
      * Check if the jailed object is an instance of a given class.
      *
      * @param string $class
-     *
-     * @return bool
      */
-    public function _coreInstanceOf($class)
+    public function _coreInstanceOf($class): bool
     {
         return ($this->object instanceof $class) || is_subclass_of($this->object, $class);
     }
 
-    ///
+    //
     // ArrayAccess Implementation
-    ///
+    //
 
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->object->offsetExists($offset);
     }
@@ -129,7 +116,7 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->object->offsetGet($offset);
     }
@@ -137,39 +124,39 @@ class JailedDocument implements \ArrayAccess, \IteratorAggregate, \JsonSerializa
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
-        throw new \LogicException('A jailed document is read-only.');
+        throw new LogicException('A jailed document is read-only.');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
-        throw new \LogicException('A jailed document is read-only.');
+        throw new LogicException('A jailed document is read-only.');
     }
 
-    ///
+    //
     // IteratorAggregate implementation
-    ///
+    //
 
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return $this->object->getIterator();
     }
 
-    ///
+    //
     // JsonSerializable implementation
-    ///
+    //
 
     /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->object->jsonSerialize();
     }

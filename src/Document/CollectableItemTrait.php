@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,16 +12,15 @@ namespace allejo\stakx\Document;
  */
 trait CollectableItemTrait
 {
-    /** @var string */
-    protected $namespace;
+    protected ?string $namespace;
 
     /** @var DynamicPageView[] */
-    protected $parentPageViews;
+    protected array $parentPageViews;
 
     /**
      * {@inheritdoc}
      */
-    public function getNamespace()
+    public function getNamespace(): ?string
     {
         return $this->namespace;
     }
@@ -29,7 +28,7 @@ trait CollectableItemTrait
     /**
      * {@inheritdoc}
      */
-    public function setNamespace($namespace)
+    public function setNamespace(?string $namespace): void
     {
         $this->namespace = $namespace;
     }
@@ -37,7 +36,7 @@ trait CollectableItemTrait
     /**
      * {@inheritdoc}
      */
-    public function &getParentPageViews()
+    public function &getParentPageViews(): array
     {
         return $this->parentPageViews;
     }
@@ -45,7 +44,7 @@ trait CollectableItemTrait
     /**
      * {@inheritdoc}
      */
-    public function saveParentPageView(DynamicPageView &$pageView)
+    public function saveParentPageView(DynamicPageView $pageView): void
     {
         $this->parentPageViews[] = &$pageView;
     }

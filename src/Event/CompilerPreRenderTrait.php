@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -19,11 +19,9 @@ trait CompilerPreRenderTrait
     /**
      * Append custom variables that'll be made available as template variables in PageViews.
      *
-     * @param array $customVariables
-     *
      * @since 0.2.0
      */
-    public function appendCustomVariables(array $customVariables)
+    public function appendCustomVariables(array $customVariables): void
     {
         $this->customVariables = array_merge($this->customVariables, $customVariables);
     }

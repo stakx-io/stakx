@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,11 +8,16 @@
 namespace allejo\stakx\Test\Templating\Twig\Extension;
 
 use allejo\stakx\Templating\Twig\Extension\ZipFilter;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 
-class ZipFilterTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class ZipFilterTest extends StakxTestCase
 {
-    public static function dataProviderZipData()
+    public static function provideZipFilterCases(): iterable
     {
         return [
             [
@@ -89,15 +94,13 @@ class ZipFilterTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProviderZipData
+     * @dataProvider provideZipFilterCases
      *
-     * @param array  $a1
-     * @param array  $a2
      * @param string $glue
      * @param bool   $strict
      * @param array  $expected
      */
-    public function testZipFilter(array $a1, array $a2, $glue, $strict, $expected)
+    public function testZipFilter(array $a1, array $a2, $glue, $strict, $expected): void
     {
         $filter = new ZipFilter();
         $result = $filter($a1, $a2, $glue, $strict);

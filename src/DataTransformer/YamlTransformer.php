@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\DataTransformer;
 
+use Exception;
 use Symfony\Component\Yaml\Yaml;
 
 class YamlTransformer implements DataTransformerInterface
@@ -14,19 +15,15 @@ class YamlTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public static function transformData($content)
+    public static function transformData($content): array
     {
-        try
-        {
+        try {
             $data = Yaml::parse($content, Yaml::PARSE_DATETIME);
-        }
-        catch (\Exception $e)
-        {
+        } catch (Exception) {
             return [];
         }
 
-        if ($data === null)
-        {
+        if ($data === null) {
             return [];
         }
 
@@ -36,7 +33,7 @@ class YamlTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getExtensions()
+    public static function getExtensions(): array
     {
         return [
             'yml',

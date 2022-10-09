@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\StaticPageView;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is triggered after a Static PageView is compiled and before it is written to a file. The compiled output
@@ -20,16 +20,13 @@ class CompilerPostRenderStaticPageView extends Event
 {
     use CompilerPostRenderTrait;
 
-    const NAME = 'compiler.postrender.static_pageview';
-
-    private $pageView;
+    final public const NAME = 'compiler.postrender.static_pageview';
 
     /**
      * @param string $compiledOutput
      */
-    public function __construct(StaticPageView $pageView, $compiledOutput)
+    public function __construct(private readonly StaticPageView $pageView, $compiledOutput)
     {
-        $this->pageView = $pageView;
         $this->compiledOutput = $compiledOutput;
     }
 

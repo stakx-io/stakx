@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,11 +8,16 @@
 namespace allejo\stakx\Test\Templating\Twig\Extension;
 
 use allejo\stakx\Templating\Twig\Extension\GroupByFilter;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 
-class GroupByFilterTests extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class GroupByFilterTest extends StakxTestCase
 {
-    public function testGroupByFilter()
+    public function testGroupByFilter(): void
     {
         $original = [
             'a' => ['id' => 20, 'name' => 'chimpanzee'],
@@ -48,7 +53,7 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($expected, $grouped);
     }
 
-    public function testGroupByFilterDotNotation()
+    public function testGroupByFilterDotNotation(): void
     {
         $original = [
             'a' => ['metadata' => ['id' => 20], 'name' => 'chimpanzee'],
@@ -84,7 +89,7 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertEquals($expected, $grouped);
     }
 
-    public function testGroupByFilterContentItems()
+    public function testGroupByFilterContentItems(): void
     {
         $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();
@@ -93,16 +98,14 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertArrayHasKey('Candlewick', $grouped);
         $this->assertArrayHasKey('Random House Books for Young Readers', $grouped);
 
-        foreach ($grouped as $publisher => $books)
-        {
-            foreach ($books as $book)
-            {
+        foreach ($grouped as $publisher => $books) {
+            foreach ($books as $book) {
                 $this->assertEquals($publisher, $book['publisher']);
             }
         }
     }
 
-    public function testGroupByFilterBooleanFrontMatterKey()
+    public function testGroupByFilterBooleanFrontMatterKey(): void
     {
         $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();
@@ -111,18 +114,16 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertArrayHasKey('true', $grouped);
         $this->assertArrayHasKey('false', $grouped);
 
-        foreach ($grouped['true'] as $item)
-        {
+        foreach ($grouped['true'] as $item) {
             $this->assertTrue($item['completed']);
         }
 
-        foreach ($grouped['false'] as $item)
-        {
+        foreach ($grouped['false'] as $item) {
             $this->assertFalse($item['completed']);
         }
     }
 
-    public function testGroupByFilterNullFrontMatterKey()
+    public function testGroupByFilterNullFrontMatterKey(): void
     {
         $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();
@@ -131,9 +132,9 @@ class GroupByFilterTests extends PHPUnit_Stakx_TestCase
         $this->assertCount(0, $grouped);
     }
 
-    public function testGroupByFilterArrayThrowsWarning()
+    public function testGroupByFilterArrayThrowsWarning(): void
     {
-        $this->setExpectedException(\PHPUnit_Framework_Error_Warning::class);
+        $this->expectWarning();
 
         $books = $this->bookCollectionProvider()['books'];
         $filter = new GroupByFilter();

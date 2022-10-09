@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -22,18 +22,14 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Build an absolute file or directory path separated by the OS specific directory separator.
      *
      * @param string ...$pathFragments
-     *
-     * @return string
      */
-    public function absolutePath($pathFragments)
+    public function absolutePath($pathFragments): string
     {
-        if ($pathFragments instanceof FilesystemPath)
-        {
+        if ($pathFragments instanceof FilesystemPath) {
             $pathFragments = (string)$pathFragments;
         }
 
-        if ($this->isAbsolutePath($pathFragments))
-        {
+        if ($this->isAbsolutePath($pathFragments)) {
             return $pathFragments;
         }
 
@@ -47,10 +43,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Build a file or directory path separated by the OS specific directory separator.
      *
      * @param string ...$pathFragments
-     *
-     * @return string
      */
-    public function appendPath($pathFragments)
+    public function appendPath($pathFragments): string
     {
         return implode(DIRECTORY_SEPARATOR, func_get_args());
     }
@@ -65,32 +59,26 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * @throws FileNotFoundException When originFile doesn't exist
      * @throws IOException           When copy fails
      */
-    public function copy($originFile, $targetFile, $overwriteNewerFiles = false)
+    public function copy($originFile, $targetFile, $overwriteNewerFiles = false): void
     {
-        if ($this->isDir($originFile))
-        {
-            if (!$this->isDir($targetFile))
-            {
+        if ($this->isDir($originFile)) {
+            if (!$this->isDir($targetFile)) {
                 mkdir($targetFile, 0755, true);
             }
 
             $dir = dir($originFile);
 
-            while (false !== $entry = $dir->read())
-            {
+            while (false !== $entry = $dir->read()) {
                 // Skip pointers
-                if ($entry == '.' || $entry == '..')
-                {
+                if ($entry == '.' || $entry == '..') {
                     continue;
                 }
 
-                $this->copy("$originFile/$entry", "$targetFile/$entry", true);
+                $this->copy("{$originFile}/{$entry}", "{$targetFile}/{$entry}", true);
             }
 
             $dir->close();
-        }
-        else
-        {
+        } else {
             parent::copy($originFile, $targetFile, $overwriteNewerFiles);
         }
     }
@@ -99,10 +87,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Create an instance of stakx's File object with relative path information.
      *
      * @param string $filePath
-     *
-     * @return File
      */
-    public function createFileObject($filePath)
+    public function createFileObject($filePath): File
     {
         return new File($this->absolutePath($filePath));
     }
@@ -111,10 +97,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Strip the current working directory from an absolute path.
      *
      * @param string $path An absolute path
-     *
-     * @return string
      */
-    public function getRelativePath($path)
+    public function getRelativePath($path): string
     {
         return str_replace(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR, '', $path);
     }
@@ -123,10 +107,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Get the name of a given file without the extension.
      *
      * @param string $filePath A file path
-     *
-     * @return string
      */
-    public function getBaseName($filePath)
+    public function getBaseName($filePath): string
     {
         return pathinfo($filePath, PATHINFO_FILENAME);
     }
@@ -135,10 +117,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Get the name of a given file.
      *
      * @param string $filePath A file path
-     *
-     * @return string
      */
-    public function getFileName($filePath)
+    public function getFileName($filePath): string
     {
         return pathinfo($filePath, PATHINFO_BASENAME);
     }
@@ -147,10 +127,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Get the parent directory of a given file.
      *
      * @param string $filePath A file path
-     *
-     * @return string
      */
-    public function getFolderPath($filePath)
+    public function getFolderPath($filePath): string
     {
         return pathinfo($filePath, PATHINFO_DIRNAME);
     }
@@ -162,7 +140,7 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      *
      * @return string The extension of the file
      */
-    public function getExtension($filename)
+    public function getExtension($filename): string
     {
         return pathinfo($filename, PATHINFO_EXTENSION);
     }
@@ -171,10 +149,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Get the MIME type of a file.
      *
      * @param string $filePath
-     *
-     * @return string
      */
-    public function getMimeType($filePath)
+    public function getMimeType($filePath): string
     {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $filePath);
@@ -187,10 +163,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Check whether or not if a given path is a directory.
      *
      * @param string $folderPath
-     *
-     * @return bool
      */
-    public function isDir($folderPath)
+    public function isDir($folderPath): bool
     {
         return is_dir($folderPath);
     }
@@ -199,10 +173,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Check whether or not a given path is a file.
      *
      * @param string $filePath
-     *
-     * @return bool
      */
-    public function isFile($filePath)
+    public function isFile($filePath): bool
     {
         return is_file($filePath);
     }
@@ -211,10 +183,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Check whether a given file path is a symlink.
      *
      * @param string $filePath
-     *
-     * @return bool
      */
-    public function isSymlink($filePath)
+    public function isSymlink($filePath): bool
     {
         return is_link($filePath);
     }
@@ -223,10 +193,8 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
      * Get the full path to the file without the extension.
      *
      * @param string $filename A file path
-     *
-     * @return string
      */
-    public function removeExtension($filename)
+    public function removeExtension($filename): string
     {
         return $this->appendPath(
             $this->getFolderPath($filename),
@@ -243,30 +211,28 @@ class Filesystem extends \Symfony\Component\Filesystem\Filesystem
     {
         $path = new FilesystemPath(__DIR__ . '/../Resources/' . $name);
 
-        return file_get_contents($path);
+        return file_get_contents((string)$path);
     }
 
     /**
      * A vfsStream friendly way of getting the realpath() of something.
      *
-     * @param string $path
+     * @template T of string|BaseFilesystemItem
      *
-     * @return string
+     * @param T $path
+     *
+     * @return false|T
      */
-    public function realpath($path)
+    public function realpath(string|BaseFilesystemItem $path): false|string|BaseFilesystemItem
     {
-        return $this->isVFS($path) ? $path : realpath($path);
+        return $this->isVFS($path) ? $path : realpath((string)$path);
     }
 
     /**
      * Check whether a given path is on the virtual filesystem.
-     *
-     * @param string $path
-     *
-     * @return bool
      */
-    public function isVFS($path)
+    public function isVFS(string|BaseFilesystemItem $path): bool
     {
-        return substr($path, 0, 6) == 'vfs://';
+        return str_starts_with((string)$path, 'vfs://');
     }
 }

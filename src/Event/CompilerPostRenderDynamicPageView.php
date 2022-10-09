@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\CollectableItem;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is triggered after a Dynamic PageView is compiled and before it is written to a file. The compiled output
@@ -20,16 +20,13 @@ class CompilerPostRenderDynamicPageView extends Event
 {
     use CompilerPostRenderTrait;
 
-    const NAME = 'compiler.postrender.dynamic_pageview';
-
-    private $collectableItem;
+    final public const NAME = 'compiler.postrender.dynamic_pageview';
 
     /**
      * @param string $compiledOutput
      */
-    public function __construct(CollectableItem $collectableItem, $compiledOutput)
+    public function __construct(private readonly CollectableItem $collectableItem, $compiledOutput)
     {
-        $this->collectableItem = $collectableItem;
         $this->compiledOutput = $compiledOutput;
     }
 

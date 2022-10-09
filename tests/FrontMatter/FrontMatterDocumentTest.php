@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,11 +8,17 @@
 namespace allejo\stakx\Test\FrontMatter;
 
 use allejo\stakx\Templating\Twig\TwigStakxBridge;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use Twig\Environment;
 
-class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class FrontMatterDocumentTest extends StakxTestCase
 {
-    public static function dataProviderTwigDependencyTests()
+    public static function provideHasTwigDependencyRegexCases(): iterable
     {
         return [
             [
@@ -115,22 +121,16 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProviderTwigDependencyTests
-     *
-     * @param $twig
-     * @param $namespace
-     * @param $needle
-     * @param mixed $match
+     * @dataProvider provideHasTwigDependencyRegexCases
      */
-    public function testHasTwigDependencyRegex($twig, $namespace, $needle, $match)
+    public function testHasTwigDependencyRegex(mixed $twig, mixed $namespace, mixed $needle, mixed $match): void
     {
-        $bridge = new TwigStakxBridge($this->getMock(\Twig_Environment::class));
-        $deps = $bridge->getAssortmentDependencies($namespace, $twig);
+        $deps = $this->getTwigBridge()->getAssortmentDependencies($namespace, $twig);
 
-        $this->assertEquals($match, (in_array($needle, $deps) || (is_null($needle) && !empty($deps))));
+        $this->assertEquals($match, in_array($needle, $deps) || (is_null($needle) && !empty($deps)));
     }
 
-    public static function dataProviderTwigImportTests()
+    public static function provideHasImportDependencyRegexCases(): iterable
     {
         return [
             [
@@ -165,16 +165,22 @@ class FrontMatterDocumentTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProviderTwigImportTests
-     *
-     * @param mixed $twig
-     * @param mixed $needle
+     * @dataProvider provideHasImportDependencyRegexCases
      */
-    public function testHasImportDependencyRegex($twig, $needle)
+    public function testHasImportDependencyRegex(mixed $twig, mixed $needle): void
     {
-        $bridge = new TwigStakxBridge($this->getMock(\Twig_Environment::class));
-        $deps = $bridge->getTemplateImportDependencies($twig);
+        $deps = $this->getTwigBridge()->getTemplateImportDependencies($twig);
 
         $this->assertContains($needle, $deps);
+    }
+
+    private function getTwigBridge(): TwigStakxBridge
+    {
+        $environment = $this->getMockBuilder(Environment::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
+
+        return new TwigStakxBridge($environment);
     }
 }

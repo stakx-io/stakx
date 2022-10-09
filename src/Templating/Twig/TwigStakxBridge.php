@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,27 +9,26 @@ namespace allejo\stakx\Templating\Twig;
 
 use allejo\stakx\Compiler;
 use allejo\stakx\Templating\TemplateBridgeInterface;
+use allejo\stakx\Templating\TemplateInterface;
 use Psr\Log\LoggerInterface;
 use Twig\Environment;
 use Twig\Error\Error;
+use Twig\Profiler\Profile;
 
 class TwigStakxBridge implements TemplateBridgeInterface
 {
-    private $twig;
-    private $logger;
+    private ?LoggerInterface $logger;
 
-    /** @var \Twig_Profiler_Profile */
-    private $profiler;
+    private ?Profile $profiler;
 
-    public function __construct(Environment $twig)
+    public function __construct(private readonly Environment $twig)
     {
-        $this->twig = $twig;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -37,7 +36,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /**
      * {@inheritdoc}
      */
-    public function setGlobalVariable($key, $value)
+    public function setGlobalVariable($key, $value): void
     {
         $this->twig->addGlobal($key, $value);
     }
@@ -45,7 +44,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /**
      * {@inheritdoc}
      */
-    public function clearTemplateCache()
+    public function clearTemplateCache(): void
     {
         $this->twig->clearTemplateCache();
     }
@@ -53,14 +52,11 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /**
      * {@inheritdoc}
      */
-    public function createTemplate($templateContent)
+    public function createTemplate($templateContent): TemplateInterface
     {
-        try
-        {
+        try {
             $template = $this->twig->createTemplate($templateContent);
-        }
-        catch (Error $e)
-        {
+        } catch (Error $e) {
             throw new TwigError($e);
         }
 
@@ -70,12 +66,12 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /**
      * {@inheritdoc}
      */
-    public function getAssortmentDependencies($namespace, $bodyContent)
+    public function getAssortmentDependencies($namespace, $bodyContent): array
     {
         // To see what this regex should match and what shouldn't be see:
         //     tests/allejo/stakx/Test/FrontMatter/FrontMatterDocumentTest.php
 
-        $regex = "/{[{%].*?(?:$namespace)(?:\.|\[['\"])?([^_][^\W]+)?(?:\.|['\"]\])?[^_=]*?[%}]}/";
+        $regex = "/{[{%].*?(?:{$namespace})(?:\\.|\\[['\"])?([^_][^\\W]+)?(?:\\.|['\"]\\])?[^_=]*?[%}]}/";
         $results = [];
 
         preg_match_all($regex, $bodyContent, $results);
@@ -86,15 +82,14 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /**
      * {@inheritdoc}
      */
-    public function getTemplateImportDependencies($bodyContent)
+    public function getTemplateImportDependencies($bodyContent): array
     {
-        $regex = "/{%\s?(?:import|from|include)\s?['\"](.+)['\"].+/";
+        $regex = "/{%\\s?(?:import|from|include)\\s?['\"](.+)['\"].+/";
         $results = [];
 
         preg_match_all($regex, $bodyContent, $results);
 
-        if (empty($results[1]))
-        {
+        if (empty($results[1])) {
             return [];
         }
 
@@ -104,7 +99,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /**
      * {@inheritdoc}
      */
-    public function hasProfiler()
+    public function hasProfiler(): bool
     {
         return $this->profiler !== null;
     }
@@ -112,7 +107,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /**
      * {@inheritdoc}
      */
-    public function setProfiler($profiler)
+    public function setProfiler($profiler): void
     {
         $this->profiler = $profiler;
     }
@@ -120,7 +115,7 @@ class TwigStakxBridge implements TemplateBridgeInterface
     /**
      * {@inheritdoc}
      */
-    public function getProfilerOutput(Compiler $compiler)
+    public function getProfilerOutput(Compiler $compiler): string
     {
         $dumper = new TwigTextProfiler();
         $dumper->setTemplateMappings($compiler->getTemplateMappings());

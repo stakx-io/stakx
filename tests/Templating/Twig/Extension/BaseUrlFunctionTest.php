@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -14,30 +14,36 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\Templating\Twig\Extension\BaseUrlFunction;
 use allejo\stakx\Templating\Twig\TwigExtension;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use allejo\stakx\Test\StakxTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
-class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @covers \allejo\stakx\Templating\Twig\Extension\BaseUrlFunction
+ */
+class BaseUrlFunctionTest extends StakxTestCase
 {
-    /** @var \Twig_Environment */
-    private $twig_env;
+    private Environment $twig_env;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
-        /** @var MockObject|MarkupEngineManager $markupEngine */
-        $markupEngine = $this->getMock(MarkupEngineManager::class);
+        /** @var MarkupEngineManager|MockObject $markupEngine */
+        $markupEngine = $this->getMockBuilder(MarkupEngineManager::class)->getMock();
 
         $extension = new TwigExtension($markupEngine);
         $extension->addFilters([new BaseUrlFunction()]);
 
-        $loader = new \Twig_Loader_Filesystem();
-        $this->twig_env = new \Twig_Environment($loader);
+        $loader = new FilesystemLoader();
+        $this->twig_env = new Environment($loader);
         $this->twig_env->addExtension($extension);
     }
 
-    public static function dataProvider()
+    public static function provideBaseUrlFunctionCases(): iterable
     {
         return [
             ['/toast/link.html', '/toast/', 'link.html'],
@@ -58,25 +64,20 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
             ['/toast/', 'toast', [
                 'some-key' => 'bacon/',
             ]],
-            ['/toast/static/', 'toast', (
+            ['/toast/static/', 'toast',
                 new StaticPageView(new File(
                     fs::appendPath(self::getTestRoot(), 'assets', 'PageViews', 'static.html.twig')
-                ))
-            )],
+                )),
+            ],
         ];
     }
 
     /**
-     * @dataProvider dataProvider
-     *
-     * @param $expected
-     * @param $base
-     * @param $assetPath
+     * @dataProvider provideBaseUrlFunctionCases
      */
-    public function testBaseUrlFunction($expected, $base, $assetPath)
+    public function testBaseUrlFunction(mixed $expected, mixed $base, mixed $assetPath): void
     {
-        if ($assetPath instanceof FrontMatterDocument)
-        {
+        if ($assetPath instanceof FrontMatterDocument) {
             $assetPath->evaluateFrontMatter();
         }
 
@@ -90,7 +91,7 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals($expected, $url);
     }
 
-    public function testUrlFilterAsAbsolute()
+    public function testUrlFilterAsAbsolute(): void
     {
         $this->twig_env->addGlobal('site', [
             'url' => 'http://domain.com/',
@@ -102,7 +103,7 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('http://domain.com/path/', $url);
     }
 
-    public function testUrlFilterAsAbsoluteWithBaseUrl()
+    public function testUrlFilterAsAbsoluteWithBaseUrl(): void
     {
         $this->twig_env->addGlobal('site', [
             'url' => 'http://domain.com/',
@@ -115,7 +116,7 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('http://domain.com/blog/path/', $url);
     }
 
-    public function testUrlFilterAsRelativeWithBaseUrl()
+    public function testUrlFilterAsRelativeWithBaseUrl(): void
     {
         $this->twig_env->addGlobal('site', [
             'url' => 'http://domain.com/',
@@ -128,7 +129,7 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/blog/path/', $url);
     }
 
-    public function testUrlFilterAsRelativeWithNoBaseUrl()
+    public function testUrlFilterAsRelativeWithNoBaseUrl(): void
     {
         $this->twig_env->addGlobal('site', [
             'url' => 'http://domain.com/',
@@ -140,7 +141,7 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/path/', $url);
     }
 
-    public function testUrlFilterAsAbsoluteWithoutUrl()
+    public function testUrlFilterAsAbsoluteWithoutUrl(): void
     {
         $this->twig_env->addGlobal('site', []);
 
@@ -150,7 +151,7 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('/hello/', $url);
     }
 
-    public static function dataProviderExternalURLs()
+    public static function provideUrlFilterWithExternalUrlCases(): iterable
     {
         return [
             ['https://google.com'],
@@ -161,9 +162,9 @@ class BaseUrlFunctionTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProviderExternalURLs
+     * @dataProvider provideUrlFilterWithExternalUrlCases
      */
-    public function testUrlFilterWithExternalUrl($url)
+    public function testUrlFilterWithExternalUrl(mixed $url): void
     {
         $filter = new BaseUrlFunction();
         $result = $filter($this->twig_env, $url);

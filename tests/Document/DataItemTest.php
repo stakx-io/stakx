@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -16,14 +16,21 @@ use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use DateTime;
+use DateTimeZone;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class DataItemTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class DataItemTest extends StakxTestCase
 {
-    public function testJsonAsDataItem()
+    public function testJsonAsDataItem(): void
     {
-        $jsonFile = <<<LINE
+        $jsonFile = <<<'LINE'
 {
   "array": [
     1,
@@ -41,6 +48,7 @@ class DataItemTest extends PHPUnit_Stakx_TestCase
   "string": "Hello World"
 }
 LINE;
+
         /** @var DataItem $dataItem */
         $dataItem = $this->createDocumentOfType(DataItem::class, 'my-sample-JSON.json', $jsonFile);
         $dataItem->setDataTransformer($this->getDataTransformerManager());
@@ -53,8 +61,7 @@ LINE;
         $this->assertEquals(123, $dataItem['number']);
         $this->assertEquals('Hello World', $dataItem['string']);
 
-        foreach (['array', 'boolean', 'null', 'number', 'string'] as $key)
-        {
+        foreach (['array', 'boolean', 'null', 'number', 'string'] as $key) {
             $this->assertEquals($dataItem[$key], $jailItem[$key]);
         }
 
@@ -72,13 +79,14 @@ LINE;
         ], $dataItem->getContent());
     }
 
-    public function testCsvAsDataItem()
+    public function testCsvAsDataItem(): void
     {
-        $csvFile = <<<LINE
+        $csvFile = <<<'LINE'
 id,name,gender
 1,John Doe,M
 2,Jane Doe,F
 LINE;
+
         /** @var DataItem $dataItem */
         $dataItem = $this->createDocumentOfType(DataItem::class, 'my-file.csv', $csvFile);
         $dataItem->setDataTransformer($this->getDataTransformerManager());
@@ -104,9 +112,9 @@ LINE;
         ], $dataItem->getContent());
     }
 
-    public function testYamlAsDataItem()
+    public function testYamlAsDataItem(): void
     {
-        $yamlFile = <<<LINE
+        $yamlFile = <<<'LINE'
 month: January
 events:
   - 2017-01-01
@@ -114,6 +122,7 @@ events:
   - 2017-01-19
   - 2017-01-30
 LINE;
+
         /** @var DataItem $dataItem */
         $dataItem = $this->createDocumentOfType(DataItem::class, 'my-yaml.yml', $yamlFile);
         $yamlExtension = $this->createDocumentOfType(DataItem::class, 'my-file.yaml', $yamlFile);
@@ -123,22 +132,22 @@ LINE;
 
         $this->assertEquals($dataItem->getContent(), $yamlExtension->getContent());
 
-        $tz = new \DateTimeZone('UTC');
+        $tz = new DateTimeZone('UTC');
 
         $this->assertEquals([
             'month' => 'January',
             'events' => [
-                new \DateTime('2017-01-01', $tz),
-                new \DateTime('2017-01-18', $tz),
-                new \DateTime('2017-01-19', $tz),
-                new \DateTime('2017-01-30', $tz),
+                new DateTime('2017-01-01', $tz),
+                new DateTime('2017-01-18', $tz),
+                new DateTime('2017-01-19', $tz),
+                new DateTime('2017-01-30', $tz),
             ],
         ], $dataItem->getContent());
     }
 
-    public function testXmlAsDataItem()
+    public function testXmlAsDataItem(): void
     {
-        $xmlFile = <<<LINE
+        $xmlFile = <<<'LINE'
 <note>
     <to attribute="attr value">Tove</to>
     <from>Jani</from>
@@ -146,6 +155,7 @@ LINE;
     <body>Don't forget me this weekend!</body>
 </note>
 LINE;
+
         /** @var DataItem $dataItem */
         $dataItem = $this->createDocumentOfType(DataItem::class, 'my-data.xml', $xmlFile);
         $dataItem->setDataTransformer($this->getDataTransformerManager());
@@ -158,16 +168,16 @@ LINE;
         ], $dataItem->getContent());
     }
 
-    public function testDataItemDoesNotExist()
+    public function testDataItemDoesNotExist(): void
     {
-        $this->setExpectedException(FileNotFoundException::class);
+        $this->expectException(FileNotFoundException::class);
 
         new DataItem(new File('/path/to/my-data.yml'));
     }
 
-    public function testUnsupportedDataItemExtension()
+    public function testUnsupportedDataItemExtension(): void
     {
-        $this->setExpectedException(UnsupportedDataTypeException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         /** @var ContentItem $contentItem */
         $contentItem = $this->createFrontMatterDocumentOfType(ContentItem::class);
@@ -176,10 +186,7 @@ LINE;
         $dataItem->setDataTransformer($this->getDataTransformerManager());
     }
 
-    /**
-     * @return DataTransformerManager
-     */
-    private function getDataTransformerManager()
+    private function getDataTransformerManager(): DataTransformerManager
     {
         $manager = new DataTransformerManager();
         $manager->addDataTransformer(new CsvTransformer());

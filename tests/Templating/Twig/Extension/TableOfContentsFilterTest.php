@@ -1,19 +1,25 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
  * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx\test\Templating\Twig\Extension;
+namespace allejo\stakx\Test\Templating\Twig\Extension;
 
 use allejo\stakx\MarkupEngine\MarkdownEngine;
 use allejo\stakx\Templating\Twig\Extension\TableOfContentsFilter;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use DOMDocument;
 
-class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class TableOfContentsFilterTest extends StakxTestCase
 {
-    public static function dataProviderTOC()
+    public static function provideTableOfContentsFilterCases(): iterable
     {
         return [
             ['
@@ -151,16 +157,9 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProviderTOC
-     *
-     * @param mixed $markdown
-     * @param mixed $expectedHTML
-     * @param mixed $id
-     * @param mixed $class
-     * @param mixed $hMin
-     * @param mixed $hMax
+     * @dataProvider provideTableOfContentsFilterCases
      */
-    public function testTableOfContentsFilter($markdown, $expectedHTML, $id, $class, $hMin, $hMax)
+    public function testTableOfContentsFilter(mixed $markdown, mixed $expectedHTML, mixed $id, mixed $class, mixed $hMin, mixed $hMax): void
     {
         $md = new MarkdownEngine($this->getMockAssetManager());
         $html = $md->parse($markdown);
@@ -168,11 +167,11 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
         $filter = new TableOfContentsFilter();
         $toc = $filter($html, $id, $class, $hMin, $hMax);
 
-        $rDOM = new \DOMDocument();
+        $rDOM = new DOMDocument();
         $rDOM->loadHTML($toc);
         $result = $this->standardizeHTML($rDOM->saveHTML());
 
-        $eDOM = new \DOMDocument();
+        $eDOM = new DOMDocument();
         $eDOM->loadHTML($expectedHTML);
         $expected = $this->standardizeHTML($eDOM->saveHTML());
 
@@ -183,10 +182,8 @@ class TableOfContentsFilterTest extends PHPUnit_Stakx_TestCase
      * Remove indentation and new lines from HTML.
      *
      * @param string $html
-     *
-     * @return string
      */
-    private function standardizeHTML($html)
+    private function standardizeHTML($html): string
     {
         return trim(preg_replace('/(\R\s+|\R)/', '', $html));
     }

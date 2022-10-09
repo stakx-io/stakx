@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -17,10 +17,7 @@ class SlugFilter extends AbstractTwigExtension implements TwigFilterInterface
         return __::slug($str);
     }
 
-    /**
-     * @return TwigFilter
-     */
-    public static function get()
+    public static function get(): TwigFilter
     {
         return new TwigFilter('slug', new self());
     }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,6 +8,8 @@
 namespace allejo\stakx\Templating\Twig\Extension;
 
 use allejo\stakx\Utilities\HtmlUtils;
+use DOMDocument;
+use DOMElement;
 use Twig\TwigFilter;
 
 class AnchorsFilter extends AbstractTwigExtension implements TwigFilterInterface
@@ -27,41 +29,34 @@ class AnchorsFilter extends AbstractTwigExtension implements TwigFilterInterface
      *                              will be ignored
      * @param int    $hMax          The maximum header level to build an anchor for; any header greater than this value
      *                              will be ignored
-     *
-     * @return string
      */
-    public static function filter($html, $beforeHeading = false, $anchorAttrs = [], $anchorBody = '', $anchorClass = '', $anchorTitle = '', $hMin = 1, $hMax = 6)
+    public static function filter($html, $beforeHeading = false, $anchorAttrs = [], $anchorBody = '', $anchorClass = '', $anchorTitle = '', $hMin = 1, $hMax = 6): string
     {
-        if (!function_exists('simplexml_load_string'))
-        {
+        if (!function_exists('simplexml_load_string')) {
             trigger_error('XML support is not available with the current PHP installation.', E_USER_WARNING);
 
             return $html;
         }
 
-        if ($anchorClass)
-        {
+        if ($anchorClass) {
             $anchorAttrs['class'] = $anchorClass;
         }
 
-        $dom = new \DOMDocument();
+        $dom = new DOMDocument();
         $currLvl = 0;
         $headings = HtmlUtils::htmlXPath($dom, $html, '//h1|//h2|//h3|//h4|//h5|//h6');
 
-        /** @var \DOMElement $heading */
-        foreach ($headings as $heading)
-        {
+        /** @var DOMElement $heading */
+        foreach ($headings as $heading) {
             $headingID = $heading->attributes->getNamedItem('id');
 
-            if ($headingID === null)
-            {
+            if ($headingID === null) {
                 continue;
             }
 
             sscanf($heading->tagName, 'h%u', $currLvl);
 
-            if (!($hMin <= $currLvl && $currLvl <= $hMax))
-            {
+            if (!($hMin <= $currLvl && $currLvl <= $hMax)) {
                 continue;
             }
 
@@ -72,45 +67,35 @@ class AnchorsFilter extends AbstractTwigExtension implements TwigFilterInterface
                 '{heading}' => $heading->textContent,
             ]);
 
-            if (substr($body, 0, 1) === '<')
-            {
-                $domAnchorBody = new \DOMDocument();
+            if (str_starts_with($body, '<')) {
+                $domAnchorBody = new DOMDocument();
                 $loaded = @$domAnchorBody->loadHTML($body, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
-                if ($loaded)
-                {
-                    /** @var \DOMElement $childNode */
-                    foreach ($domAnchorBody->childNodes as $childNode)
-                    {
+                if ($loaded) {
+                    /** @var DOMElement $childNode */
+                    foreach ($domAnchorBody->childNodes as $childNode) {
                         $node = $anchor->ownerDocument->importNode($childNode->cloneNode(true), true);
                         $anchor->appendChild($node);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 $anchor->nodeValue = $body;
             }
 
-            if ($anchorTitle)
-            {
+            if ($anchorTitle) {
                 $anchorAttrs['title'] = strtr($anchorTitle, [
                     '{heading}' => $heading->textContent,
                 ]);
             }
 
-            foreach ($anchorAttrs as $attrName => $attrValue)
-            {
+            foreach ($anchorAttrs as $attrName => $attrValue) {
                 $anchor->setAttribute($attrName, $attrValue);
             }
 
-            if ($beforeHeading)
-            {
+            if ($beforeHeading) {
                 $heading->insertBefore($dom->createTextNode(' '), $heading->childNodes[0]);
                 $heading->insertBefore($anchor, $heading->childNodes[0]);
-            }
-            else
-            {
+            } else {
                 $heading->appendChild($dom->createTextNode(' '));
                 $heading->appendChild($anchor);
             }
@@ -122,8 +107,8 @@ class AnchorsFilter extends AbstractTwigExtension implements TwigFilterInterface
     /**
      * {@inheritdoc}
      */
-    public static function get()
+    public static function get(): TwigFilter
     {
-        return new TwigFilter('anchors', __CLASS__ . '::filter');
+        return new TwigFilter('anchors', self::class . '::filter');
     }
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -20,74 +20,57 @@ use Symfony\Component\Yaml\Yaml;
 
 class Configuration
 {
-    const DEFAULT_NAME = '_config.yml';
-    const IMPORT_KEYWORD = 'import';
-    const CACHE_FOLDER = '.stakx-cache';
+    final public const DEFAULT_NAME = '_config.yml';
 
-    private static $configImports = [];
+    final public const IMPORT_KEYWORD = 'import';
+
+    final public const CACHE_FOLDER = '.stakx-cache';
 
     /**
      * A list of regular expressions or files directly related to stakx websites that should not be copied over to the
      * compiled website as an asset.
-     *
-     * @var array
      */
-    public static $stakxSourceFiles = ['/^_(?!themes)/', '/.twig$/'];
+    public static array $stakxSourceFiles = ['/^_(?!themes)/', '/.twig$/'];
+
+    private static array $configImports = [];
 
     /**
      * An array representation of the main Yaml configuration.
-     *
-     * @var array
      */
-    private $configuration = [];
+    private array $configuration = [];
 
     /**
      * The master configuration file for the current build.
      *
      * This is the file that will be handling imports, if any.
-     *
-     * @var File
      */
-    private $configFile;
+    private ?File $configFile;
 
     /**
      * The current configuration file being processed.
      *
      * If there are no imports used, this value will equal $this->configFile. Otherwise, this file will equal to the
      * current imported configuration file that is being evaluated.
-     *
-     * @var File
      */
-    private $currentFile;
-
-    private $eventDispatcher;
-    private $logger;
+    private File $currentFile;
 
     /**
      * Configuration constructor.
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, private readonly LoggerInterface $logger)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
     }
 
-    ///
+    //
     // Getters
-    ///
+    //
 
-    /**
-     * @return bool
-     */
-    public function isDebug()
+    public function isDebug(): bool
     {
         return __::get($this->configuration, 'debug', false);
     }
 
-    /**
-     * @return string|null
-     */
-    public function getBaseUrl()
+    public function getBaseUrl(): ?string
     {
         return __::get($this->configuration, 'baseurl');
     }
@@ -105,7 +88,7 @@ class Configuration
     /**
      * @return string[]
      */
-    public function getDataFolders()
+    public function getDataFolders(): array
     {
         return __::get($this->configuration, 'data');
     }
@@ -113,7 +96,7 @@ class Configuration
     /**
      * @return string[]
      */
-    public function getDataSets()
+    public function getDataSets(): array
     {
         return __::get($this->configuration, 'datasets');
     }
@@ -121,7 +104,7 @@ class Configuration
     /**
      * @return string[]
      */
-    public function getIncludes()
+    public function getIncludes(): array
     {
         return __::get($this->configuration, 'include', []);
     }
@@ -129,47 +112,32 @@ class Configuration
     /**
      * @return string[]
      */
-    public function getExcludes()
+    public function getExcludes(): array
     {
         return __::get($this->configuration, 'exclude', []);
     }
 
-    /**
-     * @return array
-     */
-    public function getHighlighterCustomLanguages()
+    public function getHighlighterCustomLanguages(): array
     {
         return __::get($this->configuration, 'highlighter.languages', []);
     }
 
-    /**
-     * @return bool
-     */
-    public function isHighlighterEnabled()
+    public function isHighlighterEnabled(): bool
     {
         return __::get($this->configuration, 'highlighter.enabled', true);
     }
 
-    /**
-     * @return bool
-     */
-    public function isHighlighterUsingLineNumbers()
+    public function isHighlighterUsingLineNumbers(): bool
     {
         return __::get($this->configuration, 'highlighter.line_numbers', false);
     }
 
-    /**
-     * @return string
-     */
-    public function getTheme()
+    public function getTheme(): string
     {
         return __::get($this->configuration, 'theme');
     }
 
-    /**
-     * @return array
-     */
-    public function getConfiguration()
+    public function getConfiguration(): array
     {
         return $this->configuration;
     }
@@ -177,15 +145,12 @@ class Configuration
     /**
      * @return string[]
      */
-    public function getPageViewFolders()
+    public function getPageViewFolders(): array
     {
         return __::get($this->configuration, 'pageviews', []);
     }
 
-    /**
-     * @return string
-     */
-    public function getTargetFolder()
+    public function getTargetFolder(): string
     {
         $target = __::get($this->configuration, 'target');
         $target = preg_replace('#[/\\\\]+$#', '', $target);
@@ -196,37 +161,29 @@ class Configuration
     /**
      * @return string[][]
      */
-    public function getCollectionsFolders()
+    public function getCollectionsFolders(): array
     {
         return __::get($this->configuration, 'collections', []);
     }
 
-    /**
-     * @return bool
-     */
-    public function getTwigAutoescape()
+    public function getTwigAutoescape(): bool
     {
         return __::get($this->configuration, 'twig.autoescape');
     }
 
-    /**
-     * @return false|string
-     */
-    public function getRedirectTemplate()
+    public function getRedirectTemplate(): false|string
     {
         return __::get($this->configuration, 'templates.redirect');
     }
 
-    ///
+    //
     // Parsing
-    ///
+    //
 
     /**
      * Parse a configuration file.
-     *
-     * @param File|null $configFile
      */
-    public function parse(File $configFile = null)
+    public function parse(?File $configFile = null): void
     {
         $this->configFile = $configFile;
         self::$configImports = [];
@@ -239,7 +196,7 @@ class Configuration
         self::$configImports = [];
 
         $event = new ConfigurationParseComplete($this);
-        $this->eventDispatcher->dispatch(ConfigurationParseComplete::NAME, $event);
+        $this->eventDispatcher->dispatch($event, ConfigurationParseComplete::NAME);
     }
 
     /**
@@ -248,28 +205,23 @@ class Configuration
      * This function will automatically take care of imports in each file, whether it be a child or grandchild config
      * file. `$configFile` should be called with 'null' when "configuration-less" mode is used.
      *
-     * @param File|null $configFile The path to the configuration file. If null, the default configuration will be
+     * @param null|File $configFile The path to the configuration file. If null, the default configuration will be
      *                              used
-     *
-     * @return array
      */
-    private function parseConfig(File $configFile = null)
+    private function parseConfig(File $configFile = null): array
     {
-        if ($configFile === null)
-        {
+        if ($configFile === null) {
             return [];
         }
 
         $this->currentFile = $configFile;
 
-        try
-        {
+        try {
             $this->isRecursiveImport($configFile);
 
             $parsedConfig = Yaml::parse($configFile->getContents());
 
-            if ($parsedConfig === null)
-            {
+            if ($parsedConfig === null) {
                 $parsedConfig = [];
             }
 
@@ -278,17 +230,13 @@ class Configuration
             unset($parsedConfig[self::IMPORT_KEYWORD]);
 
             return $parsedConfig;
-        }
-        catch (ParseException $e)
-        {
+        } catch (ParseException $e) {
             $this->logger->error('{file}: parsing failed... {message}', [
                 'message' => $e->getMessage(),
                 'file' => $configFile,
             ]);
             $this->logger->error('Using default configuration...');
-        }
-        catch (RecursiveConfigurationException $e)
-        {
+        } catch (RecursiveConfigurationException $e) {
             $this->logger->error("{file}: you can't recursively import a file that's already been imported: {import}", [
                 'file' => $configFile,
                 'import' => $e->getRecursiveImport(),
@@ -301,7 +249,7 @@ class Configuration
     /**
      * Merge the default configuration with the parsed configuration.
      */
-    private function mergeDefaultConfiguration()
+    private function mergeDefaultConfiguration(): void
     {
         $defaultConfig = [
             'baseurl' => '',
@@ -337,7 +285,7 @@ class Configuration
     /**
      * Warn about deprecated keywords in the configuration file.
      */
-    private function handleDeprecations()
+    private function handleDeprecations(): void
     {
         // Nothing deprecated right now
     }
@@ -346,13 +294,10 @@ class Configuration
      * Recursively resolve imports for a given array.
      *
      * This modifies the array in place.
-     *
-     * @param array $configuration
      */
-    private function handleImports(array &$configuration)
+    private function handleImports(array &$configuration): void
     {
-        if (!isset($configuration[self::IMPORT_KEYWORD]))
-        {
+        if (!isset($configuration[self::IMPORT_KEYWORD])) {
             $this->logger->debug('{file}: does not import any other files', [
                 'file' => $this->currentFile->getRelativeFilePath(),
             ]);
@@ -360,15 +305,13 @@ class Configuration
             return;
         }
 
-        if (!is_array($imports = $configuration[self::IMPORT_KEYWORD]))
-        {
+        if (!is_array($imports = $configuration[self::IMPORT_KEYWORD])) {
             $this->logger->error('{file}: the reserved "import" keyword can only be an array');
 
             return;
         }
 
-        foreach ($imports as $import)
-        {
+        foreach ($imports as $import) {
             $this->handleImport($import, $configuration);
         }
     }
@@ -380,10 +323,9 @@ class Configuration
      *                              configuration
      * @param array  $configuration The array representation of the current configuration; this will be modified in place
      */
-    private function handleImport($importDef, array &$configuration)
+    private function handleImport($importDef, array &$configuration): void
     {
-        if (!is_string($importDef))
-        {
+        if (!is_string($importDef)) {
             $this->logger->error('{file}: invalid import: {message}', [
                 'file' => $this->configFile->getRelativeFilePath(),
                 'message' => $importDef,
@@ -394,8 +336,7 @@ class Configuration
 
         $import = $this->configFile->createFileForRelativePath($importDef);
 
-        if (!$this->isValidImport($import))
-        {
+        if (!$this->isValidImport($import)) {
             return;
         }
 
@@ -404,13 +345,10 @@ class Configuration
             'import' => $import->getRelativeFilePath(),
         ]);
 
-        try
-        {
+        try {
             $importedConfig = $this->parseConfig($import);
             $configuration = $this->mergeImports($importedConfig, $configuration);
-        }
-        catch (FileNotFoundException $e)
-        {
+        } catch (FileNotFoundException) {
             $this->logger->warning('{file}: could not find file to import: {import}', [
                 'file' => $this->configFile->getRelativeFilePath(),
                 'import' => $import,
@@ -420,34 +358,22 @@ class Configuration
 
     /**
      * Check whether a given file path is a valid import.
-     *
-     * @param File $filePath
-     *
-     * @return bool
      */
-    private function isValidImport(File $filePath)
+    private function isValidImport(File $filePath): bool
     {
         $errorMsg = '';
 
-        if ($filePath->isDir())
-        {
+        if ($filePath->isDir()) {
             $errorMsg = 'a directory';
-        }
-        elseif ($filePath->isLink())
-        {
+        } elseif ($filePath->isLink()) {
             $errorMsg = 'a symbolically linked file';
-        }
-        elseif ($this->currentFile->getAbsolutePath() == $filePath->getAbsolutePath())
-        {
+        } elseif ($this->currentFile->getAbsolutePath() == $filePath->getAbsolutePath()) {
             $errorMsg = 'yourself';
-        }
-        elseif (($ext = $filePath->getExtension()) != 'yml' && $ext != 'yaml')
-        {
+        } elseif (($ext = $filePath->getExtension()) != 'yml' && $ext != 'yaml') {
             $errorMsg = 'a non-YAML configuration';
         }
 
-        if (!($noErrors = empty($errorMsg)))
-        {
+        if (!($noErrors = empty($errorMsg))) {
             $this->logger->error("{file}: you can't import {message}: {import}", [
                 'file' => $this->configFile->getRelativeFilePath(),
                 'message' => $errorMsg,
@@ -460,15 +386,13 @@ class Configuration
 
     /**
      * Check whether or not a filename has already been imported in a given process.
-     *
-     * @param File $filePath
      */
-    private function isRecursiveImport(File $filePath)
+    private function isRecursiveImport(File $filePath): void
     {
-        if (in_array($filePath->getRelativeFilePath(), self::$configImports))
-        {
+        if (in_array($filePath->getRelativeFilePath(), self::$configImports)) {
             throw new RecursiveConfigurationException($filePath, sprintf(
-                'The %s file has already been imported', $filePath->getRelativeFilePath()
+                'The %s file has already been imported',
+                $filePath->getRelativeFilePath()
             ));
         }
 
@@ -477,30 +401,22 @@ class Configuration
 
     /**
      * Merge the given array with existing configuration.
-     *
-     * @param array $importedConfig
-     * @param array $existingConfig
-     *
-     * @return array
      */
-    private function mergeImports(array $importedConfig, array $existingConfig)
+    private function mergeImports(array $importedConfig, array $existingConfig): array
     {
         $arraySplit = ArrayUtilities::associative_array_split(self::IMPORT_KEYWORD, $existingConfig, false);
         $beforeImport = ArrayUtilities::array_merge_defaults($arraySplit[0], $importedConfig, 'name');
-        $result = ArrayUtilities::array_merge_defaults($beforeImport, $arraySplit[1], 'name');
 
-        return $result;
+        return ArrayUtilities::array_merge_defaults($beforeImport, $arraySplit[1], 'name');
     }
 
-    private function handleDefaultOperations()
+    private function handleDefaultOperations(): void
     {
-        if (substr($this->getTargetFolder(), 0, 1) != '_')
-        {
+        if (substr($this->getTargetFolder(), 0, 1) != '_') {
             $this->configuration['exclude'][] = $this->getTargetFolder();
         }
 
-        if ($this->configuration['build']['preserveCase'])
-        {
+        if ($this->configuration['build']['preserveCase']) {
             Service::setRuntimeFlag(RuntimeStatus::COMPILER_PRESERVE_CASE);
         }
     }

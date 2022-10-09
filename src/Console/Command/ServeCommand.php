@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -15,6 +15,7 @@ use allejo\stakx\Server\WebServer;
 use allejo\stakx\Service;
 use allejo\stakx\Utilities\StrUtils;
 use allejo\stakx\Website;
+use Exception;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,7 +26,7 @@ class ServeCommand extends BuildCommand
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -36,15 +37,14 @@ class ServeCommand extends BuildCommand
         $this->addOption('bind', null, InputOption::VALUE_REQUIRED, 'The IP the local development server will bind to', '0.0.0.0');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): void
     {
         $this->handleDeprecations($input, $output);
         $this->setRunTimeOptions($input);
 
         Service::setRuntimeFlag(RuntimeStatus::IN_SERVE_MODE);
 
-        try
-        {
+        try {
             $output->writeln('The `serve` option is still an experimental feature and has a few known bugs.');
 
             $this->configureConfigurationFile($input);
@@ -71,20 +71,18 @@ class ServeCommand extends BuildCommand
             $output->writeln('Listening on ' . str_replace('tcp:', 'http:', $socket->getAddress()));
 
             $loop->run();
-        }
-        catch (FileAwareException $e)
-        {
+        } catch (FileAwareException $e) {
             $output->writeln(StrUtils::interpolate(
-                "Your website failed to build with the following error in file '{file}'{line}: {message}", [
+                "Your website failed to build with the following error in file '{file}'{line}: {message}",
+                [
                     'file' => $e->getPath(),
                     'line' => (($l = $e->getLineNumber()) >= 0) ? ' on line ' . $l : '',
                     'message' => $e->getMessage(),
                 ]
             ));
-        }
-        catch (\Exception $e)
-        {
-            $output->writeln(sprintf('Your website failed to build with the following error: %s',
+        } catch (Exception $e) {
+            $output->writeln(sprintf(
+                'Your website failed to build with the following error: %s',
                 $e->getMessage()
             ));
         }

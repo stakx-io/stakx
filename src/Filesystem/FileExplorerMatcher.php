@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,22 +7,21 @@
 
 namespace allejo\stakx\Filesystem;
 
+use Closure;
+use DateTime;
+use Exception;
+
 abstract class FileExplorerMatcher
 {
     /**
      * Return a matcher callable for files that have been modified after a certain timestamp.
      *
-     * @param \DateTime $time
-     *
-     * @throws \Exception
-     *
-     * @return \Closure
+     * @throws Exception
      */
-    public static function modifiedAfter(\DateTime $time)
+    public static function modifiedAfter(DateTime $time): Closure
     {
         return function ($file) use ($time) {
             /** @var File|Folder $file */
-
             if ($file instanceof Folder) {
                 return true;
             }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,20 +9,16 @@ namespace allejo\stakx\test\Templating\Twig\Extension;
 
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Templating\Twig\Extension\SelectFilter;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 
-class SelectFilterTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class SelectFilterTest extends StakxTestCase
 {
-    private function getDummyCollection()
-    {
-        return $this->createMultipleFrontMatterDocumentsOfType(ContentItem::class, [
-            ['frontmatter' => ['tags' => ['red', 'blue']]],
-            ['frontmatter' => ['tags' => ['red', 'green']]],
-            ['frontmatter' => ['tags' => ['green', 'blue', 'orange']]],
-        ]);
-    }
-
-    public function testSelectFilterWithDefaultSettings()
+    public function testSelectFilterWithDefaultSettings(): void
     {
         $posts = $this->getDummyCollection();
 
@@ -31,13 +27,12 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
 
         $this->assertCount(4, $results);
 
-        foreach (['red', 'blue', 'green', 'orange'] as $value)
-        {
+        foreach (['red', 'blue', 'green', 'orange'] as $value) {
             $this->assertContains($value, $results);
         }
     }
 
-    public function testSelectFilterWithFlattenOnly()
+    public function testSelectFilterWithFlattenOnly(): void
     {
         $posts = $this->getDummyCollection();
         $filter = new SelectFilter();
@@ -47,7 +42,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertContains(['red', 'blue'], $results);
     }
 
-    public function testSelectFilterWithFlattenNoDistinct()
+    public function testSelectFilterWithFlattenNoDistinct(): void
     {
         $posts = $this->getDummyCollection();
         $filter = new SelectFilter();
@@ -56,7 +51,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(7, $results);
     }
 
-    public function testSelectFilterWithMultidimensionalArray()
+    public function testSelectFilterWithMultidimensionalArray(): void
     {
         $mdArray = [
             ['tags' => ['red', ['nested', 'color', 'blue']]],
@@ -70,7 +65,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertContains('nested', $results);
     }
 
-    public function testSelectFilterWithNullValuesKeepsNull()
+    public function testSelectFilterWithNullValuesKeepsNull(): void
     {
         $nullArray = [
             ['tags' => ['hello', 'beautiful']],
@@ -84,7 +79,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals(['hello', 'beautiful', null, 'world'], $results);
     }
 
-    public function testSelectFilterDropsNullValues()
+    public function testSelectFilterDropsNullValues(): void
     {
         $nullArray = [
             ['tags' => ['hello', 'beautiful']],
@@ -97,7 +92,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals(['hello', 'beautiful', 'world'], $results);
     }
 
-    public function testSelectFilterKeepsDuplicateNull()
+    public function testSelectFilterKeepsDuplicateNull(): void
     {
         $nullArray = [
             ['tags' => ['hello', 'beautiful']],
@@ -111,7 +106,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals(['hello', 'beautiful', null, null, 'world'], $results);
     }
 
-    public function testSelectFilterKeepsDistinctNull()
+    public function testSelectFilterKeepsDistinctNull(): void
     {
         $nullArray = [
             ['tags' => ['hello', 'beautiful']],
@@ -125,7 +120,7 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals(['hello', 'beautiful', null, 'world'], $results);
     }
 
-    public function testSelectFilterDotNotation()
+    public function testSelectFilterDotNotation(): void
     {
         $nestedArray = [
             ['metadata' => ['tags' => ['php', 'programming']]],
@@ -137,5 +132,14 @@ class SelectFilterTest extends PHPUnit_Stakx_TestCase
         $results = $filter($nestedArray, 'metadata.tags');
 
         $this->assertEquals(['php', 'programming', 'cooking'], $results);
+    }
+
+    private function getDummyCollection()
+    {
+        return $this->createMultipleFrontMatterDocumentsOfType(ContentItem::class, [
+            ['frontmatter' => ['tags' => ['red', 'blue']]],
+            ['frontmatter' => ['tags' => ['red', 'green']]],
+            ['frontmatter' => ['tags' => ['green', 'blue', 'orange']]],
+        ]);
     }
 }

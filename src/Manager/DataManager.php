@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -26,29 +26,19 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class DataManager extends TrackingManager
 {
-    private $dataTransformerManager;
-    private $configuration;
-    private $eventDispatcher;
-    private $logger;
-
     /**
      * DataManager constructor.
      */
-    public function __construct(DataTransformerManager $dataTransformerManager, Configuration $configuration, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
+    public function __construct(private readonly DataTransformerManager $dataTransformerManager, private readonly Configuration $configuration, private readonly EventDispatcherInterface $eventDispatcher, private readonly LoggerInterface $logger)
     {
-        $this->dataTransformerManager = $dataTransformerManager;
-        $this->configuration = $configuration;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function compileManager()
+    public function compileManager(): void
     {
-        if (!$this->configuration->hasDataItems())
-        {
+        if (!$this->configuration->hasDataItems()) {
             $this->logger->notice('No DataItems or Datasets detected... Ignoring.');
 
             return;
@@ -60,10 +50,8 @@ class DataManager extends TrackingManager
 
     /**
      * Get all of the DataItems and DataSets in this manager.
-     *
-     * @return array
      */
-    public function &getDataItems()
+    public function &getDataItems(): array
     {
         return $this->trackedItems;
     }
@@ -73,9 +61,7 @@ class DataManager extends TrackingManager
      */
     public function getJailedDataItems()
     {
-        return self::getJailedTrackedItems($this->trackedItemsFlattened, function (DataItem $dataItem) {
-            return $dataItem->getBasename();
-        });
+        return self::getJailedTrackedItems($this->trackedItemsFlattened, fn (DataItem $dataItem) => $dataItem->getBasename());
     }
 
     /**
@@ -85,15 +71,13 @@ class DataManager extends TrackingManager
      *
      * @param string[] $folders An array of folders to be searched for to contain DataItems
      */
-    public function parseDataItems($folders)
+    public function parseDataItems($folders): void
     {
-        if ($folders === null)
-        {
+        if ($folders === null) {
             return;
         }
 
-        foreach ($folders as $folder)
-        {
+        foreach ($folders as $folder) {
             $cls = new Folder($folder);
 
             $this->logger->debug('Scanning "{folder}" for data items...', [
@@ -101,7 +85,7 @@ class DataManager extends TrackingManager
             ]);
 
             $event = new DataItemFolderAdded($cls);
-            $this->eventDispatcher->dispatch(DataItemFolderAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event, DataItemFolderAdded::NAME);
 
             $def = new FileExplorerDefinition($cls);
             $this->scanTrackableItems($def);
@@ -115,10 +99,9 @@ class DataManager extends TrackingManager
      *
      * @param string[] $dataSets An array of DataSets
      */
-    public function parseDataSets($dataSets)
+    public function parseDataSets($dataSets): void
     {
-        if ($dataSets === null)
-        {
+        if ($dataSets === null) {
             return;
         }
 
@@ -126,12 +109,11 @@ class DataManager extends TrackingManager
          * The information which each DataSet has from the configuration file.
          *
          * @var array $dataSet = [
-         *   'name' => '(string) The name of the collection',
-         *   'folder' => '(string) The folder where this collection has its ContentItems'
-         * ]
+         *            'name' => '(string) The name of the collection',
+         *            'folder' => '(string) The folder where this collection has its ContentItems'
+         *            ]
          */
-        foreach ($dataSets as $dataSet)
-        {
+        foreach ($dataSets as $dataSet) {
             $folder = new Folder($dataSet['folder']);
 
             $this->logger->debug('Scanning "{folder}" for the "{name}" dataset...', [
@@ -140,7 +122,7 @@ class DataManager extends TrackingManager
             ]);
 
             $event = new DatasetDefinitionAdded($dataSet['name'], $folder);
-            $this->eventDispatcher->dispatch(DatasetDefinitionAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event, DatasetDefinitionAdded::NAME);
 
             $def = new FileExplorerDefinition($folder);
             $this->declareTrackingNamespace($dataSet['name']);
@@ -153,34 +135,28 @@ class DataManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem(File $filePath, array $options = [])
+    protected function handleTrackableItem(File $filePath, array $options = []): mixed
     {
-        try
-        {
-            $namespace = (isset($options['namespace'])) ? $options['namespace'] : null;
+        try {
+            $namespace = $options['namespace'] ?? null;
 
             $dataItem = new DataItem($filePath);
             $dataItem->setDataTransformer($this->dataTransformerManager);
             $dataItem->setNamespace($namespace);
 
             $event = new DataItemAdded($dataItem);
-            $this->eventDispatcher->dispatch(DataItemAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event, DataItemAdded::NAME);
 
             $this->addObjectToTracker($dataItem, $namespace);
             $this->saveTrackerOptions($dataItem->getRelativeFilePath(), $options);
 
             return $dataItem->getRelativeFilePath();
-        }
-        catch (DependencyMissingException $e)
-        {
-            if ($e->getDependency() === 'XML')
-            {
+        } catch (DependencyMissingException $e) {
+            if ($e->getDependency() === 'XML') {
                 $this->logger->critical('XML support is not available in your PHP installation. For XML support, please install the appropriate package for your system:');
                 $this->logger->critical('  e.g. php7.0-xml');
             }
-        }
-        catch (UnsupportedDataTypeException $e)
-        {
+        } catch (UnsupportedDataTypeException $e) {
             $this->logger->warning('There is no function to handle {ext} file format.', [
                 'ext' => $e->getDataType(),
             ]);

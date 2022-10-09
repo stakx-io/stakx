@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,29 +8,25 @@
 namespace allejo\stakx\Filesystem;
 
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use Exception;
+use Stringable;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 /**
  * A representation of a folder on a given filesystem.
  */
-final class WritableFolder
+final class WritableFolder implements Stringable
 {
-    /** @var bool */
-    private $frozen;
+    private bool $frozen;
 
-    /** @var FilesystemPath */
-    private $folder;
+    private readonly FilesystemPath $folder;
 
-    /**
-     * @param string $folderPath
-     */
-    public function __construct($folderPath)
+    public function __construct(string|FilesystemPath $folderPath)
     {
         $this->frozen = false;
         $this->folder = new FilesystemPath($folderPath);
 
-        if (!$this->folder->isDir())
-        {
+        if (!$this->folder->isDir()) {
             throw new FileNotFoundException(sprintf('The folder could not be found: %s', $folderPath));
         }
     }
@@ -42,10 +38,8 @@ final class WritableFolder
 
     /**
      * Get the file path to this Folder in an OOP friendly way.
-     *
-     * @return FilesystemPath
      */
-    public function getFilesystemPath()
+    public function getFilesystemPath(): FilesystemPath
     {
         return new FilesystemPath($this->__toString());
     }
@@ -53,17 +47,15 @@ final class WritableFolder
     /**
      * Set this Folder to a "frozen" state meaning its path can no longer be modified.
      */
-    public function freeze()
+    public function freeze(): void
     {
         $this->frozen = true;
     }
 
     /**
      * Check whether or not this Folder's path has been frozen.
-     *
-     * @return bool
      */
-    public function isFrozen()
+    public function isFrozen(): bool
     {
         return $this->frozen;
     }
@@ -71,23 +63,19 @@ final class WritableFolder
     /**
      * Set a base folder that will be prefixed before all file writes and copies.
      *
-     * @param string $folderName
-     *
      * @since 0.2.0 An \Exception is thrown when a frozen Folder is attempted to
      *              be modified
      * @since 0.1.0
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function setTargetDirectory($folderName)
+    public function setTargetDirectory(string $folderName): void
     {
-        if ($this->isFrozen())
-        {
-            throw new \Exception('A frozen folder object cannot be modified.');
+        if ($this->isFrozen()) {
+            throw new Exception('A frozen folder object cannot be modified.');
         }
 
-        if ($folderName === null || empty($folderName))
-        {
+        if ($folderName === null || empty($folderName)) {
             return;
         }
 
@@ -102,7 +90,7 @@ final class WritableFolder
      *
      * @since 0.1.0
      */
-    public function copyFile($absolutePath, $targetPath)
+    public function copyFile($absolutePath, $targetPath): void
     {
         $targetPath = $this->folder->generatePath($targetPath);
 
@@ -116,20 +104,17 @@ final class WritableFolder
      * @param string $content      The content that will be written to the file
      *
      * @since 0.1.0
-     *
-     * @return File
      */
-    public function writeFile($relativePath, $content)
+    public function writeFile(string $relativePath, string $content): File
     {
         $targetFile = $this->folder->generatePath($relativePath);
-        $targetFolderPath = $targetFile->getParentDirectory();
+        $targetFolderPath = (string)$targetFile->getParentDirectory();
 
-        if (!file_exists($targetFolderPath))
-        {
+        if (!file_exists($targetFolderPath)) {
             mkdir($targetFolderPath, 0755, true);
         }
 
-        file_put_contents($targetFile, $content);
+        file_put_contents((string)$targetFile, $content);
 
         return new File($targetFile);
     }

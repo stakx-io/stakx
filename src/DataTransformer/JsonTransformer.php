@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,22 +12,19 @@ class JsonTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public static function transformData($content)
+    public static function transformData($content): array
     {
-        $data = json_decode($content, true);
-
-        if ($data === null)
-        {
+        try {
+            return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
             return [];
         }
-
-        return $data;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getExtensions()
+    public static function getExtensions(): array
     {
         return [
             'json',

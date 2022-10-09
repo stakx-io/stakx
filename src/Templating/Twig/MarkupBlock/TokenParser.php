@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -18,11 +18,8 @@ use Twig\TokenParser\AbstractTokenParser;
  */
 class TokenParser extends AbstractTokenParser
 {
-    private $tagName;
-
-    public function __construct($tagName)
+    public function __construct(private $tagName)
     {
-        $this->tagName = $tagName;
     }
 
     /**
@@ -33,7 +30,7 @@ class TokenParser extends AbstractTokenParser
         $lineNumber = $token->getLine();
 
         $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse([$this, 'decideEndTag'], true);
+        $body = $this->parser->subparse($this->decideEndTag(...), true);
         $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
 
         return new Node($body, $lineNumber, $this->getTag());
@@ -41,12 +38,8 @@ class TokenParser extends AbstractTokenParser
 
     /**
      * Decide if current token marks end of our markup block.
-     *
-     * @param Token $token
-     *
-     * @return bool
      */
-    public function decideEndTag(Token $token)
+    public function decideEndTag(Token $token): bool
     {
         return $token->test('end' . $this->getTag());
     }

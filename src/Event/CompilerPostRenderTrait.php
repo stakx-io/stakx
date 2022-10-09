@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -11,8 +11,7 @@ use allejo\stakx\Utilities\StrUtils;
 
 trait CompilerPostRenderTrait
 {
-    /** @var string */
-    protected $compiledOutput;
+    protected string $compiledOutput;
 
     public function getCompiledOutput()
     {
@@ -24,10 +23,9 @@ trait CompilerPostRenderTrait
      *
      * @param string $compiledOutput
      */
-    public function setCompiledOutput($compiledOutput)
+    public function setCompiledOutput($compiledOutput): void
     {
-        if (!StrUtils::canBeCastedToString($compiledOutput))
-        {
+        if (!StrUtils::canBeCastedToString($compiledOutput)) {
             @trigger_error('CompileProcessPostRenderPageView :: Value cannot be set to something that cannot be cast into a string.', E_USER_WARNING);
 
             return;

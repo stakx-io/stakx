@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,13 +8,18 @@
 namespace allejo\stakx\Test\DataTransformer;
 
 use allejo\stakx\DataTransformer\JsonTransformer;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 
-class JsonTransformerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class JsonTransformerTest extends StakxTestCase
 {
-    public function testValidJsonData()
+    public function testValidJsonData(): void
     {
-        $file = <<<LINE
+        $file = <<<'LINE'
 {
   "array": [
     1,
@@ -50,9 +55,9 @@ LINE;
         $this->assertEquals($expected, $actual);
     }
 
-    public function testInvalidJsonData()
+    public function testInvalidJsonData(): void
     {
-        $file = <<<LINE
+        $file = <<<'LINE'
 invalid JSON
 LINE;
 

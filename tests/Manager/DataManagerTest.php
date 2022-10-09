@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -15,9 +15,14 @@ use allejo\stakx\DataTransformer\YamlTransformer;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Manager\DataManager;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 
-class DataManagerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class DataManagerTest extends StakxTestCase
 {
     public function getDataTransformerManager()
     {
@@ -30,14 +35,14 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
         return $manager;
     }
 
-    public function testDataSetParsing()
+    public function testDataSetParsing(): void
     {
         $dataSetName = 'calendar';
 
         $dm = new DataManager(
             $this->getDataTransformerManager(),
             $this->getMockConfiguration(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $dm->parseDataSets([[
@@ -48,16 +53,11 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertGreaterThan(0, $dm->getDataItems());
         $this->assertGreaterThan(0, $dm->getJailedDataItems());
 
-        /**
-         * @var string
-         * @var DataItem[] $items
-         */
-        foreach ($dm->getDataItems() as $key => $items)
-        {
+        /** @var DataItem[] $items */
+        foreach ($dm->getDataItems() as $key => $items) {
             $this->assertEquals($key, $dataSetName);
 
-            foreach ($items as $item)
-            {
+            foreach ($items as $item) {
                 $this->assertInstanceOf(DataItem::class, $item);
                 $this->assertEquals($dataSetName, $item->getNamespace());
             }
@@ -69,12 +69,12 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertArrayHasKey('calendar', $prison);
     }
 
-    public function testDataItemParsing()
+    public function testDataItemParsing(): void
     {
         $dm = new DataManager(
             $this->getDataTransformerManager(),
             $this->getMockConfiguration(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $dm->parseDataItems([
@@ -85,8 +85,7 @@ class DataManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertGreaterThan(0, $dm->getJailedDataItems());
 
         /** @var DataItem $item */
-        foreach ($dm->getDataItems() as $item)
-        {
+        foreach ($dm->getDataItems() as $item) {
             $this->assertNull($item->getNamespace());
         }
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -11,14 +11,13 @@ use allejo\stakx\Filesystem\File;
 
 class StaticPageView extends BasePageView implements TemplateReadyDocument
 {
-    /** @var JailedDocument */
-    private $jailInstance;
+    private ?JailedDocument $jailInstance = null;
 
     /** @var JailedDocument[] */
-    private $jailedChildPageViews;
+    private ?array $jailedChildPageViews = null;
 
-    /** @var StaticPageView[] */
-    private $childPageViews = [];
+    /** @var self[] */
+    private array $childPageViews = [];
 
     /**
      * StaticPageView constructor.
@@ -33,10 +32,9 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
     /**
      * {@inheritdoc}
      */
-    public function createJail()
+    public function createJail(): JailedDocument
     {
-        if ($this->jailInstance === null)
-        {
+        if ($this->jailInstance === null) {
             $whiteListedFunctions = array_merge(self::$whiteListedFunctions, [
             ]);
 
@@ -56,9 +54,9 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
      * A child is defined as a static PageView whose URL has a parent. For example, a PageView with a URL of
      * `/gallery/france/` would have the PageView whose URL is `/gallery` as a parent.
      *
-     * @return StaticPageView[]
+     * @return self[]
      */
-    public function &getChildren()
+    public function &getChildren(): array
     {
         return $this->childPageViews;
     }
@@ -68,14 +66,12 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
      *
      * @return JailedDocument[]
      */
-    public function getJailedChildren()
+    public function getJailedChildren(): array
     {
-        if ($this->jailedChildPageViews === null)
-        {
+        if ($this->jailedChildPageViews === null) {
             $this->jailedChildPageViews = [];
 
-            foreach ($this->childPageViews as $key => &$child)
-            {
+            foreach ($this->childPageViews as $key => &$child) {
                 $this->jailedChildPageViews[$key] = $child->createJail();
             }
         }
@@ -84,19 +80,9 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
     }
 
     /**
-     * Get the PageView's body written in a templating language.
-     *
-     * @return string
-     */
-    public function getContent()
-    {
-        return $this->bodyContent;
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return array_merge($this->getFrontMatter(), [
             'content' => $this->getContent(),
@@ -105,7 +91,7 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
         ]);
     }
 
-    protected function beforeCompile()
+    protected function beforeCompile(): void
     {
         $this->buildPermalink(true);
     }

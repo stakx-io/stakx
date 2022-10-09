@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,13 +8,18 @@
 namespace allejo\stakx\Test\DataTransformer;
 
 use allejo\stakx\DataTransformer\XmlTransformer;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 
-class XmlTransformerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class XmlTransformerTest extends StakxTestCase
 {
-    public function testValidXmlData()
+    public function testValidXmlData(): void
     {
-        $file = <<<FILE
+        $file = <<<'FILE'
 <note>
     <to attribute="attr value">Tove</to>
     <from>Jani</from>
@@ -34,9 +39,9 @@ FILE;
         $this->assertEquals($expected, $actual);
     }
 
-    public function testInvalidXmlData()
+    public function testInvalidXmlData(): void
     {
-        $file = <<<FILE
+        $file = <<<'FILE'
 { "message": "some fancy json" }
 FILE;
 

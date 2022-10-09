@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -19,33 +19,22 @@ interface CollectableItem
      *
      * - In a Collection, the name of the Collection is the namespace.
      * - In a DataSet, the name of the DataSet is the namespace.
-     *
-     * @return string
      */
-    public function getNamespace();
+    public function getNamespace(): ?string;
 
-    /**
-     * @param string $namespace
-     *
-     * @return void
-     */
-    public function setNamespace($namespace);
+    public function setNamespace(?string $namespace): void;
 
     /**
      * Get the parent DynamicPageViews that this Collectable Item belongs to.
      *
      * @return DynamicPageView[]
      */
-    public function &getParentPageViews();
+    public function &getParentPageViews(): array;
 
     /**
      * Save a reference to the parent DynamicPageView this Collectable Item belongs to.
-     *
-     * @param DynamicPageView $pageView
-     *
-     * @return void
      */
-    public function saveParentPageView(DynamicPageView &$pageView);
+    public function saveParentPageView(DynamicPageView $pageView): void;
 
     /**
      * Evaluate the FrontMatter in this object by merging a custom array of data.

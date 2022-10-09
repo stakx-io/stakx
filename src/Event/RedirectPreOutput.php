@@ -1,9 +1,14 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
 
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\BasePageView;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is fired before a redirect is created. This event provides read-only access to the parent PageView and
@@ -13,66 +18,40 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class RedirectPreOutput extends Event
 {
-    const NAME = 'redirect.preoutput';
-
-    /** @var string */
-    private $fromUrl;
-
-    /** @var string */
-    private $toUrl;
-
-    /** @var BasePageView */
-    private $parentPageView;
-
-    /** @var BasePageView */
-    private $redirectPageView;
+    final public const NAME = 'redirect.preoutput';
 
     /**
-     * @param string       $from
-     * @param string       $to
-     * @param BasePageView $pageView
+     * @param string       $fromUrl
+     * @param string       $toUrl
+     * @param BasePageView $parentPageView
      * @param BasePageView $redirectPageView
      */
-    public function __construct($from, $to, $pageView, $redirectPageView)
+    public function __construct(private $fromUrl, private $toUrl, private $parentPageView, private $redirectPageView)
     {
-        $this->fromUrl = $from;
-        $this->toUrl = $to;
-        $this->parentPageView = $pageView;
-        $this->redirectPageView = $redirectPageView;
     }
 
-    /**
-     * @return string
-     */
-    public function getFromUrl()
+    public function getFromUrl(): string
     {
         return $this->fromUrl;
     }
 
-    /**
-     * @return string
-     */
-    public function getToUrl()
+    public function getToUrl(): string
     {
         return $this->toUrl;
     }
 
     /**
      * Read-only access to the PageView who this redirect belongs to.
-     *
-     * @return BasePageView
      */
-    public function getParentPageView()
+    public function getParentPageView(): BasePageView
     {
         return clone $this->parentPageView;
     }
 
     /**
      * The PageView that was generated to create this redirect as a flat file.
-     *
-     * @return BasePageView
      */
-    public function getRedirectPageView()
+    public function getRedirectPageView(): BasePageView
     {
         return $this->redirectPageView;
     }

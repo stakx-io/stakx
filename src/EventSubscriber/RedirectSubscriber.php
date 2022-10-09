@@ -1,4 +1,9 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
 
 namespace allejo\stakx\EventSubscriber;
 
@@ -11,35 +16,25 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RedirectSubscriber implements EventSubscriberInterface
 {
-    /** @var RedirectMapper */
-    private $redirectMapper;
-
-    public function __construct(RedirectMapper $redirectMapper)
+    public function __construct(private readonly RedirectMapper $redirectMapper)
     {
-        $this->redirectMapper = $redirectMapper;
     }
 
-    public function registerRedirect(PageViewAdded $event)
+    public function registerRedirect(PageViewAdded $event): void
     {
         $pageView = $event->getPageView();
 
-        if ($pageView instanceof StaticPageView || $pageView instanceof DynamicPageView)
-        {
+        if ($pageView instanceof StaticPageView || $pageView instanceof DynamicPageView) {
             $redirects = $pageView->getRedirects();
 
-            foreach ($redirects as $redirect)
-            {
+            foreach ($redirects as $redirect) {
                 $this->redirectMapper->registerRedirect($redirect, $pageView->getPermalink());
             }
-        }
-        elseif ($pageView instanceof RepeaterPageView)
-        {
+        } elseif ($pageView instanceof RepeaterPageView) {
             $permalinks = $pageView->getRepeaterPermalinks();
 
-            foreach ($pageView->getRepeaterRedirects() as $repeaterRedirect)
-            {
-                foreach ($repeaterRedirect as $index => $redirect)
-                {
+            foreach ($pageView->getRepeaterRedirects() as $repeaterRedirect) {
+                foreach ($repeaterRedirect as $index => $redirect) {
                     $this->redirectMapper->registerRedirect(
                         $redirect->getEvaluated(),
                         $permalinks[$index]->getEvaluated()
@@ -50,7 +45,7 @@ class RedirectSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public static function getSubscribedEvents()
     {

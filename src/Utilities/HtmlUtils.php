@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,9 +7,13 @@
 
 namespace allejo\stakx\Utilities;
 
+use DOMDocument;
+use DOMXPath;
+use LibXMLError;
+
 abstract class HtmlUtils
 {
-    public static function htmlXPath(\DOMDocument &$DOMDocument, $html, $xpathQuery)
+    public static function htmlXPath(DOMDocument &$DOMDocument, $html, $xpathQuery)
     {
         $html = self::normalizeHTML($html);
 
@@ -22,13 +26,11 @@ abstract class HtmlUtils
 
         $xmlErrors = libxml_get_errors();
 
-        /** @var \LibXMLError $error */
-        foreach ($xmlErrors as $error)
-        {
+        /** @var LibXMLError $error */
+        foreach ($xmlErrors as $error) {
             // Ignore errors about invalid tags
             //   http://www.xmlsoft.org/html/libxml-xmlerror.html#xmlParserErrors
-            if ($error->code === 801)
-            {
+            if ($error->code === 801) {
                 continue;
             }
 
@@ -37,15 +39,14 @@ abstract class HtmlUtils
 
         libxml_clear_errors();
 
-        $xpath = new \DOMXPath($DOMDocument);
+        $xpath = new DOMXPath($DOMDocument);
 
         return $xpath->query($xpathQuery);
     }
 
     private static function normalizeHTML($html)
     {
-        if (strpos($html, '<body>') === false || strpos($html, '</body>') === false)
-        {
+        if (!str_contains((string)$html, '<body>') || !str_contains((string)$html, '</body>')) {
             return sprintf('<body>%s</body>', $html);
         }
 

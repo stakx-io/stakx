@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -13,9 +13,14 @@ use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Templating\Twig\TwigStakxBridgeFactory;
 use org\bovigo\vfs\vfsStream;
 
-class CompilerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class CompilerTest extends StakxTestCase
 {
-    public static function dataProvider_StaticAndRepeaterPageViews()
+    public static function provideCompileStaticAndRepeaterPageViewsCases(): iterable
     {
         return [
             // Static page with single explicit URL with custom extension
@@ -48,11 +53,11 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
                         'contents' => 'Page body',
                     ],
                 ],
-                'expectedFiles'=> [
+                'expectedFiles' => [
                     [
                         'path' => '/toast.html',
                         'body' => 'Page body',
-                    ]
+                    ],
                 ],
             ],
 
@@ -65,13 +70,13 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
                             'permalink' => '/tester',
                         ],
                         'contents' => 'Page body',
-                    ]
+                    ],
                 ],
-                'expectedFiles'=> [
+                'expectedFiles' => [
                     [
                         'path' => '/tester',
                         'body' => 'Page body',
-                    ]
+                    ],
                 ],
             ],
 
@@ -90,7 +95,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
                     [
                         'path' => '/tester/index.html',
                         'body' => 'Page body',
-                    ]
+                    ],
                 ],
             ],
 
@@ -103,7 +108,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
                             'permalink' => '/parent/child/toast.html',
                         ],
                         'contents' => 'Page body',
-                    ]
+                    ],
                 ],
                 'expectedFiles' => [
                     [
@@ -128,7 +133,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
                     [
                         'path' => '/parent/child/toast/index.html',
                         'body' => 'Page body',
-                    ]
+                    ],
                 ],
             ],
 
@@ -173,7 +178,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
                     [
                         'path' => '/release-0.1.0-name/index.html',
                         'body' => 'Page body',
-                    ]
+                    ],
                 ],
             ],
 
@@ -192,7 +197,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
                     [
                         'path' => '/permalnk-a-w3rd-c4r/index.html',
                         'body' => 'Page body',
-                    ]
+                    ],
                 ],
             ],
 
@@ -335,20 +340,16 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProvider_StaticAndRepeaterPageViews
-     *
-     * @param array $sourcePages
-     * @param array $expectedFiles
+     * @dataProvider provideCompileStaticAndRepeaterPageViewsCases
      */
-    public function testCompileStaticAndRepeaterPageViews(array $sourcePages, array $expectedFiles)
+    public function testCompileStaticAndRepeaterPageViews(array $sourcePages, array $expectedFiles): void
     {
         $filesystem = [
             '_pages' => [],
             '_site' => [],
         ];
 
-        foreach ($sourcePages as $sourceFile)
-        {
+        foreach ($sourcePages as $sourceFile) {
             $filesystem['_pages'][$sourceFile['filename']] = $this->buildFrontMatterTemplate($sourceFile['frontmatter'], $sourceFile['contents']);
         }
 
@@ -359,7 +360,7 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockAssetManager(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $pageManager->parsePageViews([
@@ -382,14 +383,13 @@ class CompilerTest extends PHPUnit_Stakx_TestCase
             $this->getMockMenuManager(),
             $pageManager,
             $this->getMockRedirectMapper(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $compiler->setTargetFolder($folder);
         $compiler->compileAll();
 
-        foreach ($expectedFiles as $expectedFile)
-        {
+        foreach ($expectedFiles as $expectedFile) {
             $uri = vfsStream::url('root/_site' . $expectedFile['path']);
 
             $this->assertFileExists($uri);

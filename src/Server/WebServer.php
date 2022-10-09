@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,9 +9,9 @@ namespace allejo\stakx\Server;
 
 use allejo\stakx\Compiler;
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Service;
+use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
 use React\Http\Server;
@@ -28,11 +28,8 @@ class WebServer
      * This is just a utility function available.
      *
      * @param string $content
-     * @param mixed  $mimeType
-     *
-     * @return Response
      */
-    public static function return200($content, $mimeType = 'text/html')
+    public static function return200($content, mixed $mimeType = 'text/html'): Response
     {
         return new Response(200, ['Content-Type' => $mimeType], $content);
     }
@@ -41,24 +38,16 @@ class WebServer
      * Return a 404 Response.
      *
      * This is just a utility function available.
-     *
-     * @return Response
      */
-    public static function return404()
+    public static function return404(): Response
     {
         return new Response(404, ['Content-Type' => 'text/plain'], '404: Page not found');
     }
 
     /**
      * Factory method for creating a React Server instance.
-     *
-     * @param RouteMapper  $routeMapper
-     * @param Compiler     $compiler
-     * @param AssetManager $assetManager
-     *
-     * @return Server
      */
-    public static function create(RouteMapper $routeMapper, Compiler $compiler, AssetManager $assetManager)
+    public static function create(RouteMapper $routeMapper, Compiler $compiler, AssetManager $assetManager): Server
     {
         $routes = Controller::create($routeMapper, $compiler);
 
@@ -67,30 +56,24 @@ class WebServer
             $urlPath = Controller::normalizeUrl($request->getUri()->getPath());
 
             // We're a static website, we should never support anything other than GET requests
-            if ($httpMethod !== 'GET')
-            {
+            if ($httpMethod !== 'GET') {
                 return new Response(406, ['Content-Type' => 'text/plain'], 'Method not allowed');
             }
 
             $context = new RequestContext($urlPath);
             $matcher = new UrlMatcher($routes, $context);
 
-            try
-            {
+            try {
                 $parameters = $matcher->match($urlPath);
 
-                if (isset($parameters['_controller']))
-                {
+                if (isset($parameters['_controller'])) {
                     $controller = $parameters['_controller'];
 
                     return $controller($request, ...array_values($parameters));
                 }
-            }
-            catch (ResourceNotFoundException $e)
-            {
+            } catch (ResourceNotFoundException $e) {
                 // If we have a "manual" asset, let's serve from it
-                if (($file = $assetManager->getExplicitAsset(self::normalizePath($urlPath))) !== null)
-                {
+                if (($file = $assetManager->getExplicitAsset(self::normalizePath($urlPath))) !== null) {
                     return self::makeResponse($file);
                 }
 
@@ -99,13 +82,10 @@ class WebServer
                 // reason, we manually look through the filesystem and load from there.
                 //
                 // @TODO this should be fixed to make the AssetManager the authority on assets.
-                if (($asset = self::searchAsset($urlPath)) !== null)
-                {
+                if (($asset = self::searchAsset($urlPath)) !== null) {
                     return $asset;
                 }
-            }
-            catch (\Exception $e)
-            {
+            } catch (Exception $e) {
                 $response = ExceptionRenderer::render($e, $compiler);
 
                 return new Response(500, ['Content-Type' => 'text/html'], $response);
@@ -120,28 +100,22 @@ class WebServer
      *
      * @param string $url
      * @param bool   $continueNesting
-     *
-     * @return Response|null
      */
-    private static function searchAsset($url, $continueNesting = true)
+    private static function searchAsset($url, $continueNesting = true): ?Response
     {
-        try
-        {
+        try {
             $file = new File(self::normalizePath($url));
 
             return self::makeResponse($file);
-        }
-        catch (FileNotFoundException $e)
-        {
-            if (!$continueNesting)
-            {
+        } catch (FileNotFoundException) {
+            if (!$continueNesting) {
                 // This will evaluate to true if we've searched inside the themes folder and it still doesn't exist
                 return null;
             }
 
             // If the asset doesn't exist within our project root, see if it exists in our theme folder
             $theme = Service::getOption('theme');
-            $themeFile = "_themes/${theme}/" . $url;
+            $themeFile = "_themes/{$theme}/" . $url;
 
             return self::searchAsset($themeFile, false);
         }
@@ -151,22 +125,16 @@ class WebServer
      * Given a URL, normalize it to how we maintain permalinks internally (without the preceding slash).
      *
      * @param string $url
-     *
-     * @return string
      */
-    private static function normalizePath($url)
+    private static function normalizePath($url): string
     {
-        return substr($url, 0, 1) === '/' ? substr($url, 1) : $url;
+        return str_starts_with($url, '/') ? substr($url, 1) : $url;
     }
 
     /**
      * Given a File object, create a web server Response object for it.
-     *
-     * @param File $file
-     *
-     * @return Response
      */
-    private static function makeResponse(File $file)
+    private static function makeResponse(File $file): Response
     {
         $mime = MimeDetector::getMimeType($file->getExtension());
 

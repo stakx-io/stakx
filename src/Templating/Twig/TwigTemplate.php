@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,17 +12,14 @@ use Twig\TemplateWrapper;
 
 class TwigTemplate implements TemplateInterface
 {
-    private $template;
-
-    public function __construct(TemplateWrapper $template)
+    public function __construct(private readonly TemplateWrapper $template)
     {
-        $this->template = $template;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getTemplateName()
+    public function getTemplateName(): string
     {
         return $this->template->getTemplateName();
     }
@@ -30,12 +27,11 @@ class TwigTemplate implements TemplateInterface
     /**
      * {@inheritdoc}
      */
-    public function getParentTemplate()
+    public function getParentTemplate(): false|self
     {
         $parent = $this->template->getParent([]);
 
-        if ($parent === false)
-        {
+        if ($parent === false) {
             return false;
         }
 
@@ -45,7 +41,7 @@ class TwigTemplate implements TemplateInterface
     /**
      * {@inheritdoc}
      */
-    public function render(array $context = [])
+    public function render(array $context = []): string
     {
         return $this->template->render($context);
     }

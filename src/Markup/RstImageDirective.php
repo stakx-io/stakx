@@ -1,10 +1,14 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
 
 namespace allejo\stakx\Markup;
 
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Manager\AssetManager;
-use allejo\stakx\Markup\AssetHandlerTrait;
 use Gregwar\RST\HTML\Directives\Image;
 use Gregwar\RST\HTML\Nodes\ImageNode;
 use Gregwar\RST\Parser;
@@ -19,12 +23,12 @@ class RstImageDirective extends Image
 {
     use AssetHandlerTrait;
 
-    public function setAssetManager(AssetManager $assetManager)
+    public function setAssetManager(AssetManager $assetManager): void
     {
         $this->assetManager = $assetManager;
     }
 
-    public function setContentItem(ContentItem $contentItem)
+    public function setContentItem(ContentItem $contentItem): void
     {
         $this->contentItem = $contentItem;
     }

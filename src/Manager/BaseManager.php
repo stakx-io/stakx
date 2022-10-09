@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -14,7 +14,7 @@ abstract class BaseManager
     /**
      * Build the manager's internals after it's been configured.
      */
-    public function compileManager()
+    public function compileManager(): void
     {
     }
 }

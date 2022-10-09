@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -17,7 +17,7 @@ class TwigTextProfiler extends TextDumper
     /**
      * @param string[] $templateMappings
      */
-    public function setTemplateMappings($templateMappings)
+    public function setTemplateMappings($templateMappings): void
     {
         $this->templateMappings = $templateMappings;
     }
@@ -36,6 +36,6 @@ class TwigTextProfiler extends TextDumper
     {
         $name = $profile->getTemplate();
 
-        return isset($this->templateMappings[$name]) ? $this->templateMappings[$name] : $profile->getTemplate();
+        return $this->templateMappings[$name] ?? $profile->getTemplate();
     }
 }

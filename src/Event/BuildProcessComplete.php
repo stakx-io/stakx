@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * A notification-only event that is fired whenever the website finishes building.
@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class BuildProcessComplete extends Event
 {
-    const NAME = 'build.process.complete';
+    final public const NAME = 'build.process.complete';
 
     public function __construct()
     {

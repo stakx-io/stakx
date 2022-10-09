@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Manager\PageManager;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is fired before the PageManager begins processing PageViews.
@@ -17,19 +17,13 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class PageManagerPreProcess extends Event
 {
-    const NAME = 'pagemanager.process.pre_process';
+    public const NAME = 'pagemanager.process.pre_process';
 
-    private $manager;
-
-    public function __construct(PageManager $manager)
+    public function __construct(private readonly PageManager $manager)
     {
-        $this->manager = $manager;
     }
 
-    /**
-     * @return PageManager
-     */
-    public function getPageManager()
+    public function getPageManager(): PageManager
     {
         return $this->manager;
     }

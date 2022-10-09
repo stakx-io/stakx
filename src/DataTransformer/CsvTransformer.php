@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,14 +12,13 @@ class CsvTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public static function transformData($content)
+    public static function transformData($content): array
     {
         $rows = array_map('str_getcsv', explode("\n", trim($content)));
         $columns = array_shift($rows);
         $csv = [];
 
-        foreach ($rows as $row)
-        {
+        foreach ($rows as $row) {
             $csv[] = array_combine($columns, $row);
         }
 
@@ -29,7 +28,7 @@ class CsvTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getExtensions()
+    public static function getExtensions(): array
     {
         return [
             'csv',

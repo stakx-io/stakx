@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -17,13 +17,18 @@ use Symfony\Component\Yaml\Yaml;
 
 class ThemeManager extends AssetManager
 {
-    const THEME_FOLDER = '_themes';
-    const THEME_DEFINITION_FILE = 'stakx-theme.yml';
+    final public const THEME_FOLDER = '_themes';
+
+    final public const THEME_DEFINITION_FILE = 'stakx-theme.yml';
 
     private $themeFolderRelative;
+
     private $themeFolder;
+
     private $themeFile;
+
     private $themeData;
+
     private $themeName;
 
     public function __construct($themeName, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
@@ -37,25 +42,22 @@ class ThemeManager extends AssetManager
         $this->themeData = [
             'exclude' => [
                 // Ignore underscore directories inside of our theme folder
-                sprintf("/_themes\/%s\/_/", $this->themeName),
+                sprintf('/_themes\\/%s\\/_/', $this->themeName),
             ],
             'include' => [],
         ];
 
-        if (!fs::exists($this->themeFolder))
-        {
-            throw new FileNotFoundException("The '${themeName}' theme folder could not be found.'");
+        if (!fs::exists($this->themeFolder)) {
+            throw new FileNotFoundException("The '{$themeName}' theme folder could not be found.'");
         }
 
-        if (fs::exists($this->themeFile))
-        {
+        if (fs::exists($this->themeFile)) {
             $themeData = Yaml::parse(file_get_contents($this->themeFile));
 
             $this->themeData = array_merge_recursive($this->themeData, $themeData);
         }
 
-        foreach ($this->themeData['include'] as &$include)
-        {
+        foreach ($this->themeData['include'] as &$include) {
             $include = fs::appendPath($this->themeFolder, $include);
         }
     }
@@ -78,7 +80,7 @@ class ThemeManager extends AssetManager
      */
     public function shouldBeTracked($filePath)
     {
-        $isThemeAsset = (substr($filePath, 0, strlen($this->themeFolderRelative)) === $this->themeFolderRelative);
+        $isThemeAsset = str_starts_with($filePath, (string)$this->themeFolderRelative);
 
         return $isThemeAsset && parent::shouldBeTracked($filePath);
     }
@@ -95,7 +97,7 @@ class ThemeManager extends AssetManager
         ]);
     }
 
-    public function copyFiles()
+    public function copyFiles(): void
     {
         $this->logger->notice('Copying theme files...');
 

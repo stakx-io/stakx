@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -24,40 +24,32 @@ use ScssPhp\ScssPhp\Formatter\Nested;
 
 class SassEngine implements AssetEngineInterface
 {
-    /** @var bool */
-    private $fileSourceMap = false;
+    private bool $fileSourceMap = false;
 
-    /** @var WritableFolder|null */
-    private $cacheDirectory;
+    private ?WritableFolder $cacheDirectory = null;
 
-    /** @var Configuration */
-    private $configuration;
+    private PageManager $pageManager;
 
-    /** @var PageManager */
-    private $pageManager;
-
-    /** @var Compiler|null */
-    private $compiler;
+    private ?Compiler $compiler = null;
 
     /** @var array<string, mixed> */
-    private $options = [];
+    private array $options = [];
 
-    public function __construct(Configuration $configuration)
+    public function __construct(private readonly Configuration $configuration)
     {
-        $this->configuration = $configuration;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'Sass';
     }
 
-    public function getConfigurationNamespace()
+    public function getConfigurationNamespace(): string
     {
         return 'scss';
     }
 
-    public function getDefaultConfiguration()
+    public function getDefaultConfiguration(): array
     {
         return [
             'style' => 'compressed',
@@ -65,25 +57,23 @@ class SassEngine implements AssetEngineInterface
         ];
     }
 
-    public function getFolder()
+    public function getFolder(): string
     {
         return '_sass';
     }
 
-    public function getExtensions()
+    public function getExtensions(): array
     {
         return ['scss'];
     }
 
     /**
      * @param string $content
-     * @param $options = [
-     *     'pageview' => new StaticPageView()
-     * ]
-     *
-     * @return string
+     * @param mixed  $options = [
+     *                        'pageview' => new StaticPageView()
+     *                        ]
      */
-    public function parse($content, array $options = [])
+    public function parse($content, array $options = []): string
     {
         $this->initializeCompiler();
 
@@ -94,8 +84,7 @@ class SassEngine implements AssetEngineInterface
         $this->handleThemeImports($content);
 
         // We don't need to write the source map to a file
-        if (!$this->fileSourceMap)
-        {
+        if (!$this->fileSourceMap) {
             $this->compiler->setSourceMapOptions($sourceMapOptions);
 
             return $this->compiler->compile($content);
@@ -128,52 +117,62 @@ class SassEngine implements AssetEngineInterface
         return $sass;
     }
 
-    public function setOptions(array $options)
+    public function setOptions(array $options): void
     {
         $this->options = $options;
     }
 
-    public function setPageManager(PageManager $pageManager)
+    public function setPageManager(PageManager $pageManager): void
     {
         $this->pageManager = $pageManager;
     }
 
-    public function loadCache(WritableFolder $cacheDir)
+    public function loadCache(WritableFolder $cacheDir): void
     {
         $this->cacheDirectory = $cacheDir;
     }
 
-    public function saveCache(WritableFolder $cacheDir)
+    public function saveCache(WritableFolder $cacheDir): void
     {
     }
 
-    private function configureImportPath()
+    public static function stringToFormatter($format)
+    {
+        if ($format === 'nested') {
+            return Nested::class;
+        }
+        if ($format === 'expanded') {
+            return Expanded::class;
+        }
+        if ($format === 'compact') {
+            return Compact::class;
+        }
+
+        return Crunched::class;
+    }
+
+    private function configureImportPath(): void
     {
         $this->compiler->setImportPaths(Service::getWorkingDirectory() . '/_sass/');
     }
 
-    private function configureOutputStyle()
+    private function configureOutputStyle(): void
     {
         $style = __::get($this->options, 'style', 'compressed');
 
         $this->compiler->setFormatter(self::stringToFormatter($style));
     }
 
-    private function configureSourceMap()
+    private function configureSourceMap(): void
     {
         $sourceMap = __::get($this->options, 'sourcemap');
 
-        if ($sourceMap === 'inline')
-        {
+        if ($sourceMap === 'inline') {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_INLINE);
-        }
-        elseif ($sourceMap === true)
-        {
+        } elseif ($sourceMap === true) {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_FILE);
             $this->fileSourceMap = true;
-        }
-        else
-        {
+        } else {
             $this->compiler->setSourceMap(Compiler::SOURCE_MAP_NONE);
         }
     }
@@ -186,20 +185,18 @@ class SassEngine implements AssetEngineInterface
         );
     }
 
-    private function initializeCompiler()
+    private function initializeCompiler(): void
     {
-        if ($this->compiler)
-        {
+        if ($this->compiler) {
             return;
         }
 
         $cacheOptions = [];
 
         // If we have a cache directory set, use it.
-        if ($this->cacheDirectory)
-        {
+        if ($this->cacheDirectory) {
             $cacheOptions = [
-                'cacheDir' => (string) $this->cacheDirectory->getFilesystemPath(),
+                'cacheDir' => (string)$this->cacheDirectory->getFilesystemPath(),
                 'forceRefresh' => false,
             ];
         }
@@ -211,30 +208,11 @@ class SassEngine implements AssetEngineInterface
         $this->configureSourceMap();
     }
 
-    private function handleThemeImports(&$content)
+    private function handleThemeImports(&$content): void
     {
-        if (($themeName = $this->configuration->getTheme()))
-        {
-            $themePath = "../_themes/${themeName}/_sass";
-            $content = preg_replace("/(@import ['\"])(@theme)(.+)/", "$1${themePath}$3", $content);
+        if ($themeName = $this->configuration->getTheme()) {
+            $themePath = "../_themes/{$themeName}/_sass";
+            $content = preg_replace("/(@import ['\"])(@theme)(.+)/", "$1{$themePath}$3", $content);
         }
-    }
-
-    public static function stringToFormatter($format)
-    {
-        if ($format == 'nested')
-        {
-            return Nested::class;
-        }
-        elseif ($format == 'expanded')
-        {
-            return Expanded::class;
-        }
-        elseif ($format == 'compact')
-        {
-            return Compact::class;
-        }
-
-        return Crunched::class;
     }
 }

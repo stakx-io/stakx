@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,10 +8,16 @@
 namespace allejo\stakx\Test\Utilities;
 
 use allejo\stakx\Utilities\ArrayUtilities;
+use PHPUnit\Framework\TestCase;
 
-class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class ArrayUtilitiesTest extends TestCase
 {
-    public static function dataProviderMultidimensionalArrays()
+    public static function provideIsMultidimensionalCases(): iterable
     {
         return [
             [
@@ -30,17 +36,14 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider dataProviderMultidimensionalArrays
-     *
-     * @param array $arr
-     * @param       $result
+     * @dataProvider provideIsMultidimensionalCases
      */
-    public function testIsMultidimensional(array $arr, $result)
+    public function testIsMultidimensional(array $arr, mixed $result): void
     {
         $this->assertEquals($result, ArrayUtilities::is_multidimensional($arr));
     }
 
-    public static function dataProviderIndexedTestArrays()
+    public static function provideArrayCanBeIndexedCases(): iterable
     {
         return [
             [
@@ -101,18 +104,14 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider dataProviderIndexedTestArrays
-     *
-     * @param array $arr
-     * @param       $result
-     * @param       $index
+     * @dataProvider provideArrayCanBeIndexedCases
      */
-    public function testArrayCanBeIndexed(array $arr, $result, $index)
+    public function testArrayCanBeIndexed(array $arr, mixed $result, mixed $index): void
     {
         $this->assertEquals($result, ArrayUtilities::array_can_be_indexed($arr, $index));
     }
 
-    public static function dataProviderIndexableArrays()
+    public static function provideArrayIndexByKeyCases(): iterable
     {
         return [
             [
@@ -157,18 +156,14 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider dataProviderIndexableArrays
-     *
-     * @param array $arr
-     * @param       $result
-     * @param       $index
+     * @dataProvider provideArrayIndexByKeyCases
      */
-    public function testArrayIndexByKey(array $arr, $result, $index)
+    public function testArrayIndexByKey(array $arr, mixed $result, mixed $index): void
     {
         $this->assertEquals($result, ArrayUtilities::array_index_by_key($arr, $index));
     }
 
-    public static function dataProviderMergeDefaultsArrays()
+    public static function provideArrayMergeDefaultsCases(): iterable
     {
         return [
             [
@@ -252,24 +247,18 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider dataProviderMergeDefaultsArrays
-     *
-     * @param array $result
-     * @param array $arr1
-     * @param array $arr2
-     * @param       $indexKey
+     * @dataProvider provideArrayMergeDefaultsCases
      */
-    public function testArrayMergeDefaults(array $result, array $arr1, array $arr2, $indexKey)
+    public function testArrayMergeDefaults(array $result, array $arr1, array $arr2, mixed $indexKey): void
     {
         $merged = ArrayUtilities::array_merge_defaults($arr1, $arr2, $indexKey);
 
-        foreach ($merged as $key => $value)
-        {
+        foreach ($merged as $key => $value) {
             $this->assertEquals($result[$key], $value);
         }
     }
 
-    public function testAssociativeArraySplit()
+    public function testAssociativeArraySplit(): void
     {
         $array = [
             'index1' => 1,
@@ -289,7 +278,7 @@ class ArrayUtilitiesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result, ArrayUtilities::associative_array_split('index2', $array));
     }
 
-    public function testAssociativeArraySplitNotInclusive()
+    public function testAssociativeArraySplitNotInclusive(): void
     {
         $array = [
             'index1' => 1,

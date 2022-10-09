@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -18,6 +18,7 @@ use ScssPhp\ScssPhp\SourceMap\SourceMapGenerator as BaseGenerator;
 class SourceMapGenerator extends BaseGenerator
 {
     protected $generatorOptions;
+
     protected $sourceMapContent;
 
     public function __construct(array $options = [])

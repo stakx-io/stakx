@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,6 +8,7 @@
 namespace allejo\stakx\Filesystem;
 
 use allejo\stakx\Service;
+use RuntimeException;
 
 /**
  * A representation of a file on a given filesystem, virtual or physical.
@@ -23,10 +24,8 @@ final class File extends BaseFilesystemItem
      * Get a new File object for another file relative to this file.
      *
      * @param string $path
-     *
-     * @return File
      */
-    public function createFileForRelativePath($path)
+    public function createFileForRelativePath($path): File
     {
         return new File(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR . $path);
     }
@@ -38,10 +37,8 @@ final class File extends BaseFilesystemItem
      *                     definition
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getBasename($suffix = null)
+    public function getBasename($suffix = null): string
     {
         return parent::getBasename('.' . $this->getExtension());
     }
@@ -50,10 +47,8 @@ final class File extends BaseFilesystemItem
      * Get the name of the with the extension.
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getFilename()
+    public function getFilename(): string
     {
         return $this->getFullName();
     }
@@ -63,23 +58,20 @@ final class File extends BaseFilesystemItem
      *
      * @since 0.2.0
      *
-     * @throws \RuntimeException when the file could not be read
-     *
-     * @return string
+     * @throws RuntimeException when the file could not be read
      */
-    public function getContents()
+    public function getContents(): string
     {
-        if (!$this->exists())
-        {
+        if (!$this->exists()) {
             throw $this->buildNotFoundException();
         }
 
         $content = file_get_contents($this->getAbsolutePath());
 
-        if ($content === false)
-        {
+        if ($content === false) {
             $error = error_get_last();
-            throw new \RuntimeException($error['message']);
+
+            throw new RuntimeException($error['message']);
         }
 
         return $content;

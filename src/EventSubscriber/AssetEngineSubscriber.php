@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -16,34 +16,32 @@ use allejo\stakx\Event\CompilerPostRenderStaticPageView;
 use allejo\stakx\Event\ConfigurationParseComplete;
 use allejo\stakx\Event\PageManagerPostProcess;
 use allejo\stakx\Filesystem\FileExplorer;
+use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\FilesystemPath;
+use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AssetEngineSubscriber implements EventSubscriberInterface
 {
-    private $assetEngineManager;
     private $assetPageViews;
-    private $logger;
 
-    public function __construct(AssetEngineManager $assetEngineManager, LoggerInterface $logger)
+    public function __construct(private readonly AssetEngineManager $assetEngineManager, private readonly LoggerInterface $logger)
     {
-        $this->assetEngineManager = $assetEngineManager;
         $this->assetPageViews = [];
-        $this->logger = $logger;
     }
 
-    public function processConfigurationSettings(ConfigurationParseComplete $event)
+    public function processConfigurationSettings(ConfigurationParseComplete $event): void
     {
         $configuration = $event->getConfiguration()->getConfiguration();
 
         /** @var AssetEngineInterface $engine */
-        foreach ($this->assetEngineManager->getEngines() as $engine)
-        {
+        foreach ($this->assetEngineManager->getEngines() as $engine) {
             $defaults = __::get($configuration, $engine->getConfigurationNamespace(), []);
             $options = array_merge($engine->getDefaultConfiguration(), $defaults);
 
@@ -51,44 +49,41 @@ class AssetEngineSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function processAssetEnginePageView(PageManagerPostProcess $event)
+    public function processAssetEnginePageView(PageManagerPostProcess $event): void
     {
         /**
          * @var string               $folder
          * @var AssetEngineInterface $engine
          */
-        foreach ($this->assetEngineManager->getFoldersToWatch() as $folder => $engine)
-        {
+        foreach ($this->assetEngineManager->getFoldersToWatch() as $folder => $engine) {
             $assetFolder = fs::absolutePath($folder);
 
-            if (!fs::exists($assetFolder))
-            {
+            if (!fs::exists($assetFolder)) {
                 continue;
             }
 
             $engine->setPageManager($event->getPageManager());
             $extensions = [];
 
-            foreach ($engine->getExtensions() as $extension)
-            {
+            foreach ($engine->getExtensions() as $extension) {
                 $extensions[] = "/.{$extension}.twig$/";
             }
 
-            $explorer = FileExplorer::create($assetFolder, $extensions, [], FileExplorer::INCLUDE_ONLY_FILES | FileExplorer::IGNORE_DIRECTORIES);
+            $definition = new FileExplorerDefinition(new Folder($assetFolder));
+            $definition->includes = $extensions;
+            $definition->excludes = [];
+            $definition->flags = FileExplorer::INCLUDE_ONLY_FILES | FileExplorer::IGNORE_DIRECTORIES;
+            $explorer = FileExplorer::createFromDefinition($definition);
 
-            foreach ($explorer as $file)
-            {
+            foreach ($explorer as $file) {
                 $assetPageView = new StaticPageView($file);
 
-                try
-                {
+                try {
                     $event->getPageManager()->trackNewPageView($assetPageView);
                     $this->assetPageViews[$assetPageView->getRelativeFilePath()] = [
                         'engine' => $engine,
                     ];
-                }
-                catch (\Exception $e)
-                {
+                } catch (Exception $e) {
                     $this->logger->error('An exception occurred while creating a Static PageView for an AssetEngine');
                     $this->logger->error('  {message}', [
                         'message' => $e->getMessage(),
@@ -98,19 +93,17 @@ class AssetEngineSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function compileAssetEnginePageViews(CompilerPostRenderStaticPageView $event)
+    public function compileAssetEnginePageViews(CompilerPostRenderStaticPageView $event): void
     {
         $pageView = $event->getPageView();
         $filePath = $pageView->getRelativeFilePath();
 
-        if (isset($this->assetPageViews[$filePath]))
-        {
+        if (isset($this->assetPageViews[$filePath])) {
             /** @var AssetEngineInterface $engine */
             $engine = $this->assetPageViews[$filePath]['engine'];
             $cacheDir = $this->buildCacheFolder($engine);
 
-            if (Service::hasRunTimeFlag(RuntimeStatus::USING_CACHE))
-            {
+            if (Service::hasRunTimeFlag(RuntimeStatus::USING_CACHE)) {
                 $engine->loadCache($cacheDir);
             }
 

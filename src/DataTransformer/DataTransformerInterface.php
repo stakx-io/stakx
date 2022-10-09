@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,21 +12,17 @@ namespace allejo\stakx\DataTransformer;
  */
 interface DataTransformerInterface
 {
-    const CONTAINER_TAG = 'stakx.data_transformer';
+    public const CONTAINER_TAG = 'stakx.data_transformer';
 
     /**
      * Transform content to an associative array.
      *
      * @param string $content the content to be converted in an array
-     *
-     * @return array
      */
-    public static function transformData($content);
+    public static function transformData(string $content): array;
 
     /**
      * The lowercase file extensions this transformer will be applied to.
-     *
-     * @return array
      */
-    public static function getExtensions();
+    public static function getExtensions(): array;
 }

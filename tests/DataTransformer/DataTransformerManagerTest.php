@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -13,13 +13,18 @@ use allejo\stakx\DataTransformer\JsonTransformer;
 use allejo\stakx\DataTransformer\XmlTransformer;
 use allejo\stakx\DataTransformer\YamlTransformer;
 use allejo\stakx\Exception\UnsupportedDataTypeException;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 
-class DataTransformerManagerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class DataTransformerManagerTest extends StakxTestCase
 {
     private $transformer;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -32,7 +37,7 @@ class DataTransformerManagerTest extends PHPUnit_Stakx_TestCase
         ]);
     }
 
-    public static function dataProviderExtensions()
+    public static function provideCorrectTransformerCases(): iterable
     {
         return [
             [CsvTransformer::class, 'csv'],
@@ -44,19 +49,16 @@ class DataTransformerManagerTest extends PHPUnit_Stakx_TestCase
     }
 
     /**
-     * @dataProvider dataProviderExtensions
-     *
-     * @param mixed $class
-     * @param mixed $extension
+     * @dataProvider provideCorrectTransformerCases
      */
-    public function testCorrectTransformer($class, $extension)
+    public function testCorrectTransformer(mixed $class, mixed $extension): void
     {
         $this->assertInstanceOf($class, $this->transformer->getTransformer($extension));
     }
 
-    public function testUnsupportedTransformerThrowsException()
+    public function testUnsupportedTransformerThrowsException(): void
     {
-        $this->setExpectedException(UnsupportedDataTypeException::class);
+        $this->expectException(UnsupportedDataTypeException::class);
 
         $this->transformer->getTransformer('fake-extension');
     }

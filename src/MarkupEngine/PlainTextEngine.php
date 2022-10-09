@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,7 +12,7 @@ class PlainTextEngine implements MarkupEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getTemplateTag()
+    public function getTemplateTag(): ?string
     {
         return null;
     }
@@ -20,7 +20,7 @@ class PlainTextEngine implements MarkupEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function getExtensions()
+    public function getExtensions(): array
     {
         return [
             'txt',
@@ -30,7 +30,7 @@ class PlainTextEngine implements MarkupEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function parse($content, $contentItem = null)
+    public function parse($content, $contentItem = null): string
     {
         return $content;
     }

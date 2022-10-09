@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -11,32 +11,29 @@ use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 
-class MenuManagerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class MenuManagerTest extends StakxTestCase
 {
-    /** @var MenuManager */
-    private $mm;
+    private MenuManager $mm;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
-        /** @var PageManager|\PHPUnit_Framework_MockObject_MockObject $pm */
+        /** @var PageManager|MockObject $pm */
         $pm = $this->getMockBuilder(PageManager::class)
             ->disableOriginalConstructor()
             ->getMock()
         ;
 
-        $this->mm = new MenuManager($pm, $this->getMockEventDistpatcher(), $this->getMockLogger());
-    }
-
-    private function menuFrontMatterEvaluator(array &$pageViews)
-    {
-        foreach ($pageViews as $pageView)
-        {
-            $pageView->evaluateFrontMatter();
-        }
+        $this->mm = new MenuManager($pm, $this->getMockEventDispatcher(), $this->getMockLogger());
     }
 
     public function dataProvider_SingleLevelMenu()
@@ -94,15 +91,15 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         return $pageViews;
     }
 
-    public function testSiteMenuCount()
+    public function testSiteMenuCount(): void
     {
         $pageViews = $this->dataProvider_SingleLevelMenu();
         $this->mm->buildFromPageViews($pageViews);
 
-        $this->assertCount(count($pageViews), $this->mm->getSiteMenu());
+        $this->assertCount(is_countable($pageViews) ? count($pageViews) : 0, $this->mm->getSiteMenu());
     }
 
-    public function testSiteMenuIsJailed()
+    public function testSiteMenuIsJailed(): void
     {
         $pageViews = $this->dataProvider_SingleLevelMenu();
         $this->mm->buildFromPageViews($pageViews);
@@ -111,7 +108,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertInstanceOf(JailedDocument::class, reset($menu));
     }
 
-    public function testSiteMenuWithChildren()
+    public function testSiteMenuWithChildren(): void
     {
         $pageViews = $this->dataProvider_SecondLevelMenu();
         $this->mm->buildFromPageViews($pageViews);
@@ -121,7 +118,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(3, $menu['authors']->getChildren());
     }
 
-    public function testSiteMenuWithOrphans()
+    public function testSiteMenuWithOrphans(): void
     {
         $pageViews = $this->dataProvider_SecondLevelMenuWithOrphans();
         $this->mm->buildFromPageViews($pageViews);
@@ -131,7 +128,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('blog', array_keys($menu)[0]);
     }
 
-    public function testSiteMenuWithGrandchildren()
+    public function testSiteMenuWithGrandchildren(): void
     {
         $pageViews = $this->dataProvider_ThirdLevelMenu();
         $this->mm->buildFromPageViews($pageViews);
@@ -143,7 +140,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(3, $authors['english']->getChildren());
     }
 
-    public function testSiteMenuExclusionWithMenuFrontMatter()
+    public function testSiteMenuExclusionWithMenuFrontMatter(): void
     {
         $pageViews = [];
         $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/yes/']);
@@ -159,7 +156,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertNotContains('no', $menu);
     }
 
-    public function testSiteMenuWithEmptyPermalink()
+    public function testSiteMenuWithEmptyPermalink(): void
     {
         $pageViews = [];
         $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/']);
@@ -173,7 +170,7 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(0, $menu);
     }
 
-    public function testSiteMenuWithChildrenOutOfOrder()
+    public function testSiteMenuWithChildrenOutOfOrder(): void
     {
         $pageViews = [];
         $pageViews[] = $this->createFrontMatterDocumentOfType(StaticPageView::class, null, ['permalink' => '/authors/michael/']);
@@ -189,5 +186,12 @@ class MenuManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertArrayHasKey('authors', $menu);
         $this->assertInstanceOf(JailedDocument::class, $menu['authors']);
         $this->assertCount(2, $menu['authors']->getChildren());
+    }
+
+    private function menuFrontMatterEvaluator(array &$pageViews): void
+    {
+        foreach ($pageViews as $pageView) {
+            $pageView->evaluateFrontMatter();
+        }
     }
 }

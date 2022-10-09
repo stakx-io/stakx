@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -11,26 +11,26 @@ use allejo\stakx\Exception\UnsupportedAssetEngineException;
 
 class AssetEngineManager
 {
-    private $enginesByExtension = [];
-    private $foldersToWatch = [];
+    private array $enginesByExtension = [];
+
+    private array $foldersToWatch = [];
+
     private $engines;
 
-    public function addAssetEngines(/* iterable */ $assetEngines)
+    public function addAssetEngines(/* iterable */ $assetEngines): void
     {
-        foreach ($assetEngines as $assetEngine)
-        {
+        foreach ($assetEngines as $assetEngine) {
             $this->addAssetEngine($assetEngine);
         }
     }
 
-    public function addAssetEngine(AssetEngineInterface $assetEngine)
+    public function addAssetEngine(AssetEngineInterface $assetEngine): void
     {
         $extensions = $assetEngine->getExtensions();
 
         $e = $this->engines[] = $assetEngine;
 
-        foreach ($extensions as $extension)
-        {
+        foreach ($extensions as $extension) {
             $this->enginesByExtension[$extension] = $e;
         }
 
@@ -44,12 +44,11 @@ class AssetEngineManager
 
     public function getEngineByExtension($extension)
     {
-        if (isset($this->enginesByExtension[$extension]))
-        {
+        if (isset($this->enginesByExtension[$extension])) {
             return $this->enginesByExtension[$extension];
         }
 
-        throw new UnsupportedAssetEngineException($extension, "There is no support to handle the '${extension}' asset type.");
+        throw new UnsupportedAssetEngineException($extension, "There is no support to handle the '{$extension}' asset type.");
     }
 
     public function getFoldersToWatch()

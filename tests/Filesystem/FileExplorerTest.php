@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -10,12 +10,18 @@ namespace allejo\stakx\Test\Filesystem;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorer;
 use allejo\stakx\Filesystem\FileExplorerMatcher;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use DateTime;
 use org\bovigo\vfs\vfsStream;
 
-class FileExplorerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class FileExplorerTest extends StakxTestCase
 {
-    public function testFindAllFilesDefaultBehavior()
+    public function testFindAllFilesDefaultBehavior(): void
     {
         $filesystem = [
             '_config.yml' => '',
@@ -28,8 +34,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
         $explorer = FileExplorer::create($this->rootDir->url())->getFileIterator();
         $count = 0;
 
-        foreach ($explorer as $file)
-        {
+        foreach ($explorer as $file) {
             $this->assertArrayHasKey($file->getFilename(), $filesystem);
             ++$count;
         }
@@ -37,7 +42,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals(count($filesystem), $count);
     }
 
-    public function testDotFilesNotIncludedByDefault()
+    public function testDotFilesNotIncludedByDefault(): void
     {
         $filesystem = [
             '.cache' => '',
@@ -50,13 +55,12 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         $explorer = FileExplorer::create($this->rootDir->url())->getFileIterator();
 
-        foreach ($explorer as $file)
-        {
+        foreach ($explorer as $file) {
             $this->assertNotEquals('.', $file->getFilename()[0]);
         }
     }
 
-    public function testDotFilesIncludedWithFlag()
+    public function testDotFilesIncludedWithFlag(): void
     {
         $filesystem = [
             '.cache' => '',
@@ -72,7 +76,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(count($filesystem), $explorer);
     }
 
-    public function testIncludeOnlyFilesEmpty()
+    public function testIncludeOnlyFilesEmpty(): void
     {
         $filesystem = [
             '.htaccess' => '',
@@ -88,7 +92,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(0, $explorer);
     }
 
-    public function testIncludeOnlyFiles()
+    public function testIncludeOnlyFiles(): void
     {
         $filesystem = [
             '.htaccess' => '',
@@ -105,15 +109,14 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         $explorer = FileExplorer::create($this->rootDir->url(), $includes, [], FileExplorer::INCLUDE_ONLY_FILES)->getFileIterator();
 
-        foreach ($explorer as $file)
-        {
+        foreach ($explorer as $file) {
             $this->assertContains($file->getFilename(), $includes);
         }
 
         $this->assertCount(count($includes), $explorer);
     }
 
-    public function testExcludingFiles()
+    public function testExcludingFiles(): void
     {
         $filesystem = [
             '_config.yml' => '',
@@ -131,15 +134,14 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         $explorer = FileExplorer::create($this->rootDir->url(), [], $exclusion)->getFileIterator();
 
-        foreach ($explorer as $file)
-        {
+        foreach ($explorer as $file) {
             $this->assertNotContains($file->getFilename(), $exclusion);
         }
 
         $this->assertCount(count($filesystem) - count($exclusion), $explorer);
     }
 
-    public function testFindingDirectories()
+    public function testFindingDirectories(): void
     {
         $filesystem = [
             '_posts' => [],
@@ -150,14 +152,10 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         $explorer = FileExplorer::create($this->rootDir->url());
 
-        foreach ($explorer as $file)
-        {
-            if ($file->getFilename() === '_posts')
-            {
+        foreach ($explorer as $file) {
+            if ($file->getFilename() === '_posts') {
                 $this->assertTrue($file->isDir());
-            }
-            else
-            {
+            } else {
                 $this->assertTrue($file->isFile());
             }
         }
@@ -165,7 +163,7 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(count($filesystem), $explorer);
     }
 
-    public function testIgnoringDirectories()
+    public function testIgnoringDirectories(): void
     {
         $filesystem = [
             '_posts' => [],
@@ -176,15 +174,14 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         $explorer = FileExplorer::create($this->rootDir->url(), [], [], FileExplorer::IGNORE_DIRECTORIES)->getFileIterator();
 
-        foreach ($explorer as $file)
-        {
+        foreach ($explorer as $file) {
             $this->assertTrue($file->isFile());
         }
 
         $this->assertCount(1, $explorer);
     }
 
-    public function testFindingFilesInSubdirectories()
+    public function testFindingFilesInSubdirectories(): void
     {
         $filesystem = [
             '_posts' => [
@@ -198,15 +195,14 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         $explorer = FileExplorer::create($this->rootDir->url())->getFileIterator();
 
-        foreach ($explorer as $file)
-        {
+        foreach ($explorer as $file) {
             $this->assertTrue($file->isFile());
         }
 
         $this->assertCount(3, $explorer);
     }
 
-    public function testExcludingPatterns()
+    public function testExcludingPatterns(): void
     {
         $excluded = [
             'index.html.twig' => '',
@@ -222,15 +218,14 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         $explorer = FileExplorer::create($this->rootDir->url(), [], ['/\.twig$/'])->getFileIterator();
 
-        foreach ($explorer as $file)
-        {
+        foreach ($explorer as $file) {
             $this->assertArrayHasKey($file->getFilename(), $baseFiles);
         }
 
         $this->assertCount(count($baseFiles), $explorer);
     }
 
-    public function testIncludingPatternsOnly()
+    public function testIncludingPatternsOnly(): void
     {
         $included = [
             'index.html.twig' => '',
@@ -246,35 +241,33 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
 
         $explorer = FileExplorer::create($this->rootDir->url(), ['/\.twig$/'], [], FileExplorer::INCLUDE_ONLY_FILES)->getFileIterator();
 
-        foreach ($explorer as $file)
-        {
+        foreach ($explorer as $file) {
             $this->assertArrayNotHasKey($file->getFilename(), $baseFiles);
         }
 
         $this->assertCount(count($included), $explorer);
     }
 
-    public function testCustomTimestampMatcher()
+    public function testCustomTimestampMatcher(): void
     {
-        $cutoff = new \DateTime('2018-12-01');
+        $cutoff = new DateTime('2018-12-01');
         $filesystem = [
-            'future.txt' => new \DateTime('2032-01-01'),
-            'new.txt' => new \DateTime('2019-01-02'),
-            'current.txt' => new \DateTime('2019-01-01'),
-            'old.txt' => new \DateTime('2018-07-01'),
-            'older.txt' => new \DateTime('2018-02-02'),
-            'oldest.txt' => new \DateTime('2010-04-30'),
+            'future.txt' => new DateTime('2032-01-01'),
+            'new.txt' => new DateTime('2019-01-02'),
+            'current.txt' => new DateTime('2019-01-01'),
+            'old.txt' => new DateTime('2018-07-01'),
+            'older.txt' => new DateTime('2018-02-02'),
+            'oldest.txt' => new DateTime('2010-04-30'),
         ];
 
         $structure = array_fill_keys(array_keys($filesystem), '');
         vfsStream::create($structure);
 
         /**
-         * @var string    $file
-         * @var \DateTime $lastMod
+         * @var string   $file
+         * @var DateTime $lastMod
          */
-        foreach ($filesystem as $file => $lastMod)
-        {
+        foreach ($filesystem as $file => $lastMod) {
             $this->rootDir->getChild($file)->lastModified($lastMod->getTimestamp());
         }
 
@@ -282,10 +275,9 @@ class FileExplorerTest extends PHPUnit_Stakx_TestCase
         $explorer->addMatcher(FileExplorerMatcher::modifiedAfter($cutoff));
 
         /** @var File $file */
-        foreach ($explorer->getFileIterator() as $file)
-        {
+        foreach ($explorer->getFileIterator() as $file) {
             $this->assertGreaterThan($cutoff->getTimestamp(), $file->getLastModified());
-            $this->assertNotContains($file->getFilename(), 'old');
+            $this->assertStringNotContainsString('old', $file->getFilename());
         }
     }
 }

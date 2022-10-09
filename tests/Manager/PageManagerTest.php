@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -15,73 +15,18 @@ use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Exception\CollectionNotFoundException;
 use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\PageManager;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
-use allejo\stakx\Test\StreamInterceptor;
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
+use allejo\stakx\Test\StakxTestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class PageManagerTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class PageManagerTest extends StakxTestCase
 {
-    /**
-     * @return Configuration|MockObject
-     */
-    protected function getMockConfiguration()
-    {
-        $mock = parent::getMockConfiguration();
-        $mock
-            ->method('getPageViewFolders')
-            ->willReturn([
-                $this->rootDir->url(),
-            ])
-        ;
-
-        return $mock;
-    }
-
-    /**
-     * @return CollectionManager
-     */
-    private function getCollectionManager()
-    {
-        $cm = new CollectionManager(
-            $this->getMockMarkupEngineManager(),
-            $this->getMockConfiguration(),
-            $this->getMockTemplateBridge(),
-            $this->getMockEventDistpatcher(),
-            $this->getMockLogger()
-        );
-        $cm->parseCollections([
-            [
-                'name' => 'books',
-                'folder' => 'tests/allejo/stakx/Test/assets/MyBookCollection/',
-            ],
-        ]);
-
-        return $cm;
-    }
-
-    /**
-     * @return StaticPageView[]
-     */
-    private function staticPageViewsProvider()
-    {
-        return $this->createMultipleFrontMatterDocumentsOfType(StaticPageView::class, [
-            [
-                'filename' => 'pageview-1.html.twig',
-                'frontmatter' => ['title' => 'Hello World'],
-            ],
-            [
-                'filename' => 'pageview-2.html.twig',
-                'frontmatter' => [],
-            ],
-            [
-                'filename' => 'pageview-3.html.twig',
-                'frontmatter' => ['title' => 'Lorem Ipsum'],
-            ],
-        ]);
-    }
-
-    public function testStaticPageViewTitles()
+    public function testStaticPageViewTitles(): void
     {
         $this->staticPageViewsProvider();
 
@@ -90,7 +35,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockAssetManager(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $pageManager->compileManager();
@@ -99,7 +44,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount(2, $pageManager->getStaticPageViews());
     }
 
-    public function testDynamicPageViewCollectionFound()
+    public function testDynamicPageViewCollectionFound(): void
     {
         $this->createFrontMatterDocumentOfType(DynamicPageView::class, 'dynamic.html.twig', [
             'collection' => 'books',
@@ -111,7 +56,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockAssetManager(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $pageManager->compileManager();
@@ -122,9 +67,9 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertInstanceOf(DynamicPageView::class, current($pageViews));
     }
 
-    public function testDynamicPageViewCollectionNotFound()
+    public function testDynamicPageViewCollectionNotFound(): void
     {
-        $this->setExpectedException(CollectionNotFoundException::class);
+        $this->expectException(CollectionNotFoundException::class);
 
         $this->createFrontMatterDocumentOfType(DynamicPageView::class, 'dynamic.html.twig', [
             'collection' => 'non-existent',
@@ -136,13 +81,13 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockAssetManager(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $pageManager->compileManager();
     }
 
-    public function testPageViewsContentItems()
+    public function testPageViewsContentItems(): void
     {
         $this->createFrontMatterDocumentOfType(DynamicPageView::class, 'dynamic.html.twig', [
             'collection' => 'books',
@@ -155,7 +100,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $collectionManager,
             $this->getMockDataManager(),
             $this->getMockAssetManager(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $pageManager->compileManager();
@@ -167,7 +112,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals($collectionManager->getCollections()['books'], $contentItems);
     }
 
-    public function testJailedStaticPageViews()
+    public function testJailedStaticPageViews(): void
     {
         $this->staticPageViewsProvider();
 
@@ -176,7 +121,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockAssetManager(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $pageManager->compileManager();
@@ -187,7 +132,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertInstanceOf(JailedDocument::class, current($pageViews));
     }
 
-    public function testAddingContentItemToPageView()
+    public function testAddingContentItemToPageView(): void
     {
         $this->createFrontMatterDocumentOfType(DynamicPageView::class, 'dynamic.html.twig', [
             'collection' => 'books',
@@ -199,7 +144,7 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockAssetManager(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $pageManager->compileManager();
@@ -221,9 +166,9 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
         $this->assertCount($originalCount + 1, $pageView->getCollectableItems());
     }
 
-    public function testWarningThrownWhenPageViewFolderNotFound()
+    public function testWarningThrownWhenPageViewFolderNotFound(): void
     {
-        $this->setExpectedException(FileNotFoundException::class);
+        $this->expectException(FileNotFoundException::class);
 
         /** @var Configuration|MockObject $conf */
         $conf = parent::getMockConfiguration();
@@ -237,11 +182,64 @@ class PageManagerTest extends PHPUnit_Stakx_TestCase
             $this->getMockCollectionManager(),
             $this->getMockDataManager(),
             $this->getMockAssetManager(),
-            $this->getMockEventDistpatcher(),
+            $this->getMockEventDispatcher(),
             $this->getMockLogger()
         );
         $pageManager->compileManager();
 
         $this->assertCount(0, $pageManager->getPageViewsFlattened());
+    }
+
+    protected function getMockConfiguration(): Configuration|MockObject
+    {
+        $mock = parent::getMockConfiguration();
+        $mock
+            ->method('getPageViewFolders')
+            ->willReturn([
+                $this->rootDir->url(),
+            ])
+        ;
+
+        return $mock;
+    }
+
+    private function getCollectionManager(): CollectionManager
+    {
+        $cm = new CollectionManager(
+            $this->getMockMarkupEngineManager(),
+            $this->getMockConfiguration(),
+            $this->getMockTemplateBridge(),
+            $this->getMockEventDispatcher(),
+            $this->getMockLogger()
+        );
+        $cm->parseCollections([
+            [
+                'name' => 'books',
+                'folder' => 'tests/assets/MyBookCollection/',
+            ],
+        ]);
+
+        return $cm;
+    }
+
+    /**
+     * @return StaticPageView[]
+     */
+    private function staticPageViewsProvider(): array
+    {
+        return $this->createMultipleFrontMatterDocumentsOfType(StaticPageView::class, [
+            [
+                'filename' => 'pageview-1.html.twig',
+                'frontmatter' => ['title' => 'Hello World'],
+            ],
+            [
+                'filename' => 'pageview-2.html.twig',
+                'frontmatter' => [],
+            ],
+            [
+                'filename' => 'pageview-3.html.twig',
+                'frontmatter' => ['title' => 'Lorem Ipsum'],
+            ],
+        ]);
     }
 }

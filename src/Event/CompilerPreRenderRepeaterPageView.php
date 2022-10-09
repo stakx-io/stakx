@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,7 +9,7 @@ namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\FrontMatter\ExpandedValue;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is fired before a Repeater PageView is rendered and allows you inject custom variables into the templates.
@@ -20,15 +20,10 @@ class CompilerPreRenderRepeaterPageView extends Event
 {
     use CompilerPreRenderTrait;
 
-    const NAME = 'compiler.prerender.repeater_pageview';
+    final public const NAME = 'compiler.prerender.repeater_pageview';
 
-    private $pageView;
-    private $expandedValue;
-
-    public function __construct(RepeaterPageView $pageView, ExpandedValue $expandedValue)
+    public function __construct(private readonly RepeaterPageView $pageView, private readonly ExpandedValue $expandedValue)
     {
-        $this->pageView = $pageView;
-        $this->expandedValue = $expandedValue;
     }
 
     public function getPageView()

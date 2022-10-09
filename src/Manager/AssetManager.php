@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -13,6 +13,7 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Service;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -20,63 +21,48 @@ class AssetManager extends TrackingManager
 {
     /**
      * The location of where to write files to.
-     *
-     * @var WritableFolder
      */
-    protected $outputDirectory;
+    protected WritableFolder $outputDirectory;
 
     /**
      * Files or patterns to exclude from copying.
-     *
-     * @var array
      */
-    protected $excludes;
+    protected array $excludes;
 
     /**
      * Files or patterns to ensure are copied regardless of excluded patterns.
-     *
-     * @var array
      */
-    protected $includes;
+    protected array $includes;
 
     /** @var array<string, File> */
-    protected $explicitAssets;
+    protected array $explicitAssets;
 
-    protected $eventDispatcher;
-    protected $logger;
-
-    public function __construct(EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
+    public function __construct(protected EventDispatcherInterface $eventDispatcher, protected LoggerInterface $logger)
     {
         $this->explicitAssets = [];
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
     }
 
     /**
      * @param string $permalink
-     * @param File   $file
      */
-    public function addExplicitAsset($permalink, File $file)
+    public function addExplicitAsset($permalink, File $file): void
     {
         $this->explicitAssets[$permalink] = $file;
     }
 
     /**
      * @param string $permalink
-     *
-     * @return File|null
      */
-    public function getExplicitAsset($permalink)
+    public function getExplicitAsset($permalink): ?File
     {
-        if (isset($this->explicitAssets[$permalink]))
-        {
+        if (isset($this->explicitAssets[$permalink])) {
             return $this->explicitAssets[$permalink];
         }
 
         return null;
     }
 
-    public function configureFinder($includes = [], $excludes = [])
+    public function configureFinder($includes = [], $excludes = []): void
     {
         $this->excludes = $excludes;
         $this->includes = $includes;
@@ -87,7 +73,7 @@ class AssetManager extends TrackingManager
      *
      * @param WritableFolder $directory
      */
-    public function setFolder($directory)
+    public function setFolder($directory): void
     {
         $this->outputDirectory = $directory;
     }
@@ -95,12 +81,11 @@ class AssetManager extends TrackingManager
     /**
      * Copy all of the assets.
      */
-    public function copyFiles()
+    public function copyFiles(): void
     {
         $this->logger->notice('Copying manual assets...');
 
-        foreach ($this->explicitAssets as $targetPath => $manualAsset)
-        {
+        foreach ($this->explicitAssets as $targetPath => $manualAsset) {
             $this->handleTrackableItem($manualAsset, [
                 'prefix' => '',
                 'siteTargetPath' => $targetPath,
@@ -125,7 +110,7 @@ class AssetManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    public function refreshItem($filePath)
+    public function refreshItem($filePath): mixed
     {
         return $this->handleTrackableItem($filePath, [
             'prefix' => '',
@@ -135,7 +120,7 @@ class AssetManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    public function shouldBeTracked($filePath)
+    public function shouldBeTracked($filePath): bool
     {
         return $this->fileExplorer->matchesPattern($filePath);
     }
@@ -143,7 +128,7 @@ class AssetManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    public function createNewItem($filePath)
+    public function createNewItem($filePath): mixed
     {
         return $this->handleTrackableItem($filePath, [
             'prefix' => '',
@@ -153,27 +138,22 @@ class AssetManager extends TrackingManager
     /**
      * {@inheritdoc}
      */
-    protected function handleTrackableItem(File $file, array $options = [])
+    protected function handleTrackableItem(File $file, array $options = []): mixed
     {
-        if (!$file->exists())
-        {
-            return;
+        if (!$file->exists()) {
+            return null;
         }
 
         $filePath = $file->getRealPath();
         $pathToStrip = fs::appendPath(Service::getWorkingDirectory(), $options['prefix']);
 
-        if (isset($options['siteTargetPath']))
-        {
+        if (isset($options['siteTargetPath'])) {
             $siteTargetPath = $options['siteTargetPath'];
-        }
-        else
-        {
+        } else {
             $siteTargetPath = ltrim(str_replace($pathToStrip, '', $filePath), DIRECTORY_SEPARATOR);
         }
 
-        try
-        {
+        try {
             $this->addFileToTracker($file);
             $this->saveTrackerOptions($file->getRelativeFilePath(), $options);
 
@@ -181,10 +161,10 @@ class AssetManager extends TrackingManager
             $this->logger->info('Copying file: {file}...', [
                 'file' => $file->getRelativeFilePath(),
             ]);
-        }
-        catch (\Exception $e)
-        {
+        } catch (Exception $e) {
             $this->logger->error($e->getMessage());
         }
+
+        return null;
     }
 }

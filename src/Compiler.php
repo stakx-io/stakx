@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -43,7 +43,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class Compiler
 {
-    /** @var string|false */
+    /** @var false|string */
     private $redirectTemplate;
 
     /**
@@ -55,40 +55,27 @@ class Compiler
      *
      * @var BasePageView[]
      */
-    private $pageViewsFlattened;
+    private array $pageViewsFlattened;
 
     /** @var string[] */
-    private $templateMapping;
+    private array $templateMapping;
 
-    /** @var WritableFolder */
-    private $folder;
+    private WritableFolder $folder;
 
-    /** @var string */
-    private $theme;
-
-    private $templateBridge;
-    private $pageManager;
-    private $eventDispatcher;
-    private $configuration;
-    private $logger;
+    private string $theme;
 
     public function __construct(
-        TemplateBridgeInterface $templateBridge,
-        Configuration $configuration,
+        private readonly TemplateBridgeInterface $templateBridge,
+        private readonly Configuration $configuration,
         CollectionManager $collectionManager,
         DataManager $dataManager,
         MenuManager $menuManager,
-        PageManager $pageManager,
+        private readonly PageManager $pageManager,
         RedirectMapper $redirectMapper,
-        EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $logger
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger
     ) {
-        $this->templateBridge = $templateBridge;
         $this->theme = '';
-        $this->pageManager = $pageManager;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
-        $this->configuration = $configuration;
 
         $this->pageViewsFlattened = &$pageManager->getPageViewsFlattened();
         $this->redirectTemplate = $this->configuration->getRedirectTemplate();
@@ -103,10 +90,7 @@ class Compiler
         $this->templateBridge->setGlobalVariable('redirects', $redirectMapper->getRedirects());
     }
 
-    /**
-     * @param WritableFolder $folder
-     */
-    public function setTargetFolder(WritableFolder $folder)
+    public function setTargetFolder(WritableFolder $folder): void
     {
         $this->folder = $folder;
     }
@@ -114,14 +98,14 @@ class Compiler
     /**
      * @param string $themeName
      */
-    public function setThemeName($themeName)
+    public function setThemeName($themeName): void
     {
         $this->theme = $themeName;
     }
 
-    ///
+    //
     // Twig parent templates
-    ///
+    //
 
     public function getTemplateBridge()
     {
@@ -133,9 +117,9 @@ class Compiler
         return $this->templateMapping;
     }
 
-    ///
+    //
     // Rendering HTML Functionality
-    ///
+    //
 
     /**
      * Get the HTML for a Static PageView.
@@ -143,13 +127,11 @@ class Compiler
      * This function just **renders** the HTML but does not write it to the filesystem. Use `compilePageView()` for that
      * instead.
      *
-     * @param StaticPageView $pageView
-     *
      * @throws TemplateErrorInterface
      *
      * @return string the HTML for a Static PageView
      */
-    public function renderStaticPageView(StaticPageView $pageView)
+    public function renderStaticPageView(StaticPageView $pageView): string
     {
         $pageView->compile();
 
@@ -162,14 +144,9 @@ class Compiler
      * This function just **renders** the HTML but does not write it to the filesystem. Use `compileDynamicPageView()`
      * for that instead.
      *
-     * @param DynamicPageView       $pageView
-     * @param TemplateReadyDocument $contentItem
-     *
      * @throws TemplateErrorInterface
-     *
-     * @return string
      */
-    public function renderDynamicPageView(DynamicPageView $pageView, TemplateReadyDocument $contentItem)
+    public function renderDynamicPageView(DynamicPageView $pageView, TemplateReadyDocument $contentItem): string
     {
         $template = $this->createTwigTemplate($pageView);
 
@@ -179,33 +156,27 @@ class Compiler
     /**
      * Get the HTML for a Repeater PageView.
      *
-     * @param RepeaterPageView $pageView
-     * @param ExpandedValue    $expandedValue
-     *
      * @throws TemplateErrorInterface
-     *
-     * @return string
      */
-    public function renderRepeaterPageView(RepeaterPageView $pageView, ExpandedValue $expandedValue)
+    public function renderRepeaterPageView(RepeaterPageView $pageView, ExpandedValue $expandedValue): string
     {
         $template = $this->createTwigTemplate($pageView);
 
         return $this->buildRepeaterPageViewHTML($template, $pageView, $expandedValue);
     }
 
-    ///
+    //
     // IO Functionality
-    ///
+    //
 
     /**
      * Compile all of the PageViews registered with the compiler.
      *
      * @since 0.1.0
      */
-    public function compileAll()
+    public function compileAll(): void
     {
-        foreach ($this->pageViewsFlattened as &$pageView)
-        {
+        foreach ($this->pageViewsFlattened as &$pageView) {
             $this->compilePageView($pageView);
         }
     }
@@ -220,7 +191,7 @@ class Compiler
      *
      * @since 0.1.1
      */
-    public function compilePageView(BasePageView &$pageView)
+    public function compilePageView(DynamicPageView|RepeaterPageView|StaticPageView &$pageView): void
     {
         Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
         $this->logger->debug('Compiling {type} PageView: {pageview}', [
@@ -228,28 +199,27 @@ class Compiler
             'type' => $pageView->getType(),
         ]);
 
-        try
-        {
-            switch ($pageView->getType())
-            {
+        try {
+            switch ($pageView->getType()) {
                 case BasePageView::STATIC_TYPE:
                     $this->compileStaticPageView($pageView);
                     $this->compileStandardRedirects($pageView);
+
                     break;
 
                 case BasePageView::DYNAMIC_TYPE:
                     $this->compileDynamicPageView($pageView);
                     $this->compileStandardRedirects($pageView);
+
                     break;
 
                 case BasePageView::REPEATER_TYPE:
                     $this->compileRepeaterPageView($pageView);
                     $this->compileExpandedRedirects($pageView);
+
                     break;
             }
-        }
-        catch (TemplateErrorInterface $e)
-        {
+        } catch (TemplateErrorInterface $e) {
             throw new FileAwareException(
                 $e->getMessage(),
                 $e->getCode(),
@@ -267,7 +237,7 @@ class Compiler
      *
      * @throws TemplateErrorInterface
      */
-    private function compileStaticPageView(StaticPageView &$pageView)
+    private function compileStaticPageView(StaticPageView &$pageView): void
     {
         $this->writeToFilesystem(
             $pageView->getTargetFile(),
@@ -279,21 +249,17 @@ class Compiler
     /**
      * Write the compiled output for a dynamic PageView.
      *
-     * @param DynamicPageView $pageView
-     *
      * @since 0.1.1
      *
      * @throws TemplateErrorInterface
      */
-    private function compileDynamicPageView(DynamicPageView &$pageView)
+    private function compileDynamicPageView(DynamicPageView &$pageView): void
     {
         $contentItems = $pageView->getCollectableItems();
         $template = $this->createTwigTemplate($pageView);
 
-        foreach ($contentItems as &$contentItem)
-        {
-            if ($contentItem->isDraft() && !Service::hasRunTimeFlag(RuntimeStatus::USING_DRAFTS))
-            {
+        foreach ($contentItems as &$contentItem) {
+            if ($contentItem->isDraft() && !Service::hasRunTimeFlag(RuntimeStatus::USING_DRAFTS)) {
                 $this->logger->debug('{file}: marked as a draft', [
                     'file' => $contentItem->getRelativeFilePath(),
                 ]);
@@ -314,19 +280,16 @@ class Compiler
     /**
      * Write the compiled output for a repeater PageView.
      *
-     * @param RepeaterPageView $pageView
-     *
      * @since 0.1.1
      *
      * @throws TemplateErrorInterface
      */
-    private function compileRepeaterPageView(RepeaterPageView &$pageView)
+    private function compileRepeaterPageView(RepeaterPageView &$pageView): void
     {
         $template = $this->createTwigTemplate($pageView);
         $permalinks = $pageView->getRepeaterPermalinks();
 
-        foreach ($permalinks as $permalink)
-        {
+        foreach ($permalinks as $permalink) {
             $this->writeToFilesystem(
                 $pageView->getTargetFile($permalink->getEvaluated()),
                 $this->buildRepeaterPageViewHTML($template, $pageView, $permalink),
@@ -342,7 +305,7 @@ class Compiler
      * @param string $output
      * @param string $fileType
      */
-    private function writeToFilesystem($targetFile, $output, $fileType)
+    private function writeToFilesystem($targetFile, $output, $fileType): void
     {
         $this->logger->notice('Writing {type} PageView file: {file}', [
             'type' => $fileType,
@@ -351,9 +314,9 @@ class Compiler
         $this->folder->writeFile($targetFile, $output);
     }
 
-    ///
+    //
     // Redirect handling
-    ///
+    //
 
     /**
      * Write redirects for standard redirects.
@@ -362,12 +325,11 @@ class Compiler
      *
      * @since 0.1.1
      */
-    private function compileStandardRedirects(PermalinkDocument &$pageView)
+    private function compileStandardRedirects(PermalinkDocument &$pageView): void
     {
         $redirects = $pageView->getRedirects();
 
-        foreach ($redirects as $redirect)
-        {
+        foreach ($redirects as $redirect) {
             $redirectPageView = BasePageView::createRedirect(
                 $redirect,
                 $pageView->getPermalink(),
@@ -383,7 +345,7 @@ class Compiler
                 $pageView,
                 $redirectPageView
             );
-            $this->eventDispatcher->dispatch(RedirectPreOutput::NAME, $redirectEvent);
+            $this->eventDispatcher->dispatch($redirectEvent, RedirectPreOutput::NAME);
 
             $this->compileStaticPageView($redirectPageView);
         }
@@ -392,23 +354,16 @@ class Compiler
     /**
      * Write redirects for expanded redirects.
      *
-     * @param RepeaterPageView $pageView
-     *
      * @since 0.1.1
      */
-    private function compileExpandedRedirects(RepeaterPageView &$pageView)
+    private function compileExpandedRedirects(RepeaterPageView &$pageView): void
     {
         $permalinks = $pageView->getRepeaterPermalinks();
 
         /** @var ExpandedValue[] $repeaterRedirect */
-        foreach ($pageView->getRepeaterRedirects() as $repeaterRedirect)
-        {
-            /**
-             * @var int
-             * @var ExpandedValue $redirect
-             */
-            foreach ($repeaterRedirect as $index => $redirect)
-            {
+        foreach ($pageView->getRepeaterRedirects() as $repeaterRedirect) {
+            /** @var ExpandedValue $redirect */
+            foreach ($repeaterRedirect as $index => $redirect) {
                 $redirectPageView = BasePageView::createRedirect(
                     $redirect->getEvaluated(),
                     $permalinks[$index]->getEvaluated(),
@@ -424,29 +379,23 @@ class Compiler
                     $pageView,
                     $redirectPageView
                 );
-                $this->eventDispatcher->dispatch(RedirectPreOutput::NAME, $redirectEvent);
+                $this->eventDispatcher->dispatch($redirectEvent, RedirectPreOutput::NAME);
 
                 $this->compilePageView($redirectPageView);
             }
         }
     }
 
-    ///
+    //
     // Twig Functionality
-    ///
+    //
 
     /**
      * Get the compiled HTML for a specific iteration of a repeater PageView.
      *
-     * @param TemplateInterface $template
-     * @param RepeaterPageView  $pageView
-     * @param ExpandedValue     $expandedValue
-     *
      * @since  0.1.1
-     *
-     * @return string
      */
-    private function buildRepeaterPageViewHTML(TemplateInterface &$template, RepeaterPageView &$pageView, ExpandedValue &$expandedValue)
+    private function buildRepeaterPageViewHTML(TemplateInterface &$template, RepeaterPageView &$pageView, ExpandedValue &$expandedValue): string
     {
         $defaultContext = [
             'this' => $pageView->createJail(),
@@ -458,7 +407,7 @@ class Compiler
         ]);
 
         $preEvent = new CompilerPreRenderRepeaterPageView($pageView, $expandedValue);
-        $this->eventDispatcher->dispatch(CompilerPreRenderRepeaterPageView::NAME, $preEvent);
+        $this->eventDispatcher->dispatch($preEvent, CompilerPreRenderRepeaterPageView::NAME);
 
         $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $template
@@ -466,7 +415,7 @@ class Compiler
         ;
 
         $postEvent = new CompilerPostRenderRepeaterPageView($pageView, $expandedValue, $output);
-        $this->eventDispatcher->dispatch(CompilerPostRenderRepeaterPageView::NAME, $postEvent);
+        $this->eventDispatcher->dispatch($postEvent, CompilerPostRenderRepeaterPageView::NAME);
 
         return $postEvent->getCompiledOutput();
     }
@@ -474,20 +423,16 @@ class Compiler
     /**
      * Get the compiled HTML for a specific ContentItem.
      *
-     * @param CollectableItem|TemplateReadyDocument $twigItem
-     *
      * @since  0.1.1
-     *
-     * @return string
      */
-    private function buildDynamicPageViewHTML(TemplateInterface &$template, &$twigItem)
+    private function buildDynamicPageViewHTML(TemplateInterface &$template, CollectableItem|TemplateReadyDocument &$twigItem): string
     {
         $defaultContext = [
             'this' => $twigItem->createJail(),
         ];
 
         $preEvent = new CompilerPreRenderDynamicPageView($twigItem);
-        $this->eventDispatcher->dispatch(CompilerPreRenderDynamicPageView::NAME, $preEvent);
+        $this->eventDispatcher->dispatch($preEvent, CompilerPreRenderDynamicPageView::NAME);
 
         $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $template
@@ -495,7 +440,7 @@ class Compiler
         ;
 
         $postEvent = new CompilerPostRenderDynamicPageView($twigItem, $output);
-        $this->eventDispatcher->dispatch(CompilerPostRenderDynamicPageView::NAME, $postEvent);
+        $this->eventDispatcher->dispatch($postEvent, CompilerPostRenderDynamicPageView::NAME);
 
         return $postEvent->getCompiledOutput();
     }
@@ -506,17 +451,15 @@ class Compiler
      * @since  0.1.1
      *
      * @throws TemplateErrorInterface
-     *
-     * @return string
      */
-    private function buildStaticPageViewHTML(StaticPageView &$pageView)
+    private function buildStaticPageViewHTML(StaticPageView &$pageView): string
     {
         $defaultContext = [
             'this' => $pageView->createJail(),
         ];
 
         $preEvent = new CompilerPreRenderStaticPageView($pageView);
-        $this->eventDispatcher->dispatch(CompilerPreRenderStaticPageView::NAME, $preEvent);
+        $this->eventDispatcher->dispatch($preEvent, CompilerPreRenderStaticPageView::NAME);
 
         $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $this
@@ -525,7 +468,7 @@ class Compiler
         ;
 
         $postEvent = new CompilerPostRenderStaticPageView($pageView, $output);
-        $this->eventDispatcher->dispatch(CompilerPostRenderStaticPageView::NAME, $postEvent);
+        $this->eventDispatcher->dispatch($postEvent, CompilerPostRenderStaticPageView::NAME);
 
         return $postEvent->getCompiledOutput();
     }
@@ -536,24 +479,19 @@ class Compiler
      * @since  0.1.1
      *
      * @throws TemplateErrorInterface
-     *
-     * @return TemplateInterface
      */
-    private function createTwigTemplate(BasePageView &$pageView)
+    private function createTwigTemplate(BasePageView &$pageView): TemplateInterface
     {
-        try
-        {
+        try {
             $template = $this->templateBridge->createTemplate($pageView->getContent());
 
             $this->templateMapping[$template->getTemplateName()] = $pageView->getRelativeFilePath();
 
             $event = new CompilerTemplateCreation($pageView, $template, $this->theme);
-            $this->eventDispatcher->dispatch(CompilerTemplateCreation::NAME, $event);
+            $this->eventDispatcher->dispatch($event, CompilerTemplateCreation::NAME);
 
             return $template;
-        }
-        catch (TemplateErrorInterface $e)
-        {
+        } catch (TemplateErrorInterface $e) {
             $e
                 ->setTemplateLine($e->getTemplateLine() + $pageView->getLineOffset())
                 ->setContent($pageView->getContent())

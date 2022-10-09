@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,17 +9,10 @@ namespace allejo\stakx\Utilities;
 
 abstract class ArrayUtilities
 {
-    /**
-     * @param array $array
-     *
-     * @return bool
-     */
-    public static function is_multidimensional(array &$array)
+    public static function is_multidimensional(array &$array): bool
     {
-        foreach ($array as &$element)
-        {
-            if (is_array($element))
-            {
+        foreach ($array as &$element) {
+            if (is_array($element)) {
                 return true;
             }
         }
@@ -40,17 +33,12 @@ abstract class ArrayUtilities
      * )
      * ```
      *
-     * @param array  $arr
      * @param string $indexKey The key to consider the index
-     *
-     * @return bool
      */
-    public static function array_can_be_indexed(array &$arr, $indexKey)
+    public static function array_can_be_indexed(array &$arr, $indexKey): bool
     {
-        foreach ($arr as &$value)
-        {
-            if (isset($value[$indexKey]) && is_scalar($value[$indexKey]))
-            {
+        foreach ($arr as &$value) {
+            if (isset($value[$indexKey]) && is_scalar($value[$indexKey])) {
                 return true;
             }
         }
@@ -71,21 +59,18 @@ abstract class ArrayUtilities
      * )
      * ```
      *
-     * @param array  $arr
      * @param string $indexKey
      *
      * @see    ArrayUtilities::array_can_be_indexed()
      *
      * @return array The original array but each element's key will be the value of the element's key value
      */
-    public static function array_index_by_key(array &$arr, $indexKey)
+    public static function array_index_by_key(array &$arr, $indexKey): array
     {
         $result = [];
 
-        foreach ($arr as &$value)
-        {
-            if (isset($value[$indexKey]) && is_scalar($value[$indexKey]))
-            {
+        foreach ($arr as &$value) {
+            if (isset($value[$indexKey]) && is_scalar($value[$indexKey])) {
                 $result[$value[$indexKey]] = $value;
             }
         }
@@ -101,25 +86,18 @@ abstract class ArrayUtilities
      * @param string $indexKey The key to respect when indexing
      *
      * @see    ArrayUtilities::array_index_by_key()
-     *
-     * @return array
      */
-    public static function array_merge_defaults(array &$arr1, array &$arr2, $indexKey)
+    public static function array_merge_defaults(array &$arr1, array &$arr2, $indexKey): array
     {
         $merged = $arr1;
 
-        foreach ($arr2 as $key => &$value)
-        {
-            if (is_array($value) && isset($arr1[$key]))
-            {
-                if (self::array_can_be_indexed($value, $indexKey))
-                {
+        foreach ($arr2 as $key => &$value) {
+            if (is_array($value) && isset($arr1[$key])) {
+                if (self::array_can_be_indexed($value, $indexKey)) {
                     $indexedArr1 = self::array_index_by_key($arr1[$key], $indexKey);
                     $indexedArr2 = self::array_index_by_key($value, $indexKey);
                     $merged[$key] = array_merge($indexedArr1, $indexedArr2);
-                }
-                else
-                {
+                } else {
                     $merged[$key] = array_merge($arr1[$key], $value);
                 }
 
@@ -142,7 +120,7 @@ abstract class ArrayUtilities
      *
      * @return array An array with two indices (0 & 1) containing the respective chunks of the array
      */
-    public static function associative_array_split($key, array &$array, $inclusive = true)
+    public static function associative_array_split($key, array &$array, $inclusive = true): array
     {
         $offset = array_search($key, array_keys($array)) + (int)$inclusive;
         $result = [];

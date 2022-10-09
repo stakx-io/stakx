@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -14,8 +14,7 @@ class OrderFilter extends AbstractTwigExtension implements TwigFilterInterface
 {
     public function __invoke($array, $key, $order = 'ASC', $case_insensitive = false)
     {
-        if (!is_array($array))
-        {
+        if (!is_array($array)) {
             return $array;
         }
 
@@ -23,19 +22,16 @@ class OrderFilter extends AbstractTwigExtension implements TwigFilterInterface
             $aValue = __::get($a, $key);
             $bValue = __::get($b, $key);
 
-            if ($case_insensitive)
-            {
+            if ($case_insensitive) {
                 $aValue = strtolower($aValue);
                 $bValue = strtolower($bValue);
             }
 
-            if ($aValue == $bValue)
-            {
+            if ($aValue == $bValue) {
                 return 0;
             }
 
-            if (strtolower($order) === 'desc')
-            {
+            if (strtolower((string)$order) === 'desc') {
                 return ($aValue < $bValue) ? 1 : -1;
             }
 
@@ -45,7 +41,7 @@ class OrderFilter extends AbstractTwigExtension implements TwigFilterInterface
         return $array;
     }
 
-    public static function get()
+    public static function get(): TwigFilter
     {
         return new TwigFilter('order', new self());
     }

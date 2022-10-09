@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -7,19 +7,18 @@
 
 namespace allejo\stakx\Utilities;
 
-class NullableArray implements \ArrayAccess
-{
-    private $data;
+use ArrayAccess;
 
-    public function __construct(array $arr = [])
+class NullableArray implements ArrayAccess
+{
+    public function __construct(private array $data = [])
     {
-        $this->data = $arr;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return true;
     }
@@ -27,10 +26,9 @@ class NullableArray implements \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
-        if (isset($this->data[$offset]))
-        {
+        if (isset($this->data[$offset])) {
             return $this->data[$offset];
         }
 
@@ -40,10 +38,9 @@ class NullableArray implements \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
-        if ($offset === null)
-        {
+        if ($offset === null) {
             return;
         }
 
@@ -53,10 +50,9 @@ class NullableArray implements \ArrayAccess
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
-        if (isset($this->data[$offset]))
-        {
+        if (isset($this->data[$offset])) {
             unset($this->data[$offset]);
         }
     }

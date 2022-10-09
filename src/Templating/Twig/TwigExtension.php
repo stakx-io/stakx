@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -14,27 +14,26 @@ use allejo\stakx\Templating\Twig\Extension\AbstractTwigExtension;
 use allejo\stakx\Templating\Twig\Extension\TwigFilterInterface;
 use allejo\stakx\Templating\Twig\Extension\TwigFunctionInterface;
 use allejo\stakx\Templating\Twig\MarkupBlock\TokenParser;
+use BadMethodCallException;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 class TwigExtension extends AbstractExtension
 {
-    private $filters = [];
-    private $functions = [];
-    private $markupManager;
+    private array $filters = [];
 
-    public function __construct(MarkupEngineManager $manager)
+    private array $functions = [];
+
+    public function __construct(private readonly MarkupEngineManager $markupManager)
     {
-        $this->markupManager = $manager;
     }
 
     public function __call($name, $arguments)
     {
-        $tag = lcfirst(str_replace('parseMarkup', '', $name));
+        $tag = lcfirst(str_replace('parseMarkup', '', (string)$name));
 
-        if (!$tag)
-        {
-            throw new \BadMethodCallException("No method $name found in this class.");
+        if (!$tag) {
+            throw new BadMethodCallException("No method {$name} found in this class.");
         }
 
         return $this->parseMarkup($arguments[0], $tag);
@@ -45,13 +44,11 @@ class TwigExtension extends AbstractExtension
         return $this->markupManager->getEngineByTag($tag)->parse($content);
     }
 
-    public function addFilters(/*iterable*/ $filters)
+    public function addFilters(/* iterable */ $filters): void
     {
         /** @var AbstractTwigExtension|TwigFilterInterface $filter */
-        foreach ($filters as $filter)
-        {
-            if (Service::hasRunTimeFlag(RuntimeStatus::IN_SAFE_MODE) && $filter::disableInSafeMode())
-            {
+        foreach ($filters as $filter) {
+            if (Service::hasRunTimeFlag(RuntimeStatus::IN_SAFE_MODE) && $filter::disableInSafeMode()) {
                 continue;
             }
 
@@ -59,13 +56,11 @@ class TwigExtension extends AbstractExtension
         }
     }
 
-    public function addFunctions(/*iterable*/ $functions)
+    public function addFunctions(/* iterable */ $functions): void
     {
         /** @var AbstractTwigExtension|TwigFunctionInterface $fxn */
-        foreach ($functions as $fxn)
-        {
-            if (Service::hasRunTimeFlag(RuntimeStatus::IN_SAFE_MODE) && $fxn::disableInSafeMode())
-            {
+        foreach ($functions as $fxn) {
+            if (Service::hasRunTimeFlag(RuntimeStatus::IN_SAFE_MODE) && $fxn::disableInSafeMode()) {
                 continue;
             }
 
@@ -77,13 +72,12 @@ class TwigExtension extends AbstractExtension
     {
         $filters = $this->filters;
 
-        foreach ($this->markupManager->getTemplateTags() as $tag)
-        {
+        foreach ($this->markupManager->getTemplateTags() as $tag) {
             // Since we can't pass what tag/markup language we're using to the callable, let's make the callable to a
             // non-existent method that will be handled by __call()
             $filters[] = new TwigFilter(
                 $tag,
-                [$this, 'parseMarkup' . ucfirst($tag)],
+                [$this, 'parseMarkup' . ucfirst((string)$tag)],
                 ['is_safe' => ['html']]
             );
         }
@@ -100,8 +94,7 @@ class TwigExtension extends AbstractExtension
     {
         $tokenParsers = [];
 
-        foreach ($this->markupManager->getTemplateTags() as $tag)
-        {
+        foreach ($this->markupManager->getTemplateTags() as $tag) {
             $tokenParsers[] = new TokenParser($tag);
         }
 

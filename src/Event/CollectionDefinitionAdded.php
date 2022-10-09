@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Filesystem\Folder;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * A notification-only event fired whenever a new, valid Collection definition is registered.
@@ -17,29 +17,18 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class CollectionDefinitionAdded extends Event
 {
-    const NAME = 'collection.definition.added';
+    final public const NAME = 'collection.definition.added';
 
-    private $collectionName;
-    private $folder;
-
-    public function __construct($collectionName, Folder $folder)
+    public function __construct(private $collectionName, private readonly Folder $folder)
     {
-        $this->collectionName = $collectionName;
-        $this->folder = $folder;
     }
 
-    /**
-     * @return string
-     */
-    public function getCollectionName()
+    public function getCollectionName(): string
     {
         return $this->collectionName;
     }
 
-    /**
-     * @return Folder
-     */
-    public function getFolder()
+    public function getFolder(): Folder
     {
         return $this->folder;
     }

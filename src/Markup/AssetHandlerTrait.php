@@ -1,4 +1,9 @@
-<?php
+<?php declare(strict_types=1);
+
+/**
+ * @copyright 2018 Vladimir Jimenez
+ * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
+ */
 
 namespace allejo\stakx\Markup;
 
@@ -14,24 +19,36 @@ use allejo\stakx\Manager\AssetManager;
  */
 trait AssetHandlerTrait
 {
-    /** @var AssetManager */
-    protected $assetManager;
+    protected AssetManager $assetManager;
 
-    /** @var ContentItem */
-    protected $contentItem;
+    protected ?ContentItem $contentItem;
+
+    /**
+     * Given a URL to a local path, register this function with the AssetManager so it can be available at compile time.
+     *
+     * @since 0.2.1
+     */
+    protected function registerAsset(string $path): void
+    {
+        if ($this->isValidURL($path)) {
+            return;
+        }
+
+        $asset = $this->getFileFromPath($path);
+        $permalink = $this->getPermalinkFromFile($asset);
+
+        $this->assetManager->addExplicitAsset($permalink, $asset);
+    }
 
     /**
      * Get a File object from a local path relative to the ContentItem.
-     *
-     * @param string $localPath
-     *
-     * @return File
      */
-    private function getFileFromPath($localPath)
+    private function getFileFromPath(string $localPath): File
     {
         $path = fs::path($this->contentItem->getAbsoluteFilePath())
             ->getParentDirectory()
-            ->generatePath($localPath);
+            ->generatePath($localPath)
+        ;
 
         return new File($path);
     }
@@ -40,12 +57,8 @@ trait AssetHandlerTrait
      * Get the permalink this file would belong at.
      *
      * This is taken from the ContentItem's target path and puts the asset at the same location as a sibling.
-     *
-     * @param File $file
-     *
-     * @return string
      */
-    private function getPermalinkFromFile(File $file)
+    private function getPermalinkFromFile(File $file): string
     {
         $folder = fs::path($this->contentItem->getTargetFile())->getParentDirectory();
 
@@ -54,35 +67,9 @@ trait AssetHandlerTrait
 
     /**
      * Check if a given string is a valid URL.
-     *
-     * @param string $url
-     *
-     * @return bool
      */
-    private function isValidURL($url)
+    private function isValidURL(string $url): bool
     {
         return filter_var($url, FILTER_VALIDATE_URL);
-    }
-
-    /**
-     * Given a URL to a local path, register this function with the AssetManager so it can be available at compile time.
-     *
-     * @since 0.2.1
-     *
-     * @param string $path
-     *
-     * @return void
-     */
-    protected function registerAsset($path)
-    {
-        if ($this->isValidURL($path))
-        {
-            return;
-        }
-
-        $asset = $this->getFileFromPath($path);
-        $permalink = $this->getPermalinkFromFile($asset);
-
-        $this->assetManager->addExplicitAsset($permalink, $asset);
     }
 }

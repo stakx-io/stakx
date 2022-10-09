@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,42 +8,48 @@
 namespace allejo\stakx\Test\Filesystem;
 
 use allejo\stakx\Filesystem\FilesystemPath;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
+use InvalidArgumentException;
 
-class FilesystemPathTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
+class FilesystemPathTest extends StakxTestCase
 {
-    public function testCannotAppendToFilePath()
+    public function testCannotAppendToFilePath(): void
     {
-        $this->setExpectedException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $path = new FilesystemPath('/root/bacon');
         $path->appendToPath('vegan');
     }
 
-    public function testFilePathIsDirectory()
+    public function testFilePathIsDirectory(): void
     {
         $path = new FilesystemPath('/root/hello/');
 
         $this->assertTrue($path->isDir(false));
     }
 
-    public function testFilePathAppendDirectory()
+    public function testFilePathAppendDirectory(): void
     {
         $path = new FilesystemPath('/root/toast/', '/');
         $path->appendToPath('/cheese/');
 
-        $this->assertEquals((string)$path, '/root/toast/cheese/');
+        $this->assertEquals('/root/toast/cheese/', (string)$path);
     }
 
-    public function testFilePathAppendWindowsDirectory()
+    public function testFilePathAppendWindowsDirectory(): void
     {
         $path = new FilesystemPath('/root/toast/', '/');
         $path->appendToPath('\cheese\\');
 
-        $this->assertEquals((string)$path, '/root/toast/cheese/');
+        $this->assertEquals('/root/toast/cheese/', (string)$path);
     }
 
-    public function testWindowsFilePathAppendUnix()
+    public function testWindowsFilePathAppendUnix(): void
     {
         $path = new FilesystemPath('C:\Users\stakx\\', '\\');
         $path->appendToPath('/_site/');
@@ -51,7 +57,7 @@ class FilesystemPathTest extends PHPUnit_Stakx_TestCase
         $this->assertEquals('C:\Users\stakx\_site\\', (string)$path);
     }
 
-    public function testWindowsFilePathAppendWindows()
+    public function testWindowsFilePathAppendWindows(): void
     {
         $path = new FilesystemPath('C:\Users\stakx\\', '\\');
         $path->appendToPath('\_site\\');

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -9,6 +9,7 @@ namespace allejo\stakx\Document;
 
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Utilities\NullableArray;
+use RuntimeException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 abstract class ReadableDocument
@@ -16,41 +17,34 @@ abstract class ReadableDocument
     /**
      * Do not read the file immediately at construction. The object will need to execute the self::refreshFileContent()
      * manually at some point.
-     *
-     * @var bool
      */
-    protected $noReadOnConstructor = false;
+    protected bool $noReadOnConstructor = false;
 
     /** @var string The content of the document's body. */
-    protected $bodyContent = '';
+    protected string $bodyContent = '';
 
     protected $metadata;
-    protected $file;
 
-    private $compiled = false;
+    private bool $compiled = false;
 
     /**
      * ReadableDocument Constructor.
      *
      * @throws FileNotFoundException when the file given in the constructor does not exist or may not be accessible
      */
-    public function __construct(File $file)
+    public function __construct(protected File $file)
     {
         $this->metadata = new NullableArray();
-        $this->file = $file;
 
-        if (!$this->noReadOnConstructor)
-        {
+        if (!$this->noReadOnConstructor) {
             $this->readContent();
         }
     }
 
     /**
      * Get the contents of this document.
-     *
-     * @return string
      */
-    public function getContent()
+    public function getContent(): mixed
     {
         return $this->bodyContent;
     }
@@ -60,15 +54,12 @@ abstract class ReadableDocument
      *
      * @param string $content
      */
-    public function setContent($content)
+    public function setContent($content): void
     {
         $this->bodyContent = $content;
     }
 
-    /**
-     * @return string
-     */
-    public function getIndexName()
+    public function getIndexName(): string
     {
         return $this->getRelativeFilePath();
     }
@@ -76,10 +67,9 @@ abstract class ReadableDocument
     /**
      * When a document is compiled, all of its internals are finished being configured.
      */
-    final public function compile()
+    final public function compile(): void
     {
-        if ($this->compiled)
-        {
+        if ($this->compiled) {
             return;
         }
 
@@ -89,23 +79,13 @@ abstract class ReadableDocument
     }
 
     /**
-     * Determine whether or not this document has been compiled.
-     *
-     * @return bool
-     */
-    final protected function isCompiled()
-    {
-        return $this->compiled;
-    }
-
-    /**
      * Get the value stored under this key in the file's internal metadata only available to stakx.
      *
      * @param string $key
      *
-     * @return mixed|null
+     * @return null|mixed
      */
-    final public function getMetadata($key)
+    final public function getMetadata($key): mixed
     {
         return $this->metadata[$key];
     }
@@ -114,71 +94,56 @@ abstract class ReadableDocument
      * Set a value in the file's internal metadata only available to stakx.
      *
      * @param string $key
-     * @param mixed  $value
-     *
-     * @return mixed
      */
-    final public function setMetadata($key, $value)
+    final public function setMetadata($key, mixed $value): mixed
     {
         return $this->metadata[$key] = $value;
     }
 
     /**
      * Get the original File object given to this document.
-     *
-     * @return File
      */
-    final public function getFile()
+    final public function getFile(): File
     {
         return $this->file;
     }
 
     /**
      * Get the relative path to the file, with respect to the site root.
-     *
-     * @return string
      */
-    final public function getRelativeFilePath()
+    final public function getRelativeFilePath(): string
     {
         return $this->file->getRelativeFilePath();
     }
 
     /**
      * Get the extension of the file.
-     *
-     * @return string
      */
-    final public function getExtension()
+    final public function getExtension(): string
     {
         return $this->file->getExtension();
     }
 
     /**
      * Get the name of the file without the extension.
-     *
-     * @return string
      */
-    final public function getBasename()
+    final public function getBasename(): string
     {
         return $this->file->getBasename();
     }
 
     /**
      * Get the absolute path to the file.
-     *
-     * @return string
      */
-    final public function getAbsoluteFilePath()
+    final public function getAbsoluteFilePath(): string
     {
         return $this->file->getAbsolutePath();
     }
 
     /**
      * Get the name of the file with its extension.
-     *
-     * @return string
      */
-    final public function getFilename()
+    final public function getFilename(): string
     {
         return $this->file->getFilename();
     }
@@ -188,7 +153,7 @@ abstract class ReadableDocument
      *
      * @return int The last modified time for the file, in a Unix timestamp
      */
-    final public function getLastModified()
+    final public function getLastModified(): int
     {
         return $this->file->getLastModified();
     }
@@ -196,7 +161,7 @@ abstract class ReadableDocument
     /**
      * Read the contents of this file and handle all of the necessary processing/setup for this document.
      */
-    final public function readContent()
+    final public function readContent(): void
     {
         $beforeEvent = $this->beforeReadContents();
         $actualEvent = $this->readContents($beforeEvent);
@@ -204,11 +169,19 @@ abstract class ReadableDocument
     }
 
     /**
+     * Determine whether or not this document has been compiled.
+     */
+    final protected function isCompiled(): bool
+    {
+        return $this->compiled;
+    }
+
+    /**
      * Prepare the Document so it can handle the data that's about to be read in.
      *
      * @return mixed any information that will be passed to the readContents() method
      */
-    protected function beforeReadContents()
+    protected function beforeReadContents(): mixed
     {
         return null;
     }
@@ -221,18 +194,16 @@ abstract class ReadableDocument
      *
      * @param mixed $mixed any information returned from the beforeReadContents() method
      *
-     * @throws \RuntimeException when the file cannot be read
-     *
-     * @return mixed
+     * @throws RuntimeException when the file cannot be read
      */
-    abstract protected function readContents($mixed);
+    abstract protected function readContents($mixed): mixed;
 
     /**
      * After the Document's content has been read, process the it and handle any parsing that's needed.
      *
      * @param mixed $mixed any information returned from the readContents() method
      */
-    protected function afterReadContents($mixed)
+    protected function afterReadContents($mixed): void
     {
     }
 
@@ -240,7 +211,7 @@ abstract class ReadableDocument
      * Functionality that needs to take place before this document is considered "compiled," meaning everything has been
      * processed, configured, and built.
      */
-    protected function beforeCompile()
+    protected function beforeCompile(): void
     {
     }
 }

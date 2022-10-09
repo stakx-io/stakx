@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,6 +12,7 @@ use allejo\stakx\DataTransformer\DataTransformerInterface;
 use allejo\stakx\MarkupEngine\MarkupEngineInterface;
 use allejo\stakx\Templating\Twig\Extension\TwigFilterInterface;
 use allejo\stakx\Templating\Twig\Extension\TwigFunctionInterface;
+use Phar;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder as BaseBuilder;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
@@ -21,18 +22,15 @@ use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 class ContainerBuilder
 {
     private $containerPath;
-    private $options;
 
-    public function __construct(array $options)
+    public function __construct(private readonly array $options)
     {
         $this->containerPath = __DIR__ . '/Container.php';
-        $this->options = $options;
     }
 
     public function build()
     {
-        if (!$this->isPhar())
-        {
+        if (!$this->isPhar()) {
             $this->compileAndDump();
         }
 
@@ -41,18 +39,17 @@ class ContainerBuilder
 
     private function isPhar()
     {
-        return strlen(\Phar::running()) > 0;
+        return strlen(Phar::running()) > 0;
     }
 
-    private function compileAndDump()
+    private function compileAndDump(): void
     {
         $container = new BaseBuilder();
         $container
             ->addCompilerPass(new RegisterListenersPass())
         ;
 
-        foreach ($this->options['parameters'] as $key => $value)
-        {
+        foreach ($this->options['parameters'] as $key => $value) {
             $container->setParameter($key, $value);
         }
 

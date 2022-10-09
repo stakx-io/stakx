@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -14,18 +14,16 @@ class XmlTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public static function transformData($content)
+    public static function transformData($content): array
     {
-        if (!function_exists('simplexml_load_string'))
-        {
+        if (!function_exists('simplexml_load_string')) {
             throw new DependencyMissingException('XML', 'XML support is not available with the current PHP installation.');
         }
 
         libxml_use_internal_errors(true);
-        $data = json_decode(json_encode(simplexml_load_string($content)), true);
+        $data = json_decode(json_encode(simplexml_load_string($content), JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
 
-        if ($data === false || $data === null)
-        {
+        if ($data === false || $data === null) {
             return [];
         }
 
@@ -35,7 +33,7 @@ class XmlTransformer implements DataTransformerInterface
     /**
      * {@inheritdoc}
      */
-    public static function getExtensions()
+    public static function getExtensions(): array
     {
         return [
             'xml',

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,17 +8,21 @@
 namespace allejo\stakx\Test\Filesystem;
 
 use allejo\stakx\Filesystem\File;
-use allejo\stakx\Test\PHPUnit_Stakx_TestCase;
+use allejo\stakx\Test\StakxTestCase;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class FileTest extends PHPUnit_Stakx_TestCase
+/**
+ * @internal
+ *
+ * @covers \allejo\stakx\Filesystem\File
+ */
+class FileTest extends StakxTestCase
 {
-    /** @var string */
-    private $absPath;
-    /** @var File */
-    private $file;
+    private string $absPath;
 
-    public function setUp()
+    private File $file;
+
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -26,54 +30,55 @@ class FileTest extends PHPUnit_Stakx_TestCase
         $this->file = new File($this->absPath);
     }
 
-    public function testExists()
+    public function testExists(): void
     {
         $this->assertTrue($this->file->exists());
     }
 
-    public function testGetBasename()
+    public function testGetBasename(): void
     {
         $this->assertEquals('sample', $this->file->getBasename());
     }
 
-    public function testGetFilename()
+    public function testGetFilename(): void
     {
         $this->assertEquals('sample.yml', $this->file->getFilename());
     }
 
-    public function testGetAbsolutePath()
+    public function testGetAbsolutePath(): void
     {
         $this->assertEquals(realpath($this->absPath), $this->file->getAbsolutePath());
     }
 
-    public function testGetParentFolder()
+    public function testGetParentFolder(): void
     {
         $this->assertEquals(realpath(__DIR__ . '/../assets/ConfigurationFiles'), $this->file->getParentFolder());
     }
 
-    public function testGetRelativeFilePath()
+    public function testGetRelativeFilePath(): void
     {
-        $path = ['tests', 'allejo', 'stakx', 'Test', 'assets', 'ConfigurationFiles', 'sample.yml'];
+        $path = ['tests', 'assets', 'ConfigurationFiles', 'sample.yml'];
 
         $this->assertEquals(implode(DIRECTORY_SEPARATOR, $path), $this->file->getRelativeFilePath());
     }
 
-    public function testGetRelativeParentFolder()
+    public function testGetRelativeParentFolder(): void
     {
-        $path = ['tests', 'allejo', 'stakx', 'Test', 'assets', 'ConfigurationFiles'];
+        $path = ['tests', 'assets', 'ConfigurationFiles'];
 
         $this->assertEquals(implode(DIRECTORY_SEPARATOR, $path), $this->file->getRelativeParentFolder());
     }
 
-    public function testGetContents()
+    public function testGetContents(): void
     {
         $fileContent = file_get_contents($this->absPath);
         $this->assertEquals($fileContent, $this->file->getContents());
     }
 
-    public function testGetContentsThrowsErrorOnNonExistentFile()
+    public function testGetContentsThrowsErrorOnNonExistentFile(): void
     {
-        $this->setExpectedExceptionRegExp(FileNotFoundException::class, '/.*"non-existent".*/');
+        $this->expectException(FileNotFoundException::class);
+        $this->expectExceptionMessageMatches('/.*"non-existent".*/');
 
         new File('non-existent');
     }

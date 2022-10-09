@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -11,10 +11,7 @@ use Twig\TwigFunction;
 
 interface TwigFunctionInterface
 {
-    const CONTAINER_TAG = 'stakx.twig_function';
+    public const CONTAINER_TAG = 'stakx.twig_function';
 
-    /**
-     * @return TwigFunction
-     */
-    public static function get();
+    public static function get(): TwigFunction;
 }

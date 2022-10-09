@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -13,12 +13,11 @@ use Twig\Loader\FilesystemLoader;
 
 class TwigFileLoader extends FilesystemLoader
 {
-    public function getCacheKey($name)
+    public function getCacheKey($name): string
     {
         $template = $this->findTemplate($name);
 
-        if (Service::hasRunTimeFlag(RuntimeStatus::IN_SERVE_MODE))
-        {
+        if (Service::hasRunTimeFlag(RuntimeStatus::IN_SERVE_MODE)) {
             return sprintf('%s_%s', $template, filemtime($template));
         }
 

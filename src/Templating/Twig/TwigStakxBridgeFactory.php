@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -32,14 +32,10 @@ class TwigStakxBridgeFactory
         $theme = $configuration->getTheme();
 
         // Only load a theme if one is specified and actually exists
-        if ($theme !== null)
-        {
-            try
-            {
+        if ($theme !== null) {
+            try {
                 $loader->addPath(fs::absolutePath('_themes', $theme), 'theme');
-            }
-            catch (LoaderError $e)
-            {
+            } catch (LoaderError $e) {
                 $logger->error('The following theme could not be loaded: {theme}', [
                     'theme' => $theme,
                 ]);
@@ -57,14 +53,12 @@ class TwigStakxBridgeFactory
 
         $profiler = null;
 
-        if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE))
-        {
+        if (Service::hasRunTimeFlag(RuntimeStatus::IN_PROFILE_MODE)) {
             $profiler = new Profile();
             $twig->addExtension(new ProfilerExtension($profiler));
         }
 
-        if ($configuration->isDebug())
-        {
+        if ($configuration->isDebug()) {
             $twig->addExtension(new DebugExtension());
             $twig->enableDebug();
         }

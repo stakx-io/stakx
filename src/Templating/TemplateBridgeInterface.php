@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -17,45 +17,35 @@ interface TemplateBridgeInterface extends LoggerAwareInterface
 {
     /**
      * Whether or not this bridge has a profiler configured.
-     *
-     * @return bool
      */
-    public function hasProfiler();
+    public function hasProfiler(): bool;
 
     /**
      * Set a profiler for this bridge.
      *
-     * @param object|null $profiler
-     *
-     * @return void
+     * @param null|object $profiler
      */
-    public function setProfiler($profiler);
+    public function setProfiler($profiler): void;
 
     /**
      * Get the output of this profiler that'll be written to the console.
-     *
-     * @return string
      */
-    public function getProfilerOutput(Compiler $compiler);
+    public function getProfilerOutput(Compiler $compiler): string;
 
     /**
      * Get all of the references to either DataItems or ContentItems inside of given string.
      *
      * @param string $namespace   'collections' or 'data'
      * @param string $bodyContent The body we're looking through to find references
-     *
-     * @return array
      */
-    public function getAssortmentDependencies($namespace, $bodyContent);
+    public function getAssortmentDependencies($namespace, $bodyContent): array;
 
     /**
      * Get all of the "import", "from", and "include" dependencies from a template body.
      *
      * @param string $bodyContent The body we're looking through to find references
-     *
-     * @return array
      */
-    public function getTemplateImportDependencies($bodyContent);
+    public function getTemplateImportDependencies($bodyContent): array;
 
     /**
      * Set or update a global variable within the template engine.
@@ -63,11 +53,8 @@ interface TemplateBridgeInterface extends LoggerAwareInterface
      * These will be values that are **always** available to all templates that are compiled by stakx.
      *
      * @param string $key
-     * @param mixed  $value
-     *
-     * @return void
      */
-    public function setGlobalVariable($key, $value);
+    public function setGlobalVariable($key, mixed $value): void;
 
     /**
      * Return a template that'll be used to compile templates with data.
@@ -75,15 +62,11 @@ interface TemplateBridgeInterface extends LoggerAwareInterface
      * @param string $templateContent
      *
      * @throws TemplateErrorInterface when an error occurs while preparing/compiling a template for use
-     *
-     * @return TemplateInterface
      */
-    public function createTemplate($templateContent);
+    public function createTemplate($templateContent): TemplateInterface;
 
     /**
      * Clear the internal cache for template engine.
-     *
-     * @return void
      */
-    public function clearTemplateCache();
+    public function clearTemplateCache(): void;
 }

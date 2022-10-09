@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -14,26 +14,18 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class MenuManager extends BaseManager
 {
-    /** @var StaticPageView */
-    private $siteMenu = [];
-    private $pageManager;
-    private $eventDispatcher;
-    private $logger;
+    private array $siteMenu = [];
 
-    public function __construct(PageManager $pageManager, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
+    public function __construct(private readonly PageManager $pageManager, private readonly EventDispatcherInterface $eventDispatcher, private readonly LoggerInterface $logger)
     {
-        $this->pageManager = $pageManager;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function compileManager()
+    public function compileManager(): void
     {
-        if ($this->pageManager === null)
-        {
+        if ($this->pageManager === null) {
             return;
         }
 
@@ -45,15 +37,13 @@ class MenuManager extends BaseManager
      *
      * @return JailedDocument[]
      */
-    public function getSiteMenu()
+    public function getSiteMenu(): array
     {
         $jailedMenu = [];
 
-        foreach ($this->siteMenu as $key => $value)
-        {
+        foreach ($this->siteMenu as $key => $value) {
             // If it's an array, it means the parent is hidden from the site menu therefore its children should be too
-            if (is_array($this->siteMenu[$key]))
-            {
+            if (is_array($this->siteMenu[$key])) {
                 continue;
             }
 
@@ -66,10 +56,9 @@ class MenuManager extends BaseManager
     /**
      * @param StaticPageView[] $pageViews
      */
-    public function buildFromPageViews($pageViews)
+    public function buildFromPageViews($pageViews): void
     {
-        foreach ($pageViews as $pageView)
-        {
+        foreach ($pageViews as $pageView) {
             $this->addToSiteMenu($pageView);
         }
     }
@@ -77,54 +66,42 @@ class MenuManager extends BaseManager
     /**
      * @param StaticPageView $pageView
      */
-    public function addToSiteMenu($pageView)
+    public function addToSiteMenu($pageView): void
     {
         $frontMatter = $pageView->getFrontMatter();
 
-        if (isset($frontMatter['menu']) && !$frontMatter['menu'])
-        {
+        if (isset($frontMatter['menu']) && !$frontMatter['menu']) {
             return;
         }
 
-        $url = trim($pageView->getPermalink(), '/');
+        $url = trim((string)$pageView->getPermalink(), '/');
 
         // @TODO in the next breaking release, remove this check and allow the homepage to be indexed as '.'
-        if (empty($url))
-        {
+        if (empty($url)) {
             return;
         }
 
         $root = &$this->siteMenu;
         $dirs = explode('/', $url);
 
-        while (count($dirs) > 0)
-        {
+        while (count($dirs) > 0) {
             $name = array_shift($dirs);
             $name = (!empty($name)) ? $name : '.';
 
-            if (!is_null($name) && count($dirs) == 0)
-            {
-                if (isset($root[$name]) && is_array($root[$name]))
-                {
+            if (!is_null($name) && count($dirs) == 0) {
+                if (isset($root[$name]) && is_array($root[$name])) {
                     $children = &$pageView->getChildren();
                     $children = $root[$name]['children'];
                 }
 
                 $root[$name] = &$pageView;
-            }
-            else
-            {
-                if (!isset($root[$name]))
-                {
+            } else {
+                if (!isset($root[$name])) {
                     $root[$name]['children'] = [];
                     $root = &$root[$name]['children'];
-                }
-                elseif (isset($root[$name]) && is_array($root[$name]))
-                {
+                } elseif (isset($root[$name]) && is_array($root[$name])) {
                     $root = &$root[$name]['children'];
-                }
-                else
-                {
+                } else {
                     $root = &$root[$name]->getChildren();
                 }
             }

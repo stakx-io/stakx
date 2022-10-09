@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -12,30 +12,26 @@ use allejo\stakx\Exception\UnsupportedMarkupException;
 
 class MarkupEngineManager
 {
-    private $enginesByTags = [];
-    private $enginesByExtension = [];
+    private array $enginesByTags = [];
 
-    public function addMarkupEngines(/*iterable*/ $markupEngines)
+    private array $enginesByExtension = [];
+
+    public function addMarkupEngines(/* iterable */ $markupEngines): void
     {
-        foreach ($markupEngines as $markupEngine)
-        {
+        foreach ($markupEngines as $markupEngine) {
             $this->addMarkupEngine($markupEngine);
         }
     }
 
-    public function addMarkupEngine(MarkupEngineInterface $markupEngine)
+    public function addMarkupEngine(MarkupEngineInterface $markupEngine): void
     {
         $extensions = $markupEngine->getExtensions();
         $primaryExt = __::first($extensions);
 
-        foreach ($extensions as $k => $extension)
-        {
-            if ($k === 0)
-            {
+        foreach ($extensions as $k => $extension) {
+            if ($k === 0) {
                 $this->enginesByExtension[$extension] = $markupEngine;
-            }
-            else
-            {
+            } else {
                 $this->enginesByExtension[$extension] = &$this->enginesByExtension[$primaryExt];
             }
         }
@@ -45,8 +41,7 @@ class MarkupEngineManager
 
     public function getEngineByTag($tag)
     {
-        if (isset($this->enginesByTags[$tag]))
-        {
+        if (isset($this->enginesByTags[$tag])) {
             return $this->enginesByTags[$tag];
         }
 
@@ -55,8 +50,7 @@ class MarkupEngineManager
 
     public function getEngineByExtension($extension)
     {
-        if (isset($this->enginesByExtension[$extension]))
-        {
+        if (isset($this->enginesByExtension[$extension])) {
             return $this->enginesByExtension[$extension];
         }
 

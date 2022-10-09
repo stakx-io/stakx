@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -8,6 +8,13 @@
 namespace allejo\stakx\Filesystem;
 
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
+use Iterator;
+use RecursiveDirectoryIterator;
+use RecursiveFilterIterator;
+use RecursiveIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
+use Stringable;
 
 /**
  * The core class to handle reading files from directories on the filesystem.
@@ -18,23 +25,23 @@ use allejo\stakx\Filesystem\FilesystemLoader as fs;
  *
  * @internal
  */
-class FileExplorer extends \RecursiveFilterIterator implements \Iterator
+class FileExplorer extends RecursiveFilterIterator implements Iterator, Stringable
 {
     /**
      * A bitwise flag to have FileExplorer ignore all files unless its been explicitly included; all other files will be
      * ignored.
      */
-    const INCLUDE_ONLY_FILES = 0x1;
+    final public const INCLUDE_ONLY_FILES = 0x1;
 
     /**
      * A bitwise flag to have FileExplorer search files starting with a period as well.
      */
-    const ALLOW_DOT_FILES = 0x2;
+    final public const ALLOW_DOT_FILES = 0x2;
 
     /**
      * A bitwise flag to have FileExplorer ignore any directories.
      */
-    const IGNORE_DIRECTORIES = 0x4;
+    final public const IGNORE_DIRECTORIES = 0x4;
 
     /**
      * A list of common version control folders to ignore.
@@ -50,58 +57,43 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      *
      * @var string[]
      */
-    public static $vcsPatterns = ['.git', '.hg', '.svn', '_svn'];
+    public static array $vcsPatterns = ['.git', '.hg', '.svn', '_svn'];
 
     /**
      * A custom callable that will be used in the `accept()` method. If null, the default matcher will be used.
      *
      * @var callable[]
      */
-    private $matchers;
+    private array $matchers;
 
     /**
      * A list of phrases to exclude from the search.
      *
      * @var string[]
      */
-    private $excludes;
-
-    /**
-     * A list of phrases to explicitly include in the search.
-     *
-     * @var string[]
-     */
-    private $includes;
-
-    /**
-     * The bitwise sum of the flags applied to this FileExplorer instance.
-     *
-     * @var int|null
-     */
-    private $flags;
+    private readonly array $excludes;
 
     /**
      * FileExplorer constructor.
      *
-     * @param \RecursiveIterator $iterator
      * @param string[] $includes
      * @param string[] $excludes
-     * @param int|null $flags
      */
-    public function __construct(\RecursiveIterator $iterator, array $includes = [], array $excludes = [], $flags = null)
+    public function __construct(RecursiveIterator $iterator, /**
+     * A list of phrases to explicitly include in the search.
+     */
+    private readonly array $includes = [], array $excludes = [], /**
+     * The bitwise sum of the flags applied to this FileExplorer instance.
+     */
+    private readonly ?int $flags = null)
     {
         parent::__construct($iterator);
 
         $this->excludes = array_merge(self::$vcsPatterns, $excludes);
-        $this->includes = $includes;
-        $this->flags = $flags;
         $this->matchers = [];
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->current()->getFilename();
     }
@@ -109,17 +101,14 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     /**
      * {@inheritdoc}
      */
-    public function accept()
+    public function accept(): bool
     {
-        if (!empty($this->matchers))
-        {
-            foreach ($this->matchers as $matcher)
-            {
+        if (!empty($this->matchers)) {
+            foreach ($this->matchers as $matcher) {
                 $result = call_user_func($matcher, $this->current());
 
                 // If any custom matchers return false, let's exit immediately
-                if ($result === false)
-                {
+                if ($result === false) {
                     return false;
                 }
             }
@@ -132,17 +121,14 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
 
     /**
      * Get the current File object.
-     *
-     * @return File|Folder
      */
-    public function current()
+    public function current(): File|Folder
     {
-        /** @var \SplFileInfo $current */
+        /** @var SplFileInfo $current */
         $current = parent::current();
         $path = new FilesystemPath($current->getPathname());
 
-        if ($current->isDir())
-        {
+        if ($current->isDir()) {
             return new Folder($path);
         }
 
@@ -152,14 +138,16 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     /**
      * {@inheritdoc}
      */
-    public function getChildren()
+    public function getChildren(): FileExplorer|RecursiveFilterIterator|null
     {
         $explorer = new self(
-            $this->getInnerIterator()->getChildren(), $this->includes, $this->excludes, $this->flags
+            $this->getInnerIterator()->getChildren(),
+            $this->includes,
+            $this->excludes,
+            $this->flags
         );
 
-        foreach ($this->matchers as $matcher)
-        {
+        foreach ($this->matchers as $matcher) {
             $explorer->addMatcher($matcher);
         }
 
@@ -168,39 +156,29 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
 
     /**
      * Get an Iterator with all of the files (and *only* files) that have met the search requirements.
-     *
-     * @return \RecursiveIteratorIterator
      */
-    public function getFileIterator()
+    public function getFileIterator(): RecursiveIteratorIterator
     {
-        return new \RecursiveIteratorIterator($this);
+        return new RecursiveIteratorIterator($this);
     }
 
     /**
      * Check whether or not a relative file path matches the definition given to this FileExplorer instance.
-     *
-     * @param string $filePath
-     *
-     * @return bool
      */
-    public function matchesPattern($filePath)
+    public function matchesPattern(string $filePath): bool
     {
-        if (self::strpos_array($filePath, $this->includes))
-        {
+        if (self::strpos_array($filePath, $this->includes)) {
             return true;
         }
-        if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir())
-        {
+        if (($this->flags & self::INCLUDE_ONLY_FILES) && !$this->current()->isDir()) {
             return false;
         }
-        if (($this->flags & self::IGNORE_DIRECTORIES) && $this->current()->isDir())
-        {
+        if (($this->flags & self::IGNORE_DIRECTORIES) && $this->current()->isDir()) {
             return false;
         }
 
-        if (!($this->flags & self::ALLOW_DOT_FILES) &&
-            preg_match('#(^|\\\\|\/)\..+(\\\\|\/|$)#', $filePath) === 1)
-        {
+        if (!($this->flags & self::ALLOW_DOT_FILES)
+            && preg_match('#(^|\\\\|\/)\..+(\\\\|\/|$)#', $filePath) === 1) {
             return false;
         }
 
@@ -209,10 +187,8 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
 
     /**
      * Add a custom matcher that will be executed before the default matcher that uses file names and paths.
-     *
-     * @param callable $callable
      */
-    public function addMatcher(callable $callable)
+    public function addMatcher(callable $callable): void
     {
         $this->matchers[] = $callable;
     }
@@ -220,29 +196,17 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     /**
      * Create an instance of FileExplorer from a directory path as a string.
      *
-     * @deprecated Use `FileExplorer::createFromDefinition()` instead.
-     *
-     * @param string $folder The path to the folder we're scanning
-     * @param string[] $includes
-     * @param string[] $excludes
-     * @param int|null $flags
-     *
-     * @return FileExplorer
+     * @deprecated use `FileExplorer::createFromDefinition()` instead
      */
-    public static function create($folder, $includes = [], $excludes = [], $flags = null)
+    public static function create(string|Folder $folder, array $includes = [], array $excludes = [], ?int $flags = null): FileExplorer
     {
         $folder = fs::realpath($folder);
-        $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $iterator = new RecursiveDirectoryIterator((string)$folder, RecursiveDirectoryIterator::SKIP_DOTS);
 
         return new self($iterator, $includes, $excludes, $flags);
     }
 
-    /**
-     * @param FileExplorerDefinition $definition
-     *
-     * @return FileExplorer
-     */
-    public static function createFromDefinition(FileExplorerDefinition $definition)
+    public static function createFromDefinition(FileExplorerDefinition $definition): FileExplorer
     {
         return self::create($definition->folder, $definition->includes, $definition->excludes, $definition->flags);
     }
@@ -250,28 +214,16 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     /**
      * Search a given string for an array of possible elements.
      *
-     * @param string   $haystack
-     * @param string[] $needle
-     * @param int      $offset
-     *
      * @return bool True if an element from the given array was found in the string
      */
-    private static function strpos_array($haystack, $needle, $offset = 0)
+    private static function strpos_array(string $haystack, array $needle): bool
     {
-        if (!is_array($needle))
-        {
-            $needle = [$needle];
-        }
-
-        foreach ($needle as $query)
-        {
-            if (substr($query, 0, 1) == '/' && substr($query, -1, 1) == '/' && preg_match($query, $haystack) === 1)
-            {
+        foreach ($needle as $query) {
+            if ($query[0] === '/' && $query[strlen($query) - 1] === '/' && preg_match($query, $haystack) === 1) {
                 return true;
             }
 
-            if (strpos($haystack, $query, $offset) !== false)
-            { // stop on first true result
+            if (str_contains($haystack, $query)) { // stop on first true result
                 return true;
             }
         }

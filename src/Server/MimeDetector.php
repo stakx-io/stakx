@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @copyright 2018 Vladimir Jimenez
@@ -13,7 +13,7 @@ class MimeDetector
      * @see https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
      * @see https://github.com/symfony/symfony/blob/master/src/Symfony/Component/HttpFoundation/File/MimeType/MimeTypeExtensionGuesser.php
      */
-    private static $mimes = [
+    private static array&array $mimes = [
         '123' => 'application/vnd.lotus-1-2-3',
         '3dml' => 'text/vnd.in3d.3dml',
         '3ds' => 'image/x-3ds',
@@ -785,6 +785,6 @@ class MimeDetector
 
     public static function getMimeType($extension)
     {
-        return isset(self::$mimes[$extension]) ? self::$mimes[$extension] : null;
+        return self::$mimes[$extension] ?? null;
     }
 }
