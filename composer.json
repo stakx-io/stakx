@@ -12,12 +12,12 @@
   ],
   "autoload": {
     "psr-4": {
-      "allejo\\stakx\\": "src/allejo/stakx/"
+      "allejo\\stakx\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "allejo\\stakx\\Test\\": "tests/allejo/stakx/Test"
+      "allejo\\stakx\\Test\\": "tests/"
     }
   },
   "require": {
