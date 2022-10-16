@@ -1,6 +1,6 @@
 {
-    "require-dev": {
-        "pepakriz/phpstan-exception-rules": "^0.12.0",
-        "phpstan/phpstan": "^1.8"
+    "require": {
+        "phpstan/phpstan": "^1.8",
+        "pepakriz/phpstan-exception-rules": "^0.12.0"
     }
 }

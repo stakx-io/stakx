@@ -1,0 +1,13 @@
+includes:
+    - vendor-bin/phpstan/vendor/pepakriz/phpstan-exception-rules/extension.neon
+parameters:
+    level: 8
+    paths:
+        - src
+    ignoreErrors: []
+    exceptionRules:
+        reportUnusedCatchesOfUncheckedExceptions: false
+        reportUnusedCheckedThrowsInSubtypes: false
+        reportCheckedThrowsInGlobalScope: false
+        checkedExceptions:
+            - RuntimeException
