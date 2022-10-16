@@ -7,8 +7,15 @@
 
 namespace allejo\stakx\MarkupEngine;
 
+use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Manager\AssetManager;
+
 class PlainTextEngine implements MarkupEngineInterface
 {
+    public function __construct(AssetManager $assetManager)
+    {
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -30,7 +37,7 @@ class PlainTextEngine implements MarkupEngineInterface
     /**
      * {@inheritdoc}
      */
-    public function parse($content, $contentItem = null): string
+    public function parse(string $content, ?ContentItem $contentItem = null): string
     {
         return $content;
     }

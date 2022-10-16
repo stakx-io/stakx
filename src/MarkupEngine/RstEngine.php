@@ -7,33 +7,34 @@
 
 namespace allejo\stakx\MarkupEngine;
 
+use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Markup\RstImageDirective;
 use allejo\stakx\Markup\RstSyntaxBlock;
 use allejo\stakx\Service;
-use Gregwar\RST\Parser;
+use Doctrine\RST\Parser;
 
-class RstEngine extends Parser implements MarkupEngineInterface
+class RstEngine implements MarkupEngineInterface
 {
     private readonly RstImageDirective $imageDirective;
+    private readonly Parser $rstParser;
 
-    public function __construct(AssetManager $assetManager, $environment = null, $kernel = null)
+    public function __construct(AssetManager $assetManager)
     {
-        parent::__construct($environment, $kernel);
-
         $this->imageDirective = new RstImageDirective();
         $this->imageDirective->setAssetManager($assetManager);
 
-        $this->registerDirective($this->imageDirective);
-        $this->registerDirective(new RstSyntaxBlock());
-        $this->setIncludePolicy(true, Service::getWorkingDirectory());
+        $this->rstParser = new Parser();
+        $this->rstParser->registerDirective($this->imageDirective);
+        $this->rstParser->registerDirective(new RstSyntaxBlock());
+        $this->rstParser->setIncludePolicy(true, Service::getWorkingDirectory());
     }
 
-    public function parse($content, $contentItem = null): string
+    public function parse(string $content, ?ContentItem $contentItem = null): string
     {
         $this->imageDirective->setContentItem($contentItem);
 
-        return parent::parse($content)->render();
+        return $this->rstParser->parse($content)->render();
     }
 
     public function getTemplateTag(): string

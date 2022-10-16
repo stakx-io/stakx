@@ -7,29 +7,40 @@
 
 namespace allejo\stakx\Markup;
 
-use Gregwar\RST\Directives\CodeBlock;
-use Gregwar\RST\HTML\Nodes\CodeNode;
-use Gregwar\RST\Parser;
+use Doctrine\RST\Directives\CodeBlock;
+use Doctrine\RST\Directives\Directive;
+use Doctrine\RST\Parser;
 use Highlight\Highlighter;
 
-class RstSyntaxBlock extends CodeBlock
+class RstSyntaxBlock extends Directive
 {
     use SyntaxHighlighterTrait;
+
+    private readonly CodeBlock $baseDirective;
 
     public function __construct()
     {
         $this->highlighter = new Highlighter();
+        $this->baseDirective = new CodeBlock();
+    }
+
+    public function getName(): string
+    {
+        return 'code-block';
     }
 
     public function process(Parser $parser, $node, $variable, $data, array $options): void
     {
-        // @var CodeNode $node
-
-        parent::process($parser, $node, $variable, $data, $options);
+        $this->baseDirective->process($parser, $node, $variable, $data, $options);
 
         $nodeOutput = $this->highlightCode($node->getLanguage(), $node->getValue());
 
         $node->setRaw(true);
         $node->setValue($nodeOutput);
+    }
+
+    public function wantCode(): bool
+    {
+        return true;
     }
 }

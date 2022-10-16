@@ -8,6 +8,7 @@
 namespace allejo\stakx\MarkupEngine;
 
 use allejo\stakx\Document\ContentItem;
+use allejo\stakx\Manager\AssetManager;
 
 /**
  * This interface defines the markup engines stakx will know how to parse as ContentItems and as regular text within
@@ -18,6 +19,8 @@ use allejo\stakx\Document\ContentItem;
 interface MarkupEngineInterface
 {
     public const CONTAINER_TAG = 'stakx.markup_engine';
+
+    public function __construct(AssetManager $assetManager);
 
     /**
      * Get the custom tag and filter to register with our templating engine.
@@ -54,5 +57,5 @@ interface MarkupEngineInterface
      *
      * @since 0.2.0
      */
-    public function parse($content, ?ContentItem $contentItem = null): string;
+    public function parse(string $content, ?ContentItem $contentItem = null): string;
 }

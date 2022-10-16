@@ -392,7 +392,7 @@ class ContentItemTest extends StakxTestCase
         $contentItem = $this->createContentItem([], $rstContent, 'document.rst');
         $pd = new RstEngine($this->getMockAssetManager());
 
-        $this->assertEquals((string)$pd->parse($rstContent, $contentItem), $contentItem->getContent());
+        $this->assertEquals($pd->parse($rstContent, $contentItem), $contentItem->getContent());
     }
 
     public function testContentItemJailWithRstExtensionFile(): void

@@ -321,7 +321,7 @@ abstract class StakxTestCase extends TestCase
         $markupEngine->addMarkupEngines([
             new MarkdownEngine($this->getMockAssetManager()),
             new RstEngine($this->getMockAssetManager()),
-            new PlainTextEngine(),
+            new PlainTextEngine($this->getMockAssetManager()),
         ]);
 
         return $markupEngine;
