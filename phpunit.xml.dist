@@ -1,0 +1,22 @@
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/3.7/phpunit.xsd"
+    bootstrap="tests/bootstrap.php"
+    colors="true"
+    convertDeprecationsToExceptions="true"
+>
+    <coverage>
+        <include>
+            <directory suffix=".php">tests</directory>
+        </include>
+    </coverage>
+    <testsuites>
+        <testsuite name="stakx Test Suite">
+            <directory suffix="Test.php" phpVersion="8.1.0" phpVersionOperator=">=">tests</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <ini name="display_errors" value="On" />
+        <ini name="display_startup_errors" value="On" />
+    </php>
+</phpunit>

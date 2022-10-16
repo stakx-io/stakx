@@ -132,4 +132,5 @@ _site
 .php-cs-fixer.cache
 .php-version
 .phpunit.result.cache
+phpunit.xml
 src/allejo/stakx/Console/Container.php
