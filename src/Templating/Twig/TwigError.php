@@ -14,92 +14,65 @@ use Twig\Source;
 
 class TwigError extends Exception implements TemplateErrorInterface
 {
-    private $content;
+    private string $content;
 
-    private $relativeFilePath;
+    private string $relativeFilePath;
 
-    private $name;
+    private string $name;
 
     public function __construct(private readonly Error $error)
     {
-        $this->message = $error->getRawMessage();
+        parent::__construct($error->getRawMessage());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTemplateLine()
+    public function getTemplateLine(): int
     {
         return $this->error->getTemplateLine();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setTemplateLine($lineNumber)
+    public function setTemplateLine(int $lineNumber): self
     {
         $this->error->setTemplateLine($lineNumber);
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getContent()
+    public function getContent(): string
     {
         return $this->content;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setContent($content)
+    public function setContent(string $content): self
     {
         $this->content = $content;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setName($name)
+    public function setName($name): self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRelativeFilePath()
+    public function getRelativeFilePath(): string
     {
         return $this->relativeFilePath;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setRelativeFilePath($filePath)
+    public function setRelativeFilePath(string $filePath): self
     {
         $this->relativeFilePath = $filePath;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function buildException(): void
     {
         $this->error->setSourceContext(new Source(

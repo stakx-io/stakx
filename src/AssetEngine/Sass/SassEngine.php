@@ -17,6 +17,7 @@ use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use ScssPhp\ScssPhp\Compiler;
+use ScssPhp\ScssPhp\Exception\SassException;
 use ScssPhp\ScssPhp\Formatter\Compact;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
@@ -68,12 +69,11 @@ class SassEngine implements AssetEngineInterface
     }
 
     /**
-     * @param string $content
-     * @param mixed  $options = [
-     *                        'pageview' => new StaticPageView()
-     *                        ]
+     * @param array{pageview?: StaticPageView} $options
+     *
+     * @throws SassException
      */
-    public function parse($content, array $options = []): string
+    public function parse(string $content, array $options = []): string
     {
         $this->initializeCompiler();
 

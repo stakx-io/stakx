@@ -43,11 +43,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class Compiler
 {
-    /** @var false|string */
-    private $redirectTemplate;
+    private string|false $redirectTemplate;
 
     /**
-     * All of the PageViews handled by this Compiler instance indexed by their file paths relative to the site root.
+     * All the PageViews handled by this Compiler instance indexed by their file paths relative to the site root.
      *
      * ```
      * array['_pages/index.html.twig'] = &PageView;
@@ -95,10 +94,7 @@ class Compiler
         $this->folder = $folder;
     }
 
-    /**
-     * @param string $themeName
-     */
-    public function setThemeName($themeName): void
+    public function setThemeName(string $themeName): void
     {
         $this->theme = $themeName;
     }
@@ -107,12 +103,15 @@ class Compiler
     // Twig parent templates
     //
 
-    public function getTemplateBridge()
+    public function getTemplateBridge(): TemplateBridgeInterface
     {
         return $this->templateBridge;
     }
 
-    public function getTemplateMappings()
+    /**
+     * @return string[]
+     */
+    public function getTemplateMappings(): array
     {
         return $this->templateMapping;
     }
@@ -170,13 +169,15 @@ class Compiler
     //
 
     /**
-     * Compile all of the PageViews registered with the compiler.
+     * Compile all PageViews registered with the compiler.
+     *
+     * @throws FileAwareException
      *
      * @since 0.1.0
      */
     public function compileAll(): void
     {
-        foreach ($this->pageViewsFlattened as &$pageView) {
+        foreach ($this->pageViewsFlattened as $pageView) {
             $this->compilePageView($pageView);
         }
     }
@@ -187,11 +188,13 @@ class Compiler
      * This function will take care of determining *how* to treat the PageView and write the compiled output to a the
      * respective target file.
      *
-     * @param DynamicPageView|RepeaterPageView|StaticPageView $pageView The PageView that needs to be compiled
+     * @param BasePageView $pageView The PageView that needs to be compiled
+     *
+     * @throws FileAwareException
      *
      * @since 0.1.1
      */
-    public function compilePageView(DynamicPageView|RepeaterPageView|StaticPageView &$pageView): void
+    public function compilePageView(BasePageView $pageView): void
     {
         Service::setOption('currentTemplate', $pageView->getAbsoluteFilePath());
         $this->logger->debug('Compiling {type} PageView: {pageview}', [
@@ -202,18 +205,21 @@ class Compiler
         try {
             switch ($pageView->getType()) {
                 case BasePageView::STATIC_TYPE:
+                    /** @var StaticPageView $pageView */
                     $this->compileStaticPageView($pageView);
                     $this->compileStandardRedirects($pageView);
 
                     break;
 
                 case BasePageView::DYNAMIC_TYPE:
+                    /** @var DynamicPageView $pageView */
                     $this->compileDynamicPageView($pageView);
                     $this->compileStandardRedirects($pageView);
 
                     break;
 
                 case BasePageView::REPEATER_TYPE:
+                    /** @var RepeaterPageView $pageView */
                     $this->compileRepeaterPageView($pageView);
                     $this->compileExpandedRedirects($pageView);
 
@@ -237,7 +243,7 @@ class Compiler
      *
      * @throws TemplateErrorInterface
      */
-    private function compileStaticPageView(StaticPageView &$pageView): void
+    private function compileStaticPageView(StaticPageView $pageView): void
     {
         $this->writeToFilesystem(
             $pageView->getTargetFile(),
@@ -253,7 +259,7 @@ class Compiler
      *
      * @throws TemplateErrorInterface
      */
-    private function compileDynamicPageView(DynamicPageView &$pageView): void
+    private function compileDynamicPageView(DynamicPageView $pageView): void
     {
         $contentItems = $pageView->getCollectableItems();
         $template = $this->createTwigTemplate($pageView);

@@ -21,15 +21,15 @@ class ThemeManager extends AssetManager
 
     final public const THEME_DEFINITION_FILE = 'stakx-theme.yml';
 
-    private $themeFolderRelative;
+    private string $themeFolderRelative;
 
-    private $themeFolder;
+    private string $themeFolder;
 
-    private $themeFile;
+    private string $themeFile;
 
-    private $themeData;
+    private array $themeData;
 
-    private $themeName;
+    private string $themeName;
 
     public function __construct($themeName, EventDispatcherInterface $eventDispatcher, LoggerInterface $logger)
     {
@@ -41,7 +41,7 @@ class ThemeManager extends AssetManager
         $this->themeFile = fs::appendPath($this->themeFolder, self::THEME_DEFINITION_FILE);
         $this->themeData = [
             'exclude' => [
-                // Ignore underscore directories inside of our theme folder
+                // Ignore underscore directories inside our theme folder
                 sprintf('/_themes\\/%s\\/_/', $this->themeName),
             ],
             'include' => [],
@@ -65,7 +65,7 @@ class ThemeManager extends AssetManager
     /**
      * {@inheritdoc}
      */
-    public function refreshItem($filePath)
+    public function refreshItem($filePath): mixed
     {
         $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
 
@@ -78,7 +78,7 @@ class ThemeManager extends AssetManager
     /**
      * {@inheritdoc}
      */
-    public function shouldBeTracked($filePath)
+    public function shouldBeTracked($filePath): bool
     {
         $isThemeAsset = str_starts_with($filePath, (string)$this->themeFolderRelative);
 
@@ -88,7 +88,7 @@ class ThemeManager extends AssetManager
     /**
      * {@inheritdoc}
      */
-    public function createNewItem($filePath)
+    public function createNewItem($filePath): mixed
     {
         $relativeFilePath = str_replace($this->themeFolderRelative . '/', '', $filePath);
 

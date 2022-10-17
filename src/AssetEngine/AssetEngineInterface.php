@@ -33,6 +33,8 @@ interface AssetEngineInterface
 
     /**
      * The default configuration for this engine.
+     *
+     * @return array<string, mixed>
      */
     public function getDefaultConfiguration(): array;
 
@@ -55,17 +57,19 @@ interface AssetEngineInterface
     public function getExtensions(): array;
 
     /**
-     * @param string $content
+     * @param array<string, mixed> $options
      *
      * @since 0.2.0
      */
-    public function parse($content, array $options = []): string;
+    public function parse(string $content, array $options = []): string;
 
     /**
      * Set custom options used internally by this AssetEngine.
      *
      * These options are a union of the default configuration and any overrides
      * from the site configuration file.
+     *
+     * @param array<string, mixed> $options
      *
      * @since 0.2.0
      */

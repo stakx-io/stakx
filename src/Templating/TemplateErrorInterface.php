@@ -16,31 +16,19 @@ interface TemplateErrorInterface extends Throwable
 {
     public function getTemplateLine(): int;
 
-    /**
-     * @param int $lineNumber
-     */
-    public function setTemplateLine($lineNumber): self;
+    public function setTemplateLine(int $lineNumber): self;
 
     public function getContent(): string;
 
-    /**
-     * @param string $content
-     */
-    public function setContent($content): self;
+    public function setContent(string $content): self;
 
     public function getName(): string;
 
-    /**
-     * @param string $name
-     */
-    public function setName($name): self;
+    public function setName(string $name): self;
 
     public function getRelativeFilePath(): string;
 
-    /**
-     * @param string $filePath
-     */
-    public function setRelativeFilePath($filePath): self;
+    public function setRelativeFilePath(string $filePath): self;
 
     public function buildException(): void;
 }
