@@ -59,6 +59,7 @@ class BuildCommand extends ContainerAwareCommand
         {
             $this->configureConfigurationFile($input);
 
+            /** @var Website $website */
             $website = $this->getContainer()->get(Website::class);
             $website->build();
 
