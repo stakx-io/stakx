@@ -75,6 +75,12 @@ class WebServer
             $context = new RequestContext($urlPath);
             $matcher = new UrlMatcher($routes, $context);
 
+            // If we have a Linked Asset, let's serve it
+            if (($file = $assetManager->getExplicitAsset(self::normalizePath($urlPath))) !== null)
+            {
+                return self::makeResponse($file);
+            }
+
             try
             {
                 $parameters = $matcher->match($urlPath);
@@ -88,12 +94,6 @@ class WebServer
             }
             catch (ResourceNotFoundException $e)
             {
-                // If we have a "manual" asset, let's serve from it
-                if (($file = $assetManager->getExplicitAsset(self::normalizePath($urlPath))) !== null)
-                {
-                    return self::makeResponse($file);
-                }
-
                 // Our AssetManager only populates its registry of assets when files are copied at build time. Because
                 // the web server doesn't perform the full site compilation, our manager is not populated. For this
                 // reason, we manually look through the filesystem and load from there.
