@@ -8,6 +8,7 @@
 namespace allejo\stakx\MarkupEngine;
 
 use __;
+use allejo\stakx\Configuration;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Markup\AssetHandlerTrait;
 use allejo\stakx\Markup\SyntaxHighlighterTrait;
@@ -20,12 +21,20 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
     use AssetHandlerTrait;
     use SyntaxHighlighterTrait;
 
-    public function __construct(AssetManager $assetManager)
+    protected $internalhosts;
+    protected $externallinkrel;
+    protected $externallinktarget;
+
+    public function __construct(AssetManager $assetManager, Configuration $configuration)
     {
         parent::__construct();
 
         $this->highlighter = new Highlighter();
         $this->assetManager = $assetManager;
+
+        $this->internalhosts = $configuration->getInternalHosts();
+        $this->externallinkrel = $configuration->getExternalLinkRel();
+        $this->externallinktarget = $configuration->getExternalLinkTarget();
     }
 
     public function parse($text, $contentItem = null)
@@ -79,6 +88,34 @@ class MarkdownEngine extends \ParsedownExtra implements MarkupEngineInterface
         }
 
         return parent::blockFencedCodeComplete($block);
+    }
+
+    protected function inlineLink($Excerpt)
+    {
+        // Run through the normal logic of ParseDownExtra::inlineLink
+        $linkBlock = parent::inlineLink($Excerpt);
+
+        // If valid, and external link rel or target is defined, check if we should add those attributes
+        if ($linkBlock !== null && ($this->externallinkrel || $this->externallinktarget))
+        {
+            // Parse out the host from the URL, if any
+            $host = parse_url($linkBlock['element']['attributes']['href'], PHP_URL_HOST);
+
+            // If a host was found, and it is not on the list of internal hosts, add the attributes
+            if ($host !== NULL && !in_array($host, $this->internalhosts))
+            {
+                if ($this->externallinkrel)
+                {
+                    $linkBlock['element']['attributes']['rel'] = $this->externallinkrel;
+                }
+                if ($this->externallinktarget)
+                {
+                    $linkBlock['element']['attributes']['target'] = $this->externallinktarget;
+                }
+            }
+        }
+
+        return $linkBlock;
     }
 
     protected function inlineImage($Excerpt)

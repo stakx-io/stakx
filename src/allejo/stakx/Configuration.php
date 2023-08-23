@@ -217,6 +217,30 @@ class Configuration
         return __::get($this->configuration, 'templates.redirect');
     }
 
+    /**
+     * @return array
+     */
+    public function getInternalHosts()
+    {
+        return __::get($this->configuration, 'links.internalhosts', []);
+    }
+
+    /**
+     * @return false|string
+     */
+    public function getExternalLinkRel()
+    {
+        return __::get($this->configuration, 'links.externalrel', false);
+    }
+
+    /**
+     * @return false|string
+     */
+    public function getExternalLinkTarget()
+    {
+        return __::get($this->configuration, 'links.externaltarget', false);
+    }
+
     ///
     // Parsing
     ///
