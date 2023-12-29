@@ -14,7 +14,7 @@ use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Service;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AssetManager extends TrackingManager
 {

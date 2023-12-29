@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\CollectableItem;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is triggered after a Dynamic PageView is compiled and before it is written to a file. The compiled output
@@ -20,20 +20,20 @@ class CompilerPostRenderDynamicPageView extends Event
 {
     use CompilerPostRenderTrait;
 
-    const NAME = 'compiler.postrender.dynamic_pageview';
+    public const NAME = 'compiler.postrender.dynamic_pageview';
 
-    private $collectableItem;
+    private CollectableItem $collectableItem;
 
-    /**
-     * @param string $compiledOutput
-     */
-    public function __construct(CollectableItem $collectableItem, $compiledOutput)
+    public function __construct(CollectableItem $collectableItem, string|\Stringable $compiledOutput)
     {
         $this->collectableItem = $collectableItem;
         $this->compiledOutput = $compiledOutput;
     }
 
-    public function getCollectableItem()
+    /**
+     * A clone of the CollectableItem;
+     */
+    public function getCollectableItem(): CollectableItem
     {
         return clone $this->collectableItem;
     }

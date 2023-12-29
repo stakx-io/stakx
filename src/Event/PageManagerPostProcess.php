@@ -14,5 +14,5 @@ namespace allejo\stakx\Event;
  */
 class PageManagerPostProcess extends PageManagerPreProcess
 {
-    const NAME = 'pagemanager.process.post_process';
+    public const NAME = 'pagemanager.process.post_process';
 }

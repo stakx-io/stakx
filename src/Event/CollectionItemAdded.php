@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\ContentItem;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is fired whenever a new ContentItem is created while processing a collection. This event grants access to
@@ -18,19 +18,16 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class CollectionItemAdded extends Event
 {
-    const NAME = 'collection.item.added';
+    public const NAME = 'collection.item.added';
 
-    private $contentItem;
+    private ContentItem $contentItem;
 
-    public function __construct(&$contentItem)
+    public function __construct(ContentItem $contentItem)
     {
-        $this->contentItem = &$contentItem;
+        $this->contentItem = $contentItem;
     }
 
-    /**
-     * @return ContentItem
-     */
-    public function &getContentItem()
+    public function getContentItem(): ContentItem
     {
         return $this->contentItem;
     }

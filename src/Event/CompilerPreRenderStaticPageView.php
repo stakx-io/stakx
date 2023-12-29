@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\StaticPageView;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is fired before a PageView is rendered and allows you inject custom variables into the templates.
@@ -19,17 +19,17 @@ class CompilerPreRenderStaticPageView extends Event
 {
     use CompilerPreRenderTrait;
 
-    const NAME = 'compiler.prerender.static_pageview';
+    public const NAME = 'compiler.prerender.static_pageview';
 
-    private $pageView;
+    private StaticPageView $pageView;
 
     public function __construct(StaticPageView $pageView)
     {
         $this->pageView = $pageView;
     }
 
-    public function getPageView()
+    public function getPageView(): StaticPageView
     {
-        return clone $this->pageView;
+        return $this->pageView;
     }
 }

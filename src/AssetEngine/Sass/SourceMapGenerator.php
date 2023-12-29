@@ -17,8 +17,8 @@ use ScssPhp\ScssPhp\SourceMap\SourceMapGenerator as BaseGenerator;
  */
 class SourceMapGenerator extends BaseGenerator
 {
-    protected $generatorOptions;
-    protected $sourceMapContent;
+    protected array $generatorOptions;
+    protected string $sourceMapContent;
 
     public function __construct(array $options = [])
     {
@@ -27,7 +27,7 @@ class SourceMapGenerator extends BaseGenerator
         $this->generatorOptions = $options;
     }
 
-    public function getSourceMapContents()
+    public function getSourceMapContents(): string
     {
         return $this->sourceMapContent;
     }

@@ -11,7 +11,7 @@ use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\Folder;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -44,7 +44,7 @@ class ThemeManager extends AssetManager
 
         if (!fs::exists($this->themeFolder))
         {
-            throw new FileNotFoundException("The '${themeName}' theme folder could not be found.'");
+            throw new FileNotFoundException("The '{$themeName}' theme folder could not be found.'");
         }
 
         if (fs::exists($this->themeFile))

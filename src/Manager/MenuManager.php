@@ -10,7 +10,7 @@ namespace allejo\stakx\Manager;
 use allejo\stakx\Document\JailedDocument;
 use allejo\stakx\Document\StaticPageView;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MenuManager extends BaseManager
 {

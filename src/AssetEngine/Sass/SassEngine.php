@@ -17,47 +17,40 @@ use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Service;
 use ScssPhp\ScssPhp\Compiler;
+use ScssPhp\ScssPhp\Exception\SassException;
 use ScssPhp\ScssPhp\Formatter\Compact;
+use ScssPhp\ScssPhp\Formatter\Compressed;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
 use ScssPhp\ScssPhp\Formatter\Nested;
+use ScssPhp\ScssPhp\OutputStyle;
 
 class SassEngine implements AssetEngineInterface
 {
-    /** @var bool */
-    private $fileSourceMap = false;
-
-    /** @var WritableFolder|null */
-    private $cacheDirectory;
-
-    /** @var Configuration */
-    private $configuration;
-
-    /** @var PageManager */
-    private $pageManager;
-
-    /** @var Compiler|null */
-    private $compiler;
-
+    private ?WritableFolder $cacheDirectory;
+    private Configuration $configuration;
+    private PageManager $pageManager;
+    private ?Compiler $compiler;
     /** @var array<string, mixed> */
-    private $options = [];
+    private array $options = [];
+    private bool $fileSourceMap = false;
 
     public function __construct(Configuration $configuration)
     {
         $this->configuration = $configuration;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'Sass';
     }
 
-    public function getConfigurationNamespace()
+    public function getConfigurationNamespace(): string
     {
         return 'scss';
     }
 
-    public function getDefaultConfiguration()
+    public function getDefaultConfiguration(): array
     {
         return [
             'style' => 'compressed',
@@ -65,25 +58,25 @@ class SassEngine implements AssetEngineInterface
         ];
     }
 
-    public function getFolder()
+    public function getFolder(): string
     {
         return '_sass';
     }
 
-    public function getExtensions()
+    /**
+     * @return string[]
+     */
+    public function getExtensions(): array
     {
         return ['scss'];
     }
 
     /**
-     * @param string $content
-     * @param $options = [
-     *     'pageview' => new StaticPageView()
-     * ]
+     * @param array{pageview: StaticPageView} $options
      *
-     * @return string
+     * @throws SassException
      */
-    public function parse($content, array $options = [])
+    public function parse(string $content, array $options = []): string
     {
         $this->initializeCompiler();
 
@@ -98,10 +91,9 @@ class SassEngine implements AssetEngineInterface
         {
             $this->compiler->setSourceMapOptions($sourceMapOptions);
 
-            return $this->compiler->compile($content);
+            return $this->compiler->compileString($content)->getCss();
         }
 
-        /** @var StaticPageView $pageView */
         $pageView = $options['pageview'];
 
         // Always put our source map next to the respective CSS file
@@ -117,7 +109,7 @@ class SassEngine implements AssetEngineInterface
         $sourceMapGenerator = new SourceMapGenerator($sourceMapOptions);
         $this->compiler->setSourceMap($sourceMapGenerator);
 
-        $sass = $this->compiler->compile($content);
+        $sass = $this->compiler->compileString($content)->getCss();
 
         $sourceMapPageView = BasePageView::createVirtual([
             'permalink' => $pageView->getPermalink() . '.map',
@@ -128,38 +120,38 @@ class SassEngine implements AssetEngineInterface
         return $sass;
     }
 
-    public function setOptions(array $options)
+    public function setOptions(array $options): void
     {
         $this->options = $options;
     }
 
-    public function setPageManager(PageManager $pageManager)
+    public function setPageManager(PageManager $pageManager): void
     {
         $this->pageManager = $pageManager;
     }
 
-    public function loadCache(WritableFolder $cacheDir)
+    public function loadCache(WritableFolder $cacheDir): void
     {
         $this->cacheDirectory = $cacheDir;
     }
 
-    public function saveCache(WritableFolder $cacheDir)
+    public function saveCache(WritableFolder $cacheDir): void
     {
     }
 
-    private function configureImportPath()
+    private function configureImportPath(): void
     {
         $this->compiler->setImportPaths(Service::getWorkingDirectory() . '/_sass/');
     }
 
-    private function configureOutputStyle()
+    private function configureOutputStyle(): void
     {
         $style = __::get($this->options, 'style', 'compressed');
 
-        $this->compiler->setFormatter(self::stringToFormatter($style));
+        $this->compiler->setOutputStyle(self::stringToFormatter($style));
     }
 
-    private function configureSourceMap()
+    private function configureSourceMap(): void
     {
         $sourceMap = __::get($this->options, 'sourcemap');
 
@@ -178,7 +170,7 @@ class SassEngine implements AssetEngineInterface
         }
     }
 
-    private function getSourceMapTargetFile(StaticPageView $pageView)
+    private function getSourceMapTargetFile(StaticPageView $pageView): string
     {
         return fs::absolutePath(
             $this->configuration->getTargetFolder(),
@@ -186,7 +178,7 @@ class SassEngine implements AssetEngineInterface
         );
     }
 
-    private function initializeCompiler()
+    private function initializeCompiler(): void
     {
         if ($this->compiler)
         {
@@ -211,30 +203,22 @@ class SassEngine implements AssetEngineInterface
         $this->configureSourceMap();
     }
 
-    private function handleThemeImports(&$content)
+    private function handleThemeImports(string &$content): void
     {
         if (($themeName = $this->configuration->getTheme()))
         {
-            $themePath = "../_themes/${themeName}/_sass";
-            $content = preg_replace("/(@import ['\"])(@theme)(.+)/", "$1${themePath}$3", $content);
+            $themePath = "../_themes/{$themeName}/_sass";
+            $content = preg_replace("/(@import ['\"])(@theme)(.+)/", "$1{$themePath}$3", $content);
         }
     }
 
-    public static function stringToFormatter($format)
+    public static function stringToFormatter($format): string
     {
-        if ($format == 'nested')
-        {
-            return Nested::class;
-        }
-        elseif ($format == 'expanded')
-        {
-            return Expanded::class;
-        }
-        elseif ($format == 'compact')
-        {
-            return Compact::class;
-        }
+        return match ($format) {
+            'nested', 'expanded' => OutputStyle::EXPANDED,
 
-        return Crunched::class;
+            // Also handle `compressed`
+            default => OutputStyle::COMPRESSED,
+        };
     }
 }

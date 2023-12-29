@@ -11,11 +11,16 @@ use allejo\stakx\Exception\UnsupportedAssetEngineException;
 
 class AssetEngineManager
 {
-    private $enginesByExtension = [];
-    private $foldersToWatch = [];
-    private $engines;
+    /** @var array<string, AssetEngineInterface> Extensions are stored as keys and engines as corresponding values */
+    private array $enginesByExtension = [];
 
-    public function addAssetEngines(/* iterable */ $assetEngines)
+    /** @var array<string, AssetEngineInterface> Folder paths are stored as keys and engines as corresponding values */
+    private array $foldersToWatch = [];
+
+    /** @var AssetEngineInterface[] All registered engines */
+    private array $engines;
+
+    public function addAssetEngines(iterable $assetEngines): void
     {
         foreach ($assetEngines as $assetEngine)
         {
@@ -23,7 +28,7 @@ class AssetEngineManager
         }
     }
 
-    public function addAssetEngine(AssetEngineInterface $assetEngine)
+    public function addAssetEngine(AssetEngineInterface $assetEngine): void
     {
         $extensions = $assetEngine->getExtensions();
 
@@ -37,7 +42,10 @@ class AssetEngineManager
         $this->foldersToWatch[$assetEngine->getFolder()] = $e;
     }
 
-    public function getEngines()
+    /**
+     * @return AssetEngineInterface[]
+     */
+    public function getEngines(): array
     {
         return $this->engines;
     }
@@ -49,10 +57,13 @@ class AssetEngineManager
             return $this->enginesByExtension[$extension];
         }
 
-        throw new UnsupportedAssetEngineException($extension, "There is no support to handle the '${extension}' asset type.");
+        throw new UnsupportedAssetEngineException($extension, "There is no support to handle the '{$extension}' asset type.");
     }
 
-    public function getFoldersToWatch()
+    /**
+     * @return AssetEngineInterface[]
+     */
+    public function getFoldersToWatch(): array
     {
         return $this->foldersToWatch;
     }

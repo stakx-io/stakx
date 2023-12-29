@@ -20,7 +20,7 @@ use allejo\stakx\Filesystem\Folder;
 use allejo\stakx\MarkupEngine\MarkupEngineManager;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * The class that reads and saves information about all of the collections.

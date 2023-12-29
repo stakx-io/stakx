@@ -14,7 +14,7 @@ use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\ThemeManager;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use Highlight\Highlighter;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Website
 {
@@ -103,7 +103,7 @@ class Website
         //
         if ($theme !== null)
         {
-            $this->logger->notice("Looking for '${theme}' theme...");
+            $this->logger->notice("Looking for '{$theme}' theme...");
 
             $tm = new ThemeManager($theme, $this->eventDispatcher, $this->logger);
             $tm->configureFinder($this->getConfiguration()->getIncludes(), $assetsToIgnore);

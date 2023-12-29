@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\DataItem;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is fired whenever a new DataItem is registered. This event grants access to the DataItem allowing any
@@ -18,19 +18,16 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class DataItemAdded extends Event
 {
-    const NAME = 'dataitem.item.added';
+    public const NAME = 'dataitem.item.added';
 
-    private $dataItem;
+    private DataItem $dataItem;
 
-    public function __construct(&$dataItem)
+    public function __construct(DataItem $dataItem)
     {
-        $this->dataItem = &$dataItem;
+        $this->dataItem = $dataItem;
     }
 
-    /**
-     * @return DataItem
-     */
-    public function &getDataItem()
+    public function getDataItem(): DataItem
     {
         return $this->dataItem;
     }

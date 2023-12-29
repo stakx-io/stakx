@@ -7,32 +7,22 @@
 
 namespace allejo\stakx\Event;
 
-use allejo\stakx\Utilities\StrUtils;
+use Stringable;
 
 trait CompilerPostRenderTrait
 {
-    /** @var string */
-    protected $compiledOutput;
+    protected string|Stringable $compiledOutput;
 
-    public function getCompiledOutput()
+    public function getCompiledOutput(): string
     {
         return (string)$this->compiledOutput;
     }
 
     /**
      * Modify the compiled output.
-     *
-     * @param string $compiledOutput
      */
-    public function setCompiledOutput($compiledOutput)
+    public function setCompiledOutput(string|Stringable $compiledOutput): void
     {
-        if (!StrUtils::canBeCastedToString($compiledOutput))
-        {
-            @trigger_error('CompileProcessPostRenderPageView :: Value cannot be set to something that cannot be cast into a string.', E_USER_WARNING);
-
-            return;
-        }
-
         $this->compiledOutput = $compiledOutput;
     }
 }

@@ -19,7 +19,7 @@ use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FileExplorerDefinition;
 use allejo\stakx\Filesystem\Folder;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class handles everything in regards to DataItems and DataSets.

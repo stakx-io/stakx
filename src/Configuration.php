@@ -13,7 +13,7 @@ use allejo\stakx\Exception\RecursiveConfigurationException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Utilities\ArrayUtilities;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;

@@ -5,9 +5,10 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use allejo\stakx\Console\Application;
 
+$application = new Application('stakx', '@package_version@');
+
 try
 {
-    $application = new Application('stakx', '@package_version@');
     $application->run();
 }
 catch (\Exception $e)

@@ -9,7 +9,7 @@ namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\FrontMatter\ExpandedValue;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is triggered after a Repeater PageView is compiled and before it is written to a file. The compiled output
@@ -21,27 +21,30 @@ class CompilerPostRenderRepeaterPageView extends Event
 {
     use CompilerPostRenderTrait;
 
-    const NAME = 'compiler.postrender.repeater_pageview';
+    public const NAME = 'compiler.postrender.repeater_pageview';
 
-    private $pageView;
-    private $expandedValue;
+    private RepeaterPageView $pageView;
+    private ExpandedValue $expandedValue;
 
-    /**
-     * @param string $compiledOutput
-     */
-    public function __construct(RepeaterPageView $pageView, ExpandedValue $expandedValue, $compiledOutput)
+    public function __construct(RepeaterPageView $pageView, ExpandedValue $expandedValue, string|\Stringable $compiledOutput)
     {
         $this->pageView = $pageView;
         $this->expandedValue = $expandedValue;
         $this->compiledOutput = $compiledOutput;
     }
 
-    public function getPageView()
+    /**
+     * A copy of the Repeater PageView that triggered this event.
+     */
+    public function getPageView(): RepeaterPageView
     {
         return clone $this->pageView;
     }
 
-    public function getExpandedValue()
+    /**
+     * A copy of the expanded value of this Repeater PageView that triggered this event.
+     */
+    public function getExpandedValue(): ExpandedValue
     {
         return clone $this->expandedValue;
     }

@@ -9,7 +9,7 @@ namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Templating\TemplateInterface;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * A notification only event for when a template is created by the Compiler.
@@ -18,33 +18,30 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class CompilerTemplateCreation extends Event
 {
-    const NAME = 'compile.template_creation';
+    public const NAME = 'compile.template_creation';
 
-    private $pageView;
-    private $template;
-    private $theme;
+    private BasePageView $pageView;
+    private TemplateInterface $template;
+    private string $theme;
 
-    public function __construct(BasePageView $pageView, TemplateInterface $template, $theme)
+    public function __construct(BasePageView $pageView, TemplateInterface $template, string $theme)
     {
         $this->pageView = $pageView;
         $this->template = $template;
         $this->theme = $theme;
     }
 
-    public function getPageView()
+    public function getPageView(): BasePageView
     {
         return clone $this->pageView;
     }
 
-    public function getTemplate()
+    public function getTemplate(): TemplateInterface
     {
         return clone $this->template;
     }
 
-    /**
-     * @return string
-     */
-    public function getTheme()
+    public function getTheme(): string
     {
         return $this->theme;
     }

@@ -15,41 +15,33 @@ use allejo\stakx\Manager\PageManager;
  */
 interface AssetEngineInterface
 {
-    const CONTAINER_TAG = 'stakx.asset_engine';
+    public const CONTAINER_TAG = 'stakx.asset_engine';
 
     /**
      * A unique-ish name used to identify this asset engine.
      *
      * This name will be used as an identity throughout stakx's internals and
      * for naming related cache folders.
-     *
-     * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * The section name in a site's `_config.yml` where this engine can be
      * configured.
-     *
-     * @return string
      */
-    public function getConfigurationNamespace();
+    public function getConfigurationNamespace(): string;
 
     /**
      * The default configuration for this engine.
-     *
-     * @return array
      */
-    public function getDefaultConfiguration();
+    public function getDefaultConfiguration(): array;
 
     /**
      * The dedicated folder this asset engine will work in.
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getFolder();
+    public function getFolder(): string;
 
     /**
      * The extension this asset engine will be dedicated to.
@@ -60,17 +52,15 @@ interface AssetEngineInterface
      *
      * @return string[]
      */
-    public function getExtensions();
+    public function getExtensions(): array;
 
     /**
      * @param string $content
      * @param array  $options
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function parse($content, array $options = []);
+    public function parse(string $content, array $options = []): string;
 
     /**
      * Set custom options used internally by this AssetEngine.
@@ -81,10 +71,8 @@ interface AssetEngineInterface
      * @param array $options
      *
      * @since 0.2.0
-     *
-     * @return void
      */
-    public function setOptions(array $options);
+    public function setOptions(array $options): void;
 
     /**
      * Set the PageManager for this AssetEngine so it can be available if it's
@@ -93,10 +81,8 @@ interface AssetEngineInterface
      * @param PageManager $pageManager
      *
      * @since 0.2.0
-     *
-     * @return void
      */
-    public function setPageManager(PageManager $pageManager);
+    public function setPageManager(PageManager $pageManager): void;
 
     /**
      * Perform loading cache operations before this engine's parsing functionality
@@ -110,10 +96,8 @@ interface AssetEngineInterface
      * @param WritableFolder $cacheDir
      *
      * @since 0.2.0
-     *
-     * @return void
      */
-    public function loadCache(WritableFolder $cacheDir);
+    public function loadCache(WritableFolder $cacheDir): void;
 
     /**
      * Perform any saving of caches after the parsing functionality has been
@@ -125,8 +109,6 @@ interface AssetEngineInterface
      * @param WritableFolder $cacheDir
      *
      * @since 0.2.0
-     *
-     * @return void
      */
-    public function saveCache(WritableFolder $cacheDir);
+    public function saveCache(WritableFolder $cacheDir): void;
 }

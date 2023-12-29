@@ -141,7 +141,7 @@ class WebServer
 
             // If the asset doesn't exist within our project root, see if it exists in our theme folder
             $theme = Service::getOption('theme');
-            $themeFile = "_themes/${theme}/" . $url;
+            $themeFile = "_themes/{$theme}/" . $url;
 
             return self::searchAsset($themeFile, false);
         }

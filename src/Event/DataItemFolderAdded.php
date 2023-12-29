@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Filesystem\Folder;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * A notification-only event fired whenever a new DataItem folder is scanned.
@@ -17,19 +17,16 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class DataItemFolderAdded extends Event
 {
-    const NAME = 'dataitem.folder.added';
+    public const NAME = 'dataitem.folder.added';
 
-    private $folder;
+    private Folder $folder;
 
     public function __construct(Folder $folderName)
     {
         $this->folder = $folderName;
     }
 
-    /**
-     * @return Folder
-     */
-    public function getFolder()
+    public function getFolder(): Folder
     {
         return $this->folder;
     }

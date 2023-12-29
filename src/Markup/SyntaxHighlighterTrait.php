@@ -63,7 +63,7 @@ trait SyntaxHighlighterTrait
         // Exception thrown when language not supported
         catch (\DomainException $exception)
         {
-            trigger_error("An unsupported language (${langDef['language']}) was detected in a code block", E_USER_WARNING);
+            trigger_error("An unsupported language ({$langDef['language']}) was detected in a code block", E_USER_WARNING);
         }
         catch (\Exception $e)
         {

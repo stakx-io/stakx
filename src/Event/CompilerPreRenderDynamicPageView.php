@@ -8,7 +8,7 @@
 namespace allejo\stakx\Event;
 
 use allejo\stakx\Document\CollectableItem;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is fired before a Dynamic PageView is rendered and allows you inject custom variables into the templates.
@@ -19,17 +19,20 @@ class CompilerPreRenderDynamicPageView extends Event
 {
     use CompilerPreRenderTrait;
 
-    const NAME = 'compiler.prerender.dynamic_pageview';
+    public const NAME = 'compiler.prerender.dynamic_pageview';
 
-    private $collectableItem;
+    private CollectableItem $collectableItem;
 
     public function __construct(CollectableItem $collectable)
     {
         $this->collectableItem = $collectable;
     }
 
-    public function getCollectableItem()
+    /**
+     * A copy of the Collectable Item that triggered this event.
+     */
+    public function getCollectableItem(): CollectableItem
     {
-        return clone $this->collectableItem;
+        return $this->collectableItem;
     }
 }

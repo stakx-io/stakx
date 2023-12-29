@@ -67,7 +67,7 @@ services:
       - '@templating'
 
   event_dispatcher:
-    class: Symfony\Component\EventDispatcher\EventDispatcher
+    class: Symfony\Contracts\EventDispatcher\EventDispatcher
 
   output:
     class: Symfony\Component\Console\Output\ConsoleOutput
