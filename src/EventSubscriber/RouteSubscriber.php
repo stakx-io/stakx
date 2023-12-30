@@ -13,22 +13,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RouteSubscriber implements EventSubscriberInterface
 {
-    private $routerMapping;
-
-    public function __construct(RouteMapper $routerMapping)
+    public function __construct(private readonly RouteMapper $routerMapping)
     {
-        $this->routerMapping = $routerMapping;
     }
 
-    public function registerPageView(PageViewAdded $event)
+    public function registerPageView(PageViewAdded $event): void
     {
         $this->routerMapping->registerPageView($event->getPageView());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PageViewAdded::NAME => 'registerPageView',

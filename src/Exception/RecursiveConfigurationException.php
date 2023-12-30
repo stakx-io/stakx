@@ -12,16 +12,12 @@ use Exception;
 
 class RecursiveConfigurationException extends \RuntimeException
 {
-    private $import;
-
-    public function __construct(File $import, $message = '', $code = 0, Exception $previous = null)
+    public function __construct(private readonly File $import, string $message = '', int $code = 0, Exception $previous = null)
     {
-        $this->import = $import;
-
         parent::__construct($message, $code, $previous);
     }
 
-    public function getRecursiveImport()
+    public function getRecursiveImport(): string
     {
         return $this->import->getRelativeFilePath();
     }

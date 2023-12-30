@@ -11,19 +11,12 @@ use Throwable;
 
 class UnsupportedDataTypeException extends \RuntimeException
 {
-    private $dataType;
-
-    public function __construct($dataType, $message = '', $code = 0, Throwable $previous = null)
+    public function __construct(private readonly string $dataType, string $message = '', int $code = 0, Throwable $previous = null)
     {
-        $this->dataType = $dataType;
-
         parent::__construct($message, $code, $previous);
     }
 
-    /**
-     * @return string
-     */
-    public function getDataType()
+    public function getDataType(): string
     {
         return $this->dataType;
     }

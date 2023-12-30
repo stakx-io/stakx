@@ -11,15 +11,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RedirectSubscriber implements EventSubscriberInterface
 {
-    /** @var RedirectMapper */
-    private $redirectMapper;
-
-    public function __construct(RedirectMapper $redirectMapper)
+    public function __construct(private readonly RedirectMapper $redirectMapper)
     {
-        $this->redirectMapper = $redirectMapper;
     }
 
-    public function registerRedirect(PageViewAdded $event)
+    public function registerRedirect(PageViewAdded $event): void
     {
         $pageView = $event->getPageView();
 
@@ -49,10 +45,7 @@ class RedirectSubscriber implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PageViewAdded::NAME => 'registerRedirect',

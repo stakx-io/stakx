@@ -26,22 +26,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class AssetEngineSubscriber implements EventSubscriberInterface
 {
-    private $assetEngineManager;
-    private $assetPageViews;
-    private $logger;
+    private array $assetPageViews = [];
 
-    public function __construct(AssetEngineManager $assetEngineManager, LoggerInterface $logger)
-    {
-        $this->assetEngineManager = $assetEngineManager;
-        $this->assetPageViews = [];
-        $this->logger = $logger;
+    public function __construct(
+        private readonly AssetEngineManager $assetEngineManager,
+        private readonly LoggerInterface $logger
+    ) {
     }
 
-    public function processConfigurationSettings(ConfigurationParseComplete $event)
+    public function processConfigurationSettings(ConfigurationParseComplete $event): void
     {
         $configuration = $event->getConfiguration()->getConfiguration();
 
-        /** @var AssetEngineInterface $engine */
         foreach ($this->assetEngineManager->getEngines() as $engine)
         {
             $defaults = __::get($configuration, $engine->getConfigurationNamespace(), []);
@@ -51,7 +47,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function processAssetEnginePageView(PageManagerPostProcess $event)
+    public function processAssetEnginePageView(PageManagerPostProcess $event): void
     {
         /**
          * @var string               $folder
@@ -98,7 +94,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function compileAssetEnginePageViews(CompilerPostRenderStaticPageView $event)
+    public function compileAssetEnginePageViews(CompilerPostRenderStaticPageView $event): void
     {
         $pageView = $event->getPageView();
         $filePath = $pageView->getRelativeFilePath();
@@ -123,7 +119,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             ConfigurationParseComplete::NAME => 'processConfigurationSettings',
@@ -132,7 +128,7 @@ class AssetEngineSubscriber implements EventSubscriberInterface
         ];
     }
 
-    private function buildCacheFolder(AssetEngineInterface $engine)
+    private function buildCacheFolder(AssetEngineInterface $engine): WritableFolder
     {
         $cacheDirPath = new FilesystemPath(Service::getWorkingDirectory() . '/');
         $cacheDirPath

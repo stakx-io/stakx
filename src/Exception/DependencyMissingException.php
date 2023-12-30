@@ -11,19 +11,12 @@ use Throwable;
 
 class DependencyMissingException extends \RuntimeException
 {
-    private $dependency;
-
-    public function __construct($dependency, $message = '', $code = 0, Throwable $previous = null)
+    public function __construct(private readonly string $dependency, string $message = '', int $code = 0, Throwable $previous = null)
     {
-        $this->dependency = $dependency;
-
         parent::__construct($message, $code, $previous);
     }
 
-    /**
-     * @return string
-     */
-    public function getDependency()
+    public function getDependency(): string
     {
         return $this->dependency;
     }

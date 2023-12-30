@@ -7,44 +7,43 @@
 
 namespace allejo\stakx\Exception;
 
+use Twig\Error\SyntaxError;
+
 /**
  * Exception thrown when an error is found in a file.
  */
 class FileAwareException extends \RuntimeException
 {
-    private $lineNumber;
-    private $filePath;
-
-    public function __construct($message = '', $code = 0, \Exception $previous = null, $path = '', $line = -1)
-    {
+    public function __construct(
+        string $message = '',
+        int $code = 0,
+        \Exception $previous = null,
+        private readonly string $filePath = '',
+        private readonly int $lineNumber = -1
+    ) {
         parent::__construct($message, $code, $previous);
-
-        $this->filePath = $path;
-        $this->lineNumber = $line;
     }
 
-    public function getLineNumber()
+    public function getLineNumber(): int
     {
         return $this->lineNumber;
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return $this->filePath;
     }
 
-    public static function castException(\Exception $e, $filePath)
+    public static function castException(\Exception $e, $filePath): FileAwareException
     {
-        $lineNumber = ($e instanceof \Twig_Error_Syntax) ? $e->getTemplateLine() : -1;
+        $lineNumber = ($e instanceof SyntaxError) ? $e->getTemplateLine() : -1;
 
-        $exception = new self(
+        return new self(
             $e->getMessage(),
             $e->getCode(),
             $e,
             $filePath,
             $lineNumber
         );
-
-        return $exception;
     }
 }
