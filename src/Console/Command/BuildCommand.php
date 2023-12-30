@@ -21,18 +21,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class BuildCommand extends ContainerAwareCommand
 {
-    const NO_CONF = 'no-conf';
-    const NO_CLEAN = 'no-clean';
-    const USE_DRAFTS = 'use-drafts';
-    const WATCHING = 'watching';
-    const USE_CACHE = 'use-cache';
-    const SAFE_MODE = 'safe';
-    const BUILD_PROFILE = 'profile';
+    public const NO_CONF = 'no-conf';
+    public const NO_CLEAN = 'no-clean';
+    public const USE_DRAFTS = 'use-drafts';
+    public const WATCHING = 'watching';
+    public const USE_CACHE = 'use-cache';
+    public const SAFE_MODE = 'safe';
+    public const BUILD_PROFILE = 'profile';
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addOption(self::NO_CONF, 'l', InputOption::VALUE_NONE, 'Build a stakx website without a configuration file');
 
@@ -47,10 +44,7 @@ class BuildCommand extends ContainerAwareCommand
         $this->setDescription('Builds the stakx website');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->handleDeprecations($input, $output);
         $this->setRunTimeOptions($input);
@@ -89,11 +83,9 @@ class BuildCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param InputInterface $input
-     *
      * @throws \Exception
      */
-    protected function configureConfigurationFile(InputInterface $input)
+    protected function configureConfigurationFile(InputInterface $input): void
     {
         $confFilePath = $input->getOption('conf');
         $siteRoot = fs::getFolderPath(realpath($confFilePath));
@@ -106,7 +98,7 @@ class BuildCommand extends ContainerAwareCommand
         $conf->parse($configFile);
     }
 
-    protected function setRunTimeOptions(InputInterface $input)
+    protected function setRunTimeOptions(InputInterface $input): void
     {
         if ($input->getOption(self::NO_CLEAN))
         {
@@ -137,7 +129,7 @@ class BuildCommand extends ContainerAwareCommand
         }
     }
 
-    protected function handleDeprecations(InputInterface $input, OutputInterface $output)
+    protected function handleDeprecations(InputInterface $input, OutputInterface $output): void
     {
         if ($input->getOption(self::NO_CONF))
         {

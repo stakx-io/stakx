@@ -20,8 +20,8 @@ use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
 class ContainerBuilder
 {
-    private $containerPath;
-    private $options;
+    private string $containerPath;
+    private array $options;
 
     public function __construct(array $options)
     {
@@ -29,7 +29,10 @@ class ContainerBuilder
         $this->options = $options;
     }
 
-    public function build()
+    /**
+     * @throws \Exception
+     */
+    public function build(): string
     {
         if (!$this->isPhar())
         {
@@ -39,12 +42,15 @@ class ContainerBuilder
         return $this->containerPath;
     }
 
-    private function isPhar()
+    private function isPhar(): bool
     {
-        return strlen(\Phar::running()) > 0;
+        return \Phar::running() !== '';
     }
 
-    private function compileAndDump()
+    /**
+     * @throws \Exception
+     */
+    private function compileAndDump(): void
     {
         $container = new BaseBuilder();
         $container

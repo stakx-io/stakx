@@ -9,25 +9,14 @@ namespace allejo\stakx\DataTransformer;
 
 class JsonTransformer implements DataTransformerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function transformData($content)
+    public static function transformData(string $content): array
     {
         $data = json_decode($content, true);
 
-        if ($data === null)
-        {
-            return [];
-        }
-
-        return $data;
+        return $data ?? [];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getExtensions()
+    public static function getExtensions(): array
     {
         return [
             'json',

@@ -11,10 +11,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class YamlTransformer implements DataTransformerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function transformData($content)
+    public static function transformData(string $content): array
     {
         try
         {
@@ -33,10 +30,7 @@ class YamlTransformer implements DataTransformerInterface
         return $data;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getExtensions()
+    public static function getExtensions(): array
     {
         return [
             'yml',

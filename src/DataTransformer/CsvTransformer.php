@@ -9,10 +9,7 @@ namespace allejo\stakx\DataTransformer;
 
 class CsvTransformer implements DataTransformerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function transformData($content)
+    public static function transformData(string $content): array
     {
         $rows = array_map('str_getcsv', explode("\n", trim($content)));
         $columns = array_shift($rows);
@@ -26,10 +23,7 @@ class CsvTransformer implements DataTransformerInterface
         return $csv;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getExtensions()
+    public static function getExtensions(): array
     {
         return [
             'csv',

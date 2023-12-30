@@ -11,14 +11,15 @@ use allejo\stakx\Exception\UnsupportedDataTypeException;
 
 class DataTransformerManager
 {
-    private $transformers;
+    /** @var DataTransformerInterface[] */
+    private array $transformers;
 
     public function __construct()
     {
         $this->transformers = [];
     }
 
-    public function addDataTransformers(/*iterable*/ $dataTransformers)
+    public function addDataTransformers(iterable $dataTransformers): void
     {
         foreach ($dataTransformers as $dataTransformer)
         {
@@ -26,7 +27,7 @@ class DataTransformerManager
         }
     }
 
-    public function addDataTransformer(DataTransformerInterface $transformer)
+    public function addDataTransformer(DataTransformerInterface $transformer): void
     {
         foreach ($transformer->getExtensions() as $extension)
         {
@@ -34,7 +35,7 @@ class DataTransformerManager
         }
     }
 
-    public function getTransformer($extension)
+    public function getTransformer($extension): DataTransformerInterface
     {
         if (isset($this->transformers[$extension]))
         {

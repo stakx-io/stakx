@@ -22,10 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ServeCommand extends BuildCommand
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         parent::configure();
 
@@ -36,7 +33,7 @@ class ServeCommand extends BuildCommand
         $this->addOption('bind', null, InputOption::VALUE_REQUIRED, 'The IP the local development server will bind to', '0.0.0.0');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->handleDeprecations($input, $output);
         $this->setRunTimeOptions($input);
@@ -88,5 +85,7 @@ class ServeCommand extends BuildCommand
                 $e->getMessage()
             ));
         }
+
+        return 0;
     }
 }

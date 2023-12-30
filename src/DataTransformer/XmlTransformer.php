@@ -11,10 +11,7 @@ use allejo\stakx\Exception\DependencyMissingException;
 
 class XmlTransformer implements DataTransformerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public static function transformData($content)
+    public static function transformData(string $content): array
     {
         if (!function_exists('simplexml_load_string'))
         {
@@ -32,10 +29,7 @@ class XmlTransformer implements DataTransformerInterface
         return $data;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public static function getExtensions()
+    public static function getExtensions(): array
     {
         return [
             'xml',

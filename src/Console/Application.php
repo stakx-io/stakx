@@ -20,19 +20,13 @@ use Symfony\Component\DependencyInjection\Container;
  */
 class Application extends BaseApplication
 {
-    /** @var bool */
-    private $safeMode;
-    /** @var bool */
-    private $useCache;
-    /** @var Container */
-    private $container;
+    private bool $safeMode;
+    private bool $useCache;
+    private Container $container;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function run(InputInterface $input = null, OutputInterface $output = null)
+    public function run(InputInterface $input = null, OutputInterface $output = null): int
     {
-        $input = new ArgvInput();
+        $input = $input ?? new ArgvInput();
         $this->handleApplicationFlags($input);
 
         $this->loadContainer([
@@ -41,7 +35,7 @@ class Application extends BaseApplication
             ],
         ]);
 
-        $output = $this->getContainer()->get('output');
+        $output = $output ?? $this->getContainer()->get('output');
 
         if (extension_loaded('xdebug') && !getenv('STAKX_DISABLE_XDEBUG_WARN'))
         {
@@ -54,7 +48,7 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    protected function getDefaultCommands()
+    protected function getDefaultCommands(): array
     {
         $commands = parent::getDefaultCommands();
 
@@ -69,51 +63,41 @@ class Application extends BaseApplication
     ///
 
     /**
-     * Get whether or not the application is being run in safe mode.
-     *
-     * @return bool
+     * Get whether the application is being run in safe mode.
      */
-    public function inSafeMode()
+    public function inSafeMode(): bool
     {
-        return (bool)$this->safeMode;
+        return $this->safeMode;
     }
 
     /**
      * Set safe mode for the application.
-     *
-     * @param bool $safeMode
      */
-    public function setSafeMode($safeMode)
+    public function setSafeMode(bool $safeMode): void
     {
         $this->safeMode = $safeMode;
     }
 
     /**
-     * Get whether or not to look for and use the application cache.
-     *
-     * @return bool
+     * Get whether to look for and use the application cache.
      */
-    public function useCache()
+    public function useCache(): bool
     {
-        return (bool)$this->useCache;
+        return $this->useCache;
     }
 
     /**
-     * Set whether or not to use an existing cache.
-     *
-     * @param bool $useCache
+     * Set whether to use an existing cache.
      */
-    public function setUseCache($useCache)
+    public function setUseCache(bool $useCache): void
     {
         $this->useCache = $useCache;
     }
 
     /**
      * Handle application wide flags.
-     *
-     * @param InputInterface $input
      */
-    private function handleApplicationFlags(InputInterface $input)
+    private function handleApplicationFlags(InputInterface $input): void
     {
         $this->setUseCache($input->hasParameterOption('--use-cache'));
         $this->setSafeMode($input->hasParameterOption('--safe'));
@@ -125,10 +109,8 @@ class Application extends BaseApplication
 
     /**
      * Get the Service container.
-     *
-     * @return Container
      */
-    public function getContainer()
+    public function getContainer(): Container
     {
         return $this->container;
     }
@@ -136,16 +118,16 @@ class Application extends BaseApplication
     /**
      * Load the cached application container or build a new one.
      *
-     * @param array $containerOptions
-     *
      * @throws \Exception
      */
-    private function loadContainer(array $containerOptions)
+    private function loadContainer(array $containerOptions): void
     {
         $builder = new ContainerBuilder($containerOptions);
 
         require $builder->build();
 
+        // The `ProjectServiceContainer` class is generated at compile time by
+        // Symfony's Dependency Injection component.
         $this->container = new \ProjectServiceContainer();
     }
 }
