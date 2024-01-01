@@ -17,7 +17,7 @@ use allejo\stakx\Document\ContentItem;
  */
 interface MarkupEngineInterface
 {
-    const CONTAINER_TAG = 'stakx.markup_engine';
+    public const CONTAINER_TAG = 'stakx.markup_engine';
 
     /**
      * Get the custom tag and filter to register with our templating engine.
@@ -35,7 +35,7 @@ interface MarkupEngineInterface
      *
      * @return string|null if null, then no tag or filter will be registered
      */
-    public function getTemplateTag();
+    public function getTemplateTag(): ?string;
 
     /**
      * List of file extensions this engine will be charged with parsing.
@@ -44,17 +44,12 @@ interface MarkupEngineInterface
      *
      * @return string[]
      */
-    public function getExtensions();
+    public function getExtensions(): array;
 
     /**
      * Parse a given string using this engine.
      *
-     * @param string           $content
-     * @param ContentItem|null $contentItem
-     *
-     * @return string
-     *@since 0.2.0
-     *
+     * @since 0.2.0
      */
-    public function parse($content, $contentItem = null);
+    public function parse(string $content, ContentItem $contentItem = null): string;
 }

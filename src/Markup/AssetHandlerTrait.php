@@ -14,20 +14,19 @@ use allejo\stakx\Manager\AssetManager;
  */
 trait AssetHandlerTrait
 {
-    /** @var AssetManager */
-    protected $assetManager;
+    protected AssetManager $assetManager;
 
-    /** @var ContentItem */
-    protected $contentItem;
+    protected ?ContentItem $contentItem;
+
+    public function setContentItem(?ContentItem $contentItem): void
+    {
+        $this->contentItem = $contentItem;
+    }
 
     /**
      * Get a File object from a local path relative to the ContentItem.
-     *
-     * @param string $localPath
-     *
-     * @return File
      */
-    private function getFileFromPath($localPath)
+    private function getFileFromPath(string $localPath): File
     {
         $path = fs::path($this->contentItem->getAbsoluteFilePath())
             ->getParentDirectory()
@@ -40,12 +39,8 @@ trait AssetHandlerTrait
      * Get the permalink this file would belong at.
      *
      * This is taken from the ContentItem's target path and puts the asset at the same location as a sibling.
-     *
-     * @param File $file
-     *
-     * @return string
      */
-    private function getPermalinkFromFile(File $file)
+    private function getPermalinkFromFile(File $file): string
     {
         $folder = fs::path($this->contentItem->getTargetFile())->getParentDirectory();
 
@@ -54,12 +49,8 @@ trait AssetHandlerTrait
 
     /**
      * Check if a given string is a valid URL.
-     *
-     * @param string $url
-     *
-     * @return bool
      */
-    private function isValidURL($url)
+    private function isValidURL(string $url): bool
     {
         return filter_var($url, FILTER_VALIDATE_URL);
     }
@@ -68,12 +59,8 @@ trait AssetHandlerTrait
      * Given a URL to a local path, register this function with the AssetManager so it can be available at compile time.
      *
      * @since 0.2.1
-     *
-     * @param string $path
-     *
-     * @return void
      */
-    protected function registerAsset($path)
+    protected function registerAsset(string $path): void
     {
         if ($this->isValidURL($path))
         {

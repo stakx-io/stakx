@@ -7,30 +7,23 @@
 
 namespace allejo\stakx\MarkupEngine;
 
+use allejo\stakx\Document\ContentItem;
+
 class PlainTextEngine implements MarkupEngineInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getTemplateTag()
+    public function getTemplateTag(): ?string
     {
         return null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getExtensions()
+    public function getExtensions(): array
     {
         return [
             'txt',
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function parse($content, $contentItem = null)
+    public function parse(string $content, ContentItem $contentItem = null): string
     {
         return $content;
     }

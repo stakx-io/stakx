@@ -7,13 +7,13 @@
 
 namespace allejo\stakx\Markup;
 
-use allejo\stakx\Markup\SyntaxHighlighterTrait;
-use Gregwar\RST\Directives\CodeBlock;
-use Gregwar\RST\HTML\Nodes\CodeNode;
-use Gregwar\RST\Parser;
+use Doctrine\RST\Directives\Directive;
+use Doctrine\RST\Nodes\CodeNode;
+use Doctrine\RST\Nodes\Node;
+use Doctrine\RST\Parser;
 use Highlight\Highlighter;
 
-class RstSyntaxBlock extends CodeBlock
+class RstSyntaxBlock extends Directive
 {
     use SyntaxHighlighterTrait;
 
@@ -22,15 +22,43 @@ class RstSyntaxBlock extends CodeBlock
         $this->highlighter = new Highlighter();
     }
 
-    public function process(Parser $parser, $node, $variable, $data, array $options)
+    public function getName(): string
     {
-        /* @var CodeNode $node */
+        return 'code-block';
+    }
 
-        parent::process($parser, $node, $variable, $data, $options);
+    public function process(
+        Parser $parser,
+        ?Node  $node,
+        string $variable,
+        string $data,
+        array  $options
+    ): void {
+        if ($node === null) {
+            return;
+        }
+
+        if ($node instanceof CodeNode) {
+            $node->setLanguage(trim($data));
+            $node->setOptions($options);
+        }
+
+        if ($variable !== '') {
+            $environment = $parser->getEnvironment();
+            $environment->setVariable($variable, $node);
+        } else {
+            $document = $parser->getDocument();
+            $document->addNode($node);
+        }
 
         $nodeOutput = $this->highlightCode($node->getLanguage(), $node->getValue());
 
         $node->setRaw(true);
         $node->setValue($nodeOutput);
+    }
+
+    public function wantCode(): bool
+    {
+        return true;
     }
 }
