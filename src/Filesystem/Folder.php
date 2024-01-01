@@ -16,10 +16,8 @@ final class Folder extends BaseFilesystemItem
      * Get the name of the with the extension.
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getFolderName()
+    public function getFolderName(): string
     {
         return $this->getFullName();
     }

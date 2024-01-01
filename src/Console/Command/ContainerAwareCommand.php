@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Container;
 
 abstract class ContainerAwareCommand extends Command
 {
-    private ?Container $container;
+    private ?Container $container = null;
 
     /**
      * @throws \LogicException

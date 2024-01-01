@@ -21,12 +21,8 @@ final class File extends BaseFilesystemItem
 {
     /**
      * Get a new File object for another file relative to this file.
-     *
-     * @param string $path
-     *
-     * @return File
      */
-    public function createFileForRelativePath($path)
+    public function createFileForRelativePath(string $path): File
     {
         return new File(Service::getWorkingDirectory() . DIRECTORY_SEPARATOR . $path);
     }
@@ -38,10 +34,8 @@ final class File extends BaseFilesystemItem
      *                     definition
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getBasename($suffix = null)
+    public function getBasename($suffix = null): string
     {
         return parent::getBasename('.' . $this->getExtension());
     }
@@ -50,10 +44,8 @@ final class File extends BaseFilesystemItem
      * Get the name of the with the extension.
      *
      * @since 0.2.0
-     *
-     * @return string
      */
-    public function getFilename()
+    public function getFilename(): string
     {
         return $this->getFullName();
     }
@@ -64,10 +56,8 @@ final class File extends BaseFilesystemItem
      * @since 0.2.0
      *
      * @throws \RuntimeException when the file could not be read
-     *
-     * @return string
      */
-    public function getContents()
+    public function getContents(): string
     {
         if (!$this->exists())
         {
@@ -79,6 +69,7 @@ final class File extends BaseFilesystemItem
         if ($content === false)
         {
             $error = error_get_last();
+
             throw new \RuntimeException($error['message']);
         }
 
