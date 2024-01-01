@@ -155,7 +155,7 @@ class CollectionManager extends TrackingManager
             $folder = new Folder($collection['folder']);
 
             $event = new CollectionDefinitionAdded($collection['name'], $folder);
-            $this->eventDispatcher->dispatch(CollectionDefinitionAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event);
 
             // Only fetch ContentItems with supported extensions
             $def = new FileExplorerDefinition($folder);
@@ -213,7 +213,7 @@ class CollectionManager extends TrackingManager
         ]);
 
         $event = new CollectionItemAdded($contentItem);
-        $this->eventDispatcher->dispatch(CollectionItemAdded::NAME, $event);
+        $this->eventDispatcher->dispatch($event);
 
         return $contentItem;
     }

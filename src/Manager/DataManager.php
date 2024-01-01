@@ -101,7 +101,7 @@ class DataManager extends TrackingManager
             ]);
 
             $event = new DataItemFolderAdded($cls);
-            $this->eventDispatcher->dispatch(DataItemFolderAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event);
 
             $def = new FileExplorerDefinition($cls);
             $this->scanTrackableItems($def);
@@ -140,7 +140,7 @@ class DataManager extends TrackingManager
             ]);
 
             $event = new DatasetDefinitionAdded($dataSet['name'], $folder);
-            $this->eventDispatcher->dispatch(DatasetDefinitionAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event);
 
             $def = new FileExplorerDefinition($folder);
             $this->declareTrackingNamespace($dataSet['name']);
@@ -164,7 +164,7 @@ class DataManager extends TrackingManager
             $dataItem->setNamespace($namespace);
 
             $event = new DataItemAdded($dataItem);
-            $this->eventDispatcher->dispatch(DataItemAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event);
 
             $this->addObjectToTracker($dataItem, $namespace);
             $this->saveTrackerOptions($dataItem->getRelativeFilePath(), $options);

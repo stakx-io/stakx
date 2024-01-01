@@ -387,7 +387,7 @@ class Compiler
                 $pageView,
                 $redirectPageView
             );
-            $this->eventDispatcher->dispatch(RedirectPreOutput::NAME, $redirectEvent);
+            $this->eventDispatcher->dispatch($redirectEvent);
 
             $this->compileStaticPageView($redirectPageView);
         }
@@ -428,7 +428,7 @@ class Compiler
                     $pageView,
                     $redirectPageView
                 );
-                $this->eventDispatcher->dispatch(RedirectPreOutput::NAME, $redirectEvent);
+                $this->eventDispatcher->dispatch($redirectEvent);
 
                 $this->compilePageView($redirectPageView);
             }
@@ -462,7 +462,7 @@ class Compiler
         ]);
 
         $preEvent = new CompilerPreRenderRepeaterPageView($pageView, $expandedValue);
-        $this->eventDispatcher->dispatch(CompilerPreRenderRepeaterPageView::NAME, $preEvent);
+        $this->eventDispatcher->dispatch($preEvent);
 
         $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $template
@@ -470,7 +470,7 @@ class Compiler
         ;
 
         $postEvent = new CompilerPostRenderRepeaterPageView($pageView, $expandedValue, $output);
-        $this->eventDispatcher->dispatch(CompilerPostRenderRepeaterPageView::NAME, $postEvent);
+        $this->eventDispatcher->dispatch($postEvent);
 
         return $postEvent->getCompiledOutput();
     }
@@ -491,7 +491,7 @@ class Compiler
         ];
 
         $preEvent = new CompilerPreRenderDynamicPageView($twigItem);
-        $this->eventDispatcher->dispatch(CompilerPreRenderDynamicPageView::NAME, $preEvent);
+        $this->eventDispatcher->dispatch($preEvent);
 
         $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $template
@@ -499,7 +499,7 @@ class Compiler
         ;
 
         $postEvent = new CompilerPostRenderDynamicPageView($twigItem, $output);
-        $this->eventDispatcher->dispatch(CompilerPostRenderDynamicPageView::NAME, $postEvent);
+        $this->eventDispatcher->dispatch($postEvent);
 
         return $postEvent->getCompiledOutput();
     }
@@ -520,7 +520,7 @@ class Compiler
         ];
 
         $preEvent = new CompilerPreRenderStaticPageView($pageView);
-        $this->eventDispatcher->dispatch(CompilerPreRenderStaticPageView::NAME, $preEvent);
+        $this->eventDispatcher->dispatch($preEvent);
 
         $context = array_merge($preEvent->getCustomVariables(), $defaultContext);
         $output = $this
@@ -529,7 +529,7 @@ class Compiler
         ;
 
         $postEvent = new CompilerPostRenderStaticPageView($pageView, $output);
-        $this->eventDispatcher->dispatch(CompilerPostRenderStaticPageView::NAME, $postEvent);
+        $this->eventDispatcher->dispatch($postEvent);
 
         return $postEvent->getCompiledOutput();
     }
@@ -552,7 +552,7 @@ class Compiler
             $this->templateMapping[$template->getTemplateName()] = $pageView->getRelativeFilePath();
 
             $event = new CompilerTemplateCreation($pageView, $template, $this->theme);
-            $this->eventDispatcher->dispatch(CompilerTemplateCreation::NAME, $event);
+            $this->eventDispatcher->dispatch($event);
 
             return $template;
         }

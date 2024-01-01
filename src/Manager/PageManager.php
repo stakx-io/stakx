@@ -93,14 +93,14 @@ class PageManager extends TrackingManager
     public function parsePageViews(array $pageViewFolders)
     {
         $preEvent = new PageManagerPreProcess($this);
-        $this->eventDispatcher->dispatch(PageManagerPreProcess::NAME, $preEvent);
+        $this->eventDispatcher->dispatch($preEvent);
 
         foreach ($pageViewFolders as $pageViewFolderName)
         {
             $folder = new Folder($pageViewFolderName);
 
             $event = new PageViewDefinitionAdded($folder);
-            $this->eventDispatcher->dispatch(PageViewDefinitionAdded::NAME, $event);
+            $this->eventDispatcher->dispatch($event);
 
             $def = new FileExplorerDefinition($folder);
             $def->flags = FileExplorer::INCLUDE_ONLY_FILES;
@@ -110,7 +110,7 @@ class PageManager extends TrackingManager
         }
 
         $postEvent = new PageManagerPostProcess($this);
-        $this->eventDispatcher->dispatch(PageManagerPostProcess::NAME, $postEvent);
+        $this->eventDispatcher->dispatch($postEvent);
     }
 
     /**
@@ -217,7 +217,7 @@ class PageManager extends TrackingManager
         }
 
         $event = new PageViewAdded($pageView);
-        $this->eventDispatcher->dispatch(PageViewAdded::NAME, $event);
+        $this->eventDispatcher->dispatch($event);
 
         $this->declareTrackingNamespace($namespace);
         $this->addObjectToTracker($pageView, $namespace);
@@ -326,7 +326,7 @@ class PageManager extends TrackingManager
             }
 
             $event = new CollectionItemFinalized($item);
-            $this->eventDispatcher->dispatch(CollectionItemFinalized::NAME, $event);
+            $this->eventDispatcher->dispatch($event);
 
             $pageView->addCollectableItem($item);
         }

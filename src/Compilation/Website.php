@@ -123,7 +123,7 @@ class Website
         $this->assetManager->setFolder($outputDirectory);
         $this->assetManager->copyFiles();
 
-        $this->eventDispatcher->dispatch(BuildProcessComplete::NAME, new BuildProcessComplete());
+        $this->eventDispatcher->dispatch(new BuildProcessComplete());
     }
 
     /**
