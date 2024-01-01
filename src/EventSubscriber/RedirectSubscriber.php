@@ -6,14 +6,13 @@ use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\RepeaterPageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Event\PageViewAdded;
-use allejo\stakx\RedirectMapper;
+use allejo\stakx\Event\TemplateBridgeConfigured;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RedirectSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly RedirectMapper $redirectMapper)
-    {
-    }
+    /** @var array<string, string> */
+    private array $urlMap = [];
 
     public function registerRedirect(PageViewAdded $event): void
     {
@@ -25,7 +24,7 @@ class RedirectSubscriber implements EventSubscriberInterface
 
             foreach ($redirects as $redirect)
             {
-                $this->redirectMapper->registerRedirect($redirect, $pageView->getPermalink());
+                $this->urlMap[$redirect] = $pageView->getPermalink();
             }
         }
         elseif ($pageView instanceof RepeaterPageView)
@@ -36,19 +35,22 @@ class RedirectSubscriber implements EventSubscriberInterface
             {
                 foreach ($repeaterRedirect as $index => $redirect)
                 {
-                    $this->redirectMapper->registerRedirect(
-                        $redirect->getEvaluated(),
-                        $permalinks[$index]->getEvaluated()
-                    );
+                    $this->urlMap[$redirect->getEvaluated()] = $permalinks[$index]->getEvaluated();
                 }
             }
         }
+    }
+
+    public function registerTemplateBridgeRedirects(TemplateBridgeConfigured $event): void
+    {
+        $event->getTemplateBridge()->setGlobalVariable('redirects', $this->urlMap);
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
             PageViewAdded::NAME => 'registerRedirect',
+            TemplateBridgeConfigured::NAME => 'registerTemplateBridgeRedirects',
         ];
     }
 }
