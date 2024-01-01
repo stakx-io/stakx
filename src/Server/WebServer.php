@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Server;
 
-use allejo\stakx\Compiler;
+use allejo\stakx\Compilation\Compiler;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemPath;
 use allejo\stakx\Manager\AssetManager;

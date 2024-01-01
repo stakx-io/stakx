@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Test\Manager;
 
-use allejo\stakx\Configuration;
+use allejo\stakx\Compilation\Configuration;
 use allejo\stakx\Document\ContentItem;
 use allejo\stakx\Document\DynamicPageView;
 use allejo\stakx\Document\JailedDocument;

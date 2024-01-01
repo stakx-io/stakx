@@ -5,7 +5,7 @@
  * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx;
+namespace allejo\stakx\Compilation;
 
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\CollectableItem;
@@ -22,6 +22,7 @@ use allejo\stakx\Event\CompilerPreRenderRepeaterPageView;
 use allejo\stakx\Event\CompilerPreRenderStaticPageView;
 use allejo\stakx\Event\CompilerTemplateCreation;
 use allejo\stakx\Event\RedirectPreOutput;
+use allejo\stakx\Event\TemplateBridgeConfigured;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\FrontMatter\ExpandedValue;
@@ -29,6 +30,8 @@ use allejo\stakx\Manager\CollectionManager;
 use allejo\stakx\Manager\DataManager;
 use allejo\stakx\Manager\MenuManager;
 use allejo\stakx\Manager\PageManager;
+use allejo\stakx\RuntimeStatus;
+use allejo\stakx\Service;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use allejo\stakx\Templating\TemplateErrorInterface;
 use allejo\stakx\Templating\TemplateInterface;
@@ -79,7 +82,6 @@ class Compiler
         DataManager $dataManager,
         MenuManager $menuManager,
         PageManager $pageManager,
-        RedirectMapper $redirectMapper,
         EventDispatcherInterface $eventDispatcher,
         LoggerInterface $logger
     ) {
@@ -100,7 +102,9 @@ class Compiler
         $this->templateBridge->setGlobalVariable('menu', $menuManager->getSiteMenu());
         $this->templateBridge->setGlobalVariable('pages', $pageManager->getJailedStaticPageViews());
         $this->templateBridge->setGlobalVariable('repeaters', $pageManager->getJailedRepeaterPageViews());
-        $this->templateBridge->setGlobalVariable('redirects', $redirectMapper->getRedirects());
+
+        $event = new TemplateBridgeConfigured($this->templateBridge);
+        $this->eventDispatcher->dispatch($event);
     }
 
     /**

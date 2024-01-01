@@ -9,7 +9,7 @@ namespace allejo\stakx\AssetEngine\Sass;
 
 use __;
 use allejo\stakx\AssetEngine\AssetEngineInterface;
-use allejo\stakx\Configuration;
+use allejo\stakx\Compilation\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;

@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Test;
 
-use allejo\stakx\Configuration;
+use allejo\stakx\Compilation\Configuration;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Service;
 use org\bovigo\vfs\vfsStream;

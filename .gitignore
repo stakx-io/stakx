@@ -131,4 +131,4 @@ _site
 .travis/phar-deploy.pem
 .php-cs-fixer.cache
 .php-version
-src/allejo/stakx/Console/Container.php
+src/Console/Container.php

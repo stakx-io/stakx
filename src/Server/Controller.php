@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Server;
 
-use allejo\stakx\Compiler;
+use allejo\stakx\Compilation\Compiler;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\CollectableItem;
 use allejo\stakx\Document\DynamicPageView;

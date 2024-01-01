@@ -7,18 +7,15 @@
 
 namespace allejo\stakx\Event;
 
-use allejo\stakx\Configuration;
+use allejo\stakx\Compilation\Configuration;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class ConfigurationParseComplete extends Event
 {
     public const NAME = 'configuration.parse.complete';
 
-    private Configuration $configuration;
-
-    public function __construct(Configuration $configuration)
+    public function __construct(private readonly Configuration $configuration)
     {
-        $this->configuration = $configuration;
     }
 
     public function getConfiguration(): Configuration

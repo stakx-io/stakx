@@ -9,7 +9,7 @@ namespace allejo\stakx\Test\AssetEngine;
 
 use allejo\stakx\AssetEngine\AssetEngineManager;
 use allejo\stakx\AssetEngine\Sass\SassEngine;
-use allejo\stakx\Configuration;
+use allejo\stakx\Compilation\Configuration;
 use allejo\stakx\Document\BasePageView;
 use allejo\stakx\Document\StaticPageView;
 use allejo\stakx\Event\CompilerPostRenderStaticPageView;

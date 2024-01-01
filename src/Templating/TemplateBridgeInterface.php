@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Templating;
 
-use allejo\stakx\Compiler;
+use allejo\stakx\Compilation\Compiler;
 use Psr\Log\LoggerAwareInterface;
 
 /**

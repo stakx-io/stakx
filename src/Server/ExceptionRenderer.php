@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Server;
 
-use allejo\stakx\Compiler;
+use allejo\stakx\Compilation\Compiler;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Templating\TemplateErrorInterface;
 

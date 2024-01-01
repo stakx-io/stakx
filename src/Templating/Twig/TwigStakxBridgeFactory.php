@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Templating\Twig;
 
-use allejo\stakx\Configuration;
+use allejo\stakx\Compilation\Configuration;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;

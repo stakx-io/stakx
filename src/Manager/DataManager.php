@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Manager;
 
-use allejo\stakx\Configuration;
+use allejo\stakx\Compilation\Configuration;
 use allejo\stakx\DataTransformer\DataTransformerManager;
 use allejo\stakx\Document\DataItem;
 use allejo\stakx\Event\DataItemAdded;

@@ -5,15 +5,20 @@
  * @license   https://github.com/stakx-io/stakx/blob/master/LICENSE.md MIT
  */
 
-namespace allejo\stakx;
+namespace allejo\stakx\Compilation;
 
+use allejo\stakx\Compilation\Compiler;
+use allejo\stakx\Compilation\Configuration;
 use allejo\stakx\Event\BuildProcessComplete;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\AssetManager;
 use allejo\stakx\Manager\ThemeManager;
+use allejo\stakx\RuntimeStatus;
+use allejo\stakx\Service;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use Highlight\Highlighter;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Website
@@ -31,7 +36,7 @@ class Website
         AssetManager $assetManager,
         TemplateBridgeInterface $templateBridge,
         EventDispatcherInterface $eventDispatcher,
-        Logger $logger
+        LoggerInterface $logger
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->templateBridge = $templateBridge;

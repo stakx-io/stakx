@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Test;
 
-use allejo\stakx\Compiler;
+use allejo\stakx\Compilation\Compiler;
 use allejo\stakx\Filesystem\WritableFolder;
 use allejo\stakx\Manager\PageManager;
 use allejo\stakx\Templating\Twig\TwigStakxBridgeFactory;

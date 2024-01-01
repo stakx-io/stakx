@@ -7,7 +7,7 @@
 
 namespace allejo\stakx\Templating\Twig;
 
-use allejo\stakx\Compiler;
+use allejo\stakx\Compilation\Compiler;
 use allejo\stakx\Templating\TemplateBridgeInterface;
 use Psr\Log\LoggerInterface;
 use Twig\Environment;

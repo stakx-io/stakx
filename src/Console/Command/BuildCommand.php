@@ -7,14 +7,14 @@
 
 namespace allejo\stakx\Console\Command;
 
-use allejo\stakx\Configuration;
+use allejo\stakx\Compilation\Configuration;
 use allejo\stakx\Exception\FileAwareException;
 use allejo\stakx\Filesystem\File;
 use allejo\stakx\Filesystem\FilesystemLoader as fs;
 use allejo\stakx\RuntimeStatus;
 use allejo\stakx\Service;
 use allejo\stakx\Utilities\StrUtils;
-use allejo\stakx\Website;
+use allejo\stakx\Compilation\Website;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;

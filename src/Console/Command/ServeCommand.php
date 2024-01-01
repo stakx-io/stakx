@@ -14,7 +14,7 @@ use allejo\stakx\Server\RouteMapper;
 use allejo\stakx\Server\WebServer;
 use allejo\stakx\Service;
 use allejo\stakx\Utilities\StrUtils;
-use allejo\stakx\Website;
+use allejo\stakx\Compilation\Website;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

@@ -4,12 +4,6 @@ services:
     autoconfigure: true
     public: true
 
-  allejo\stakx\Configuration:
-    class: 'allejo\stakx\Configuration'
-
-  allejo\stakx\Website:
-    class: 'allejo\stakx\Website'
-
   allejo\stakx\AssetEngine\:
     resource: '../../AssetEngine/*'
 
@@ -17,6 +11,9 @@ services:
     calls:
       - method: addAssetEngines
         arguments: [!tagged stakx.asset_engine]
+
+  allejo\stakx\Compilation\:
+    resource: '../../Compilation/*'
 
   allejo\stakx\DataTransformer\:
     resource: '../../DataTransformer/*'
@@ -61,22 +58,17 @@ services:
       - method: addFunctions
         arguments: [!tagged stakx.twig_function]
 
-  compiler:
-    class: allejo\stakx\Compiler
-    arguments:
-      - '@templating'
+  allejo\stakx\Templating\TemplateBridgeInterface:
+    class: allejo\stakx\Templating\Twig\TwigStakxBridge
+    factory: ['allejo\stakx\Templating\Twig\TwigStakxBridgeFactory', createTwigEnvironment]
 
-  event_dispatcher:
-    class: Symfony\Contracts\EventDispatcher\EventDispatcher
-
-  output:
-    class: Symfony\Component\Console\Output\ConsoleOutput
-
-  logger:
+  Psr\Log\LoggerInterface:
     class: allejo\stakx\Logger
     arguments:
       - '@output'
 
-  templating:
-    class: allejo\stakx\Templating\Twig\TwigStakxBridge
-    factory: ['allejo\stakx\Templating\Twig\TwigStakxBridgeFactory', createTwigEnvironment]
+  Symfony\Contracts\EventDispatcher\EventDispatcherInterface:
+    class: Symfony\Component\EventDispatcher\EventDispatcher
+
+  output:
+    class: Symfony\Component\Console\Output\ConsoleOutput
