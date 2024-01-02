@@ -13,7 +13,7 @@ use Twig\Loader\FilesystemLoader;
 
 class TwigFileLoader extends FilesystemLoader
 {
-    public function getCacheKey($name)
+    public function getCacheKey(string $name): string
     {
         $template = $this->findTemplate($name);
 

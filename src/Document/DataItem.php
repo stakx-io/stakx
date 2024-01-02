@@ -89,16 +89,18 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     /**
      * {@inheritdoc}
      */
-    public function readContents($mixed)
+    public function readContents($mixed): mixed
     {
         $content = $this->file->getContents();
         $this->data = $this->dataTransformer->transformData($content);
+
+        return null;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getContent()
+    public function getContent(): string
     {
         return $this->data;
     }
@@ -133,7 +135,7 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->data;
     }
@@ -142,10 +144,7 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     // IteratorAggregate implementation
     ///
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getIterator()
+    public function getIterator(): \Traversable|\ArrayIterator
     {
         return new \ArrayIterator($this->data);
     }
@@ -154,22 +153,16 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
     // ArrayAccess implementation
     ///
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->data[$offset]) || isset($this->frontMatter[$offset]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         $fxnCall = 'get' . ucfirst($offset);
 
-        if (in_array($fxnCall, FrontMatterDocument::$whiteListedFunctions) && method_exists($this, $fxnCall))
+        if (in_array($fxnCall, FrontMatterDocument::$whiteListedFunctions, true) && method_exists($this, $fxnCall))
         {
             return call_user_func_array([$this, $fxnCall], []);
         }
@@ -179,26 +172,15 @@ class DataItem extends ReadableDocument implements CollectableItem, TemplateRead
             return $this->data[$offset];
         }
 
-        if (isset($this->frontMatter[$offset]))
-        {
-            return $this->frontMatter[$offset];
-        }
-
-        return null;
+        return $this->frontMatter[$offset] ?? null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new \LogicException('DataItems are read-only.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new \LogicException('DataItems are read-only.');
     }

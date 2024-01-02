@@ -84,19 +84,9 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
     }
 
     /**
-     * Get the PageView's body written in a templating language.
-     *
-     * @return string
-     */
-    public function getContent()
-    {
-        return $this->bodyContent;
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return array_merge($this->getFrontMatter(), [
             'content' => $this->getContent(),
@@ -105,7 +95,7 @@ class StaticPageView extends BasePageView implements TemplateReadyDocument
         ]);
     }
 
-    protected function beforeCompile()
+    protected function beforeCompile(): void
     {
         $this->buildPermalink(true);
     }

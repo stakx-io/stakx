@@ -16,18 +16,12 @@ class NullableArray implements \ArrayAccess
         $this->data = $arr;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         if (isset($this->data[$offset]))
         {
@@ -37,10 +31,7 @@ class NullableArray implements \ArrayAccess
         return null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if ($offset === null)
         {
@@ -50,10 +41,7 @@ class NullableArray implements \ArrayAccess
         $this->data[$offset] = $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         if (isset($this->data[$offset]))
         {

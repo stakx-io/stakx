@@ -117,7 +117,7 @@ trait PermalinkDocumentTrait
      *
      * @return string $permalink The sanitized permalink
      */
-    final private function sanitizePermalink($permalink)
+    private function sanitizePermalink(string $permalink): string
     {
         // Remove multiple '/' together
         $permalink = preg_replace('/\/+/', '/', $permalink);

@@ -24,17 +24,17 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      * A bitwise flag to have FileExplorer ignore all files unless its been explicitly included; all other files will be
      * ignored.
      */
-    const INCLUDE_ONLY_FILES = 0x1;
+    public const INCLUDE_ONLY_FILES = 0x1;
 
     /**
      * A bitwise flag to have FileExplorer search files starting with a period as well.
      */
-    const ALLOW_DOT_FILES = 0x2;
+    public const ALLOW_DOT_FILES = 0x2;
 
     /**
      * A bitwise flag to have FileExplorer ignore any directories.
      */
-    const IGNORE_DIRECTORIES = 0x4;
+    public const IGNORE_DIRECTORIES = 0x4;
 
     /**
      * A list of common version control folders to ignore.
@@ -50,52 +50,35 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      *
      * @var string[]
      */
-    public static $vcsPatterns = ['.git', '.hg', '.svn', '_svn'];
+    public static array $vcsPatterns = ['.git', '.hg', '.svn', '_svn'];
 
     /**
      * A custom callable that will be used in the `accept()` method. If null, the default matcher will be used.
      *
      * @var callable[]
      */
-    private $matchers;
+    private array $matchers = [];
 
     /**
      * A list of phrases to exclude from the search.
      *
      * @var string[]
      */
-    private $excludes;
-
-    /**
-     * A list of phrases to explicitly include in the search.
-     *
-     * @var string[]
-     */
-    private $includes;
-
-    /**
-     * The bitwise sum of the flags applied to this FileExplorer instance.
-     *
-     * @var int|null
-     */
-    private $flags;
+    private array $excludes;
 
     /**
      * FileExplorer constructor.
      *
      * @param \RecursiveIterator $iterator
-     * @param string[] $includes
-     * @param string[] $excludes
-     * @param int|null $flags
+     * @param string[]           $includes A list of phrases to explicitly include in the search.
+     * @param string[]           $excludes
+     * @param int|null           $flags    The bitwise sum of the flags applied to this FileExplorer instance.
      */
-    public function __construct(\RecursiveIterator $iterator, array $includes = [], array $excludes = [], $flags = null)
+    public function __construct(\RecursiveIterator $iterator, private readonly array $includes = [], array $excludes = [], private readonly ?int $flags = null)
     {
         parent::__construct($iterator);
 
         $this->excludes = array_merge(self::$vcsPatterns, $excludes);
-        $this->includes = $includes;
-        $this->flags = $flags;
-        $this->matchers = [];
     }
 
     /**
@@ -106,10 +89,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
         return $this->current()->getFilename();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function accept()
+    public function accept(): bool
     {
         if (!empty($this->matchers))
         {
@@ -132,10 +112,8 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
 
     /**
      * Get the current File object.
-     *
-     * @return File|Folder
      */
-    public function current()
+    public function current(): File|Folder
     {
         /** @var \SplFileInfo $current */
         $current = parent::current();
@@ -149,10 +127,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
         return new File($path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getChildren()
+    public function getChildren(): FileExplorer|\RecursiveFilterIterator|null
     {
         $explorer = new self(
             $this->getInnerIterator()->getChildren(), $this->includes, $this->excludes, $this->flags
@@ -167,23 +142,17 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
     }
 
     /**
-     * Get an Iterator with all of the files (and *only* files) that have met the search requirements.
-     *
-     * @return \RecursiveIteratorIterator
+     * Get an Iterator with all the files (and *only* files) that have met the search requirements.
      */
-    public function getFileIterator()
+    public function getFileIterator(): \RecursiveIteratorIterator
     {
         return new \RecursiveIteratorIterator($this);
     }
 
     /**
-     * Check whether or not a relative file path matches the definition given to this FileExplorer instance.
-     *
-     * @param string $filePath
-     *
-     * @return bool
+     * Check whether a relative file path matches the definition given to this FileExplorer instance.
      */
-    public function matchesPattern($filePath)
+    public function matchesPattern(string $filePath): bool
     {
         if (self::strpos_array($filePath, $this->includes))
         {
@@ -209,10 +178,8 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
 
     /**
      * Add a custom matcher that will be executed before the default matcher that uses file names and paths.
-     *
-     * @param callable $callable
      */
-    public function addMatcher(callable $callable)
+    public function addMatcher(callable $callable): void
     {
         $this->matchers[] = $callable;
     }
@@ -229,7 +196,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      *
      * @return FileExplorer
      */
-    public static function create($folder, $includes = [], $excludes = [], $flags = null)
+    public static function create(string $folder, array $includes = [], array $excludes = [], ?int $flags = null): FileExplorer
     {
         $folder = fs::realpath($folder);
         $iterator = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
@@ -237,12 +204,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
         return new self($iterator, $includes, $excludes, $flags);
     }
 
-    /**
-     * @param FileExplorerDefinition $definition
-     *
-     * @return FileExplorer
-     */
-    public static function createFromDefinition(FileExplorerDefinition $definition)
+    public static function createFromDefinition(FileExplorerDefinition $definition): FileExplorer
     {
         return self::create($definition->folder, $definition->includes, $definition->excludes, $definition->flags);
     }
@@ -256,7 +218,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
      *
      * @return bool True if an element from the given array was found in the string
      */
-    private static function strpos_array($haystack, $needle, $offset = 0)
+    private static function strpos_array(string $haystack, array $needle, int $offset = 0): bool
     {
         if (!is_array($needle))
         {
@@ -265,7 +227,7 @@ class FileExplorer extends \RecursiveFilterIterator implements \Iterator
 
         foreach ($needle as $query)
         {
-            if (substr($query, 0, 1) == '/' && substr($query, -1, 1) == '/' && preg_match($query, $haystack) === 1)
+            if (str_starts_with($query, '/') && substr($query, -1, 1) === '/' && preg_match($query, $haystack) === 1)
             {
                 return true;
             }

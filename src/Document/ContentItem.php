@@ -16,10 +16,9 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
     use CollectableItemTrait;
     use TemplateEngineDependent;
 
-    /** @var MarkupEngineInterface */
-    private $markupEngine;
+    private MarkupEngineInterface $markupEngine;
 
-    public function setMarkupEngine(MarkupEngineManager $manager)
+    public function setMarkupEngine(MarkupEngineManager $manager): void
     {
         $this->markupEngine = $manager->getEngineByExtension($this->getExtension());
     }
@@ -28,10 +27,7 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
     // Permalink management
     ///
 
-    /**
-     * {@inheritdoc}
-     */
-    public function handleSpecialRedirects()
+    public function handleSpecialRedirects(): void
     {
         $fm = $this->getFrontMatter();
 
@@ -54,10 +50,8 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
 
     /**
      * @throws TemplateErrorInterface
-     *
-     * @return string
      */
-    public function getContent()
+    public function getContent(): string
     {
         if (!$this->bodyContentEvaluated)
         {
@@ -77,7 +71,7 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
     /**
      * {@inheritdoc}
      */
-    public function createJail()
+    public function createJail(): JailedDocument
     {
         $whiteListedFunctions = array_merge(self::$whiteListedFunctions, [
         ]);
@@ -89,10 +83,7 @@ class ContentItem extends PermalinkFrontMatterDocument implements CollectableIte
         return new JailedDocument($this, $whiteListedFunctions, $jailedFunctions);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return array_merge($this->getFrontMatter(), [
             'content' => $this->getContent(),

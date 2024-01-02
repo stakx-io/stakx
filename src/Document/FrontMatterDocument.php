@@ -17,62 +17,54 @@ use Symfony\Component\Yaml\Yaml;
 
 abstract class FrontMatterDocument extends ReadableDocument implements \IteratorAggregate, \ArrayAccess
 {
-    const TEMPLATE = "---\n%s\n---\n\n%s";
+    public const TEMPLATE = "---\n%s\n---\n\n%s";
 
-    /** @var array Functions that are white listed and can be called from templates. */
-    public static $whiteListedFunctions = [
+    /** Functions that are whitelisted and can be called from templates. */
+    public static array $whiteListedFunctions = [
         'getPermalink', 'getRedirects', 'getTargetFile', 'getContent',
         'getFilename', 'getBasename', 'getExtension', 'isDraft',
     ];
 
-    /** @var array FrontMatter keys that will be defined internally and cannot be overridden by users. */
-    protected $specialFrontMatter = [
+    /** FrontMatter keys that will be defined internally and cannot be overridden by users. */
+    protected array $specialFrontMatter = [
         'filePath' => null,
     ];
 
-    /** @var bool Whether or not the body content has been evaluated yet. */
-    protected $bodyContentEvaluated = false;
+    /** Whether the body content has been evaluated yet. */
+    protected bool $bodyContentEvaluated = false;
 
-    /** @var FrontMatterParser */
-    protected $frontMatterParser;
+    protected FrontMatterParser $frontMatterParser;
 
-    /** @var array The raw FrontMatter that has not been evaluated. */
-    protected $rawFrontMatter = [];
+    /** The raw FrontMatter that has not been evaluated. */
+    protected array $rawFrontMatter = [];
 
-    /** @var array|null FrontMatter that is read from user documents. */
-    protected $frontMatter = null;
+    /** FrontMatter that is read from user documents. */
+    protected ?array $frontMatter = null;
 
     /** @var int The number of lines that Twig template errors should offset. */
-    protected $lineOffset = 0;
+    protected int $lineOffset = 0;
 
     ///
     // Getter functions
     ///
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->frontMatter);
     }
 
     /**
      * Get the number of lines that are taken up by FrontMatter and whitespace.
-     *
-     * @return int
      */
-    public function getLineOffset()
+    public function getLineOffset(): int
     {
         return $this->lineOffset;
     }
 
     /**
-     * Get whether or not this document is a draft.
-     *
-     * @return bool
+     * Get whether this document is a draft.
      */
-    public function isDraft()
+    public function isDraft(): bool
     {
         return isset($this->frontMatter['draft']) && $this->frontMatter['draft'] === true;
     }
@@ -81,10 +73,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
     // FrontMatter functionality
     ///
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function beforeReadContents()
+    protected function beforeReadContents(): bool
     {
         if (!$this->file->exists())
         {
@@ -105,7 +94,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
     /**
      * {@inheritdoc}
      */
-    protected function readContents($readNecessary)
+    protected function readContents(mixed $readNecessary): mixed
     {
         if (!$readNecessary)
         {
@@ -132,7 +121,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
     /**
      * {@inheritdoc}
      */
-    protected function afterReadContents($fileStructure)
+    protected function afterReadContents($fileStructure): void
     {
         // The file wasn't modified since our last read, so we can exit out quickly
         if (empty($fileStructure))
@@ -193,7 +182,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
      *
      * @return array
      */
-    final public function getRawFrontMatter()
+    final public function getRawFrontMatter(): array
     {
         return $this->rawFrontMatter;
     }
@@ -201,11 +190,9 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
     /**
      * Get the FrontMatter for this document.
      *
-     * @param bool $evaluateYaml whether or not to evaluate any variables
-     *
-     * @return array
+     * @param bool $evaluateYaml whether to evaluate any variables
      */
-    final public function getFrontMatter($evaluateYaml = true)
+    final public function getFrontMatter(bool $evaluateYaml = true): ?array
     {
         if ($this->frontMatter === null)
         {
@@ -215,10 +202,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
         return $this->frontMatter;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    final public function evaluateFrontMatter(array $variables = [], array $complexVariables = [])
+    final public function evaluateFrontMatter(array $variables = [], array $complexVariables = []): void
     {
         $this->frontMatter = array_merge($this->rawFrontMatter, $variables);
         $this->evaluateYaml($this->frontMatter, $complexVariables);
@@ -226,12 +210,10 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
 
     /**
      * Returns true when the evaluated Front Matter has expanded values embedded.
-     *
-     * @return bool
      */
-    final public function hasExpandedFrontMatter()
+    final public function hasExpandedFrontMatter(): bool
     {
-        return $this->frontMatterParser !== null && $this->frontMatterParser->hasExpansion();
+        return $this->frontMatterParser->hasExpansion();
     }
 
     /**
@@ -243,7 +225,7 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
      *
      * @throws YamlVariableUndefinedException A FrontMatter variable used does not exist
      */
-    private function evaluateYaml(array &$yaml, array $complexVariables = [])
+    private function evaluateYaml(array &$yaml, array $complexVariables = []): void
     {
         try
         {
@@ -266,18 +248,12 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
     // ArrayAccess Implementation
     ///
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new \LogicException('FrontMatter is read-only.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         if (isset($this->frontMatter[$offset]) || isset($this->specialFrontMatter[$offset]))
         {
@@ -289,18 +265,12 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
         return method_exists($this, $fxnCall) && in_array($fxnCall, static::$whiteListedFunctions);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new \LogicException('FrontMatter is read-only.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         if (isset($this->specialFrontMatter[$offset]))
         {
@@ -309,16 +279,11 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
 
         $fxnCall = 'get' . ucfirst($offset);
 
-        if (in_array($fxnCall, self::$whiteListedFunctions) && method_exists($this, $fxnCall))
+        if (in_array($fxnCall, self::$whiteListedFunctions, true) && method_exists($this, $fxnCall))
         {
             return call_user_func_array([$this, $fxnCall], []);
         }
 
-        if (isset($this->frontMatter[$offset]))
-        {
-            return $this->frontMatter[$offset];
-        }
-
-        return null;
+        return $this->frontMatter[$offset] ?? null;
     }
 }
