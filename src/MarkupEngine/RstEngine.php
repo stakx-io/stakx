@@ -30,7 +30,7 @@ class RstEngine implements MarkupEngineInterface
         $this->parser->setIncludePolicy(true, Service::getWorkingDirectory());
     }
 
-    public function parse(string $content, ContentItem $contentItem = null): string
+    public function parse(string $content, ?ContentItem $contentItem = null): string
     {
         $this->imageDirective->setContentItem($contentItem);
 

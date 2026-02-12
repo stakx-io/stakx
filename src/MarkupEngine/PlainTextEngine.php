@@ -23,7 +23,7 @@ class PlainTextEngine implements MarkupEngineInterface
         ];
     }
 
-    public function parse(string $content, ContentItem $contentItem = null): string
+    public function parse(string $content, ?ContentItem $contentItem = null): string
     {
         return $content;
     }

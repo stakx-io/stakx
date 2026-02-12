@@ -24,7 +24,7 @@ class Application extends BaseApplication
     private bool $useCache;
     private Container $container;
 
-    public function run(InputInterface $input = null, OutputInterface $output = null): int
+    public function run(?InputInterface $input = null, ?OutputInterface $output = null): int
     {
         $input = $input ?? new ArgvInput();
         $this->handleApplicationFlags($input);

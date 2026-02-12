@@ -26,7 +26,7 @@ class MarkdownEngine implements MarkupEngineInterface
         $this->parser = new MarkdownParser($assetManager);
     }
 
-    public function parse(string $content, ContentItem $contentItem = null): string
+    public function parse(string $content, ?ContentItem $contentItem = null): string
     {
         $this->parser->setContentItem($contentItem);
 

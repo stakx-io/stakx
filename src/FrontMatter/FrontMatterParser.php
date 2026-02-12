@@ -475,7 +475,7 @@ class FrontMatterParser
      */
     private function guessDateTime($guess)
     {
-        if ($guess instanceof \DateTime)
+        if ($guess instanceof \DateTimeInterface)
         {
             return $guess;
         }

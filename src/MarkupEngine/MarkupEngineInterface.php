@@ -51,5 +51,5 @@ interface MarkupEngineInterface
      *
      * @since 0.2.0
      */
-    public function parse(string $content, ContentItem $contentItem = null): string;
+    public function parse(string $content, ?ContentItem $contentItem = null): string;
 }

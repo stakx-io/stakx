@@ -322,7 +322,7 @@ abstract class TrackingManager extends BaseManager
      *
      * @return JailedDocument[]|JailedDocument[][]
      */
-    protected static function getJailedTrackedItems(array &$elements, \Closure $name = null)
+    protected static function getJailedTrackedItems(array &$elements, ?\Closure $name = null)
     {
         $jailItems = [];
 
