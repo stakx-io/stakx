@@ -16,25 +16,25 @@ use allejo\stakx\Utilities\ArrayUtilities;
  * The parser tasked with sanitizing and evaluating Front Matter of its variables.
  *
  * stakx's Front Matter has support for "primitive" and "complex" variables. Primitive variables are variables defined
- * through the Front Matter itself whereas complex variables are injected from other sources (e.g. the site's main
+ * through Front Matter itself whereas complex variables are injected from other sources (e.g. site's main
  * _config.yml file).
  *
  * ## Primitive Variables
  *
- * **Syntax**: `%variableName`
+ * **Syntax**: `{{variableName}}`
  *
  * **Example**
  *
  * ```yaml
  * ---
  * variableName: Hello
- * output: %variableName world! # "Hello world!"
+ * output: {{variableName}} world! # "Hello world!"
  * ---
  * ```
  *
  * ## Complex Variables
  *
- * **Syntax**: `%{site.section.value}`
+ * **Syntax**: `{{site.section.value}}`
  *
  * **Example**
  *
@@ -48,27 +48,35 @@ use allejo\stakx\Utilities\ArrayUtilities;
  *
  * ```yaml
  * ---
- * output: Hello from, %{site.title} # "Hello from, stakx's site"
- * title: I want %{site.someParent.nestedValue} # "I want Toast"
+ * output: Hello from, {{site.title}} # "Hello from, stakx's site"
+ * title: I want {{site.someParent.nestedValue}} # "I want Toast"
  * ---
  * ```
  *
+ * ## Migration from Old Syntax (pre-0.3.0)
+ *
+ * The parser automatically transforms the old syntax:
+ * - `%variable` → `{{variable}}`
+ * - `%{variable.name}` → `{{variable.name}}`
+ *
+ * @since 0.3.0 Introduce new syntax for variables and deprecate old syntax. Old syntax will still be supported for
+ *              backwards compatibility, but support will be dropped in 0.4.0.
  * @since 0.2.0 Add support for complex variables.
  * @since 0.1.0
  */
 class FrontMatterParser
 {
-    const ANY_VARIABLE = '/(?<!\\\\)%{?([a-zA-Z\.]+)}?/';
+    const ANY_VARIABLE = '/(?<!\\\\){{\s*([a-zA-Z\.]+)\s*}}/';
 
     /**
      * The RegEx used to identify Front Matter variables.
      */
-    const VARIABLE_DEF = '/(?<!\\\\)%([a-zA-Z]+)/';
+    const VARIABLE_DEF = '/(?<!\\\\){{\s*([a-zA-Z]+)\s*}}/';
 
     /**
      * The RegEx used to identify special variables.
      */
-    const ARRAY_DEF = '/(?<!\\\\)%{([a-zA-Z\.]+)}/';
+    const ARRAY_DEF = '/(?<!\\\\){{\s*([a-zA-Z\.]+)\s*}}/';
 
     /**
      * A list of special fields in the Front Matter that will support expansion.
@@ -141,13 +149,65 @@ class FrontMatterParser
     }
 
     /**
-     * Make complex variables available to the parser.
+     * Make complex variables available to parser.
      *
      * @param array $yaml
      */
     public function addComplexVariables(array $yaml)
     {
         $this->complexVariables = array_merge($this->complexVariables, $yaml);
+    }
+
+    /**
+     * Transform old FrontMatter variable syntax to new syntax.
+     *
+     * This static helper function converts:
+     * - %variable to {{variable}}
+     * - %{variable.name} to {{variable.name}}
+     *
+     * @param string $input The input string containing old syntax
+     *
+     * @return string The transformed string with new syntax
+     */
+    public static function transformVariableSyntax(string $input): string
+    {
+        // Transform %{variable.name} to {{variable.name}} first (to avoid conflicts with %variable)
+        $input = preg_replace_callback('/(?<!\\\\)%\{([a-zA-Z][a-zA-Z0-9_\.]*[a-zA-Z0-9_]?)\}/', function ($matches) {
+            return '{{' . $matches[1] . '}}';
+        }, $input);
+
+        // Transform %variable to {{variable}} (only match word characters, end at word boundary)
+        $input = preg_replace_callback('/(?<!\\\\)%([a-zA-Z][a-zA-Z0-9_]*)/', function ($matches) {
+            return '{{' . $matches[1] . '}}';
+        }, $input);
+
+        return $input;
+    }
+
+    public static function unsafeTransformAutoAddQuotes(string $input): string
+    {
+        $lines = explode("\n", $input);
+        $transformed = [];
+
+        foreach ($lines as $line) {
+            $colonIdx = strpos($line, ':');
+            $nextCharIdx = $colonIdx + 1;
+
+            if ($colonIdx === false || $nextCharIdx >= strlen($line)) {
+                continue;
+            }
+
+            $hasSpaceAfter = $line[$nextCharIdx] === ' ';
+            $hasQuote = $line[$nextCharIdx + 1] === '"' || $line[$nextCharIdx + 1] === "'";
+
+            if ($hasSpaceAfter && !$hasQuote) {
+                $transformed[] = substr($line, 0, $nextCharIdx + 1) . ' "' . substr($line, $nextCharIdx + 1) . '"';
+            } else {
+                $transformed[] = $line;
+            }
+        }
+
+        return implode("\n", $transformed);
     }
 
     /**
@@ -434,10 +494,9 @@ class FrontMatterParser
     }
 
     /**
-     * Get the variable template that needs to be replaced.
+     * Get variable template that needs to be replaced.
      *
-     * The syntax for primitive variables differ from complex variables, so this method will return the appropriate
-     * template that will be used to replace the value.
+     * The syntax now uses unified {{variable}} for both primitive and complex variables.
      *
      * @param string $variableName The variable name
      *
@@ -445,9 +504,7 @@ class FrontMatterParser
      */
     private function getVariableTemplate($variableName)
     {
-        $isPrimitive = (strpos($variableName, '.') === false);
-
-        return ($isPrimitive) ? sprintf('%%%s', $variableName) : sprintf('%%{%s}', $variableName);
+        return sprintf('{{%s}}', $variableName);
     }
 
     //

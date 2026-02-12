@@ -150,11 +150,30 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
 
             if (!empty(trim($fileStructure[1])))
             {
-                $this->rawFrontMatter = Yaml::parse($fileStructure[1], Yaml::PARSE_DATETIME);
+                // Transform old %variable syntax to new {{variable}} syntax
+                $transformedYaml = FrontMatterParser::transformVariableSyntax($fileStructure[1]);
+                $transformedYaml = FrontMatterParser::unsafeTransformAutoAddQuotes($transformedYaml);
+
+                $this->rawFrontMatter = Yaml::parse($transformedYaml, Yaml::PARSE_DATETIME);
 
                 if (!empty($this->rawFrontMatter) && !is_array($this->rawFrontMatter))
                 {
                     throw new ParseException('The evaluated FrontMatter should be an array');
+                }
+
+                // Apply special FrontMatter handling (like date field processing)
+                if (isset($this->rawFrontMatter['date']))
+                {
+                    $date = &$this->rawFrontMatter['date'];
+                    $itemDate = $this->guessDateTime($date);
+
+                    if (!$itemDate === false)
+                    {
+                        $this->rawFrontMatter['date'] = $itemDate->format('U');
+                        $this->rawFrontMatter['year'] = $itemDate->format('Y');
+                        $this->rawFrontMatter['month'] = $itemDate->format('m');
+                        $this->rawFrontMatter['day'] = $itemDate->format('d');
+                    }
                 }
             }
             else
@@ -285,5 +304,49 @@ abstract class FrontMatterDocument extends ReadableDocument implements \Iterator
         }
 
         return $this->frontMatter[$offset] ?? null;
+    }
+
+    ///
+    // Utility functions
+    ///
+
+    /**
+     * @param string $epochTime
+     *
+     * @return bool|\DateTime
+     */
+    private function castDateTimeTimezone($epochTime)
+    {
+        $timezone = new \DateTimeZone(date_default_timezone_get());
+        $value = \DateTime::createFromFormat('U', $epochTime);
+        $value->setTimezone($timezone);
+
+        return $value;
+    }
+
+    /**
+     * @param $guess
+     *
+     * @return bool|\DateTime
+     */
+    private function guessDateTime($guess)
+    {
+        if ($guess instanceof \DateTimeInterface)
+        {
+            return $guess;
+        }
+        elseif (is_numeric($guess))
+        {
+            return $this->castDateTimeTimezone($guess);
+        }
+
+        try
+        {
+            return new \DateTime($guess);
+        }
+        catch (\Exception $e)
+        {
+            return false;
+        }
     }
 }

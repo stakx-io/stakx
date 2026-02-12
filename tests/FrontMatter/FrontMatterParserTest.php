@@ -21,7 +21,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $this->setExpectedException(YamlVariableUndefinedException::class);
 
         $frontMatter = [
-            'var' => '%undefinedVar',
+            'var' => '{{undefinedVar}}',
         ];
 
         (new FrontMatterParser($frontMatter))->parse();
@@ -32,7 +32,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $this->setExpectedException(YamlVariableUndefinedException::class);
 
         $frontMatter = [
-            'var' => '%{site.undefinedVar}',
+            'var' => '{{site.undefinedVar}}',
         ];
 
         (new FrontMatterParser($frontMatter))->parse();
@@ -43,7 +43,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $eval = 'variable value';
         $frontMatter = [
             'myVar' => $eval,
-            'evaluated' => '%myVar butter',
+            'evaluated' => '{{myVar}} butter',
         ];
 
         $fmp = new FrontMatterParser($frontMatter);
@@ -57,7 +57,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     {
         $eval = 'My Super Site';
         $frontMatter = [
-            'evaluated' => '%{site.title}',
+            'evaluated' => '{{site.title}}',
         ];
 
         $fmp = new FrontMatterParser($frontMatter);
@@ -76,7 +76,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $eval = 5154;
         $frontMatter = [
             'myVar' => $eval,
-            'evaluated' => '%myVar1200',
+            'evaluated' => '{{myVar}}1200',
         ];
 
         (new FrontMatterParser($frontMatter))->parse();
@@ -91,7 +91,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         $eval = true;
         $frontMatter = [
             'myVar' => $eval,
-            'evaluated' => '%myVar',
+            'evaluated' => '{{myVar}}',
         ];
 
         (new FrontMatterParser($frontMatter))->parse();
@@ -107,7 +107,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
                 'two',
                 'three',
             ],
-            'evaluated' => '%myVar',
+            'evaluated' => '{{myVar}}',
         ];
 
         (new FrontMatterParser($frontMatter))->parse();
@@ -124,7 +124,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
                     'fr',
                 ],
             ],
-            'permalink' => '/blog/%languages/',
+            'permalink' => '/blog/{{languages}}/',
         ];
 
         (new FrontMatterParser($frontMatter))->parse();
@@ -144,7 +144,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
                 'en',
                 'fr',
             ],
-            'permalink' => '/blog/%languages/',
+            'permalink' => '/blog/{{languages}}/',
         ];
 
         $fmp = new FrontMatterParser($frontMatter);
@@ -173,7 +173,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     public function testVariableStringValueExpansionFromExternalVariables()
     {
         $frontMatter = [
-            'permalink' => '/categories/%{site.categories}/',
+            'permalink' => '/categories/{{site.categories}}/',
         ];
 
         $fmp = new FrontMatterParser($frontMatter);
@@ -217,7 +217,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
                 'en',
                 'fr',
             ],
-            'permalink' => '/blog/%languages/%status/',
+            'permalink' => '/blog/{{languages}}/{{status}}/',
         ];
         $fmp = new FrontMatterParser($frontMatter);
         $fmp->parse();
@@ -263,8 +263,8 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
                 'fr',
             ],
             'permalink' => [
-                '/blog/%languages/',
-                '/el-blog/%languages/',
+                '/blog/{{languages}}/',
+                '/el-blog/{{languages}}/',
             ],
         ];
 
@@ -373,7 +373,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     public function testSpecialKeyBaseNameDefinedByParser()
     {
         $frontMatter = [
-            'myVar' => '/blog/%basename/',
+            'myVar' => '/blog/{{basename}}/',
         ];
 
         (new FrontMatterParser($frontMatter, [
@@ -386,7 +386,7 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
     public function testSpecialKeyFileNameDefinedByParser()
     {
         $frontMatter = [
-            'myVar' => '/blog/%filename/',
+            'myVar' => '/blog/{{filename}}/',
         ];
 
         (new FrontMatterParser($frontMatter, [
@@ -407,5 +407,52 @@ class FrontMatterParserTest extends PHPUnit_Stakx_TestCase
         ]))->parse();
 
         $this->assertEquals('bar', $frontMatter['value']);
+    }
+
+    public function testTransformVariableSyntaxFromOldToNew()
+    {
+        // Test primitive variable transformation
+        $input1 = 'Hello %variable world';
+        $expected1 = 'Hello {{variable}} world';
+        $this->assertEquals($expected1, FrontMatterParser::transformVariableSyntax($input1));
+
+        // Test complex variable transformation
+        $input2 = 'Value from %{site.title}';
+        $expected2 = 'Value from {{site.title}}';
+        $this->assertEquals($expected2, FrontMatterParser::transformVariableSyntax($input2));
+
+        // Test mixed transformation
+        $input3 = 'Mix %variable with %{site.nested.value}';
+        $expected3 = 'Mix {{variable}} with {{site.nested.value}}';
+        $this->assertEquals($expected3, FrontMatterParser::transformVariableSyntax($input3));
+
+        // Test with spaces around variables
+        $input4 = 'Spaces {{ variable }} around';
+        $expected4 = 'Spaces {{ variable }} around';
+        $this->assertEquals($expected4, FrontMatterParser::transformVariableSyntax($input4));
+
+        // Test escaped variables should not be transformed
+        $input5 = 'Escaped \\%variable and \\%{site.value}';
+        $expected5 = 'Escaped \\%variable and \\%{site.value}';
+        $this->assertEquals($expected5, FrontMatterParser::transformVariableSyntax($input5));
+    }
+
+    public function testNewSyntaxVariablesWithSpaces()
+    {
+        $eval = 'variable value';
+        $frontMatter = [
+            'myVar' => $eval,
+            'evaluated1' => '{{myVar}} butter',        // No spaces
+            'evaluated2' => '{{ myVar }} butter',       // With spaces
+            'evaluated3' => '{{  myVar  }} butter',    // Multiple spaces
+        ];
+
+        $fmp = new FrontMatterParser($frontMatter);
+        $fmp->parse();
+
+        $this->assertEquals($eval . ' butter', $frontMatter['evaluated1']);
+        $this->assertEquals($eval . ' butter', $frontMatter['evaluated2']);
+        $this->assertEquals($eval . ' butter', $frontMatter['evaluated3']);
+        $this->assertFalse($fmp->hasExpansion());
     }
 }

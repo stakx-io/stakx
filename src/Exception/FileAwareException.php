@@ -17,7 +17,7 @@ class FileAwareException extends \RuntimeException
     public function __construct(
         string $message = '',
         int $code = 0,
-        \Exception $previous = null,
+        ?\Exception $previous = null,
         private readonly string $filePath = '',
         private readonly int $lineNumber = -1
     ) {

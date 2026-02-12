@@ -27,7 +27,7 @@ class DynamicPageView extends BasePageView
     /**
      * {@inheritdoc}
      */
-    public function getIndexName()
+    public function getIndexName(): string
     {
         return $this->getCollectableNamespace();
     }

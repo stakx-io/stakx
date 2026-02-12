@@ -7,6 +7,7 @@
 
 namespace allejo\stakx\Event;
 
+use allejo\stakx\Document\CollectableItem;
 use allejo\stakx\Document\ContentItem;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -20,9 +21,9 @@ class CollectionItemFinalized extends Event
 {
     public const NAME = 'collection.item.finalized';
 
-    private ContentItem $contentItem;
+    private CollectableItem $contentItem;
 
-    public function __construct(ContentItem $contentItem)
+    public function __construct(CollectableItem $contentItem)
     {
         $this->contentItem = $contentItem;
     }
@@ -31,7 +32,7 @@ class CollectionItemFinalized extends Event
      * A clone of the finalized ContentItem; it can no longer be modified at
      * this point.
      */
-    public function getContentItem(): ContentItem
+    public function getContentItem(): CollectableItem
     {
         return clone $this->contentItem;
     }
